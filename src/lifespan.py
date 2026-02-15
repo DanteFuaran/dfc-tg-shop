@@ -465,6 +465,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     "<i>Благодарю за доверие и участие! 💪</i>"
                 )
                 donate_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                    [
+                        InlineKeyboardButton(text="⭐ GitHub", url="https://github.com/DanteFuaran/dfc-tg-shop"),
+                        InlineKeyboardButton(text="💬 Telegram", url="https://t.me/dfc_soft")
+                    ],
                     [InlineKeyboardButton(text="❌ Закрыть", callback_data="donate_close")]
                 ])
                 for dev in devs_for_donate:
