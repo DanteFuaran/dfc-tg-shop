@@ -722,7 +722,15 @@ EOF
     fi
     
     while true; do
-        show_arrow_menu "🚀 DFC TG SHOP v${LOCAL_VERSION}" \
+        clear
+        echo -e "${BLUE}══════════════════════════════════════${NC}"
+        echo -e "${WHITE}              🚀 DFC TG SHOP v${LOCAL_VERSION}${NC}"
+        echo -e "${DARKGRAY}  Проект развивается благодаря вашей поддержке${NC}"
+        echo -e "${DARKGRAY}           https://github.com/DanteFuaran${NC}"
+        echo -e "${BLUE}══════════════════════════════════════${NC}"
+        echo
+        
+        show_arrow_menu "" \
             "$update_label" \
             "ℹ️   Просмотр логов" \
             "📊  Логи в реальном времени" \
