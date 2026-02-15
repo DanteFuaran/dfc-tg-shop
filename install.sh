@@ -662,9 +662,9 @@ show_simple_menu() {
     # Формируем заголовок
     local menu_title
     if [ -n "$display_version" ]; then
-        menu_title="🚀 DFC-SHOP-BOT v${display_version}"
+        menu_title="       🚀 DFC TG SHOP v${display_version}\n${DARKGRAY}Проект развивается благодаря вашей поддержке\n        https://github.com/DanteFuaran${NC}"
     else
-        menu_title="🚀 DFC-SHOP-BOT"
+        menu_title="       🚀 DFC TG SHOP\n${DARKGRAY}Проект развивается благодаря вашей поддержке\n        https://github.com/DanteFuaran${NC}"
     fi
     
     show_arrow_menu "$menu_title" \
@@ -722,7 +722,7 @@ EOF
     fi
     
     while true; do
-        local menu_title="                    🚀 DFC TG SHOP v${LOCAL_VERSION}\nПроект развивается благодаря вашей поддержке\n                https://github.com/DanteFuaran${NC}"
+        local menu_title="       🚀 DFC TG SHOP v${LOCAL_VERSION}\n${DARKGRAY}Проект развивается благодаря вашей поддержке\n        https://github.com/DanteFuaran${NC}"
         
         show_arrow_menu "$menu_title" \
             "$update_label" \
