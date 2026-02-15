@@ -1,0 +1,14 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs/*.log
+*.log
+# Obsolete scripts (removed, use install.sh instead)
+manage.sh
+original_install.sh
+server-setup.sh
+__pycache__/

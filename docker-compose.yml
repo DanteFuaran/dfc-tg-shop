@@ -1,0 +1,169 @@
+services:
+  dfc-tg-db:
+    image: postgres:17
+    container_name: "dfc-tg-db"
+    hostname: dfc-tg-db
+    restart: unless-stopped
+
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - TZ=UTC
+    
+    volumes:
+      - dfc-tg-db-data:/var/lib/postgresql/data
+
+    networks:
+      - remnawave-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+
+  dfc-tg-redis:
+    image: valkey/valkey:9-alpine
+    container_name: "dfc-tg-redis"
+    hostname: dfc-tg-redis
+    restart: unless-stopped
+
+    command: [ 
+      "--requirepass", "${REDIS_PASSWORD}",
+      "--maxmemory", "256mb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--tcp-keepalive", "300"
+    ]
+
+    volumes:
+      - dfc-tg-redis-data:/data
+
+    networks:
+      - remnawave-network
+
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    
+
+  dfc-tg:
+    # Образ собирается при установке, здесь только используем готовый
+    image: dfc-tg:local
+    container_name: "dfc-tg"
+    hostname: dfc-tg
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /opt/dfc-tg
+      RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    depends_on:
+        dfc-tg-db:
+          condition: service_healthy
+        dfc-tg-redis:
+          condition: service_healthy
+
+    ports:
+      - '127.0.0.1:5000:5000'
+
+    volumes:
+      - ./logs:/opt/dfc-tg/logs
+      - ./assets:/opt/dfc-tg/assets
+      - ./backups:/opt/dfc-tg/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+      - remnawave-network
+    
+
+  dfc-tg-taskiq-worker:
+    image: dfc-tg:local
+    container_name: "dfc-tg-taskiq-worker"
+    hostname: dfc-tg-taskiq-worker
+    restart: unless-stopped
+    command: taskiq worker src.infrastructure.taskiq.worker:worker 
+      --tasks-pattern src/infrastructure/taskiq/tasks -fsd
+
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /opt/dfc-tg
+      RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    depends_on:
+        dfc-tg:
+          condition: service_started
+        dfc-tg-redis:
+          condition: service_healthy
+        dfc-tg-db:
+          condition: service_healthy
+
+    volumes:
+      - ./logs:/opt/dfc-tg/logs
+      - ./assets:/opt/dfc-tg/assets
+      - ./backups:/opt/dfc-tg/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+      - remnawave-network
+
+
+  dfc-tg-taskiq-scheduler:
+    image: dfc-tg:local
+    container_name: "dfc-tg-taskiq-scheduler"
+    hostname: dfc-tg-taskiq-scheduler
+    restart: unless-stopped
+    command: taskiq scheduler src.infrastructure.taskiq.scheduler:scheduler
+      --tasks-pattern src/infrastructure/taskiq/tasks -fsd
+
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /opt/dfc-tg
+      RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    depends_on:
+        dfc-tg:
+          condition: service_started
+        dfc-tg-redis:
+          condition: service_healthy
+        dfc-tg-db:
+          condition: service_healthy
+
+    volumes:
+      - ./logs:/opt/dfc-tg/logs
+      - ./assets:/opt/dfc-tg/assets
+      - ./backups:/opt/dfc-tg/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+      - remnawave-network
+
+
+networks:
+  remnawave-network:
+    name: remnawave-network 
+    driver: bridge 
+    external: true
+
+volumes:
+  dfc-tg-db-data:
+    name: dfc-tg-db-data
+    driver: local
+    external: false
+    
+  dfc-tg-redis-data:
+    name: dfc-tg-redis-data
+    driver: local
+    external: false
