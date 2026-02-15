@@ -75,7 +75,6 @@ async def on_save_db(
             db_port = os_module.getenv('DATABASE_PORT', '5432')
             
             # Формируем команду с параметрами подключения
-            # Используем те же флаги, что и в backup_db.sh для полной совместимости
             cmd = [
                 'pg_dump',
                 '-h', db_host,
