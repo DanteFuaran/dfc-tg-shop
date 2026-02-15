@@ -686,6 +686,10 @@ show_simple_menu() {
 
 # Полное меню при установленном боте
 show_full_menu() {
+    # Получаем текущую версию
+    local LOCAL_VERSION=$(get_local_version)
+    [ -z "$LOCAL_VERSION" ] && LOCAL_VERSION="0.1.0"
+    
     # Ждём завершения проверки обновлений
     wait_for_update_check
     
@@ -718,7 +722,7 @@ EOF
     fi
     
     while true; do
-        show_arrow_menu "🚀 DFC-SHOP-BOT MANAGEMENT PANEL" \
+        show_arrow_menu "🚀 DFC TG SHOP v${LOCAL_VERSION}" \
             "$update_label" \
             "ℹ️   Просмотр логов" \
             "📊  Логи в реальном времени" \
