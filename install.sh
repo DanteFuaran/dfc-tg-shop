@@ -722,15 +722,9 @@ EOF
     fi
     
     while true; do
-        clear
-        echo -e "${BLUE}══════════════════════════════════════${NC}"
-        echo -e "${WHITE}              🚀 DFC TG SHOP v${LOCAL_VERSION}${NC}"
-        echo -e "${DARKGRAY}  Проект развивается благодаря вашей поддержке${NC}"
-        echo -e "${DARKGRAY}           https://github.com/DanteFuaran${NC}"
-        echo -e "${BLUE}══════════════════════════════════════${NC}"
-        echo
+        local menu_title="🚀 DFC TG SHOP v${LOCAL_VERSION}\n${DARKGRAY}Проект развивается благодаря вашей поддержке\nhttps://github.com/DanteFuaran${NC}"
         
-        show_arrow_menu "" \
+        show_arrow_menu "$menu_title" \
             "$update_label" \
             "ℹ️   Просмотр логов" \
             "📊  Логи в реальном времени" \
