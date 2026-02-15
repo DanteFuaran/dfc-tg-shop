@@ -722,7 +722,7 @@ EOF
     fi
     
     while true; do
-        local menu_title="🚀 DFC TG SHOP v${LOCAL_VERSION}\n${DARKGRAY}Проект развивается благодаря вашей поддержке\nhttps://github.com/DanteFuaran${NC}"
+        local menu_title="                    🚀 DFC TG SHOP v${LOCAL_VERSION}\nПроект развивается благодаря вашей поддержке\n                https://github.com/DanteFuaran${NC}"
         
         show_arrow_menu "$menu_title" \
             "$update_label" \
