@@ -1738,7 +1738,10 @@ msg-subscription-details =
     }
     { $original_amount ->
     [0] { empty }
-    *[HAS] • <b>Стоимость</b>: { $original_amount }
+    *[HAS] { $discount_percent ->
+        [0] • <b>Стоимость</b>: { $original_amount }
+        *[OTHER] • <b>Стоимость</b>: <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
+    }
     }
     </blockquote>
 
@@ -1926,16 +1929,31 @@ msg-subscription-confirm =
     • <b>Метод оплаты:</b> { gateway-type }
     { $purchase_type ->
         [RENEW] { $has_extra_devices_cost ->
-            [1] • <b>Подписка:</b> { $original_amount }
+            [1] { $discount_percent ->
+                [0] • <b>Подписка:</b> { $original_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+            }
     • <b>Доп. устройства:</b> { $extra_devices_cost } ({ $extra_devices_monthly_cost }/мес)
-            *[0] • <b>Подписка:</b> { $original_amount }
+            *[0] { $discount_percent ->
+                [0] • <b>Подписка:</b> { $original_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+            }
         }
         [CHANGE] { $has_extra_devices_cost ->
-            [1] • <b>Подписка:</b> { $original_amount }
+            [1] { $discount_percent ->
+                [0] • <b>Подписка:</b> { $original_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+            }
     • <b>Доп. устройства:</b> { $extra_devices_cost } ({ $extra_devices_monthly_cost }/мес)
-            *[0] • <b>Подписка:</b> { $original_amount }
+            *[0] { $discount_percent ->
+                [0] • <b>Подписка:</b> { $original_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+            }
         }
-        *[OTHER] • <b>Подписка:</b> { $original_amount }
+        *[OTHER] { $discount_percent ->
+            [0] • <b>Подписка:</b> { $original_amount }
+            *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+        }
     }
     • <b>Сумма к оплате:</b> { $total_payment }
     </blockquote>
