@@ -735,6 +735,7 @@ async def confirm_getter(
     settings_service: FromDishka[SettingsService],
     extra_device_service: FromDishka[ExtraDeviceService],
     pricing_service: FromDishka[PricingService],
+    user_service: FromDishka["UserService"],
     **kwargs: Any,
 ) -> dict[str, Any]:
     adapter = DialogDataAdapter(dialog_manager)
@@ -743,10 +744,16 @@ async def confirm_getter(
     if not plan:
         raise ValueError("PlanDto not found in dialog data")
     
+    # Получаем свежие данные пользователя для проверки скидки
+    fresh_user = await user_service.get_without_cache(user.telegram_id)
+    if fresh_user:
+        user = fresh_user
+    
     # Логирование для отладки
     logger.info(
         f"[confirm_getter] Loaded plan: id={plan.id}, name={plan.name}, "
-        f"current_subscription={user.current_subscription.plan.name if user.current_subscription else 'None'}"
+        f"current_subscription={user.current_subscription.plan.name if user.current_subscription else 'None'}, "
+        f"discount={user.personal_discount}%"
     )
 
     selected_duration = dialog_manager.dialog_data["selected_duration"]
@@ -766,18 +773,27 @@ async def confirm_getter(
     result_url = dialog_manager.dialog_data["payment_url"]
     pricing_data = dialog_manager.dialog_data["final_pricing"]
     pricing = PriceDetailsDto.model_validate_json(pricing_data)
-
-    key, kw = i18n_format_days(duration.days)
-    gateways = await payment_gateway_service.filter_active()
-
-    from src.core.enums import PaymentGatewayType, ReferralRewardType
-
-    # Получаем курсы валют для конвертации
+    
+    # Получаем курсы валют и настройки для пересчёта цены
     settings = await settings_service.get()
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
     stars_rate = rates.stars_rate
+    
+    # Пересчитываем цену с учётом актуальной скидки пользователя
+    global_discount = await settings_service.get_global_discount_settings()
+    base_price = duration.get_price(payment_gateway.currency, usd_rate, eur_rate, stars_rate)
+    extra_devices_cost_rub = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
+    total_price = base_price + Decimal(extra_devices_cost_rub)
+    pricing = pricing_service.calculate(user, total_price, payment_gateway.currency, global_discount, context="subscription")
+    
+    logger.info(f"[confirm_getter] Price recalculated: original={pricing.original_amount}, final={pricing.final_amount}, discount={pricing.discount_percent}%")
+
+    key, kw = i18n_format_days(duration.days)
+    gateways = await payment_gateway_service.filter_active()
+
+    from src.core.enums import PaymentGatewayType, ReferralRewardType
 
     referral_balance = await referral_service.get_pending_rewards_amount(
         telegram_id=user.telegram_id,
@@ -794,8 +810,7 @@ async def confirm_getter(
     is_balance_combined = await settings_service.is_balance_combined()
     is_balance_separate = not is_balance_combined
     
-    # Получаем стоимость доп. устройств из dialog_data (сохранена при создании платежа)
-    extra_devices_cost_rub = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
+    # Получаем стоимость доп. устройств из dialog_data (уже определена выше)
     base_subscription_price = float(dialog_manager.dialog_data.get("base_subscription_price", 0) or 0)
     
     # Рассчитываем месячную стоимость для отображения
@@ -930,6 +945,8 @@ async def confirm_balance_getter(
     referral_service: FromDishka[ReferralService],
     settings_service: FromDishka[SettingsService],
     extra_device_service: FromDishka[ExtraDeviceService],
+    pricing_service: FromDishka[PricingService],
+    user_service: FromDishka["UserService"],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for balance payment confirmation page."""
@@ -938,6 +955,11 @@ async def confirm_balance_getter(
 
     if not plan:
         raise ValueError("PlanDto not found in dialog data")
+    
+    # Получаем свежие данные пользователя для проверки скидки
+    fresh_user = await user_service.get_without_cache(user.telegram_id)
+    if fresh_user:
+        user = fresh_user
 
     selected_duration = dialog_manager.dialog_data["selected_duration"]
     only_single_duration = dialog_manager.dialog_data.get("only_single_duration", False)
@@ -950,6 +972,15 @@ async def confirm_balance_getter(
     pricing_data = dialog_manager.dialog_data["final_pricing"]
     pricing = PriceDetailsDto.model_validate_json(pricing_data)
     currency = dialog_manager.dialog_data["balance_currency"]
+    
+    # Пересчитываем цену с учётом актуальной скидки пользователя
+    settings = await settings_service.get()
+    rates = settings.features.currency_rates
+    global_discount = await settings_service.get_global_discount_settings()
+    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
+    total_price = base_price + Decimal(extra_devices_cost)
+    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
 
@@ -1091,6 +1122,8 @@ async def confirm_yoomoney_getter(
     extra_device_service: FromDishka[ExtraDeviceService],
     settings_service: FromDishka[SettingsService],
     referral_service: FromDishka[ReferralService],
+    pricing_service: FromDishka[PricingService],
+    user_service: FromDishka["UserService"],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for Yoomoney/Bank card payment confirmation page."""
@@ -1099,6 +1132,11 @@ async def confirm_yoomoney_getter(
 
     if not plan:
         raise ValueError("PlanDto not found in dialog data")
+    
+    # Получаем свежие данные пользователя для проверки скидки
+    fresh_user = await user_service.get_without_cache(user.telegram_id)
+    if fresh_user:
+        user = fresh_user
 
     selected_duration = dialog_manager.dialog_data["selected_duration"]
     purchase_type = dialog_manager.dialog_data["purchase_type"]
@@ -1111,6 +1149,15 @@ async def confirm_yoomoney_getter(
     pricing = PriceDetailsDto.model_validate_json(pricing_data)
     currency = dialog_manager.dialog_data.get("selected_currency", "RUB")
     result_url = dialog_manager.dialog_data["payment_url"]
+    
+    # Пересчитываем цену с учётом актуальной скидки пользователя
+    settings = await settings_service.get()
+    rates = settings.features.currency_rates
+    global_discount = await settings_service.get_global_discount_settings()
+    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
+    total_price = base_price + Decimal(extra_devices_cost)
+    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
     
@@ -1200,6 +1247,8 @@ async def confirm_yookassa_getter(
     extra_device_service: FromDishka[ExtraDeviceService],
     settings_service: FromDishka[SettingsService],
     referral_service: FromDishka[ReferralService],
+    pricing_service: FromDishka[PricingService],
+    user_service: FromDishka["UserService"],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for Yookassa payment confirmation page."""
@@ -1208,6 +1257,11 @@ async def confirm_yookassa_getter(
 
     if not plan:
         raise ValueError("PlanDto not found in dialog data")
+    
+    # Получаем свежие данные пользователя для проверки скидки
+    fresh_user = await user_service.get_without_cache(user.telegram_id)
+    if fresh_user:
+        user = fresh_user
 
     selected_duration = dialog_manager.dialog_data["selected_duration"]
     purchase_type = dialog_manager.dialog_data["purchase_type"]
@@ -1220,6 +1274,15 @@ async def confirm_yookassa_getter(
     pricing = PriceDetailsDto.model_validate_json(pricing_data)
     currency = dialog_manager.dialog_data.get("selected_currency", "RUB")
     result_url = dialog_manager.dialog_data["payment_url"]
+    
+    # Пересчитываем цену с учётом актуальной скидки пользователя
+    settings = await settings_service.get()
+    rates = settings.features.currency_rates
+    global_discount = await settings_service.get_global_discount_settings()
+    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
+    total_price = base_price + Decimal(extra_devices_cost)
+    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
     
