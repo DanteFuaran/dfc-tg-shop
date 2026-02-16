@@ -871,7 +871,6 @@ async def confirm_getter(
         "payment_method": selected_payment_method,
         "gateway_type": payment_gateway.type,
         "currency": payment_gateway.currency.value,
-        "final_amount": format_price(final_amount_for_display, payment_gateway.currency),
         "discount_percent": pricing.discount_percent,
         "original_amount": base_subscription_price_converted,
         "final_amount": format_price(pricing.final_amount, payment_gateway.currency),

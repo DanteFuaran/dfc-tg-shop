@@ -2230,7 +2230,7 @@ while true; do
     fi
     echo
     echo -e "${DARKGRAY}Нажмите Enter чтобы ввести другой домен, или Esc для выхода.${NC}"
-    local key
+    key=""
     while true; do
         read -s -n 1 key
         if [[ "$key" == $'\x1b' ]]; then
