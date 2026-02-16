@@ -1931,31 +1931,34 @@ msg-subscription-confirm =
         [RENEW] { $has_extra_devices_cost ->
             [1] { $discount_percent ->
                 [0] • <b>Подписка:</b> { $original_amount }
-                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
             }
     • <b>Доп. устройства:</b> { $extra_devices_cost } ({ $extra_devices_monthly_cost }/мес)
             *[0] { $discount_percent ->
                 [0] • <b>Подписка:</b> { $original_amount }
-                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
             }
         }
         [CHANGE] { $has_extra_devices_cost ->
             [1] { $discount_percent ->
                 [0] • <b>Подписка:</b> { $original_amount }
-                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
             }
     • <b>Доп. устройства:</b> { $extra_devices_cost } ({ $extra_devices_monthly_cost }/мес)
             *[0] { $discount_percent ->
                 [0] • <b>Подписка:</b> { $original_amount }
-                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+                *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
             }
         }
         *[OTHER] { $discount_percent ->
             [0] • <b>Подписка:</b> { $original_amount }
-            *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount }
+            *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
         }
     }
-    • <b>Сумма к оплате:</b> { $total_payment }
+    { $discount_percent ->
+        [0] • <b>Сумма к оплате:</b> { $total_payment }
+        *[OTHER] • <b>Сумма к оплате:</b> { $total_payment } <i>({ $discount_percent }% скидка)</i>
+    }
     </blockquote>
 
     { $purchase_type ->
