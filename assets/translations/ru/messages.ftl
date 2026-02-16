@@ -1955,10 +1955,7 @@ msg-subscription-confirm =
             *[OTHER] • <b>Подписка:</b> <s>{ $original_amount }</s> { $final_amount } <i>({ $discount_percent }% скидка)</i>
         }
     }
-    { $discount_percent ->
-        [0] • <b>Сумма к оплате:</b> { $total_payment }
-        *[OTHER] • <b>Сумма к оплате:</b> { $total_payment } <i>({ $discount_percent }% скидка)</i>
-    }
+    • <b>Сумма к оплате:</b> { $total_payment }
     </blockquote>
 
     { $purchase_type ->
