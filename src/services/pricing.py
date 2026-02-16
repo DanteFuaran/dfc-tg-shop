@@ -35,7 +35,9 @@ class PricingService(BaseService):
 
         original_price = price
         global_discount_applied = Decimal(0)
-        personal_discount_percent = Decimal(min(user.purchase_discount or user.personal_discount or 0, 100))
+        # Сохраняем назначенную скидку для отображения (до любых изменений)
+        assigned_discount_percent = Decimal(min(user.purchase_discount or user.personal_discount or 0, 100))
+        personal_discount_percent = assigned_discount_percent
         
         # Проверяем, применяется ли глобальная скидка к данному контексту
         should_apply_global = False
@@ -116,21 +118,23 @@ class PricingService(BaseService):
 
 
 
-        # Для пользователя всегда показываем именно персональную скидку, если она есть,
+        # Для пользователя всегда показываем именно назначенную скидку, если она есть,
         # даже если из-за округления итоговая сумма изменилась (например, 50% от 1.11$ = 0.555$ → 0.56$)
-        if personal_discount_percent > 0:
-            total_discount_percent = personal_discount_percent
+        # Используем assigned_discount_percent, а не personal_discount_percent, 
+        # так как personal_discount_percent мог быть изменен внутри функции
+        if assigned_discount_percent > 0:
+            total_discount_percent = assigned_discount_percent
         else:
             total_discount_percent = Decimal(0)
 
         if final_amount >= original_price:
-            total_discount_percent = 0
+            total_discount_percent = Decimal(0)
             final_amount = original_price
 
         logger.info(
             f"Price calculated: original='{original_price}', "
             f"global_discount='{global_discount_applied}', "
-            f"personal_discount_percent='{personal_discount_percent}', "
+            f"assigned_discount='{assigned_discount_percent}', "
             f"total_discount_percent='{total_discount_percent}', "
             f"final='{final_amount}', context='{context}'"
         )
