@@ -21,7 +21,7 @@ from .base import TrackableDto
 
 class PriceDetailsDto(TrackableDto):
     original_amount: Decimal = Decimal(2)
-    discount_percent: int = 0
+    discount_percent: Decimal = Decimal(0)
     final_amount: Decimal = Decimal(2)
     global_discount_amount: Decimal = Decimal(0)  # Сумма глобальной скидки
 

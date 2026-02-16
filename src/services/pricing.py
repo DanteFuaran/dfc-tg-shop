@@ -114,11 +114,14 @@ class PricingService(BaseService):
         # Применяем правила валюты
         final_amount = self.apply_currency_rules(final_price, currency) if final_price > 0 else Decimal(0)
 
-        # Пересчитываем общий процент скидки от оригинальной цены
-        if original_price > 0 and final_amount < original_price:
-            total_discount_percent = int((1 - final_amount / original_price) * 100)
+
+
+        # Для пользователя всегда показываем именно персональную скидку, если она есть,
+        # даже если из-за округления итоговая сумма изменилась (например, 50% от 1.11$ = 0.555$ → 0.56$)
+        if personal_discount_percent > 0:
+            total_discount_percent = personal_discount_percent
         else:
-            total_discount_percent = 0
+            total_discount_percent = Decimal(0)
 
         if final_amount >= original_price:
             total_discount_percent = 0

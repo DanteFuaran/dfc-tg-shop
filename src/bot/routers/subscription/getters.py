@@ -853,18 +853,8 @@ async def confirm_getter(
     final_amount_for_display = pricing.final_amount
     
     # base_subscription_price и extra_devices_cost_rub уже в валюте шлюза (не нужно конвертировать)
-    if base_subscription_price > 0:
-        base_subscription_price_converted = format_price(
-            Decimal(str(base_subscription_price)),
-            payment_gateway.currency
-        )
-    else:
-        # Если base_subscription_price не установлена, вычисляем из общей суммы
-        if extra_devices_cost_rub > 0:
-            subscription_only_price = pricing.original_amount - Decimal(str(extra_devices_cost_rub))
-            base_subscription_price_converted = format_price(subscription_only_price, payment_gateway.currency)
-        else:
-            base_subscription_price_converted = format_price(pricing.original_amount, payment_gateway.currency)
+    # Для отображения "Подписка: ..." всегда используем цену БЕЗ скидки
+    base_subscription_price_converted = format_price(pricing.original_amount, payment_gateway.currency)
     
     # Логирование для проверки правильности данных покупаемого плана
     logger.info(
