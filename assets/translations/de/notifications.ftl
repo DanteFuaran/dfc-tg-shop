@@ -298,10 +298,11 @@ ntf-event-promocode-activated =
     <b>🎟️ Promo code:</b>
     <blockquote>
     • <b>Code</b>: <code>{ $promocode_code }</code>
-    • <b>Reward</b>: { $promocode_reward }% { $promocode_reward_type ->
-        [PURCHASE_DISCOUNT] purchase discount
-        [PERSONAL_DISCOUNT] permanent discount
-        *[OTHER] { $promocode_reward_type }
+    • <b>Reward</b>: { $promocode_reward_type ->
+        [PURCHASE_DISCOUNT] { $promocode_reward }% purchase discount
+        [PERSONAL_DISCOUNT] { $promocode_reward }% permanent discount
+        [DURATION] +{ $promocode_reward } days to subscription
+        *[OTHER] { $promocode_reward } { $promocode_reward_type }
     }
     </blockquote>
 

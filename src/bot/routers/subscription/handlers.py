@@ -75,8 +75,16 @@ async def _create_payment_and_get_data(
     pricing_service: PricingService,
     extra_device_service: FromDishka[ExtraDeviceService],
     settings_service: FromDishka[SettingsService],
+    user_service: FromDishka["UserService"],
 ) -> Optional[CachedPaymentData]:
-    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+    middleware_user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    fresh_user = await user_service.get_without_cache(middleware_user.telegram_id)
+    if not fresh_user:
+        logger.error(f"Failed to get fresh user data for {middleware_user.telegram_id}")
+        return None
+    user = fresh_user
+    
     duration = plan.get_duration(duration_days)
     payment_gateway = await payment_gateway_service.get_by_type(gateway_type)
     purchase_type: PurchaseType = dialog_manager.dialog_data["purchase_type"]
@@ -127,6 +135,14 @@ async def _create_payment_and_get_data(
     # Итоговая цена = базовая подписка + доп. устройства (оба в валюте шлюза)
     total_price = base_price + Decimal(extra_devices_cost)
     pricing = pricing_service.calculate(user, total_price, payment_gateway.currency, global_discount, context="subscription")
+    
+    # Логируем информацию о скидке для отладки
+    logger.info(
+        f"{log(user)} Price calculated for {gateway_type.value}: "
+        f"original={pricing.original_amount}, final={pricing.final_amount}, "
+        f"discount={pricing.discount_percent}%, "
+        f"user_discounts=(purchase={user.purchase_discount}%, personal={user.personal_discount}%)"
+    )
 
     try:
         result = await payment_gateway_service.create_payment(
@@ -251,6 +267,7 @@ async def on_subscription_plans(  # noqa: C901
     pricing_service: FromDishka[PricingService],
     settings_service: FromDishka[SettingsService],
     extra_device_service: FromDishka[ExtraDeviceService],
+    user_service: FromDishka["UserService"],
 ) -> None:
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
     logger.info(f"{log(user)} Opened subscription plans menu")
@@ -350,6 +367,7 @@ async def on_subscription_plans(  # noqa: C901
                     pricing_service=pricing_service,
                     extra_device_service=extra_device_service,
                     settings_service=settings_service,
+                    user_service=user_service,
                 )
 
                 if payment_data:
@@ -415,10 +433,17 @@ async def on_duration_select(
     notification_service: FromDishka[NotificationService],
     pricing_service: FromDishka[PricingService],
     extra_device_service: FromDishka[ExtraDeviceService],
+    user_service: FromDishka["UserService"],
 ) -> None:
-    user: UserDto = dialog_manager.middleware_data[USER_KEY]
-    logger.info(f"{log(user)} Selected subscription duration '{selected_duration}' days")
+    middleware_user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    logger.info(f"{log(middleware_user)} Selected subscription duration '{selected_duration}' days")
     dialog_manager.dialog_data[CURRENT_DURATION_KEY] = selected_duration
+
+    # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+    user = await user_service.get_without_cache(middleware_user.telegram_id)
+    if not user:
+        logger.error(f"Failed to get fresh user data for {middleware_user.telegram_id}")
+        return
 
     adapter = DialogDataAdapter(dialog_manager)
     plan = adapter.load(PlanDto)
@@ -470,6 +495,7 @@ async def on_duration_select(
             pricing_service=pricing_service,
             extra_device_service=extra_device_service,
             settings_service=settings_service,
+            user_service=user_service,
         )
 
         if payment_data:
@@ -504,6 +530,12 @@ async def on_payment_method_select(
     
     # Handle balance payment - go to confirmation page
     if selected_payment_method == PaymentGatewayType.BALANCE:
+        # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+        fresh_user = await user_service.get_without_cache(user.telegram_id)
+        if not fresh_user:
+            logger.error(f"Failed to get fresh user data for {user.telegram_id}")
+            return
+        
         adapter = DialogDataAdapter(dialog_manager)
         plan = adapter.load(PlanDto)
 
@@ -529,8 +561,8 @@ async def on_payment_method_select(
         purchase_type: PurchaseType = dialog_manager.dialog_data["purchase_type"]
         extra_devices_cost = 0
         is_extra_devices_one_time = await settings_service.is_extra_devices_one_time()
-        if user.current_subscription and not is_extra_devices_one_time:
-            active_extra_devices = await extra_device_service.get_total_active_devices(user.current_subscription.id)
+        if fresh_user.current_subscription and not is_extra_devices_one_time:
+            active_extra_devices = await extra_device_service.get_total_active_devices(fresh_user.current_subscription.id)
             if active_extra_devices > 0:
                 device_price_monthly = await settings_service.get_extra_device_price()
                 extra_devices_monthly_cost = device_price_monthly * active_extra_devices
@@ -539,20 +571,20 @@ async def on_payment_method_select(
         
         # Итоговая цена = базовая подписка + доп. устройства
         total_price = base_price + Decimal(extra_devices_cost)
-        price = pricing_service.calculate(user, total_price, currency, global_discount, context="subscription")
+        price = pricing_service.calculate(fresh_user, total_price, currency, global_discount, context="subscription")
         
         # Check if user still has enough balance
         # В режиме COMBINED учитываем и бонусный баланс
         is_balance_combined = await settings_service.is_balance_combined()
         referral_balance = await referral_service.get_pending_rewards_amount(
-            telegram_id=user.telegram_id,
+            telegram_id=fresh_user.telegram_id,
             reward_type=ReferralRewardType.MONEY,
         )
-        available_balance = user.balance + referral_balance if is_balance_combined else user.balance
+        available_balance = fresh_user.balance + referral_balance if is_balance_combined else fresh_user.balance
         
         if available_balance < price.final_amount:
             await notification_service.notify_user(
-                user=user,
+                user=fresh_user,
                 payload=MessagePayload(i18n_key="ntf-subscription-insufficient-balance"),
             )
             return
@@ -600,6 +632,7 @@ async def on_payment_method_select(
         pricing_service=pricing_service,
         extra_device_service=extra_device_service,
         settings_service=settings_service,
+        user_service=user_service,
     )
 
     if payment_data:
@@ -646,8 +679,14 @@ async def on_confirm_balance_payment(
     referral_service: FromDishka[ReferralService],
 ) -> None:
     """Handle confirmation of balance payment."""
-    user: UserDto = dialog_manager.middleware_data[USER_KEY]
-    logger.info(f"{log(user)} Starting balance payment confirmation")
+    middleware_user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    logger.info(f"{log(middleware_user)} Starting balance payment confirmation")
+    
+    # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+    user = await user_service.get_without_cache(middleware_user.telegram_id)
+    if not user:
+        logger.error(f"Failed to get fresh user data for {middleware_user.telegram_id}")
+        return
     
     adapter = DialogDataAdapter(dialog_manager)
     plan = adapter.load(PlanDto)
@@ -1097,10 +1136,13 @@ async def on_promocode_input(
     notification_service: FromDishka[NotificationService],
     promocode_service: FromDishka[PromocodeService],
     user_service: FromDishka["UserService"],
+    subscription_service: FromDishka["SubscriptionService"],
+    remnawave_service: FromDishka["RemnawaveService"],
     i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Обработчик ввода промокода для активации."""
     import asyncio
+    from datetime import datetime, timedelta, timezone
     from src.core.enums import PromocodeRewardType
     from src.infrastructure.database.models.sql import PromocodeActivation
     
@@ -1223,8 +1265,33 @@ async def on_promocode_input(
                 logger.info(f"{log(user)} Applied personal discount: {promocode.reward}%")
         
         elif promocode.reward_type == PromocodeRewardType.DURATION:
-            # Бонусные дни - пока не реализовано
-            logger.warning(f"{log(user)} DURATION promocode type is not yet implemented")
+            # Бонусные дни - добавляем дни к текущей подписке
+            if user.current_subscription and promocode.reward and promocode.reward > 0:
+                subscription = user.current_subscription
+                
+                # Получаем текущую дату истечения или используем текущее время
+                current_expire = subscription.expire_at
+                if current_expire and current_expire > datetime.now(timezone.utc):
+                    new_expire = current_expire + timedelta(days=promocode.reward)
+                else:
+                    new_expire = datetime.now(timezone.utc) + timedelta(days=promocode.reward)
+                
+                subscription.expire_at = new_expire
+                await subscription_service.update(subscription)
+                
+                # Обновляем в Remnawave
+                try:
+                    await remnawave_service.updated_user(
+                        user=user,
+                        uuid=subscription.user_remna_id,
+                        subscription=subscription,
+                    )
+                    logger.info(f"{log(user)} Applied duration bonus: +{promocode.reward} days, new expire: {new_expire}")
+                except Exception as e:
+                    logger.error(f"{log(user)} Failed to update Remnawave after duration bonus: {e}")
+                    # Продолжаем, так как подписка в БД уже обновлена
+            else:
+                logger.warning(f"{log(user)} Cannot apply DURATION promocode: no active subscription or invalid reward")
         
         # Создаем запись активации промокода с сохранением предыдущей скидки и её срока действия
         try:
@@ -1603,7 +1670,13 @@ async def on_add_device_payment_select(
     i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Обработка выбора способа оплаты для добавления устройства - переход к подтверждению."""
-    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    middleware_user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+    user = await user_service.get_without_cache(middleware_user.telegram_id)
+    if not user:
+        logger.error(f"Failed to get fresh user data for {middleware_user.telegram_id}")
+        return
     
     logger.info(f"{log(user)} Selected payment method '{selected_payment_method}' for adding device")
     
@@ -1718,7 +1791,13 @@ async def on_add_device_confirm(
     """Обработка подтверждения покупки устройств."""
     from decimal import Decimal
     
-    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    middleware_user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    # Получаем свежие данные пользователя из БД (без кэша), чтобы учесть актуальные скидки
+    user = await user_service.get_without_cache(middleware_user.telegram_id)
+    if not user:
+        logger.error(f"Failed to get fresh user data for {middleware_user.telegram_id}")
+        return
     
     selected_payment_method = dialog_manager.dialog_data.get("selected_payment_method")
     device_count = dialog_manager.dialog_data.get("device_count", 1)

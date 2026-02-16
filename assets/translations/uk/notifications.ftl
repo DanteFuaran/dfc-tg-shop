@@ -298,10 +298,11 @@ ntf-event-promocode-activated =
     <b>🎟️ Промокод:</b>
     <blockquote>
     • <b>Код</b>: <code>{ $promocode_code }</code>
-    • <b>Винагорода</b>: { $promocode_reward }% { $promocode_reward_type ->
-        [PURCHASE_DISCOUNT] знижка на покупку
-        [PERSONAL_DISCOUNT] постійна знижка
-        *[OTHER] { $promocode_reward_type }
+    • <b>Винагорода</b>: { $promocode_reward_type ->
+        [PURCHASE_DISCOUNT] { $promocode_reward }% знижка на покупку
+        [PERSONAL_DISCOUNT] { $promocode_reward }% постійна знижка
+        [DURATION] +{ $promocode_reward } днів до підписки
+        *[OTHER] { $promocode_reward } { $promocode_reward_type }
     }
     </blockquote>
 
