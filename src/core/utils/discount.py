@@ -1,6 +1,7 @@
 """Утилиты для расчёта скидок пользователя."""
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 class DiscountInfo:
     """Информация о скидке пользователя."""
     
-    value: int
+    value: Decimal
     is_temporary: bool
     is_permanent: bool
     remaining_days: int
@@ -33,20 +34,20 @@ def calculate_user_discount(user: "UserDto") -> DiscountInfo:
         - is_permanent: True если активная скидка постоянная
         - remaining_days: оставшиеся дни для временной скидки (0 если постоянная)
     """
-    purchase_disc = user.purchase_discount if user.purchase_discount is not None else 0
-    personal_disc = user.personal_discount if user.personal_discount is not None else 0
+    purchase_disc = Decimal(user.purchase_discount if user.purchase_discount is not None else 0)
+    personal_disc = Decimal(user.personal_discount if user.personal_discount is not None else 0)
     
     discount_remaining = 0
     is_temporary_discount = False
     is_permanent_discount = False
-    discount_value = 0
+    discount_value = Decimal(0)
     
     # Проверяем временную скидку
     if purchase_disc > 0 and user.purchase_discount_expires_at is not None:
         now = datetime.now(timezone.utc)
         if user.purchase_discount_expires_at <= now:
             # Временная скидка истекла
-            purchase_disc = 0
+            purchase_disc = Decimal(0)
         else:
             # Временная скидка активна
             remaining = user.purchase_discount_expires_at - now

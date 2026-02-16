@@ -35,7 +35,7 @@ class PricingService(BaseService):
 
         original_price = price
         global_discount_applied = Decimal(0)
-        personal_discount_percent = min(user.purchase_discount or user.personal_discount or 0, 100)
+        personal_discount_percent = Decimal(min(user.purchase_discount or user.personal_discount or 0, 100))
         
         # Проверяем, применяется ли глобальная скидка к данному контексту
         should_apply_global = False
