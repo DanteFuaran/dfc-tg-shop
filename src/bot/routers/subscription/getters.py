@@ -874,6 +874,17 @@ async def confirm_getter(
         f"current_plan_name={current_plan_name}"
     )
     
+    # DEBUG: Проверяем значения перед return
+    logger.info(
+        f"[confirm_getter] DEBUG VALUES: "
+        f"pricing.final_amount={pricing.final_amount}, "
+        f"pricing.original_amount={pricing.original_amount}, "
+        f"payment_gateway.currency={payment_gateway.currency}, "
+        f"total_payment_formatted={format_price(pricing.final_amount, payment_gateway.currency)}, "
+        f"base_subscription_price={base_subscription_price}, "
+        f"extra_devices_cost_rub={extra_devices_cost_rub}"
+    )
+    
     return {
         "purchase_type": purchase_type,
         "plan": plan.name,
@@ -935,13 +946,6 @@ async def confirm_getter(
         "planned_extra_devices": planned_extra_devices,
         "has_planned_extra_devices": 1 if planned_extra_devices > 0 else 0,
     }
-    
-    # DEBUG: Логируем финальные значения
-    logger.info(
-        f"[confirm_getter] RETURN DATA: total_payment={format_price(pricing.final_amount, payment_gateway.currency)}, "
-        f"final_amount={pricing.final_amount}, currency={payment_gateway.currency}, "
-        f"discount={pricing.discount_percent}%"
-    )
 
 
 @inject
