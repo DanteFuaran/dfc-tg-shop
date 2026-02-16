@@ -474,15 +474,6 @@ async def on_duration_select(
         selected_payment_method = gateways[0].type
         dialog_manager.dialog_data[CURRENT_METHOD_KEY] = selected_payment_method
 
-        cache = _load_payment_data(dialog_manager)
-        cache_key = _get_cache_key(selected_duration, selected_payment_method)
-
-        if cache_key in cache:
-            logger.info(f"{log(user)} Re-selected same duration and single gateway")
-            _save_payment_data(dialog_manager, cache[cache_key])
-            await dialog_manager.switch_to(state=Subscription.CONFIRM)
-            return
-
         logger.info(f"{log(user)} Auto-selected single gateway '{selected_payment_method}'")
 
         payment_data = await _create_payment_and_get_data(
@@ -499,7 +490,6 @@ async def on_duration_select(
         )
 
         if payment_data:
-            cache[cache_key] = payment_data
             _save_payment_data(dialog_manager, payment_data)
             await dialog_manager.switch_to(state=Subscription.CONFIRM)
             return
@@ -599,22 +589,7 @@ async def on_payment_method_select(
         await dialog_manager.switch_to(state=Subscription.CONFIRM_BALANCE)
         return
     
-    cache = _load_payment_data(dialog_manager)
-    cache_key = _get_cache_key(selected_duration, selected_payment_method)
-
-    if cache_key in cache:
-        logger.info(f"{log(user)} Re-selected same method and duration")
-        _save_payment_data(dialog_manager, cache[cache_key])
-        # Route to appropriate confirmation page based on payment method
-        if selected_payment_method == PaymentGatewayType.YOOMONEY:
-            await dialog_manager.switch_to(state=Subscription.CONFIRM_YOOMONEY)
-        elif selected_payment_method == PaymentGatewayType.YOOKASSA:
-            await dialog_manager.switch_to(state=Subscription.CONFIRM_YOOKASSA)
-        else:
-            await dialog_manager.switch_to(state=Subscription.CONFIRM)
-        return
-
-    logger.info(f"{log(user)} New combination. Creating new payment")
+    logger.info(f"{log(user)} Creating new payment for '{selected_payment_method}'")
 
     adapter = DialogDataAdapter(dialog_manager)
     plan = adapter.load(PlanDto)
@@ -636,7 +611,6 @@ async def on_payment_method_select(
     )
 
     if payment_data:
-        cache[cache_key] = payment_data
         _save_payment_data(dialog_manager, payment_data)
         
         # Route to appropriate confirmation page based on payment method
