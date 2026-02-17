@@ -20,7 +20,7 @@ btn-bot-restart = 🔁 Neustart
 btn-dashboard-db = 🗄 Datenbankverwaltung
 btn-db-save = 💾 Speichern
 btn-db-load = 📦 Laden
-btn-db-close = 🔴 Schließen
+btn-db-close = ❌ Schließen
 btn-db-sync-from-panel = 📥 Remnawave Import
 btn-db-clear-all = 🗑 Alles löschen
 btn-db-clear-users = 👥 Benutzer löschen
@@ -56,8 +56,8 @@ btn-language-ru = 🇷🇺 Russisch
 btn-language-uk = 🇺🇦 Ukrainisch
 btn-language-en = 🇬🇧 Englisch
 btn-language-de = 🇩🇪 Deutsch
-btn-language-cancel = 🔴 Abbrechen
-btn-language-apply = 🟢 Übernehmen
+btn-language-cancel = ❌ Abbrechen
+btn-language-apply = ✅ Übernehmen
 btn-finances-sync = { $enabled ->
     [1] 🟢 Kurssynchronisierung
     *[0] 🔴 Kurssynchronisierung
@@ -301,7 +301,7 @@ btn-discount-1000-rub = { $selected ->
 btn-back = ⬅️ Zurück
 btn-main-menu = 🏠 Hauptmenü
 btn-back-main-menu = 🏠 Hauptmenü
-btn-back-dashboard = 🔵 Kontrollpanel
+btn-back-dashboard = ⚙️ Kontrollpanel
 btn-back-users = 👥 Benutzer
 btn-done = ✅ Fertig
 
@@ -316,14 +316,14 @@ btn-remnashop-guide = ❓ Anleitung
 
 
 # Other
-btn-rules-accept = 🟢 Regeln akzeptieren
+btn-rules-accept = ✅ Regeln akzeptieren
 btn-channel-join = ❤️ Zum Kanal gehen
 btn-channel-confirm = ✅ Bestätigen
-btn-notification-close = 🔴 Schließen
+btn-notification-close = ❌ Schließen
 btn-goto-main-menu = 🏠 Zum Hauptmenü
 btn-contact-support = 📩 Zum Support
-btn-cancel = 🔴 Abbrechen
-btn-accept = 🟢 Akzeptieren
+btn-cancel = ❌ Abbrechen
+btn-accept = ✅ Akzeptieren
 btn-confirm = ✅ Bestätigen
 btn-confirm-payment = ✅ Zahlung bestätigen
 btn-select-all = 📋 Alle Abonnements
@@ -390,7 +390,7 @@ btn-menu-promocode = 🎟 Gutscheincode
 btn-menu-support = 🆘 Hilfe
 btn-menu-tos = 📋 Vereinbarung
 btn-menu-community = 👥 Community
-btn-menu-dashboard = 🔵 Kontrollpanel
+btn-menu-dashboard = � Kontrollpanel
 
 # Balance
 btn-balance-topup = ➕ Aufladen
@@ -407,7 +407,7 @@ btn-balance-gateway =
     }
 
 # Subscription Key
-btn-subscription-key-close = 🔴 Schließen
+btn-subscription-key-close = ❌ Schließen
 btn-balance-custom-amount = ✏️ Eigener Betrag
 btn-balance-pay = ✅ Bezahlen
 btn-balance-transfer-recipient = 👤 Empfänger
@@ -558,8 +558,8 @@ btn-commission-free = { $selected ->
     [1] [🆓 Kostenlos]
     *[0] 🆓 Kostenlos
     }
-btn-commission-cancel = 🔴 Abbrechen
-btn-commission-accept = 🟢 Akzeptieren
+btn-commission-cancel = ❌ Abbrechen
+btn-commission-accept = ✅ Akzeptieren
 
 # Transfer commission - Percentage values
 btn-commission-1 = { $selected ->
@@ -834,8 +834,8 @@ btn-amount-500000 = { $selected ->
     [1] [500000 ₽]
     *[0] 500000 ₽
     }
-btn-amount-cancel = 🔴 Abbrechen
-btn-amount-accept = 🟢 Akzeptieren
+btn-amount-cancel = ❌ Abbrechen
+btn-amount-accept = ✅ Akzeptieren
 
 
 # Bonus activation
@@ -1097,7 +1097,7 @@ btn-referral-invite-message = ✉️ Einladungseinstellungen
 btn-reset-default = 🔄 Auf Standard zurücksetzen
 btn-invite-edit = ✏️ Inhalt bearbeiten
 btn-invite-preview = 👁 Vorschau
-btn-invite-close-preview = 🔴 Schließen
+btn-invite-close-preview = ❌ Schließen
 
 btn-referral-enable = { $is_enable -> 
     [1] 🟢 Aktiviert
@@ -1589,4 +1589,4 @@ btn-update-remind-1d = ⏰ In 1 Tag
 btn-update-remind-3d = ⏰ In 3 Tagen
 btn-update-remind-7d = ⏰ In 7 Tagen
 btn-update-remind-off = 🔕 Nicht erinnern
-btn-update-close = 🔴 Schließen
+btn-update-close = ❌ Schließen
