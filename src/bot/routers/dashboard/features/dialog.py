@@ -1,5 +1,6 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Column, Row
+from aiogram_dialog.widgets.style import Style
 from magic_filter import F
 
 from src.bot.states import DashboardFeatures
@@ -72,11 +73,13 @@ features_main = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_features,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_features,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),

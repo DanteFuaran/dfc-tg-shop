@@ -3,6 +3,7 @@ from aiogram_dialog.widgets.kbd import Button, Column, Group, Row, Select, Switc
 from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.kbd.state import StartMode
 from aiogram_dialog.widgets.input import MessageInput
+from aiogram_dialog.widgets.style import Style
 from magic_filter import F
 
 from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
@@ -442,6 +443,7 @@ referral_code_input = Window(
         text=I18nFormat("btn-cancel"),
         id="cancel",
         state=Subscription.MAIN,
+        style=Style(style="danger"),
     ),
     IgnoreUpdate(),
     state=Subscription.REFERRAL_CODE,
@@ -475,6 +477,7 @@ promocode_input = Window(
         id="cancel_promocode",
         state=MainMenu.MAIN,
         mode=StartMode.RESET_STACK,
+        style=Style(style="danger"),
     ),
     IgnoreUpdate(),
     state=Subscription.PROMOCODE,

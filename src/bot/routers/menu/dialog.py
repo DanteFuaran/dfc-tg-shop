@@ -16,6 +16,7 @@ from aiogram_dialog.widgets.kbd import (
     WebApp,
 )
 from aiogram_dialog.widgets.text import Format
+from aiogram_dialog.widgets.style import Style
 from magic_filter import F
 
 from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
@@ -208,6 +209,7 @@ menu = Window(
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
             when=F[MIDDLEWARE_DATA_KEY][USER_KEY].is_privileged,
+            style=Style(style="primary"),
         ),
     ),
     MessageInput(func=on_user_search),
@@ -509,6 +511,7 @@ balance_amount = Window(
         text=I18nFormat("btn-cancel"),
         id="cancel",
         state=MainMenu.BALANCE_AMOUNTS,
+        style=Style(style="danger"),
     ),
     MessageInput(func=on_balance_amount_input),
     IgnoreUpdate(),
@@ -631,12 +634,14 @@ bonus_activate = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_bonus_amount,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_bonus_amount,
             when=F["selected_bonus_amount"],
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -679,6 +684,7 @@ balance_transfer = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel_transfer",
             on_click=on_balance_transfer_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-balance-transfer-send"),
@@ -704,6 +710,7 @@ balance_transfer_recipient = Window(
         text=I18nFormat("btn-cancel"),
         id="cancel_recipient",
         on_click=on_balance_transfer_recipient_cancel,
+        style=Style(style="danger"),
     ),
     IgnoreUpdate(),
     state=MainMenu.BALANCE_TRANSFER_RECIPIENT,
@@ -786,11 +793,13 @@ balance_transfer_amount_value = Window(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel_amount",
             on_click=on_balance_transfer_amount_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-amount-accept"),
             id="accept_amount",
             on_click=on_balance_transfer_amount_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -806,6 +815,7 @@ balance_transfer_amount_manual = Window(
         text=I18nFormat("btn-cancel"),
         id="cancel_amount_manual",
         on_click=on_balance_transfer_amount_manual_cancel,
+        style=Style(style="danger"),
     ),
     IgnoreUpdate(),
     state=MainMenu.BALANCE_TRANSFER_AMOUNT_MANUAL,
@@ -821,11 +831,13 @@ balance_transfer_message = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel_message",
             on_click=on_balance_transfer_message_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept_message",
             on_click=on_balance_transfer_message_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),

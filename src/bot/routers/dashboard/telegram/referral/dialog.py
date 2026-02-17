@@ -1,6 +1,7 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Column, Row, SwitchTo
+from aiogram_dialog.widgets.style import Style
 from magic_filter import F
 
 from src.bot.routers.dashboard.telegram.referral.getters import (
@@ -84,11 +85,13 @@ referral = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_referral_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_referral_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -117,11 +120,13 @@ level = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -150,11 +155,13 @@ reward_type = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -183,11 +190,13 @@ accrual_strategy = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -217,11 +226,13 @@ reward_strategy = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -465,11 +476,13 @@ reward = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -488,6 +501,7 @@ reward_manual_input = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_reward_manual_input_cancel,
+            style=Style(style="danger"),
         ),
     ),
     IgnoreUpdate(),
@@ -524,11 +538,13 @@ invite_message = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_invite_message_cancel,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_invite_message_accept,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
@@ -546,6 +562,7 @@ invite_message_edit = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramReferral.INVITE_MESSAGE,
+            style=Style(style="danger"),
         ),
     ),
     IgnoreUpdate(),

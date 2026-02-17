@@ -15,6 +15,7 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
 )
 from aiogram_dialog.widgets.text import Case, Format
+from aiogram_dialog.widgets.style import Style
 from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
@@ -835,11 +836,13 @@ role = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_role_change,
+            style=Style(style="danger"),
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_role_change,
+            style=Style(style="success"),
         ),
     ),
     IgnoreUpdate(),
