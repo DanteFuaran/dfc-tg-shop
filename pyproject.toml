@@ -1,6 +1,6 @@
 [project]
 name = "dfc-tg"
-version = "0.2.8"
+version = "0.2.9"
 description = "This is a Telegram bot for selling VPN subscriptions. It works with Remnawave"
 authors = [{ name = "DanteFuaran" }]
 readme = "README.md"
