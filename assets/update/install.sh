@@ -16,7 +16,7 @@ REPO_DIR="/opt/dfc-tg-shop"
 REMNAWAVE_DIR="/opt/remnawave"
 REPO_URL="https://github.com/DanteFuaran/dfc-tg-shop.git"
 # Ветка и версия (единый источник: assets/update/.update)
-REPO_BRANCH="main"
+REPO_BRANCH="dev"
 for _uf in "$SCRIPT_CWD/assets/update/.update" "$SCRIPT_CWD/.update"; do
     if [ -f "$_uf" ]; then
         _br=$(grep '^branch:' "$_uf" | cut -d: -f2 | tr -d ' \n')
