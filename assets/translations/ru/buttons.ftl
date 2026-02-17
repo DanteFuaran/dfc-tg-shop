@@ -20,7 +20,7 @@ btn-bot-restart = 🔁 Перезапустить
 btn-dashboard-db = 🗄 Управление БД
 btn-db-save = 💾 Сохранить
 btn-db-load = 📦 Загрузить
-btn-db-close = ❌ Закрыть
+btn-db-close = 🔴 Закрыть
 btn-db-sync-from-panel = 📥 Remnawave Импорт
 btn-db-clear-all = 🗑 Очистить всё
 btn-db-clear-users = 👥 Очистить пользователей
@@ -56,8 +56,8 @@ btn-language-ru = 🇷🇺 Русский
 btn-language-uk = 🇺🇦 Українська
 btn-language-en = 🇬🇧 English
 btn-language-de = 🇩🇪 Deutsch
-btn-language-cancel = ❌ Отмена
-btn-language-apply = ✅ Принять
+btn-language-cancel = 🔴 Отмена
+btn-language-apply = 🟢 Принять
 btn-finances-sync = { $enabled ->
     [1] 🟢 Синхронизация курса
     *[0] 🔴 Синхронизация курса
@@ -301,7 +301,7 @@ btn-discount-1000-rub = { $selected ->
 btn-back = ⬅️ Назад
 btn-main-menu = 🏠 Главное меню
 btn-back-main-menu = 🏠 Главное меню
-btn-back-dashboard = ⚙️ Панель управления
+btn-back-dashboard = 🔵 Панель управления
 btn-back-users = 👥 Пользователи
 btn-done = ✅ Готово
 
@@ -316,14 +316,14 @@ btn-remnashop-guide = ❓ Инструкция
 
 
 # Other
-btn-rules-accept = ✅ Принять правила
+btn-rules-accept = 🟢 Принять правила
 btn-channel-join = ❤️ Перейти в канал
 btn-channel-confirm = ✅ Подтвердить
-btn-notification-close = ❌ Закрыть
+btn-notification-close = 🔴 Закрыть
 btn-goto-main-menu = 🏠 В главное меню
 btn-contact-support = 📩 Перейти в поддержку
-btn-cancel = ❌ Отмена
-btn-accept = ✅ Принять
+btn-cancel = 🔴 Отмена
+btn-accept = 🟢 Принять
 btn-confirm = ✅ Подтвердить
 btn-confirm-payment = ✅ Подтвердить оплату
 btn-select-all = 📋 Все подписки
@@ -390,7 +390,7 @@ btn-menu-promocode = 🎟 Промокод
 btn-menu-support = 🆘 Помощь
 btn-menu-tos = 📋 Соглашение
 btn-menu-community = 👥 Сообщество
-btn-menu-dashboard = 🛠 Панель управления
+btn-menu-dashboard = 🔵 Панель управления
 
 # Balance
 btn-balance-topup = ➕ Пополнить
@@ -407,7 +407,7 @@ btn-balance-gateway =
     }
 
 # Subscription Key
-btn-subscription-key-close = ❌ Закрыть
+btn-subscription-key-close = 🔴 Закрыть
 btn-balance-custom-amount = ✏️ Своя сумма
 btn-balance-pay = ✅ Оплатить
 btn-balance-transfer-recipient = 👤 Получатель
@@ -558,8 +558,8 @@ btn-commission-free = { $selected ->
     [1] [🆓 Бесплатно]
     *[0] 🆓 Бесплатно
     }
-btn-commission-cancel = ❌ Отмена
-btn-commission-accept = ✅ Принять
+btn-commission-cancel = 🔴 Отмена
+btn-commission-accept = 🟢 Принять
 
 # Комиссия в переводах - Процентные значения
 btn-commission-1 = { $selected ->
@@ -834,8 +834,8 @@ btn-amount-500000 = { $selected ->
     [1] [500000 ₽]
     *[0] 500000 ₽
     }
-btn-amount-cancel = ❌ Отмена
-btn-amount-accept = ✅ Принять
+btn-amount-cancel = 🔴 Отмена
+btn-amount-accept = 🟢 Принять
 
 
 # Бонусы активации
@@ -1097,7 +1097,7 @@ btn-referral-invite-message = ✉️ Настройка приглашения
 btn-reset-default = 🔄 Сбросить по умолчанию
 btn-invite-edit = ✏️ Редактировать содержимое
 btn-invite-preview = 👁 Предпросмотр
-btn-invite-close-preview = ❌ Закрыть
+btn-invite-close-preview = 🔴 Закрыть
 
 btn-referral-enable = { $is_enable -> 
     [1] 🟢 Включена
@@ -1589,4 +1589,4 @@ btn-update-remind-1d = ⏰ Через 1 день
 btn-update-remind-3d = ⏰ Через 3 дня
 btn-update-remind-7d = ⏰ Через 7 дней
 btn-update-remind-off = 🔕 Не напоминать
-btn-update-close = ❌ Закрыть
+btn-update-close = 🔴 Закрыть
