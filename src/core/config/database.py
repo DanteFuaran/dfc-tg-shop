@@ -14,10 +14,10 @@ class DatabaseConfig(BaseConfig, env_prefix="DATABASE_"):
 
     echo: bool = False
     echo_pool: bool = False
-    pool_size: int = 15  # Достаточно для 3 контейнеров (bot, worker, scheduler)
-    max_overflow: int = 25  # Запас при пиковой нагрузке
+    pool_size: int = 30  # Увеличено согласно референсу snoups/remnashop
+    max_overflow: int = 30  # Запас при пиковой нагрузке
     pool_timeout: int = 30  # Увеличено для стабильности при высокой нагрузке
-    pool_recycle: int = 1800  # Переиспользование соединений каждые 30 минут
+    pool_recycle: int = 3600  # Переиспользование соединений каждые 60 минут
     pool_pre_ping: bool = True  # Проверка соединения перед использованием
 
     @property

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Ветка по умолчанию (совпадает с веткой, из которой запущен этот скрипт)
-REPO_BRANCH="main"
+REPO_BRANCH="dev"
 
 # Если в .update указана другая ветка — она имеет приоритет
 GITHUB_RAW_URL="https://raw.githubusercontent.com/DanteFuaran/dfc-tg-shop"
