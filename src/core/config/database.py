@@ -14,10 +14,11 @@ class DatabaseConfig(BaseConfig, env_prefix="DATABASE_"):
 
     echo: bool = False
     echo_pool: bool = False
-    pool_size: int = 5  # Уменьшено для экономии памяти
-    max_overflow: int = 10  # Уменьшено для экономии памяти
-    pool_timeout: int = 10
+    pool_size: int = 15  # Достаточно для 3 контейнеров (bot, worker, scheduler)
+    max_overflow: int = 25  # Запас при пиковой нагрузке
+    pool_timeout: int = 30  # Увеличено для стабильности при высокой нагрузке
     pool_recycle: int = 1800  # Переиспользование соединений каждые 30 минут
+    pool_pre_ping: bool = True  # Проверка соединения перед использованием
 
     @property
     def dsn(self) -> str:
