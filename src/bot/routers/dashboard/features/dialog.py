@@ -72,13 +72,11 @@ features_main = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_features,
-            type="danger",
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_features,
-            type="success",
         ),
     ),
     IgnoreUpdate(),

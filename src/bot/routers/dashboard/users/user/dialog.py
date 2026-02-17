@@ -835,13 +835,11 @@ role = Window(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_role_change,
-            type="danger",
         ),
         Button(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_role_change,
-            type="success",
         ),
     ),
     IgnoreUpdate(),
