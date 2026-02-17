@@ -751,6 +751,7 @@ async def on_show_key(
     close_button = InlineKeyboardButton(
         text=i18n.get("btn-subscription-key-close"),
         callback_data="close_subscription_key",
+        style="danger",
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[close_button]])
     
@@ -1908,7 +1909,7 @@ async def on_balance_transfer_send(
         try:
             keyboard = InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [InlineKeyboardButton(text="✅ Готово", callback_data="close_success_transfer")]
+                    [InlineKeyboardButton(text="✅ Готово", callback_data="close_success_transfer", style="success")]
                 ]
             )
             

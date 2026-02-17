@@ -113,6 +113,7 @@ def get_renew_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-goto-subscription-renew",
             callback_data=f"{GOTO_PREFIX}{PURCHASE_PREFIX}{PurchaseType.RENEW}",
+            style="primary",
         ),
     )
     return builder.as_markup()
@@ -124,6 +125,7 @@ def get_buy_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-goto-subscription",
             callback_data=f"{GOTO_PREFIX}{PURCHASE_PREFIX}{PurchaseType.NEW}",
+            style="primary",
         ),
     )
     return builder.as_markup()
@@ -141,6 +143,7 @@ def get_channel_keyboard(channel_link: str) -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-channel-confirm",
             callback_data=CALLBACK_CHANNEL_CONFIRM,
+            style="primary",
         ),
     )
     return builder.as_markup()
@@ -152,6 +155,7 @@ def get_rules_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-rules-accept",
             callback_data=CALLBACK_RULES_ACCEPT,
+            style="success",
         ),
     )
     return builder.as_markup()
@@ -235,6 +239,7 @@ def get_close_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-notification-close",
             callback_data="close_notification",
+            style="danger",
         ),
     )
     
@@ -249,6 +254,7 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="btn-goto-main-menu",
             callback_data=f"{GOTO_PREFIX}{MainMenu.MAIN.state}",
+            style="primary",
         ),
     )
     

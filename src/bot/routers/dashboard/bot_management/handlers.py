@@ -74,10 +74,10 @@ async def on_check_update(
             await callback.answer()
             keyboard = InlineKeyboardBuilder()
             keyboard.row(
-                InlineKeyboardButton(text="🔄 Обновить сейчас", callback_data=UPDATE_NOW),
+                InlineKeyboardButton(text="🔄 Обновить сейчас", callback_data=UPDATE_NOW, style="primary"),
             )
             keyboard.row(
-                InlineKeyboardButton(text="❌ Закрыть", callback_data=UPDATE_CLOSE),
+                InlineKeyboardButton(text="❌ Закрыть", callback_data=UPDATE_CLOSE, style="danger"),
             )
             await callback.bot.send_message(
                 chat_id=callback.from_user.id,

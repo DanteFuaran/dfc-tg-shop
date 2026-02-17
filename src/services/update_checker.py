@@ -121,7 +121,7 @@ class UpdateCheckerService(BaseService):
         """Build inline keyboard with update/snooze/dismiss buttons."""
         builder = InlineKeyboardBuilder()
         builder.row(
-            InlineKeyboardButton(text="btn-update-now", callback_data=UPDATE_NOW),
+            InlineKeyboardButton(text="btn-update-now", callback_data=UPDATE_NOW, style="primary"),
         )
         builder.row(
             InlineKeyboardButton(text="btn-update-remind-1d", callback_data=UPDATE_SNOOZE_1D),
@@ -130,7 +130,7 @@ class UpdateCheckerService(BaseService):
         )
         builder.row(
             InlineKeyboardButton(text="btn-update-remind-off", callback_data=UPDATE_SNOOZE_OFF),
-            InlineKeyboardButton(text="btn-update-close", callback_data=UPDATE_CLOSE),
+            InlineKeyboardButton(text="btn-update-close", callback_data=UPDATE_CLOSE, style="danger"),
         )
         return builder.as_markup()
 

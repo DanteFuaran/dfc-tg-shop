@@ -466,10 +466,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 )
                 donate_keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [
-                        InlineKeyboardButton(text="⭐ GitHub", url="https://github.com/DanteFuaran/dfc-tg-shop"),
-                        InlineKeyboardButton(text="💬 Telegram", url="https://t.me/dfc_soft")
+                        InlineKeyboardButton(text="⭐ GitHub", url="https://github.com/DanteFuaran/dfc-tg-shop", style="primary"),
+                        InlineKeyboardButton(text="💬 Telegram", url="https://t.me/dfc_soft", style="primary")
                     ],
-                    [InlineKeyboardButton(text="❌ Закрыть", callback_data="donate_close")]
+                    [InlineKeyboardButton(text="❌ Закрыть", callback_data="donate_close", style="danger")]
                 ])
                 for dev in devs_for_donate:
                     try:
@@ -498,7 +498,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                             continue
                         text, close_btn_text = data
                         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                            [InlineKeyboardButton(text=close_btn_text, callback_data=Notification.CLOSE.state)]
+                            [InlineKeyboardButton(text=close_btn_text, callback_data=Notification.CLOSE.state, style="danger")]
                         ])
                         await bot.send_message(
                             chat_id=dev.telegram_id,

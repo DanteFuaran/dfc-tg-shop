@@ -236,7 +236,7 @@ async def send_balance_topup_notification_task(
         # Create inline keyboard with "Done" button
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="✅ Готово", callback_data="delete_message")]
+                [InlineKeyboardButton(text="✅ Готово", callback_data="delete_message", style="success")]
             ]
         )
         

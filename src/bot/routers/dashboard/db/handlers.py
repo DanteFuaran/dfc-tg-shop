@@ -1291,7 +1291,7 @@ async def on_export_backup_to_db(
             
             # Создаем кнопку "Закрыть" с крестиком
             close_button = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text=i18n.get("btn-db-close"), callback_data="delete_message")]
+                [InlineKeyboardButton(text=i18n.get("btn-db-close"), callback_data="delete_message", style="danger")]
             ])
             
             await bot.send_document(

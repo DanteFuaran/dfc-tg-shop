@@ -351,7 +351,7 @@ class NotificationService(BaseService):
     def _get_close_notification_button(self, locale: Locale) -> InlineKeyboardButton:
         i18n = self.translator_hub.get_translator_by_locale(locale=locale)
         button_text = i18n.get("btn-notification-close")
-        return InlineKeyboardButton(text=button_text, callback_data=Notification.CLOSE.state)
+        return InlineKeyboardButton(text=button_text, callback_data=Notification.CLOSE.state, style="danger")
 
     def _get_close_notification_keyboard(
         self,

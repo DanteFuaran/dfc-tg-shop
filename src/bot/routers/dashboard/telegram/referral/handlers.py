@@ -630,7 +630,7 @@ async def on_invite_preview(
     from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=i18n.get("btn-invite-close-preview"), callback_data="close_preview")]
+            [InlineKeyboardButton(text=i18n.get("btn-invite-close-preview"), callback_data="close_preview", style="danger")]
         ]
     )
     
