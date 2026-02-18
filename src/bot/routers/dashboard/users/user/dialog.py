@@ -645,10 +645,11 @@ message = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             I18nFormat("btn-user-message-confirm"),
             id="confirm",
             on_click=on_send,
+            style="success",
         ),
     ),
     Row(

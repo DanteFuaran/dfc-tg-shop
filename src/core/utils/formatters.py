@@ -66,6 +66,9 @@ def format_user_name(name: Optional[str]) -> str:
 
 def format_username_to_url(username: str, text: Optional[str]) -> str:
     clean_username = username.lstrip("@")
+    # Numeric ID — use tg://user?id=... (t.me doesn't work for user IDs)
+    if clean_username.lstrip("-").isdigit():
+        return f"tg://user?id={clean_username}"
     encoded_text = quote(text or "")
     return f"{T_ME}{clean_username}?text={encoded_text}"
 

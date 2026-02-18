@@ -691,10 +691,11 @@ balance_transfer = Window(
             on_click=on_balance_transfer_cancel,
             style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-balance-transfer-send"),
             id="send_transfer",
             on_click=on_balance_transfer_send,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
