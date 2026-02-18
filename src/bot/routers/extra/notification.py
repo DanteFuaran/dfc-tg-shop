@@ -168,6 +168,7 @@ async def on_update_now(
             f"cp /tmp/repo/Dockerfile {_HOST_PROJECT_DIR}/ && "
             f"cp /tmp/repo/pyproject.toml {_HOST_PROJECT_DIR}/ && "
             f"cp /tmp/repo/uv.lock {_HOST_PROJECT_DIR}/ && "
+            f"cp /tmp/repo/version {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/src {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/scripts {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/assets/translations {_HOST_PROJECT_DIR}/assets/ 2>/dev/null || true && "
