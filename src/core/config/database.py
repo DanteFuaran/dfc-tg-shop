@@ -14,8 +14,8 @@ class DatabaseConfig(BaseConfig, env_prefix="DATABASE_"):
 
     echo: bool = False
     echo_pool: bool = False
-    pool_size: int = 30  # Увеличено согласно референсу snoups/remnashop
-    max_overflow: int = 30  # Запас при пиковой нагрузке
+    pool_size: int = 5  # Оптимально для VPS 2-4GB RAM
+    max_overflow: int = 5  # Запас при пиковой нагрузке
     pool_timeout: int = 10
     pool_recycle: int = 3600  # Переиспользование соединений каждые 60 минут
     pool_pre_ping: bool = True  # Проверка соединения перед использованием

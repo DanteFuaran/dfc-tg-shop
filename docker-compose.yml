@@ -4,6 +4,7 @@ services:
     container_name: "dfc-tg-db"
     hostname: dfc-tg-db
     restart: unless-stopped
+    mem_limit: 256m
 
     env_file:
       - .env
@@ -13,6 +14,12 @@ services:
       - POSTGRES_DB=${DATABASE_NAME}
       - TZ=UTC
     
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     volumes:
       - dfc-tg-db-data:/var/lib/postgresql/data
 
@@ -32,13 +39,20 @@ services:
     container_name: "dfc-tg-redis"
     hostname: dfc-tg-redis
     restart: unless-stopped
+    mem_limit: 128m
 
     command: [ 
       "--requirepass", "${REDIS_PASSWORD}",
-      "--maxmemory", "256mb",
+      "--maxmemory", "64mb",
       "--maxmemory-policy", "allkeys-lru",
       "--tcp-keepalive", "300"
     ]
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
 
     volumes:
       - dfc-tg-redis-data:/data
@@ -61,12 +75,19 @@ services:
     hostname: dfc-tg
     restart: unless-stopped
     stop_grace_period: 30s
+    mem_limit: 512m
 
     env_file:
       - .env
     environment:
       PYTHONPATH: /opt/dfc-tg
       RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
     depends_on:
         dfc-tg-db:
@@ -92,6 +113,7 @@ services:
     container_name: "dfc-tg-taskiq-worker"
     hostname: dfc-tg-taskiq-worker
     restart: unless-stopped
+    mem_limit: 384m
     command: taskiq worker src.infrastructure.taskiq.worker:worker 
       --tasks-pattern src/infrastructure/taskiq/tasks -fsd
 
@@ -100,6 +122,12 @@ services:
     environment:
       PYTHONPATH: /opt/dfc-tg
       RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
     depends_on:
         dfc-tg:
@@ -124,6 +152,7 @@ services:
     container_name: "dfc-tg-taskiq-scheduler"
     hostname: dfc-tg-taskiq-scheduler
     restart: unless-stopped
+    mem_limit: 256m
     command: taskiq scheduler src.infrastructure.taskiq.scheduler:scheduler
       --tasks-pattern src/infrastructure/taskiq/tasks -fsd
 
@@ -132,6 +161,12 @@ services:
     environment:
       PYTHONPATH: /opt/dfc-tg
       RESET_ASSETS: "${RESET_ASSETS:-false}"
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
 
     depends_on:
         dfc-tg:

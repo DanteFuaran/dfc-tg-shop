@@ -228,7 +228,7 @@ class PlanService(BaseService):
             )
             return PlanDto.from_model(plan)
 
-        logger.warning(
+        logger.debug(
             f"No TRIAL plan found for user '{user.telegram_id}'"
         )
         return None

@@ -2139,6 +2139,35 @@ show_spinner "Проверка установленных компонентов
 # Отмечаем, что установка началась - теперь при ошибке нужно очищать
 INSTALL_STARTED=true
 
+# 1.5. Настройка системы: swap + Docker log rotation
+(
+  # Swap: создаём 2GB если нет и RAM <= 4GB
+  TOTAL_RAM_MB=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo)
+  if [ "$TOTAL_RAM_MB" -le 4096 ] && [ ! -f /swapfile ]; then
+      fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 2>/dev/null
+      chmod 600 /swapfile
+      mkswap /swapfile >/dev/null 2>&1
+      swapon /swapfile 2>/dev/null
+      grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+      sysctl -w vm.swappiness=10 >/dev/null 2>&1
+      grep -q 'vm.swappiness' /etc/sysctl.conf || echo 'vm.swappiness=10' >> /etc/sysctl.conf
+  fi
+
+  # Docker log rotation: создаём daemon.json если нет
+  if [ ! -f /etc/docker/daemon.json ]; then
+      cat > /etc/docker/daemon.json <<'DJSON'
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+DJSON
+  fi
+) &
+show_spinner "Настройка системы"
+
 # 2. Подготовка целевой директории
 (
   # Создаем целевую директорию
