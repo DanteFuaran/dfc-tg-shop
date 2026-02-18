@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /opt || true
+
 # Переменные для отслеживания состояния установки
 INSTALL_STARTED=false
 INSTALL_COMPLETED=false
