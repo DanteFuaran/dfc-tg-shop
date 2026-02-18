@@ -2257,8 +2257,11 @@ fi
 update_env_var "$ENV_FILE" "BOT_DEV_ID" "$BOT_DEV_ID"
 
 # BOT_SUPPORT_USERNAME
-reading_inline "Введите username группы поддержки (без @):" BOT_SUPPORT_USERNAME
+reading_inline "Введите username группы поддержки (без @, Enter = ID разработчика):" BOT_SUPPORT_USERNAME
 echo
+if [ -z "$BOT_SUPPORT_USERNAME" ]; then
+    BOT_SUPPORT_USERNAME="$BOT_DEV_ID"
+fi
 update_env_var "$ENV_FILE" "BOT_SUPPORT_USERNAME" "$BOT_SUPPORT_USERNAME"
 
 # REMNAWAVE_TOKEN
