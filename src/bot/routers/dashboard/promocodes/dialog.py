@@ -16,7 +16,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardPromocodes
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 
 from .getters import (
     configurator_getter,
@@ -194,15 +194,17 @@ configurator = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_configurator_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_confirm_save,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -216,10 +218,11 @@ name = Window(
     Banner(),
     I18nFormat("msg-promocode-name"),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     MessageInput(func=on_name_input),
@@ -240,10 +243,11 @@ code = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     MessageInput(func=on_code_input),
@@ -271,15 +275,17 @@ type_select = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_type_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_type_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -403,10 +409,11 @@ reward = Window(
         when=F["promocode_type"] == "DURATION",
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     MessageInput(func=on_reward_input),
@@ -469,10 +476,11 @@ lifetime = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     IgnoreUpdate(),
@@ -485,10 +493,11 @@ lifetime_input = Window(
     Banner(),
     I18nFormat("msg-promocode-lifetime-input"),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     MessageInput(func=on_lifetime_input),
@@ -550,10 +559,11 @@ quantity = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     IgnoreUpdate(),
@@ -566,10 +576,11 @@ quantity_input = Window(
     Banner(),
     I18nFormat("msg-promocode-quantity-input"),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_input_cancel,
+            style="danger",
         ),
     ),
     MessageInput(func=on_quantity_input),
@@ -605,15 +616,17 @@ access = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_access_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_access_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

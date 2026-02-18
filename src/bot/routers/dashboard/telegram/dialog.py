@@ -15,7 +15,7 @@ from src.bot.states import (
     TelegramPlans,
     TelegramReferral,
 )
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 
 from .getters import admins_getter, remnashop_getter, extra_devices_getter, extra_devices_price_getter
 from .handlers import (
@@ -139,15 +139,17 @@ extra_devices = Window(
         on_click=on_edit_extra_devices_price,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_extra_devices,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_extra_devices,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -232,15 +234,17 @@ extra_devices_price = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_extra_devices_price,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_extra_devices_price,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

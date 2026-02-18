@@ -21,7 +21,7 @@ from src.bot.keyboards import main_menu_button
 from src.bot.routers.dashboard.broadcast.handlers import on_content_input, on_preview
 from src.bot.routers.extra.test import show_dev_popup
 from src.bot.states import DashboardUser, DashboardUsers, Subscription
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from src.core.constants import PURCHASE_PREFIX
 from src.core.enums import SubscriptionStatus, UserRole
 
@@ -831,15 +831,17 @@ role = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_role_change,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_role_change,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

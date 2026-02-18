@@ -4,7 +4,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import DashboardTelegram, TelegramNotifications
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from src.core.enums import SystemNotificationType, UserNotificationType
 
 from .getters import system_types_getter, user_types_getter
@@ -35,15 +35,17 @@ notifications = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_notifications_cancel_main,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_notifications_accept_main,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -68,15 +70,17 @@ user = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_notifications_cancel_submenu,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_notifications_accept_submenu,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -102,15 +106,17 @@ system = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_notifications_cancel_submenu,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_notifications_accept_submenu,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

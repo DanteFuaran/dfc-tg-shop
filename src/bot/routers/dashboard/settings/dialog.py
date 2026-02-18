@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.text import Format
 from magic_filter import F
 
 from src.bot.states import DashboardSettings, TelegramNotifications, DashboardAccess, TelegramReferral, TelegramGateways, DashboardPromocodes
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 
 from .getters import (
     settings_main_getter,
@@ -411,15 +411,17 @@ balance_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_balance,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_balance,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -653,15 +655,17 @@ transfers_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_transfers,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_transfers,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1219,15 +1223,17 @@ extra_devices = Window(
         on_click=on_edit_extra_devices_min_days,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_extra_devices,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_extra_devices,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1312,15 +1318,17 @@ extra_devices_price = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_extra_devices_price,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_extra_devices_price,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1405,15 +1413,17 @@ extra_devices_min_days = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_extra_devices_min_days,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_extra_devices_min_days,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1495,15 +1505,17 @@ global_discount_settings = Window(
         on_click=on_select_global_discount_value,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_global_discount,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_global_discount,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1767,15 +1779,17 @@ global_discount_value = Window(
         on_click=on_global_discount_manual_input_click,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_global_discount_value_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_global_discount_value_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1789,10 +1803,11 @@ global_discount_manual = Window(
     Banner(),
     I18nFormat("msg-global-discount-manual-input"),
     MessageInput(func=on_global_discount_manual_value_input),
-    Button(
-        text=I18nFormat("btn-cancel"),
-        id="cancel",
-        on_click=on_cancel_global_discount_manual,
+    ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_cancel_global_discount_manual,
+            style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.GLOBAL_DISCOUNT_MANUAL,
@@ -1820,15 +1835,17 @@ global_discount_apply_to = Window(
         on_click=on_toggle_apply_to_transfer_commission,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_global_discount_apply_to,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_global_discount_apply_to,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1854,15 +1871,17 @@ global_discount_mode = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_global_discount_mode,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_global_discount_mode,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1887,15 +1906,17 @@ tos_settings = Window(
         on_click=on_tos_url_click,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_tos,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_tos,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1938,15 +1959,17 @@ community_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_community,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_community,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -2063,15 +2086,17 @@ finances_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_finances_cancel,
+            style="danger",
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
             id="accept",
             state=DashboardSettings.MAIN,
+            style="success",
             on_click=on_finances_accept,
         ),
     ),
@@ -2110,15 +2135,17 @@ currency_rates_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_rates,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_rates,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

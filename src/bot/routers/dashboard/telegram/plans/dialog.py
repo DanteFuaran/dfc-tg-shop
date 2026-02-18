@@ -18,7 +18,7 @@ from remnapy.enums.users import TrafficLimitStrategy
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardTelegram, TelegramPlans
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import Currency, PlanAvailability, PlanType
 
 from .getters import (
@@ -213,15 +213,17 @@ configurator = Window(
         when=F["is_edit"],
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_configurator,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_confirm_plan,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -257,15 +259,17 @@ plan_description = Window(
         when=F["description"],
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_description,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_description_accept,
+            style="success",
         ),
     ),
     MessageInput(func=on_description_input),
@@ -286,15 +290,17 @@ plan_tag = Window(
         when=F["tag"],
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_tag,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_tag,
+            style="success",
         ),
     ),
     MessageInput(func=on_tag_input),
@@ -321,15 +327,17 @@ plan_type = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_type,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_type,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -355,15 +363,17 @@ plan_availability = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_availability,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_availability,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -450,10 +460,11 @@ plan_durations = Window(
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
             id="accept",
             state=TelegramPlans.CONFIGURATOR,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -499,10 +510,11 @@ plan_prices = Window(
             id="cancel",
             state=TelegramPlans.DURATIONS,
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
             id="accept",
             state=TelegramPlans.DURATIONS,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -562,10 +574,11 @@ plan_allowed_users = Window(
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
             id="accept",
             state=TelegramPlans.CONFIGURATOR,
+            style="success",
         ),
     ),
     MessageInput(func=on_allowed_user_input),
@@ -592,15 +605,17 @@ plan_squads = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_squads,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_squads,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -626,15 +641,17 @@ plan_internal_squads = Window(
         items="squads",
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_internal_squads,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_internal_squads,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -659,15 +676,17 @@ plan_external_squads = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_external_squad,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_external_squad,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

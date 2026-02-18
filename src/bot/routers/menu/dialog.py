@@ -21,7 +21,7 @@ from magic_filter import F
 from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
 from src.bot.routers.dashboard.users.handlers import on_user_search
 from src.bot.states import Dashboard, MainMenu, Subscription
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.constants import MIDDLEWARE_DATA_KEY, PURCHASE_PREFIX, USER_KEY
 
 from .getters import (
@@ -202,11 +202,12 @@ menu = Window(
     ),
     # [Панель управления]
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-menu-dashboard"),
             id="dashboard",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
             when=F[MIDDLEWARE_DATA_KEY][USER_KEY].is_privileged,
         ),
     ),
@@ -505,10 +506,11 @@ balance_amounts = Window(
 balance_amount = Window(
     Banner(),
     I18nFormat("msg-balance-enter-amount"),
-    SwitchTo(
-        text=I18nFormat("btn-cancel"),
-        id="cancel",
-        state=MainMenu.BALANCE_AMOUNTS,
+    ColoredSwitchTo(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            state=MainMenu.BALANCE_AMOUNTS,
+            style="danger",
     ),
     MessageInput(func=on_balance_amount_input),
     IgnoreUpdate(),
@@ -627,15 +629,17 @@ bonus_activate = Window(
     ),
     # Кнопки "Отмена" и "Принять"
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_bonus_amount,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_bonus_amount,
+            style="success",
             when=F["selected_bonus_amount"],
         ),
     ),
@@ -675,10 +679,11 @@ balance_transfer = Window(
         on_click=on_balance_transfer_message_click,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel_transfer",
             on_click=on_balance_transfer_cancel,
+            style="danger",
         ),
         Button(
             text=I18nFormat("btn-balance-transfer-send"),
@@ -700,10 +705,11 @@ balance_transfer_recipient = Window(
         id="recipient_history",
         on_click=on_balance_transfer_recipient_history_click,
     ),
-    Button(
-        text=I18nFormat("btn-cancel"),
-        id="cancel_recipient",
-        on_click=on_balance_transfer_recipient_cancel,
+    ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel_recipient",
+            on_click=on_balance_transfer_recipient_cancel,
+            style="danger",
     ),
     IgnoreUpdate(),
     state=MainMenu.BALANCE_TRANSFER_RECIPIENT,
@@ -782,10 +788,11 @@ balance_transfer_amount_value = Window(
         on_click=on_balance_transfer_amount_manual_input_click,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel_amount",
             on_click=on_balance_transfer_amount_cancel,
+            style="danger",
         ),
         Button(
             text=I18nFormat("btn-amount-accept"),
@@ -802,10 +809,11 @@ balance_transfer_amount_manual = Window(
     Banner(),
     I18nFormat("msg-balance-transfer-amount-manual"),
     MessageInput(func=on_balance_transfer_amount_manual_value_input),
-    Button(
-        text=I18nFormat("btn-cancel"),
-        id="cancel_amount_manual",
-        on_click=on_balance_transfer_amount_manual_cancel,
+    ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel_amount_manual",
+            on_click=on_balance_transfer_amount_manual_cancel,
+            style="danger",
     ),
     IgnoreUpdate(),
     state=MainMenu.BALANCE_TRANSFER_AMOUNT_MANUAL,
@@ -817,10 +825,11 @@ balance_transfer_message = Window(
     I18nFormat("msg-balance-transfer-message"),
     MessageInput(func=on_balance_transfer_message_input),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel_message",
             on_click=on_balance_transfer_message_cancel,
+            style="danger",
         ),
         Button(
             text=I18nFormat("btn-accept"),

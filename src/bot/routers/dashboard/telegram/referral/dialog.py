@@ -34,7 +34,7 @@ from src.bot.routers.dashboard.telegram.referral.handlers import (
     on_invite_preview,
 )
 from src.bot.states import TelegramReferral
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 # Главное окно настроек реферальной системы
 referral = Window(
     Banner(),
@@ -80,15 +80,17 @@ referral = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_referral_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_referral_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -113,15 +115,17 @@ level = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -146,15 +150,17 @@ reward_type = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -179,15 +185,17 @@ accrual_strategy = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -213,15 +221,17 @@ reward_strategy = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -461,15 +471,17 @@ reward = Window(
     # Ручной ввод через MessageInput
     MessageInput(func=on_reward_input),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_submenu_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_submenu_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -484,10 +496,11 @@ reward_manual_input = Window(
     # Ручной ввод через MessageInput
     MessageInput(func=on_reward_input),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_reward_manual_input_cancel,
+            style="danger",
         ),
     ),
     IgnoreUpdate(),
@@ -520,15 +533,17 @@ invite_message = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_invite_message_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_invite_message_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -542,10 +557,11 @@ invite_message_edit = Window(
     I18nFormat("msg-referral-invite-edit", current_message=F["current_message"]),
     MessageInput(func=on_invite_message_input),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramReferral.INVITE_MESSAGE,
+            style="danger",
         ),
     ),
     IgnoreUpdate(),

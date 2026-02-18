@@ -16,7 +16,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import DashboardTelegram, TelegramGateways, DashboardSettings
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import Currency
 from .handlers import (
     on_active_toggle,
@@ -82,15 +82,17 @@ gateways = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_gateways_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_gateways_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -166,15 +168,17 @@ default_currency = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_currency_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_currency_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -202,15 +206,17 @@ placement = Window(
         items="gateways",
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_placement_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_placement_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

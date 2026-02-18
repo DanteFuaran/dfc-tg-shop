@@ -13,7 +13,7 @@ wheels = [
 
 [[package]]
 name = "aiogram"
-version = "3.22.0"
+version = "3.25.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -23,9 +23,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/92/2c/fe0845a97f6126357d20163ede8f76bc161f73122123c6548ca19d9a12c7/aiogram-3.22.0.tar.gz", hash = "sha256:c483f81e37aeea8e7f592c9bd14f6acc80d9b7a2698e296a45bf47ff60a98510", size = 1520414, upload-time = "2025-08-17T16:20:45.471Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/31/360c4ce76e60e9e7bcdda1af1ab4331d78837fbb22847a62121ad32b7672/aiogram-3.25.0.tar.gz", hash = "sha256:8a8b0c34f8c4ca8a6501b954abb0eeba26743449e35e20b70c0d810347354c3c", size = 1721010, upload-time = "2026-02-10T21:50:25.473Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/e5/9f9fae7b50ed502e33121dd62a7e9b076d00630eaafe1dd7fda64f7e8625/aiogram-3.22.0-py3-none-any.whl", hash = "sha256:1c6eceb078ff62cf0556a5466cf3e7e8119678c26cc56803b7ac5f73633934a8", size = 698216, upload-time = "2025-08-17T16:20:43.354Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/be/1090252415e192687985517162dbdcee2ec4150cda1fa52bf57ae1f1c2a8/aiogram-3.25.0-py3-none-any.whl", hash = "sha256:0243966e93fbde14e90c0dfd0b3776c637ebf7ddcca2c7ee81ecbd68d9490cce", size = 713972, upload-time = "2026-02-10T21:50:23.253Z" },
 ]
 
 [[package]]
@@ -279,6 +279,75 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/6e/1c8331ddf91ca4730ab3086a0f1be19c65510a33b5a441cb334e7a2d2560/cryptography-46.0.3-cp38-abi3-win32.whl", hash = "sha256:6276eb85ef938dc035d59b87c8a7dc559a232f954962520137529d77b18ff1df", size = 3036695, upload-time = "2025-10-15T23:18:08.672Z" },
     { url = "https://files.pythonhosted.org/packages/90/45/b0d691df20633eff80955a0fc7695ff9051ffce8b69741444bd9ed7bd0db/cryptography-46.0.3-cp38-abi3-win_amd64.whl", hash = "sha256:416260257577718c05135c55958b674000baef9a1c7d9e8f306ec60d71db850f", size = 3501720, upload-time = "2025-10-15T23:18:10.632Z" },
     { url = "https://files.pythonhosted.org/packages/e8/cb/2da4cc83f5edb9c3257d09e1e7ab7b23f049c7962cae8d842bbef0a9cec9/cryptography-46.0.3-cp38-abi3-win_arm64.whl", hash = "sha256:d89c3468de4cdc4f08a57e214384d0471911a3830fcdaf7a8cc587e42a866372", size = 2918740, upload-time = "2025-10-15T23:18:12.277Z" },
+]
+
+[[package]]
+name = "dfc-tg"
+version = "0.3.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "aiogram" },
+    { name = "aiogram-dialog" },
+    { name = "alembic" },
+    { name = "asyncpg" },
+    { name = "cryptography" },
+    { name = "dishka" },
+    { name = "fastapi" },
+    { name = "fluentogram" },
+    { name = "greenlet" },
+    { name = "loguru" },
+    { name = "msgspec" },
+    { name = "pydantic-settings" },
+    { name = "qrcode", extra = ["pil"] },
+    { name = "redis" },
+    { name = "remnapy" },
+    { name = "sqlalchemy", extra = ["mypy"] },
+    { name = "taskiq", extra = ["orjson"] },
+    { name = "taskiq-redis" },
+    { name = "uvicorn" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ftl-extract" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "types-cachetools" },
+    { name = "watchfiles" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiogram", specifier = "~=3.25.0" },
+    { name = "aiogram-dialog", specifier = "~=2.4.0" },
+    { name = "alembic", specifier = "~=1.16.5" },
+    { name = "asyncpg", specifier = "~=0.30.0" },
+    { name = "cryptography", specifier = ">=46.0.3" },
+    { name = "dishka", specifier = "~=1.6.0" },
+    { name = "fastapi", specifier = ">=0.120.2" },
+    { name = "fluentogram", specifier = "~=1.2.1" },
+    { name = "greenlet", specifier = ">=3.2.4" },
+    { name = "loguru", specifier = "~=0.7.3" },
+    { name = "msgspec", specifier = "~=0.19.0" },
+    { name = "pydantic-settings", specifier = "~=2.11.0" },
+    { name = "qrcode", extras = ["pil"], specifier = ">=8.2" },
+    { name = "redis", specifier = "~=7.0.0" },
+    { name = "remnapy", specifier = ">=2.3.3" },
+    { name = "sqlalchemy", extras = ["mypy"], specifier = ">=2.0.0" },
+    { name = "taskiq", extras = ["orjson"], specifier = "~=0.12.1" },
+    { name = "taskiq-redis", specifier = "~=1.2.0" },
+    { name = "uvicorn", specifier = ">=0.38.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "ftl-extract", specifier = ">=0.9.0" },
+    { name = "mypy", specifier = ">=1.18.2" },
+    { name = "pytest", specifier = ">=8.4.2" },
+    { name = "ruff", specifier = ">=0.14.2" },
+    { name = "types-cachetools" },
+    { name = "watchfiles", specifier = ">=1.1.1" },
 ]
 
 [[package]]
@@ -896,75 +965,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b5/02/6a85175242e312de064d9ac3255dff46f94c2ba35afe90fdf1b6bd8bfa3f/remnapy-2.3.3.tar.gz", hash = "sha256:e0ce86e32476170ca47933f1c2c7c8b55eef35d80d153774f4e24addf84854af", size = 124384, upload-time = "2025-12-21T12:24:32.197Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d4/dc/22e9ff49d4fa71275939a6cf65822e96e80c44d1327df7473025e4cfda31/remnapy-2.3.3-py3-none-any.whl", hash = "sha256:a03c44e87cb3330a3dd3123b0a6a85e7f32ceaf9917bd5966f9fa82a228b2ea9", size = 78565, upload-time = "2025-12-21T12:24:30.767Z" },
-]
-
-[[package]]
-name = "remnashop"
-version = "0.0.33"
-source = { virtual = "." }
-dependencies = [
-    { name = "aiogram" },
-    { name = "aiogram-dialog" },
-    { name = "alembic" },
-    { name = "asyncpg" },
-    { name = "cryptography" },
-    { name = "dishka" },
-    { name = "fastapi" },
-    { name = "fluentogram" },
-    { name = "greenlet" },
-    { name = "loguru" },
-    { name = "msgspec" },
-    { name = "pydantic-settings" },
-    { name = "qrcode", extra = ["pil"] },
-    { name = "redis" },
-    { name = "remnapy" },
-    { name = "sqlalchemy", extra = ["mypy"] },
-    { name = "taskiq", extra = ["orjson"] },
-    { name = "taskiq-redis" },
-    { name = "uvicorn" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ftl-extract" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "types-cachetools" },
-    { name = "watchfiles" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiogram", specifier = "~=3.22.0" },
-    { name = "aiogram-dialog", specifier = "~=2.4.0" },
-    { name = "alembic", specifier = "~=1.16.5" },
-    { name = "asyncpg", specifier = "~=0.30.0" },
-    { name = "cryptography", specifier = ">=46.0.3" },
-    { name = "dishka", specifier = "~=1.6.0" },
-    { name = "fastapi", specifier = ">=0.120.2" },
-    { name = "fluentogram", specifier = "~=1.2.1" },
-    { name = "greenlet", specifier = ">=3.2.4" },
-    { name = "loguru", specifier = "~=0.7.3" },
-    { name = "msgspec", specifier = "~=0.19.0" },
-    { name = "pydantic-settings", specifier = "~=2.11.0" },
-    { name = "qrcode", extras = ["pil"], specifier = ">=8.2" },
-    { name = "redis", specifier = "~=7.0.0" },
-    { name = "remnapy", specifier = ">=2.3.3" },
-    { name = "sqlalchemy", extras = ["mypy"], specifier = ">=2.0.0" },
-    { name = "taskiq", extras = ["orjson"], specifier = "~=0.12.1" },
-    { name = "taskiq-redis", specifier = "~=1.2.0" },
-    { name = "uvicorn", specifier = ">=0.38.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ftl-extract", specifier = ">=0.9.0" },
-    { name = "mypy", specifier = ">=1.18.2" },
-    { name = "pytest", specifier = ">=8.4.2" },
-    { name = "ruff", specifier = ">=0.14.2" },
-    { name = "types-cachetools" },
-    { name = "watchfiles", specifier = ">=1.1.1" },
 ]
 
 [[package]]

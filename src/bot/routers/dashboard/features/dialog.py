@@ -3,7 +3,7 @@ from aiogram_dialog.widgets.kbd import Button, Column, Row
 from magic_filter import F
 
 from src.bot.states import DashboardFeatures
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 
 from .getters import features_getter
 from .handlers import (
@@ -68,15 +68,17 @@ features_main = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             on_click=on_cancel_features,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept",
             on_click=on_accept_features,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

@@ -7,7 +7,7 @@ from magic_filter import F
 
 from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
 from src.bot.states import MainMenu, Subscription
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import ColoredButton, ColoredSwitchTo, Banner, I18nFormat, IgnoreUpdate
 from src.core.constants import PURCHASE_PREFIX
 from src.core.enums import PaymentGatewayType, PurchaseType
 
@@ -438,10 +438,11 @@ referral_code_input = Window(
     Banner(),
     I18nFormat("msg-subscription-referral-code"),
     MessageInput(func=on_referral_code_input),
-    SwitchTo(
-        text=I18nFormat("btn-cancel"),
-        id="cancel",
-        state=Subscription.MAIN,
+    ColoredSwitchTo(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            state=Subscription.MAIN,
+            style="danger",
     ),
     IgnoreUpdate(),
     state=Subscription.REFERRAL_CODE,
