@@ -4,7 +4,6 @@ services:
     container_name: "dfc-tg-db"
     hostname: dfc-tg-db
     restart: unless-stopped
-    mem_limit: 256m
 
     env_file:
       - .env
@@ -39,11 +38,10 @@ services:
     container_name: "dfc-tg-redis"
     hostname: dfc-tg-redis
     restart: unless-stopped
-    mem_limit: 128m
 
     command: [ 
       "--requirepass", "${REDIS_PASSWORD}",
-      "--maxmemory", "64mb",
+      "--maxmemory", "128mb",
       "--maxmemory-policy", "allkeys-lru",
       "--tcp-keepalive", "300"
     ]
@@ -75,7 +73,6 @@ services:
     hostname: dfc-tg
     restart: unless-stopped
     stop_grace_period: 30s
-    mem_limit: 512m
 
     env_file:
       - .env
@@ -113,7 +110,6 @@ services:
     container_name: "dfc-tg-taskiq-worker"
     hostname: dfc-tg-taskiq-worker
     restart: unless-stopped
-    mem_limit: 300m
     command: taskiq worker src.infrastructure.taskiq.worker:worker 
       --tasks-pattern src/infrastructure/taskiq/tasks -fsd -w 1
 
@@ -152,7 +148,6 @@ services:
     container_name: "dfc-tg-taskiq-scheduler"
     hostname: dfc-tg-taskiq-scheduler
     restart: unless-stopped
-    mem_limit: 300m
     command: taskiq scheduler src.infrastructure.taskiq.scheduler:scheduler
       --tasks-pattern src/infrastructure/taskiq/tasks -fsd
 
