@@ -654,6 +654,29 @@ cleanup_on_exit() {
     fi
 }
 
+# Перезапуск через системный скрипт с предварительной очисткой CLONE_DIR
+# Используется вместо exec "$0" чтобы не оставлять /tmp/tmp.* папку
+restart_script() {
+    local extra_arg="${1:-}"
+    # Явно удаляем CLONE_DIR перед exec (trap EXIT не сработает после exec)
+    if [ -n "$CLONE_DIR" ] && [ -d "$CLONE_DIR" ]; then
+        local _clone_to_remove="$CLONE_DIR"
+        CLONE_DIR=""
+        cd /opt 2>/dev/null || true
+        rm -rf "$_clone_to_remove" 2>/dev/null || true
+    fi
+    # Запускаем из системной папки если доступна, иначе $0
+    local _target="/usr/local/lib/dfc-tg-shop/install.sh"
+    if [ ! -f "$_target" ]; then
+        _target="$0"
+    fi
+    if [ -n "$extra_arg" ]; then
+        exec "$_target" "$extra_arg"
+    else
+        exec "$_target"
+    fi
+}
+
 # Простое меню при отсутствии бота
 show_simple_menu() {
     # Ждём завершения проверки обновлений
@@ -683,7 +706,7 @@ show_simple_menu() {
     
     case $choice in
         0)  # Установить
-            exec "$0" --install
+            restart_script --install
             ;;
         2)  # Выход
             clear
@@ -969,7 +992,7 @@ manage_update_bot() {
                 
                 # Перезапускаем скрипт чтобы вернуться в главное меню
                 # При перезапуске check_updates_available автоматически пересчитает флаг обновления
-                exec "$0"
+                restart_script
             elif [ $spinner_result -eq 2 ]; then
                 echo -e "${RED}❌ Ошибка при обновлении бота!${NC}"
                 echo
@@ -1007,7 +1030,7 @@ manage_update_bot() {
                 read -p ""
                 
                 # Перезапускаем скрипт
-                exec "$0"
+                restart_script
             fi
     fi
     
@@ -1131,7 +1154,7 @@ manage_reinstall_bot() {
         tput cnorm 2>/dev/null || true
         
         # Запускаем скрипт установки
-        exec "$0" --install
+        restart_script --install
     else
         echo -e "${YELLOW}Переустановка отменена${NC}"
         echo
@@ -1761,8 +1784,8 @@ if [ "$1" = "--prod" ] || [ "$1" = "-p" ]; then
     INSTALL_MODE="prod"
 fi
 
-# Очистка старых временных директорий (старше 24 часов)
-find /tmp -maxdepth 1 -type d -name "tmp.*" -mtime +1 -exec rm -rf {} \; 2>/dev/null || true
+# Очистка старых временных директорий (старше 1 часа)
+find /tmp -maxdepth 1 -type d -name "tmp.*" -mmin +60 -exec rm -rf {} \; 2>/dev/null || true
 # Очистка старых директорий сборки Docker
 rm -rf /tmp/dfc-tg-build 2>/dev/null || true
 
