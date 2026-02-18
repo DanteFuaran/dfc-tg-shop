@@ -2062,13 +2062,8 @@ NGINXBLOCK
             if ! grep -q "/etc/letsencrypt/live/${cert_domain}/" "$remnawave_compose" 2>/dev/null; then
                 # Для unix_socket монтируем в /etc/nginx/ssl/ (xray-сетап)
                 # Для direct монтируем в /etc/letsencrypt/live/ (стандартный nginx)
-                if [ "$listen_type" = "unix_socket" ]; then
-                    sed -i "/nginx.conf:\/etc\/nginx\/conf.d\/default.conf:ro/a\\      - /etc/letsencrypt/live/${cert_domain}/fullchain.pem:/etc/nginx/ssl/${cert_domain}/fullchain.pem:ro\n      - /etc/letsencrypt/live/${cert_domain}/privkey.pem:/etc/nginx/ssl/${cert_domain}/privkey.pem:ro" "$remnawave_compose" 2>/dev/null || true
-                else
-                    # Для прямого nginx — сертификаты уже доступны через /etc/letsencrypt mount
-                    # Добавляем только если /etc/letsencrypt не смонтирован целиком
-                    sed -i "/nginx.conf:\/etc\/nginx\/conf.d\/default.conf:ro/a\\      - /etc/letsencrypt/live/${cert_domain}/fullchain.pem:/etc/letsencrypt/live/${cert_domain}/fullchain.pem:ro\n      - /etc/letsencrypt/live/${cert_domain}/privkey.pem:/etc/letsencrypt/live/${cert_domain}/privkey.pem:ro" "$remnawave_compose" 2>/dev/null || true
-                fi
+                # Всегда монтируем в /etc/nginx/ssl/ — именно там nginx.conf ищет сертификаты
+                sed -i "/nginx.conf:\/etc\/nginx\/conf.d\/default.conf:ro/a\\      - /etc/letsencrypt/live/${cert_domain}/fullchain.pem:/etc/nginx/ssl/${cert_domain}/fullchain.pem:ro\n      - /etc/letsencrypt/live/${cert_domain}/privkey.pem:/etc/nginx/ssl/${cert_domain}/privkey.pem:ro" "$remnawave_compose" 2>/dev/null || true
             fi
         fi
     fi
