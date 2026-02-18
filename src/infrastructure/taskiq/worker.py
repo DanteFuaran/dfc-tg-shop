@@ -1,11 +1,10 @@
 from typing import Any
 
-from dishka.integrations.aiogram import setup_dishka as setup_aiogram_dishka
 from dishka.integrations.taskiq import setup_dishka as setup_taskiq_dishka
 from taskiq import TaskiqMiddleware
 from taskiq_redis import RedisStreamBroker
 
-from src.bot.dispatcher import create_bg_manager_factory, create_dispatcher, setup_dispatcher
+from src.bot.dispatcher import create_bg_manager_factory, create_dispatcher
 from src.core.config import AppConfig
 from src.core.logger import setup_logger
 from src.infrastructure.di import create_container
@@ -42,13 +41,17 @@ def worker() -> RedisStreamBroker:
     init_consumer_group()
 
     config = AppConfig.get()
+
+    # Worker не обрабатывает Telegram-апдейты — ему не нужны хэндлеры, middleware, фильтры.
+    # Загружаем только Dispatcher (для FSM storage) и BgManagerFactory (для redirect-задач).
+    # setup_dispatcher() НЕ вызываем — это экономит ~30-50 МБ RAM на каждом процессе,
+    # т.к. не загружаются все модули роутеров, хэндлеров и middleware.
     dispatcher = create_dispatcher(config=config)
     bg_manager_factory = create_bg_manager_factory(dispatcher=dispatcher)
-    setup_dispatcher(dispatcher)
+
     container = create_container(config=config, bg_manager_factory=bg_manager_factory)
 
     setup_taskiq_dishka(container=container, broker=broker)
-    setup_aiogram_dishka(container=container, router=dispatcher, auto_inject=True)
     
     # Добавляем middleware для фильтрации dishka параметров из task_hints
     broker.add_middlewares(DishkaParamsFilterMiddleware())

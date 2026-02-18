@@ -113,9 +113,9 @@ services:
     container_name: "dfc-tg-taskiq-worker"
     hostname: dfc-tg-taskiq-worker
     restart: unless-stopped
-    mem_limit: 384m
+    mem_limit: 300m
     command: taskiq worker src.infrastructure.taskiq.worker:worker 
-      --tasks-pattern src/infrastructure/taskiq/tasks -fsd
+      --tasks-pattern src/infrastructure/taskiq/tasks -fsd -w 1
 
     env_file:
       - .env
@@ -152,7 +152,7 @@ services:
     container_name: "dfc-tg-taskiq-scheduler"
     hostname: dfc-tg-taskiq-scheduler
     restart: unless-stopped
-    mem_limit: 256m
+    mem_limit: 300m
     command: taskiq scheduler src.infrastructure.taskiq.scheduler:scheduler
       --tasks-pattern src/infrastructure/taskiq/tasks -fsd
 
