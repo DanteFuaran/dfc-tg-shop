@@ -14,13 +14,21 @@ PROJECT_DIR="/opt/dfc-tg-shop"
 ENV_FILE="$PROJECT_DIR/.env"
 REPO_DIR="/opt/dfc-tg-shop"
 REMNAWAVE_DIR="/opt/remnawave"
+SYSTEM_INSTALL_DIR="/usr/local/lib/dfc-tg-shop"
+
+# Ветка, версия и репозиторий — единый источник: $PROJECT_DIR/version
+# Формат файла:
+#   version: x.x.x
+#   branch:  dev
+#   repo:    https://github.com/...
 REPO_URL="https://github.com/DanteFuaran/dfc-tg-shop.git"
-# Ветка и версия (единый источник: version)
 REPO_BRANCH="dev"
-for _uf in "$SCRIPT_CWD/version" "$SCRIPT_CWD/.update"; do
+for _uf in "$PROJECT_DIR/version" "$SCRIPT_CWD/version" "$SCRIPT_CWD/.update"; do
     if [ -f "$_uf" ]; then
         _br=$(grep '^branch:' "$_uf" | cut -d: -f2 | tr -d ' \n')
+        _ru=$(grep '^repo:'   "$_uf" | cut -d: -f2- | tr -d ' \n')
         [ -n "$_br" ] && REPO_BRANCH="$_br"
+        [ -n "$_ru" ] && REPO_URL="$_ru"
         break
     fi
 done
@@ -698,9 +706,9 @@ show_full_menu() {
         (  
             sudo tee /usr/local/bin/dfc-tg-shop > /dev/null << 'EOF'
 #!/bin/bash
-# Запускаем install.sh из корня бота
-if [ -f "/opt/dfc-tg-shop/install.sh" ]; then
-    exec /opt/dfc-tg-shop/install.sh
+# Запускаем install.sh из системной папки
+if [ -f "/usr/local/lib/dfc-tg-shop/install.sh" ]; then
+    exec /usr/local/lib/dfc-tg-shop/install.sh
 else
     echo "❌ install.sh не найден. Переустановите бота."
     exit 1
@@ -897,9 +905,10 @@ manage_update_bot() {
                     cp -f "version" "$PROJECT_DIR/version"
                 fi
                 
-                # Копируем install.sh в корень бота
-                cp -f "install.sh" "$PROJECT_DIR/install.sh" 2>/dev/null || true
-                chmod +x "$PROJECT_DIR/install.sh" 2>/dev/null || true
+                # Копируем install.sh в системную папку (не в корень бота)
+                sudo mkdir -p "$SYSTEM_INSTALL_DIR" 2>/dev/null || true
+                sudo cp -f "install.sh" "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || true
+                sudo chmod +x "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || true
             } &
             show_spinner "Обновление конфигурации"
             
@@ -2180,12 +2189,15 @@ if [ "$COPY_FILES" = true ]; then
           cp -r "$SOURCE_DIR/assets" "$PROJECT_DIR/"
       fi
       
-      # Копируем install.sh и version в корень бота
-      cp "$SOURCE_DIR/install.sh" "$PROJECT_DIR/install.sh"
-      chmod +x "$PROJECT_DIR/install.sh"
+      # Копируем version в корень бота
       if [ -f "$SOURCE_DIR/version" ]; then
           cp "$SOURCE_DIR/version" "$PROJECT_DIR/version"
       fi
+
+      # Копируем install.sh в системную папку (не в корень бота)
+      sudo mkdir -p "$SYSTEM_INSTALL_DIR"
+      sudo cp "$SOURCE_DIR/install.sh" "$SYSTEM_INSTALL_DIR/install.sh"
+      sudo chmod +x "$SYSTEM_INSTALL_DIR/install.sh"
     )
     wait  # Ждем завершения копирования без спиннера
 fi
@@ -2515,11 +2527,15 @@ INSTALL_COMPLETED=true
 
 # Создание глобальной команды dfc-tg-shop
 (
+    sudo mkdir -p /usr/local/lib/dfc-tg-shop
+    sudo cp "$SOURCE_DIR/install.sh" /usr/local/lib/dfc-tg-shop/install.sh
+    sudo chmod +x /usr/local/lib/dfc-tg-shop/install.sh
+
     sudo tee /usr/local/bin/dfc-tg-shop > /dev/null << 'EOF'
 #!/bin/bash
-# Запускаем install.sh из корня бота
-if [ -f "/opt/dfc-tg-shop/install.sh" ]; then
-    exec /opt/dfc-tg-shop/install.sh
+# Запускаем install.sh из системной папки
+if [ -f "/usr/local/lib/dfc-tg-shop/install.sh" ]; then
+    exec /usr/local/lib/dfc-tg-shop/install.sh
 else
     echo "❌ install.sh не найден. Переустановите бота."
     exit 1

@@ -1,2 +1,3 @@
-version: 0.3.4
+version: 0.3.5
 branch: dev
+repo:    https://github.com/DanteFuaran/dfc-tg-shop.git
