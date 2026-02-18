@@ -4,6 +4,9 @@ cd /opt >/dev/null 2>&1 || true
 BLUE='\033[1;34m'
 NC='\033[0m'
 
+# Перехватываем Ctrl+C чтобы не выводить "Ошибка"
+trap 'stty sane 2>/dev/null; tput cnorm 2>/dev/null; exit 130' INT TERM
+
 # Ветка по умолчанию (совпадает с веткой, из которой запущен этот скрипт)
 REPO_BRANCH="dev"
 
@@ -56,3 +59,5 @@ fi
 # Удаляем временную папку после установки
 cd /opt || exit 1
 rm -rf "$CLONE_DIR"
+stty sane 2>/dev/null || true
+tput cnorm 2>/dev/null || true
