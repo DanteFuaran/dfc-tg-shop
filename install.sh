@@ -1573,6 +1573,7 @@ manage_cleanup_database() {
 
 # Функция удаления бота
 manage_uninstall_bot() {
+    cd /opt || true
     clear
     echo -e "${BLUE}══════════════════════════════════════${NC}"
     echo -e "${GREEN}       🗑️  УДАЛЕНИЕ DFC-SHOP-BOT${NC}"
@@ -1596,9 +1597,11 @@ manage_uninstall_bot() {
     
     # Остановка контейнеров и удаление
     {
-        cd "$PROJECT_DIR" || return
-        docker compose down >/dev/null 2>&1 || true
         cd /opt
+        if [ -d "$PROJECT_DIR" ]; then
+            cd "$PROJECT_DIR" && docker compose down >/dev/null 2>&1 || true
+            cd /opt
+        fi
         rm -rf "$PROJECT_DIR"
     } &
     show_spinner "Удаление бота и контейнеров"
