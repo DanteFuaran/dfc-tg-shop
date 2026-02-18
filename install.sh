@@ -1788,10 +1788,9 @@ remove_from_caddy() {
     # Также удаляем пустые строки вокруг удаленного блока
     sed -i '/^$/N;/^\n$/d' "$caddy_file" 2>/dev/null || true
 
-    # Перезапускаем Caddy
+    # Перезапускаем Caddy (без затрагивания остальных сервисов)
     cd "$caddy_dir"
-    docker compose down >/dev/null 2>&1
-    docker compose up -d >/dev/null 2>&1
+    docker compose restart caddy >/dev/null 2>&1 || true
 }
 
 configure_caddy() {
@@ -1813,10 +1812,9 @@ https://${app_domain} {
 EOF
     fi
 
-    # Реальный перезапуск Caddy
+    # Перезапуск Caddy (без затрагивания остальных сервисов)
     cd "$caddy_dir"
-    docker compose down >/dev/null 2>&1
-    docker compose up -d  >/dev/null 2>&1
+    docker compose restart caddy >/dev/null 2>&1 || true
 }
 
 remove_from_nginx() {
@@ -2075,10 +2073,9 @@ NGINXBLOCK
         fi
     fi
 
-    # ── Перезапускаем nginx ──
+    # ── Перезапускаем nginx (без затрагивания остальных сервисов remnawave) ──
     cd "$remnawave_dir"
-    docker compose down >/dev/null 2>&1 || true
-    docker compose up -d >/dev/null 2>&1 || true
+    docker compose up -d --force-recreate remnawave-nginx >/dev/null 2>&1 || true
 }
 
 # Вспомогательная функция: определить домен сертификата
@@ -2378,6 +2375,9 @@ show_spinner "Создание конфигурации"
         echo "WEBHOOK_URL=https://${APP_DOMAIN}/api/v1/remnawave" >> "$REMNAWAVE_ENV"
       fi
     fi
+
+    # Перезапускаем remnawave для применения новых webhook-настроек
+    cd /opt/remnawave && docker compose up -d --force-recreate remnawave >/dev/null 2>&1 || true
   fi
 ) &
 show_spinner "Синхронизация с Remnawave"
