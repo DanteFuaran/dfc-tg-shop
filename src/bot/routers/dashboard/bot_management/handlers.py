@@ -58,7 +58,7 @@ async def on_check_update(
 
     try:
         branch = get_update_branch()
-        url = REPOSITORY.replace("github.com", "raw.githubusercontent.com") + f"/{branch}/assets/update/.update"
+        url = REPOSITORY.replace("github.com", "raw.githubusercontent.com") + f"/{branch}/version"
 
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
