@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
 
 # Читаем версию из файла version (формат: version: x.x.x)
+# Приоритет: файл version → переменная окружения BUILD_TAG → "0.0.0"
 _update_file = Path(__file__).parent.parent / "version"
 
 try:
@@ -9,6 +11,6 @@ try:
             __version__ = _line.split(":", 1)[1].strip()
             break
     else:
-        __version__ = "0.0.0"
+        __version__ = os.environ.get("BUILD_TAG", "0.0.0")
 except FileNotFoundError:
-    __version__ = "0.0.0"
+    __version__ = os.environ.get("BUILD_TAG", "0.0.0")

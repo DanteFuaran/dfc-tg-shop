@@ -34,6 +34,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/dfc-tg
 
 COPY ./src ./src
+COPY ./version ./version
 COPY ./assets /opt/dfc-tg/assets.default
 COPY ./scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 COPY ./scripts/docker-entrypoint-worker.sh ./scripts/docker-entrypoint-worker.sh
