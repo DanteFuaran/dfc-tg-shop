@@ -17,7 +17,8 @@ _remote_branch=$(curl -s "$GITHUB_RAW_URL/$REPO_BRANCH/version" 2>/dev/null | gr
 
 # Создаем временную папку с уникальным именем
 CLONE_DIR=$(mktemp -d)
-echo -e "${BLUE}Подготовка установки...${NC}"
+echo -e "${BLUE}⏳ Происходит подготовка установки... Пожалуйста, подождите${NC}"
+echo ""
 
 # Клонируем репозиторий
 if ! git clone -b "$REPO_BRANCH" --depth 1 https://github.com/DanteFuaran/dfc-tg-shop.git "$CLONE_DIR" >/dev/null 2>&1; then
