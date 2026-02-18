@@ -1,7 +1,7 @@
 from pathlib import Path
 
-# Читаем версию из файла assets/update/.update (формат: version: x.x.x)
-_update_file = Path(__file__).parent.parent / "assets" / "update" / ".update"
+# Читаем версию из файла version (формат: version: x.x.x)
+_update_file = Path(__file__).parent.parent / "version"
 
 try:
     for _line in _update_file.read_text().splitlines():

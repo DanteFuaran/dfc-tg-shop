@@ -6,7 +6,7 @@ from magic_filter import F
 from src.bot.keyboards import main_menu_button
 from src.bot.routers.dashboard.telegram.handlers import on_logs_request
 from src.bot.states import Dashboard, DashboardBotManagement
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from .handlers import (
     bot_management_getter,
     on_check_update,
@@ -34,10 +34,11 @@ bot_management_window = Window(
         on_click=on_restart_bot,
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back"),
             id="back",
             on_click=on_back_to_dashboard,
+            style="primary",
         ),
         *main_menu_button,
     ),

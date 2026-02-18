@@ -18,7 +18,7 @@ from remnapy.enums.users import TrafficLimitStrategy
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardTelegram, TelegramPlans
-from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import Currency, PlanAvailability, PlanType
 
 from .getters import (
@@ -116,11 +116,12 @@ plans = Window(
         items="plans",
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -235,10 +236,11 @@ plan_name = Window(
     Banner(),
     I18nFormat("msg-plan-name"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
+            style="danger",
         ),
     ),
     MessageInput(func=on_name_input),
@@ -399,10 +401,11 @@ plan_traffic = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
+            style="danger",
         ),
     ),
     MessageInput(func=on_traffic_input),
@@ -415,10 +418,11 @@ plan_devices = Window(
     Banner(),
     I18nFormat("msg-plan-devices"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
+            style="danger",
         ),
     ),
     MessageInput(func=on_devices_input),
@@ -455,10 +459,11 @@ plan_durations = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
+            style="danger",
         ),
         ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
@@ -476,10 +481,11 @@ plan_durations_add = Window(
     Banner(),
     I18nFormat("msg-plan-duration"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.DURATIONS,
+            style="danger",
         ),
     ),
     MessageInput(func=on_duration_input),
@@ -505,10 +511,11 @@ plan_prices = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.DURATIONS,
+            style="danger",
         ),
         ColoredSwitchTo(
             text=I18nFormat("btn-accept"),
@@ -537,10 +544,11 @@ plan_price = Window(
         Button(text=Format("5000 ₽"), id="price_5000", on_click=lambda c, w, m: on_price_input(c, m, "5000")),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.PRICES,
+            style="danger",
         ),
     ),
     MessageInput(func=on_price_input),
@@ -569,10 +577,11 @@ plan_allowed_users = Window(
         items="allowed_users",
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=TelegramPlans.CONFIGURATOR,
+            style="danger",
         ),
         ColoredSwitchTo(
             text=I18nFormat("btn-accept"),

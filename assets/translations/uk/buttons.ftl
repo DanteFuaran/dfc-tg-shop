@@ -390,7 +390,7 @@ btn-menu-promocode = 🎟 Промокод
 btn-menu-support = 🆘 Допомога
 btn-menu-tos = 📋 Угода
 btn-menu-community = 👥 Спільнота
-btn-menu-dashboard = � Панель керування
+btn-menu-dashboard = 🧰 Панель керування
 
 # Balance
 btn-balance-topup = ➕ Поповнити

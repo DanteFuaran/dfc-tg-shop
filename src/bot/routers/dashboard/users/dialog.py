@@ -6,7 +6,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardUsers
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 
 from .getters import (
     blacklist_getter,
@@ -57,11 +57,12 @@ users = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.USER_MANAGEMENT,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -73,10 +74,11 @@ search = Window(
     Banner(),
     I18nFormat("msg-users-search"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -103,10 +105,11 @@ recent_registered = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -133,10 +136,11 @@ recent_activity = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -163,10 +167,11 @@ all_users = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -193,10 +198,11 @@ search_results = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.SEARCH,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -231,10 +237,11 @@ blacklist = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUsers.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

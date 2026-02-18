@@ -5,7 +5,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardAccess
-from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import AccessMode
 
 from .getters import access_getter, conditions_getter
@@ -98,10 +98,11 @@ conditions = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardAccess.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -113,10 +114,11 @@ rules = Window(
     Banner(),
     I18nFormat("msg-access-rules"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardAccess.CONDITIONS,
+            style="primary",
         ),
     ),
     MessageInput(func=on_rules_input),
@@ -128,10 +130,11 @@ channel = Window(
     Banner(),
     I18nFormat("msg-access-channel"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardAccess.CONDITIONS,
+            style="primary",
         ),
     ),
     MessageInput(func=on_channel_input),

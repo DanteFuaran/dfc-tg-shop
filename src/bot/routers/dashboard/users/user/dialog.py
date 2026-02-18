@@ -21,7 +21,7 @@ from src.bot.keyboards import main_menu_button
 from src.bot.routers.dashboard.broadcast.handlers import on_content_input, on_preview
 from src.bot.routers.extra.test import show_dev_popup
 from src.bot.states import DashboardUser, DashboardUsers, Subscription
-from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.constants import PURCHASE_PREFIX
 from src.core.enums import SubscriptionStatus, UserRole
 
@@ -163,10 +163,11 @@ user = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back"),
             id="back_users",
             on_click=on_back_to_source,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -254,10 +255,11 @@ subscription = Window(
         when=F["has_subscription"],
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -281,10 +283,11 @@ traffic_limit = Window(
         width=3,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SUBSCRIPTION,
+            style="primary",
         ),
     ),
     MessageInput(func=on_traffic_limit_input),
@@ -308,10 +311,11 @@ device_limit = Window(
         width=5,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -336,10 +340,11 @@ expire_time = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SUBSCRIPTION,
+            style="primary",
         ),
     ),
     MessageInput(func=on_duration_input),
@@ -366,10 +371,11 @@ squads = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SUBSCRIPTION,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -395,10 +401,11 @@ internal_squads = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SQUADS,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -424,10 +431,11 @@ external_squads = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SQUADS,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -455,10 +463,11 @@ devices_list = Window(
         items="devices",
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.SUBSCRIPTION,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -482,10 +491,11 @@ sync = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -497,10 +507,11 @@ sync_waiting = Window(
     Banner(),
     I18nFormat("msg-user-sync-waiting"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -522,10 +533,11 @@ give_subscription = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -558,10 +570,11 @@ subscription_duration = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.GIVE_SUBSCRIPTION,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -591,10 +604,11 @@ transactions_list = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.POINTS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -607,10 +621,11 @@ transaction = Window(
     Banner(),
     I18nFormat("msg-user-transaction-info"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.TRANSACTIONS_LIST,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -637,10 +652,11 @@ message = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -664,10 +680,11 @@ discount = Window(
         width=3,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.POINTS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -714,10 +731,11 @@ points = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -742,10 +760,11 @@ main_balance = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.POINTS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -771,10 +790,11 @@ referral_balance = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.POINTS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -802,10 +822,11 @@ give_access = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -867,10 +888,11 @@ referrals_window = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -901,10 +923,11 @@ referrals_list_window = Window(
         hide_on_single_page=True,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.REFERRALS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -920,10 +943,11 @@ referral_bind = Window(
         func=on_referral_bind_input,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.REFERRALS,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -935,10 +959,11 @@ delete_confirm = Window(
     Banner(),
     I18nFormat("msg-user-delete-confirm"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardUser.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

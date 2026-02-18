@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.text import Format
 from magic_filter import F
 
 from src.bot.states import DashboardUser, MainMenu, Subscription
-from src.bot.widgets.i18n_format import I18nFormat
+from src.bot.widgets import ColoredStart, ColoredSwitchTo, I18nFormat
 from src.core.constants import GOTO_PREFIX, PURCHASE_PREFIX, REPOSITORY, T_ME
 from src.core.enums import PurchaseType
 from src.core.utils.formatters import format_username_to_url
@@ -45,16 +45,18 @@ def get_back_and_main_menu_buttons(back_state) -> Tuple[Row]:
     """
     return (
         Row(
-            SwitchTo(
+            ColoredSwitchTo(
                 text=I18nFormat("btn-back"),
                 id="back",
                 state=back_state,
+                style="primary",
             ),
-            Start(
+            ColoredStart(
                 text=I18nFormat("btn-main-menu"),
                 id="back_main_menu",
                 state=MainMenu.MAIN,
                 mode=StartMode.RESET_STACK,
+                style="primary",
             ),
         ),
     )
@@ -62,21 +64,23 @@ def get_back_and_main_menu_buttons(back_state) -> Tuple[Row]:
 # Старые константы для обратной совместимости
 back_main_menu_button = (
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
 )
 
 main_menu_button = (
-    Start(
+    ColoredStart(
         text=I18nFormat("btn-main-menu"),
         id="back_main_menu",
         state=MainMenu.MAIN,
         mode=StartMode.RESET_STACK,
+        style="primary",
     ),
 )
 

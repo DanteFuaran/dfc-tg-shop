@@ -103,10 +103,11 @@ menu = Window(
     ),
     # [Баланс]
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-menu-balance", balance=F["balance"]),
             id="balance",
             on_click=on_balance_click,
+            style="primary",
         ),
         when=F["is_balance_enabled"],
     ),
@@ -360,16 +361,18 @@ invite_qr = Window(
     Banner(),
     I18nFormat("msg-menu-invite"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=MainMenu.INVITE,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -381,16 +384,18 @@ connect_qr = Window(
     Banner(),
     I18nFormat("msg-menu-connect"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=MainMenu.CONNECT,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -543,11 +548,12 @@ balance_success = Window(
         currency=F["currency"],
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-done"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -735,10 +741,11 @@ balance_transfer_recipient_history = Window(
         when=F["has_recipients"],
     ),
     I18nFormat("msg-balance-transfer-no-history", when=~F["has_recipients"]),
-    Button(
+    ColoredButton(
         text=I18nFormat("btn-back"),
         id="back_recipient",
         on_click=on_balance_transfer_recipient_history_back,
+        style="primary",
     ),
     IgnoreUpdate(),
     state=MainMenu.BALANCE_TRANSFER_RECIPIENT_HISTORY,
@@ -794,10 +801,11 @@ balance_transfer_amount_value = Window(
             on_click=on_balance_transfer_amount_cancel,
             style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-accept"),
             id="accept_amount",
             on_click=on_balance_transfer_amount_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -831,10 +839,11 @@ balance_transfer_message = Window(
             on_click=on_balance_transfer_message_cancel,
             style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-accept"),
             id="accept_message",
             on_click=on_balance_transfer_message_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

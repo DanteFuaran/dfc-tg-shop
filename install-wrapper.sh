@@ -5,7 +5,7 @@ REPO_BRANCH="dev"
 
 # Если в .update указана другая ветка — она имеет приоритет
 GITHUB_RAW_URL="https://raw.githubusercontent.com/DanteFuaran/dfc-tg-shop"
-_remote_branch=$(curl -s "$GITHUB_RAW_URL/$REPO_BRANCH/assets/update/.update" 2>/dev/null | grep '^branch:' | cut -d: -f2 | tr -d ' \n')
+_remote_branch=$(curl -s "$GITHUB_RAW_URL/$REPO_BRANCH/version" 2>/dev/null | grep '^branch:' | cut -d: -f2 | tr -d ' \n')
 [ -n "$_remote_branch" ] && REPO_BRANCH="$_remote_branch"
 
 # Создаем временную папку с уникальным именем

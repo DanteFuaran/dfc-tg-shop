@@ -16,7 +16,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardPromocodes
-from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 
 from .getters import (
     configurator_getter,
@@ -75,11 +75,12 @@ promocodes = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -93,10 +94,11 @@ search = Window(
     Banner(),
     I18nFormat("msg-promocodes-search"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardPromocodes.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -133,10 +135,11 @@ promocodes_list = Window(
         items="promocodes",
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardPromocodes.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

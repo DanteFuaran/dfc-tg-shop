@@ -7,7 +7,7 @@ from magic_filter import F
 
 from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
 from src.bot.states import MainMenu, Subscription
-from src.bot.widgets import ColoredButton, ColoredSwitchTo, Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.constants import PURCHASE_PREFIX
 from src.core.enums import PaymentGatewayType, PurchaseType
 
@@ -168,23 +168,26 @@ duration = Window(
         width=2,
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_plans",
             state=Subscription.PLANS,
             when=~F["only_single_plan"],
+            style="primary",
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_main",
             state=Subscription.MAIN,
             when=F["only_single_plan"],
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -242,23 +245,26 @@ confirm = Window(
             state=Subscription.PAYMENT_METHOD,
             when=~F["only_single_gateway"] & ~F["is_free"] & ~F["is_telegram_stars"] & ~F["is_yoomoney"] & ~F["is_heleket"],
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id=f"{PURCHASE_PREFIX}back_to_payment_method_stars",
             state=Subscription.PAYMENT_METHOD,
             when=(F["is_telegram_stars"] | F["is_yoomoney"] | F["is_heleket"]) & ~F["only_single_gateway"],
+            style="primary",
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-subscription-back-duration"),
             id=f"{PURCHASE_PREFIX}back_duration",
             state=Subscription.DURATION,
             when=F["only_single_gateway"] & ~F["only_single_duration"] | F["is_free"],
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -277,16 +283,18 @@ confirm_balance = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id=f"{PURCHASE_PREFIX}back_payment_method",
             state=Subscription.PAYMENT_METHOD,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -304,16 +312,18 @@ confirm_yoomoney = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id=f"{PURCHASE_PREFIX}back_payment_method",
             state=Subscription.PAYMENT_METHOD,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -331,16 +341,18 @@ confirm_yookassa = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id=f"{PURCHASE_PREFIX}back_payment_method",
             state=Subscription.PAYMENT_METHOD,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -356,11 +368,12 @@ add_device_success = Window(
         device_count_word=F["device_count_word"],
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-done"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -377,10 +390,11 @@ add_device_payment_link = Window(
             text=I18nFormat("btn-pay"),
             url=Format("{payment_url}"),
         ),
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_devices",
             state=Subscription.DEVICES,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -395,11 +409,12 @@ success_payment = Window(
         *connect_buttons,
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-done"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -414,11 +429,12 @@ success_trial = Window(
         *connect_buttons,
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-done"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -455,11 +471,12 @@ referral_success = Window(
         *connect_buttons,
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-done"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -471,11 +488,12 @@ promocode_input = Window(
     Banner(),
     I18nFormat("msg-subscription-promocode"),
     MessageInput(func=on_promocode_input),
-    Start(
+    ColoredStart(
         text=I18nFormat("btn-cancel"),
         id="cancel_promocode",
         state=MainMenu.MAIN,
         mode=StartMode.RESET_STACK,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=Subscription.PROMOCODE,
@@ -532,16 +550,18 @@ devices = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=Subscription.MAIN,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -571,17 +591,19 @@ add_device = Window(
         Button(text=Format("10"), id="device_count_10", on_click=lambda c, w, m: on_add_device_select_count(c, w, m, "10")),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back_to_devices",
             state=MainMenu.DEVICES,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -665,16 +687,18 @@ add_device_duration = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_count",
             state=Subscription.ADD_DEVICE_SELECT_COUNT,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -707,16 +731,18 @@ add_device_payment = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_duration",
             state=Subscription.ADD_DEVICE_DURATION,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu_payment",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -751,16 +777,18 @@ add_device_confirm = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back_to_payment",
             state=Subscription.ADD_DEVICE_PAYMENT,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="main_menu_from_confirm",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -806,17 +834,19 @@ extra_devices_list = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back_to_devices",
             state=MainMenu.DEVICES,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-main-menu"),
             id="back_main_menu",
             state=MainMenu.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),

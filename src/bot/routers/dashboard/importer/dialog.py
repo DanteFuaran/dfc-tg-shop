@@ -5,7 +5,7 @@ from magic_filter import F
 
 from src.bot.keyboards import back_main_menu_button, main_menu_button
 from src.bot.states import Dashboard, DashboardImporter, DashboardDB
-from src.bot.widgets.banner import Banner
+from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo
 from src.bot.widgets.i18n_format import I18nFormat
 from src.bot.widgets.ignore_update import IgnoreUpdate
 
@@ -43,11 +43,12 @@ importer = Window(
         when=F["has_exported"] & ~F["has_started"],
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardDB.IMPORTS,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -61,11 +62,12 @@ import_completed = Window(
     Banner(),
     I18nFormat("msg-importer-import-completed"),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardImporter.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     *back_main_menu_button,
@@ -92,10 +94,11 @@ squads = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardImporter.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),

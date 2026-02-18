@@ -15,7 +15,7 @@ from src.bot.states import (
     TelegramPlans,
     TelegramReferral,
 )
-from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, I18nFormat, IgnoreUpdate
 
 from .getters import admins_getter, remnashop_getter, extra_devices_getter, extra_devices_price_getter
 from .handlers import (
@@ -65,11 +65,12 @@ remnashop = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -100,11 +101,12 @@ admins = Window(
         items="admins",
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.USER_MANAGEMENT,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),

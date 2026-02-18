@@ -16,7 +16,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardBroadcast
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import BroadcastAudience, BroadcastStatus
 
 from .getters import buttons_getter, list_getter, plans_getter, send_getter, view_getter
@@ -80,11 +80,12 @@ broadcast = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -114,11 +115,12 @@ list = Window(
         hide_on_single_page=True,
     ),
     Row(
-        Start(
+        ColoredStart(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -163,10 +165,11 @@ view = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.LIST,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -192,11 +195,12 @@ plan = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -229,11 +233,12 @@ send = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -252,10 +257,11 @@ content = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.SEND,
+            style="primary",
         ),
     ),
     MessageInput(func=on_content_input),
@@ -283,10 +289,11 @@ buttons = Window(
         items="buttons",
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             I18nFormat("btn-back"),
             id="back",
             state=DashboardBroadcast.CONTENT,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),

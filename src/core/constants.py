@@ -8,8 +8,8 @@ BASE_DIR: Final[Path] = Path(__file__).resolve().parents[2]
 ASSETS_DIR: Final[Path] = BASE_DIR / "assets"
 LOG_DIR: Final[Path] = BASE_DIR / "logs"
 
-# Ветка обновлений — единый источник: assets/update/.update
-_update_file: Final[Path] = ASSETS_DIR / "update" / ".update"
+# Ветка обновлений — единый источник: version
+_update_file: Final[Path] = BASE_DIR / "version"
 try:
     _update_content = _update_file.read_text()
     DEFAULT_BRANCH: Final[str] = next(
@@ -21,10 +21,10 @@ except FileNotFoundError:
 
 
 def get_update_branch() -> str:
-    """Динамически читает ветку из .update файла (перечитывает при каждом вызове).
+    """Динамически читает ветку из version файла (перечитывает при каждом вызове).
 
     Это позволяет переключать ветку обновлений без перезапуска бота —
-    достаточно изменить файл assets/update/.update.
+    достаточно изменить файл version.
     """
     try:
         for line in _update_file.read_text().splitlines():

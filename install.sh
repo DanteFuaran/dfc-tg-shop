@@ -15,9 +15,9 @@ ENV_FILE="$PROJECT_DIR/.env"
 REPO_DIR="/opt/dfc-tg-shop"
 REMNAWAVE_DIR="/opt/remnawave"
 REPO_URL="https://github.com/DanteFuaran/dfc-tg-shop.git"
-# Ветка и версия (единый источник: assets/update/.update)
+# Ветка и версия (единый источник: version)
 REPO_BRANCH="dev"
-for _uf in "$SCRIPT_CWD/assets/update/.update" "$SCRIPT_CWD/.update"; do
+for _uf in "$SCRIPT_CWD/version" "$SCRIPT_CWD/.update"; do
     if [ -f "$_uf" ]; then
         _br=$(grep '^branch:' "$_uf" | cut -d: -f2 | tr -d ' \n')
         [ -n "$_br" ] && REPO_BRANCH="$_br"
@@ -494,7 +494,7 @@ restore_env_vars() {
     fi
 }
 
-# Функция для получения версии из assets/update/.update файла
+# Функция для получения версии из файла version
 get_version_from_file() {
     local update_file="$1"
     if [ -f "$update_file" ]; then
@@ -504,12 +504,12 @@ get_version_from_file() {
     fi
 }
 
-# Функция для получения локальной версии (из assets/update/.update)
+# Функция для получения локальной версии (из version)
 get_local_version() {
     # Приоритет: сначала production ($PROJECT_DIR), затем текущая папка ($SCRIPT_CWD)
     # Это гарантирует, что при установленном боте будет браться версия из production,
     # а не из временной клонированной папки (при запуске через install-wrapper.sh)
-    for _uf in "$PROJECT_DIR/assets/update/.update" "$SCRIPT_CWD/assets/update/.update"; do
+    for _uf in "$PROJECT_DIR/version" "$SCRIPT_CWD/version"; do
         if [ -f "$_uf" ]; then
             grep '^version:' "$_uf" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo ""
             return
@@ -547,8 +547,8 @@ check_updates_available() {
         
         # Клонируем только последний коммит нужной ветки (быстро, ~500kb)
         if git clone -b "$REPO_BRANCH" --depth 1 --single-branch "$REPO_URL" "$TEMP_CHECK_DIR" >/dev/null 2>&1; then
-            # Получаем удаленную версию из клонированного репозитория (файл .update)
-            REMOTE_VERSION=$(grep '^version:' "$TEMP_CHECK_DIR/assets/update/.update" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
+            # Получаем удаленную версию из клонированного репозитория (файл version)
+            REMOTE_VERSION=$(grep '^version:' "$TEMP_CHECK_DIR/version" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
             
             # Удаляем временную папку
             rm -rf "$TEMP_CHECK_DIR" 2>/dev/null || true
@@ -573,7 +573,7 @@ check_updates_available() {
             rm -rf "$TEMP_CHECK_DIR" 2>/dev/null || true
             
             GITHUB_RAW_URL=$(echo "$REPO_URL" | sed 's|github.com|raw.githubusercontent.com|; s|\.git$||')
-            REMOTE_VERSION_URL="${GITHUB_RAW_URL}/${REPO_BRANCH}/assets/update/.update"
+            REMOTE_VERSION_URL="${GITHUB_RAW_URL}/${REPO_BRANCH}/version"
             REMOTE_VERSION=$(curl -s "$REMOTE_VERSION_URL" 2>/dev/null | grep '^version:' | cut -d: -f2 | tr -d ' \n' || echo "")
             
             if [ -n "$REMOTE_VERSION" ] && [ -n "$LOCAL_VERSION" ]; then
@@ -653,8 +653,8 @@ show_simple_menu() {
     
     # Определяем версию для отображения
     local display_version=""
-    if [ -f "$SCRIPT_CWD/assets/update/.update" ]; then
-        display_version=$(grep '^version:' "$SCRIPT_CWD/assets/update/.update" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
+    if [ -f "$SCRIPT_CWD/version" ]; then
+        display_version=$(grep '^version:' "$SCRIPT_CWD/version" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
     elif [ -n "$AVAILABLE_VERSION" ] && [ "$AVAILABLE_VERSION" != "unknown" ]; then
         display_version="$AVAILABLE_VERSION"
     fi
@@ -695,15 +695,15 @@ show_full_menu() {
     
     # Создаём глобальную команду dfc-tg-shop если её нет
     if [ ! -f "/usr/local/bin/dfc-tg-shop" ]; then
-        (
+        (  
             sudo tee /usr/local/bin/dfc-tg-shop > /dev/null << 'EOF'
 #!/bin/bash
-# Запускаем install.sh из папки assets/update
-if [ -f "/opt/dfc-tg-shop/assets/update/install.sh" ]; then
-    exec /opt/dfc-tg-shop/assets/update/install.sh
-else
-    # Fallback на основной install.sh для обратной совместимости
+# Запускаем install.sh из корня бота
+if [ -f "/opt/dfc-tg-shop/install.sh" ]; then
     exec /opt/dfc-tg-shop/install.sh
+else
+    echo "❌ install.sh не найден. Переустановите бота."
+    exit 1
 fi
 EOF
             sudo chmod +x /usr/local/bin/dfc-tg-shop
@@ -786,8 +786,8 @@ manage_update_bot() {
     kill $SPINNER_PID 2>/dev/null || true
     wait $SPINNER_PID 2>/dev/null || true
     
-    # Получаем версии (из .update файла)
-    REMOTE_VERSION=$(grep '^version:' "$TEMP_REPO/assets/update/.update" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
+    # Получаем версии (из файла version)
+    REMOTE_VERSION=$(grep '^version:' "$TEMP_REPO/version" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
     LOCAL_VERSION=$(get_local_version)
     
     UPDATE_NEEDED=1
@@ -893,14 +893,13 @@ manage_update_bot() {
                 done
                 
                 # Копируем файл версии из временного репозитория
-                mkdir -p "$PROJECT_DIR/assets/update" 2>/dev/null || true
-                if [ -f "assets/update/.update" ]; then
-                    cp -f "assets/update/.update" "$PROJECT_DIR/assets/update/.update"
+                if [ -f "version" ]; then
+                    cp -f "version" "$PROJECT_DIR/version"
                 fi
                 
-                # Копируем install.sh в папку assets/update
-                cp -f "install.sh" "$PROJECT_DIR/assets/update/install.sh" 2>/dev/null || true
-                chmod +x "$PROJECT_DIR/assets/update/install.sh" 2>/dev/null || true
+                # Копируем install.sh в корень бота
+                cp -f "install.sh" "$PROJECT_DIR/install.sh" 2>/dev/null || true
+                chmod +x "$PROJECT_DIR/install.sh" 2>/dev/null || true
             } &
             show_spinner "Обновление конфигурации"
             
@@ -917,7 +916,7 @@ manage_update_bot() {
                     --build-arg BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                     --build-arg BUILD_BRANCH="$REPO_BRANCH" \
                     --build-arg BUILD_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')" \
-                    --build-arg BUILD_TAG="$(grep '^version:' assets/update/.update 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo 'unknown')" \
+                    --build-arg BUILD_TAG="$(grep '^version:' version 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo 'unknown')" \
                     . >/dev/null 2>&1
             } &
             show_spinner "Пересборка образа"
@@ -1024,8 +1023,6 @@ manage_restart_bot() {
     } &
     show_spinner "Перезагрузка бота"
     
-    echo
-    
     # Ждем появления логотипа DFC в логах
     show_spinner_until_log "dfc-tg" "Digital.*Freedom.*Core" "Запуск бота" 90
     local spinner_result=$?
@@ -1033,6 +1030,8 @@ manage_restart_bot() {
     echo
     if [ $spinner_result -eq 2 ]; then
         echo -e "${RED}❌ Обнаружена ошибка при запуске. Проверьте логи.${NC}"
+    else
+        echo -e "${GREEN}✅Бот успешно обновлен и запущен!${NC}"
     fi
     
     echo
@@ -2167,12 +2166,12 @@ if [ "$COPY_FILES" = true ]; then
           cp -r "$SOURCE_DIR/assets" "$PROJECT_DIR/"
       fi
       
-      # Копируем install.sh в assets/update для команды dfc-tg-shop
-      mkdir -p "$PROJECT_DIR/assets/update"
-      cp "$SOURCE_DIR/install.sh" "$PROJECT_DIR/assets/update/install.sh"
-      chmod +x "$PROJECT_DIR/assets/update/install.sh"
-      
-      # Файл .update уже скопирован из assets/update, ничего делать не надо
+      # Копируем install.sh и version в корень бота
+      cp "$SOURCE_DIR/install.sh" "$PROJECT_DIR/install.sh"
+      chmod +x "$PROJECT_DIR/install.sh"
+      if [ -f "$SOURCE_DIR/version" ]; then
+          cp "$SOURCE_DIR/version" "$PROJECT_DIR/version"
+      fi
     )
     wait  # Ждем завершения копирования без спиннера
 fi
@@ -2405,7 +2404,7 @@ show_spinner "Очистка старых данных БД"
       --build-arg BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --build-arg BUILD_BRANCH="$REPO_BRANCH" \
       --build-arg BUILD_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')" \
-      --build-arg BUILD_TAG="$(grep '^version:' assets/update/.update 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo 'unknown')" \
+      --build-arg BUILD_TAG="$(grep '^version:' version 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo 'unknown')" \
       . >/dev/null 2>&1
   fi
 ) &
@@ -2504,12 +2503,12 @@ INSTALL_COMPLETED=true
 (
     sudo tee /usr/local/bin/dfc-tg-shop > /dev/null << 'EOF'
 #!/bin/bash
-# Запускаем install.sh из папки assets/update
-if [ -f "/opt/dfc-tg-shop/assets/update/install.sh" ]; then
-    exec /opt/dfc-tg-shop/assets/update/install.sh
-else
-    # Fallback на основной install.sh для обратной совместимости
+# Запускаем install.sh из корня бота
+if [ -f "/opt/dfc-tg-shop/install.sh" ]; then
     exec /opt/dfc-tg-shop/install.sh
+else
+    echo "❌ install.sh не найден. Переустановите бота."
+    exit 1
 fi
 EOF
     sudo chmod +x /usr/local/bin/dfc-tg-shop

@@ -357,15 +357,17 @@ settings_main = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back"),
             id="back",
             on_click=on_back_to_dashboard,
+            style="primary",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back-main-menu"),
             id="main_menu",
             on_click=on_back_to_main_menu,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -487,15 +489,17 @@ balance_min_amount = Window(
     ),
     # Кнопки Отмена и Принять
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel",
             on_click=on_balance_min_amount_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-accept"),
             id="accept",
             on_click=on_balance_min_amount_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -508,10 +512,11 @@ balance_min_amount_manual = Window(
     Banner(),
     I18nFormat("msg-min-amount-manual-input"),
     MessageInput(func=on_balance_min_amount_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-amount-cancel"),
         id="back",
         state=DashboardSettings.BALANCE_MIN_AMOUNT,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.BALANCE_MIN_AMOUNT_MANUAL,
@@ -576,15 +581,17 @@ balance_max_amount = Window(
     ),
     # Кнопки Отмена и Принять
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel",
             on_click=on_balance_max_amount_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-accept"),
             id="accept",
             on_click=on_balance_max_amount_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -597,10 +604,11 @@ balance_max_amount_manual = Window(
     Banner(),
     I18nFormat("msg-max-amount-manual-input"),
     MessageInput(func=on_balance_max_amount_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-amount-cancel"),
         id="back",
         state=DashboardSettings.BALANCE_MAX_AMOUNT,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.BALANCE_MAX_AMOUNT_MANUAL,
@@ -690,10 +698,11 @@ transfers_commission_type = Window(
             on_click=on_set_commission_type,
         ),
     ),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-back"),
         id="back",
         state=DashboardSettings.TRANSFERS,
+        style="primary",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.TRANSFERS_COMMISSION_TYPE,
@@ -992,15 +1001,17 @@ transfers_commission_value = Window(
     MessageInput(func=on_commission_value_input),
     # Кнопки Отмена и Принять
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-commission-cancel"),
             id="cancel",
             on_click=on_commission_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-commission-accept"),
             id="accept",
             on_click=on_commission_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1068,15 +1079,17 @@ transfers_min_amount = Window(
     MessageInput(func=on_min_amount_input),
     # Кнопки Отмена и Принять
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel",
             on_click=on_min_amount_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-accept"),
             id="accept",
             on_click=on_min_amount_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1089,10 +1102,11 @@ transfers_min_amount_manual = Window(
     Banner(),
     I18nFormat("msg-min-amount-manual-input"),
     MessageInput(func=on_min_amount_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-amount-cancel"),
         id="back",
         state=DashboardSettings.TRANSFERS_MIN_AMOUNT,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.TRANSFERS_MIN_AMOUNT_MANUAL,
@@ -1159,15 +1173,17 @@ transfers_max_amount = Window(
     MessageInput(func=on_max_amount_input),
     # Кнопки Отмена и Принять
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-cancel"),
             id="cancel",
             on_click=on_max_amount_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-amount-accept"),
             id="accept",
             on_click=on_max_amount_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -1180,10 +1196,11 @@ transfers_max_amount_manual = Window(
     Banner(),
     I18nFormat("msg-max-amount-manual-input"),
     MessageInput(func=on_max_amount_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-amount-cancel"),
         id="back",
         state=DashboardSettings.TRANSFERS_MAX_AMOUNT,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.TRANSFERS_MAX_AMOUNT_MANUAL,
@@ -1345,10 +1362,11 @@ extra_devices_price_manual = Window(
         func=on_extra_devices_price_input,
         content_types=ContentType.TEXT,
     ),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="cancel",
         state=DashboardSettings.EXTRA_DEVICES_PRICE,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.EXTRA_DEVICES_PRICE_MANUAL,
@@ -1437,10 +1455,11 @@ extra_devices_min_days_manual = Window(
     Banner(),
     I18nFormat("msg-dashboard-extra-devices-min-days-manual"),
     MessageInput(func=on_extra_devices_min_days_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="cancel",
         state=DashboardSettings.EXTRA_DEVICES_MIN_DAYS,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.EXTRA_DEVICES_MIN_DAYS_MANUAL,
@@ -1453,10 +1472,11 @@ transfers_commission_manual = Window(
     Banner(),
     I18nFormat("msg-commission-manual-input"),
     MessageInput(func=on_commission_manual_value_input),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-commission-cancel"),
         id="cancel",
         state=DashboardSettings.TRANSFERS_COMMISSION_VALUE,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.TRANSFERS_COMMISSION_MANUAL,
@@ -1933,10 +1953,11 @@ tos_url_manual = Window(
         func=on_tos_url_input,
         content_types=[ContentType.TEXT],
     ),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="back",
         state=DashboardSettings.TOS,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.TOS_URL_MANUAL,
@@ -1986,10 +2007,11 @@ community_url_manual = Window(
         func=on_community_url_input,
         content_types=[ContentType.TEXT],
     ),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="back",
         state=DashboardSettings.COMMUNITY,
+        style="danger",
     ),
     IgnoreUpdate(),
     state=DashboardSettings.COMMUNITY_URL_MANUAL,
@@ -2040,15 +2062,17 @@ language_settings = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-language-cancel"),
             id="lang_cancel",
             on_click=on_language_cancel,
+            style="danger",
         ),
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-language-apply"),
             id="lang_apply",
             on_click=on_language_apply,
+            style="success",
         ),
     ),
     IgnoreUpdate(),
@@ -2156,10 +2180,11 @@ currency_rates_settings = Window(
 currency_rate_usd = Window(
     Banner(),
     I18nFormat("msg-dashboard-settings-currency-rate-input", currency="USD", symbol="$"),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="back",
         state=DashboardSettings.CURRENCY_RATES,
+        style="danger",
     ),
     MessageInput(func=on_usd_rate_input, content_types=ContentType.TEXT),
     IgnoreUpdate(),
@@ -2170,10 +2195,11 @@ currency_rate_usd = Window(
 currency_rate_eur = Window(
     Banner(),
     I18nFormat("msg-dashboard-settings-currency-rate-input", currency="EUR", symbol="€"),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="back",
         state=DashboardSettings.CURRENCY_RATES,
+        style="danger",
     ),
     MessageInput(func=on_eur_rate_input, content_types=ContentType.TEXT),
     IgnoreUpdate(),
@@ -2184,10 +2210,11 @@ currency_rate_eur = Window(
 currency_rate_stars = Window(
     Banner(),
     I18nFormat("msg-dashboard-settings-currency-rate-input", currency="Stars", symbol="★"),
-    SwitchTo(
+    ColoredSwitchTo(
         text=I18nFormat("btn-cancel"),
         id="back",
         state=DashboardSettings.CURRENCY_RATES,
+        style="danger",
     ),
     MessageInput(func=on_stars_rate_input, content_types=ContentType.TEXT),
     IgnoreUpdate(),

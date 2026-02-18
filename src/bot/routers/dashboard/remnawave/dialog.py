@@ -3,7 +3,7 @@ from aiogram_dialog.widgets.kbd import NumberedPager, Row, Start, StubScroll, Sw
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardRemnawave
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 
 from .getters import (
     hosts_getter,
@@ -41,11 +41,12 @@ remnawave = Window(
         ),
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
             mode=StartMode.RESET_STACK,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -58,10 +59,11 @@ users = Window(
     Banner(),
     I18nFormat("msg-remnawave-users"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardRemnawave.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -75,10 +77,11 @@ hosts = Window(
     StubScroll(id="scroll_hosts", pages="pages"),
     NumberedPager(scroll="scroll_hosts"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardRemnawave.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -93,10 +96,11 @@ nodes = Window(
     StubScroll(id="scroll_nodes", pages="pages"),
     NumberedPager(scroll="scroll_nodes"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardRemnawave.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -111,10 +115,11 @@ inbounds = Window(
     StubScroll(id="scroll_inbounds", pages="pages"),
     NumberedPager(scroll="scroll_inbounds"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardRemnawave.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),

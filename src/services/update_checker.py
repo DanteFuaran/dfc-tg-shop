@@ -21,9 +21,9 @@ from fluentogram import TranslatorHub
 from redis.asyncio import Redis
 from src.core.config import AppConfig
 
-# Raw URL для чтения .update напрямую с GitHub
+# Raw URL для чтения version файла напрямую с GitHub
 _GITHUB_RAW_UPDATE_URL = (
-    REPOSITORY.replace("github.com", "raw.githubusercontent.com") + "/{branch}/assets/update/.update"
+    REPOSITORY.replace("github.com", "raw.githubusercontent.com") + "/{branch}/version"
 )
 
 # Callback data prefixes for update snooze buttons

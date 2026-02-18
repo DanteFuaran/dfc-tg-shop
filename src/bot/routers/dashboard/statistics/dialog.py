@@ -3,7 +3,7 @@ from aiogram_dialog.widgets.kbd import NumberedPager, Row, Start, StubScroll
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardStatistics
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredStart, I18nFormat, IgnoreUpdate
 
 from .getters import statistics_getter
 
@@ -17,10 +17,11 @@ statistics = Window(
         scroll="statistics",
     ),
     Row(
-        Start(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

@@ -122,10 +122,11 @@ gateway_settings = Window(
         when=F["requires_webhook"],
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=TelegramGateways.MAIN,
+            style="primary",
         ),
     ),
     IgnoreUpdate(),
@@ -137,10 +138,11 @@ gateway_field = Window(
     Banner(),
     I18nFormat("msg-gateways-field", gateway_type=F["gateway_type"]),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=TelegramGateways.SETTINGS,
+            style="primary",
         ),
     ),
     MessageInput(func=on_field_input),

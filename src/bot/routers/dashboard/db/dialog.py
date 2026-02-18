@@ -5,7 +5,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardImporter
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from .handlers import (
     on_save_db,
     on_load_db,
@@ -67,10 +67,11 @@ db_management = Window(
         ),
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back"),
             id="back",
             on_click=on_back_to_dashboard,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -108,10 +109,11 @@ db_load_window = Window(
         items="backups",
     ),
     Row(
-        Button(
+        ColoredButton(
             text=I18nFormat("btn-back"),
             id="back",
             on_click=on_back_to_dashboard,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -137,10 +139,11 @@ db_sync_window = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardDB.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -153,10 +156,11 @@ db_sync_progress = Window(
     Banner(),
     I18nFormat("msg-db-sync-progress"),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardDB.SYNC,
+            style="primary",
         ),
         *main_menu_button,
     ),
@@ -179,10 +183,11 @@ clear_users_confirm = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-cancel"),
             id="cancel",
             state=DashboardDB.MAIN,
+            style="danger",
         ),
     ),
     IgnoreUpdate(),
@@ -206,10 +211,11 @@ imports_menu = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=DashboardDB.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

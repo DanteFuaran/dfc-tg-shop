@@ -21,7 +21,7 @@ from src.bot.states import (
     DashboardSettings,
     TelegramPlans,
 )
-from src.bot.widgets import Banner, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.constants import IS_SUPER_DEV_KEY, MIDDLEWARE_DATA_KEY, USER_KEY
 
 dashboard = Window(
@@ -107,10 +107,11 @@ user_management = Window(
         ),
     ),
     Row(
-        SwitchTo(
+        ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id="back",
             state=Dashboard.MAIN,
+            style="primary",
         ),
         *main_menu_button,
     ),

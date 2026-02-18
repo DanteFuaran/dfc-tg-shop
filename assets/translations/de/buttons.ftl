@@ -390,7 +390,7 @@ btn-menu-promocode = 🎟 Gutscheincode
 btn-menu-support = 🆘 Hilfe
 btn-menu-tos = 📋 Vereinbarung
 btn-menu-community = 👥 Community
-btn-menu-dashboard = � Kontrollpanel
+btn-menu-dashboard = 🧰 Kontrollpanel
 
 # Balance
 btn-balance-topup = ➕ Aufladen
