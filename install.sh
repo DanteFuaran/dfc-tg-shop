@@ -1873,6 +1873,20 @@ remove_from_nginx() {
     # Примечание: volume сертификатов в remnawave docker-compose не удаляем,
     # т.к. они могут использоваться другими сервисами (wildcard cert)
 
+    # Удаляем volume-маунты сертификата бота из remnawave docker-compose.yml
+    local remnawave_compose="$remnawave_dir/docker-compose.yml"
+    if [ -f "$remnawave_compose" ] && [ -n "$app_domain" ]; then
+        local cert_domain_for_cleanup
+        cert_domain_for_cleanup=$(extract_cert_domain "$app_domain" 2>/dev/null || echo "$app_domain")
+        # Удаляем строки volume-маунтов где присутствует домен сертификата
+        sed -i "/${cert_domain_for_cleanup//./\\.}/d" "$remnawave_compose" 2>/dev/null || true
+    fi
+
+    # Сбрасываем WEBHOOK_ENABLED=false в .env бота
+    if [ -f "$ENV_FILE" ]; then
+        sed -i 's/^WEBHOOK_ENABLED=true$/WEBHOOK_ENABLED=false/' "$ENV_FILE" 2>/dev/null || true
+    fi
+
     # Перезапускаем nginx
     cd "$remnawave_dir"
     docker compose restart remnawave-nginx >/dev/null 2>&1 || true
