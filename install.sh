@@ -88,8 +88,15 @@ show_spinner() {
     i=$(( (i+1) % 10 ))
     sleep $delay
   done
-  printf "\r${GREEN}✅${NC} %s\n" "$msg"
+  wait $pid 2>/dev/null
+  local exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    printf "\r${GREEN}✅${NC} %s\n" "$msg"
+  else
+    printf "\r${RED}✖${NC}  %s\n" "$msg"
+  fi
   tput cnorm 2>/dev/null || true
+  return $exit_code
 }
 
 show_spinner_timer() {
@@ -665,7 +672,23 @@ restart_script() {
         cd /opt 2>/dev/null || true
         rm -rf "$_clone_to_remove" 2>/dev/null || true
     fi
-    # Запускаем из системной папки если доступна, иначе $0
+
+    # Для установки (--install) нужно клонировать репозиторий,
+    # т.к. системная копия содержит только install.sh без исходников
+    if [ "$extra_arg" = "--install" ]; then
+        CLONE_DIR=$(mktemp -d)
+        if git clone -b "$REPO_BRANCH" --depth 1 "$REPO_URL" "$CLONE_DIR" >/dev/null 2>&1; then
+            chmod +x "$CLONE_DIR/install.sh"
+            cd "$CLONE_DIR"
+            exec "$CLONE_DIR/install.sh" --install "$CLONE_DIR" "${INSTALL_MODE:-dev}"
+        else
+            echo -e "${RED}❌ Ошибка при клонировании репозитория${NC}"
+            rm -rf "$CLONE_DIR" 2>/dev/null || true
+            exit 1
+        fi
+    fi
+
+    # Для остальных случаев — запускаем из системной папки если доступна, иначе $0
     local _target="/usr/local/lib/dfc-tg-shop/install.sh"
     if [ ! -f "$_target" ]; then
         _target="$0"
@@ -930,7 +953,11 @@ manage_update_bot() {
                 
                 # Копируем install.sh в системную папку (не в корень бота)
                 sudo mkdir -p "$SYSTEM_INSTALL_DIR" 2>/dev/null || true
-                sudo cp -f "install.sh" "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || true
+                _src="$(realpath "install.sh" 2>/dev/null || echo "install.sh")"
+                _dst="$(realpath "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || echo "$SYSTEM_INSTALL_DIR/install.sh")"
+                if [ "$_src" != "$_dst" ]; then
+                    sudo cp -f "install.sh" "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || true
+                fi
                 sudo chmod +x "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || true
             } &
             show_spinner "Обновление конфигурации"
@@ -2252,23 +2279,32 @@ if [ "$COPY_FILES" = true ]; then
 
       # Копируем install.sh в системную папку (не в корень бота)
       sudo mkdir -p "$SYSTEM_INSTALL_DIR"
-      sudo cp "$SOURCE_DIR/install.sh" "$SYSTEM_INSTALL_DIR/install.sh"
+      _src="$(realpath "$SOURCE_DIR/install.sh" 2>/dev/null || echo "$SOURCE_DIR/install.sh")"
+      _dst="$(realpath "$SYSTEM_INSTALL_DIR/install.sh" 2>/dev/null || echo "$SYSTEM_INSTALL_DIR/install.sh")"
+      if [ "$_src" != "$_dst" ]; then
+          sudo cp "$SOURCE_DIR/install.sh" "$SYSTEM_INSTALL_DIR/install.sh"
+      fi
       sudo chmod +x "$SYSTEM_INSTALL_DIR/install.sh"
     )
     wait  # Ждем завершения копирования без спиннера
 fi
 
 # 5. Создание .env файла
-(
-  if [ ! -f "$ENV_FILE" ]; then
-      if [ ! -f "$SOURCE_DIR/.env.example" ]; then
-          print_error "Файл .env.example не найден в исходной директории!"
-          exit 1
-      fi
+if [ ! -f "$ENV_FILE" ]; then
+    if [ ! -f "$SOURCE_DIR/.env.example" ]; then
+        print_error "Файл .env.example не найден в исходной директории!"
+        print_error "Возможно предыдущая установка была прервана. Запустите установку заново."
+        # Очистка остатков прерванной установки
+        sudo rm -rf "$SYSTEM_INSTALL_DIR" 2>/dev/null || true
+        exit 1
+    fi
+    (
       cp "$SOURCE_DIR/.env.example" "$ENV_FILE"
-  fi
-) &
-show_spinner "Инициализация конфигурации"
+    ) &
+    show_spinner "Инициализация конфигурации"
+else
+    print_success "Конфигурация уже существует"
+fi
 
 # 6. Автоопределение реверс-прокси
 if [ -d "/opt/remnawave/caddy" ]; then
@@ -2571,12 +2607,6 @@ else
 fi
 echo
 
-# Удаление исходной папки если она не в /opt/dfc-tg-shop
-if [ "$COPY_FILES" = true ] && [ "$SOURCE_DIR" != "/opt/dfc-tg-shop" ] && [ "$SOURCE_DIR" != "/" ]; then
-    cd /opt
-    rm -rf "$SOURCE_DIR" 2>/dev/null || true
-fi
-
 # Отмечаем успешное завершение установки
 INSTALL_STARTED=false
 INSTALL_COMPLETED=true
@@ -2584,7 +2614,12 @@ INSTALL_COMPLETED=true
 # Создание глобальной команды dfc-tg-shop
 (
     sudo mkdir -p /usr/local/lib/dfc-tg-shop
-    sudo cp "$SOURCE_DIR/install.sh" /usr/local/lib/dfc-tg-shop/install.sh
+    # Копируем install.sh в системную папку (до удаления SOURCE_DIR)
+    _src="$(realpath "$SOURCE_DIR/install.sh" 2>/dev/null || echo "$SOURCE_DIR/install.sh")"
+    _dst="$(realpath "/usr/local/lib/dfc-tg-shop/install.sh" 2>/dev/null || echo "/usr/local/lib/dfc-tg-shop/install.sh")"
+    if [ "$_src" != "$_dst" ] && [ -f "$SOURCE_DIR/install.sh" ]; then
+        sudo cp "$SOURCE_DIR/install.sh" /usr/local/lib/dfc-tg-shop/install.sh
+    fi
     sudo chmod +x /usr/local/lib/dfc-tg-shop/install.sh
 
     sudo tee /usr/local/bin/dfc-tg-shop > /dev/null << 'EOF'
@@ -2600,6 +2635,12 @@ EOF
     sudo chmod +x /usr/local/bin/dfc-tg-shop
     sudo ln -sf /usr/local/bin/dfc-tg-shop /usr/local/bin/dfc-tg
 ) >/dev/null 2>&1
+
+# Удаление исходной папки если она не в /opt/dfc-tg-shop (после копирования в системную папку)
+if [ "$COPY_FILES" = true ] && [ "$SOURCE_DIR" != "/opt/dfc-tg-shop" ] && [ "$SOURCE_DIR" != "/" ]; then
+    cd /opt
+    rm -rf "$SOURCE_DIR" 2>/dev/null || true
+fi
 
 # Ожидание ввода перед возвратом в главное меню
 echo -e "${DARKGRAY}Нажмите Enter для продолжения${NC}"
