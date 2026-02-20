@@ -925,6 +925,7 @@ async def on_accept_internal_squads(
     callback: CallbackQuery,
     widget: Button,
     dialog_manager: DialogManager,
+    notification_service: FromDishka[NotificationService],
 ) -> None:
     """Accept internal squads selection - changes already saved, just switch back"""
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
@@ -933,6 +934,14 @@ async def on_accept_internal_squads(
 
     if not plan:
         raise ValueError("PlanDto not found in dialog data")
+
+    # Validate that at least one internal squad is selected
+    if not plan.internal_squads:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-plan-internal-squads-empty"),
+        )
+        return
 
     logger.info(
         f"{log(user)} Accepted internal squads: {plan.internal_squads}"
@@ -979,7 +988,6 @@ async def on_cancel_internal_squads(
     await dialog_manager.switch_to(TelegramPlans.SQUADS)
 
 
-@inject
 @inject
 async def on_external_squad_select(
     callback: CallbackQuery,
