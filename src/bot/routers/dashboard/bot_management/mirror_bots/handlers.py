@@ -39,7 +39,7 @@ async def mirror_bots_getter(
         "is_primary": main_is_primary,
         "is_main": True,
         "display": f"{'🔘' if main_is_primary else '⚪'} {main_username}",
-        "right_label": "Системный",
+        "right_label": "⭐",
     }
     mirror_items = [
         {
@@ -48,7 +48,7 @@ async def mirror_bots_getter(
             "is_primary": b.is_primary,
             "is_main": False,
             "display": f"{'🔘' if b.is_primary else '⚪'} {b.username}",
-            "right_label": "Удалить",
+            "right_label": "❌",
         }
         for b in bots
     ]

@@ -787,7 +787,7 @@ msg-bot-management =
 msg-mirror-bots =
     <b>🤖 Additional Bots</b>
 
-    <blockquote>Here you can add mirror bots. Tap a bot to set it as <b>primary</b> — invite links will point to it. The primary bot is shown in [brackets].</blockquote>
+    <blockquote>Here you can add mirror bots. Tap a bot to set it as <b>primary</b> - invite links will point to it.</blockquote>
 msg-mirror-bot-add-token =
     <b>➕ Add New Bot</b>
 
