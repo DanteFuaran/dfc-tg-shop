@@ -59,11 +59,19 @@ async def on_check_update(
     try:
         branch = get_update_branch()
         url = REPOSITORY.replace("github.com", "raw.githubusercontent.com") + f"/{branch}/version"
+        logger.info(f"[update_check] Fetching version from: {url}")
 
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
             response.raise_for_status()
-            remote = response.text.strip()
+            # Берём первую непустую строку, поддерживаем форматы "0.4.42" и "version: 0.4.42"
+            raw = response.text.strip()
+            first_line = next((l.strip() for l in raw.splitlines() if l.strip()), "")
+            if first_line.startswith("version:"):
+                remote = first_line.split(":", 1)[1].strip()
+            else:
+                remote = first_line
+        logger.info(f"[update_check] local={__version__}, remote={remote}")
 
         if _parse_version(remote) > _parse_version(__version__):
             # Update available — send notification with action buttons
