@@ -833,15 +833,8 @@ class PaymentGatewayService(BaseService):
             transaction.user.purchase_discount_expires_at = None
             await self.user_service.update(transaction.user)
 
-        # Для оплаты с баланса не добавляем деньги обратно и не начисляем реф. бонусы
-        # (деньги уже были списаны при подтверждении)
+        # Назначить реферальные бонусы (только для внешних шлюзов, не для баланса и не для бесплатных)
         if not transaction.pricing.is_free and transaction.gateway_type != PaymentGatewayType.BALANCE:
-            # Пополнить баланс пользователя суммой оплаты (для внешних шлюзов)
-            await self.user_service.add_to_balance(
-                user=transaction.user,
-                amount=int(transaction.pricing.final_amount),
-            )
-            # Назначить реферальные бонусы
             await self.referral_service.assign_referral_rewards(transaction=transaction)
 
         logger.debug(f"Called tasks payment for user '{transaction.user.telegram_id}'")

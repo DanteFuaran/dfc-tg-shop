@@ -1521,7 +1521,7 @@ btn-subscription-payment-method =
         [1] { $price } ({ $original_price })
         *[0] { $price }
     }
-btn-subscription-pay = ✅ Confirm Payment
+btn-subscription-pay = 💳 Pay
 btn-check-payment = 🔄 I've Paid
 btn-subscription-confirm-balance = ✅ Confirm Payment
 btn-subscription-get = 🎁 Get Free
