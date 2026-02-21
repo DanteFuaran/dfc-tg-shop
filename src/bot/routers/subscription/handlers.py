@@ -11,6 +11,7 @@ from aiogram.types import Message
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from fluentogram import TranslatorRunner
+from httpx import HTTPStatusError
 from loguru import logger
 
 from src.bot.keyboards import get_user_keyboard
@@ -160,6 +161,29 @@ async def _create_payment_and_get_data(
             base_subscription_price=float(base_price),  # В валюте шлюза
             extra_devices_cost=float(extra_devices_cost),  # В валюте шлюза
         )
+
+    except HTTPStatusError as http_exc:
+        status_code = http_exc.response.status_code
+        logger.error(f"{log(user)} HTTP error creating payment: status={status_code}, body={http_exc.response.text}")
+        
+        # Heleket/Cryptomus 401 → данные мерчанта не настроены
+        if status_code == 401 and gateway_type in (PaymentGatewayType.HELEKET, PaymentGatewayType.CRYPTOMUS):
+            gateway_name = "Heleket" if gateway_type == PaymentGatewayType.HELEKET else "Cryptomus"
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(
+                    i18n_key="ntf-payment-gateway-not-configured",
+                    i18n_kwargs={"gateway_name": gateway_name},
+                    auto_delete_after=5,
+                ),
+            )
+        else:
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(i18n_key="ntf-subscription-payment-creation-failed"),
+            )
+        
+        return None
 
     except Exception as exception:
         logger.error(f"{log(user)} Failed to create payment: {exception}")
@@ -352,7 +376,7 @@ async def on_subscription_plans(  # noqa: C901
             dialog_manager.dialog_data["selected_duration"] = plans[0].durations[0].days
             dialog_manager.dialog_data["only_single_duration"] = True
 
-            if len(gateways) == 1:
+            if len(gateways) == 1 and not await settings_service.is_balance_enabled():
                 logger.info(f"{log(user)} Auto-selected payment method '{gateways[0].type}'")
                 dialog_manager.dialog_data["selected_payment_method"] = gateways[0].type
                 dialog_manager.dialog_data["only_single_payment_method"] = True
@@ -470,7 +494,9 @@ async def on_duration_select(
     )
     dialog_manager.dialog_data["is_free"] = price.is_free
 
-    if len(gateways) == 1 or price.is_free:
+    is_balance_enabled = await settings_service.is_balance_enabled()
+
+    if (len(gateways) == 1 and not is_balance_enabled) or price.is_free:
         selected_payment_method = gateways[0].type
         dialog_manager.dialog_data[CURRENT_METHOD_KEY] = selected_payment_method
 
@@ -1733,6 +1759,27 @@ async def on_add_device_payment_select(
             dialog_manager.dialog_data["payment_id"] = str(payment_result.id)
             dialog_manager.dialog_data["payment_url"] = payment_result.url
             
+        except HTTPStatusError as http_exc:
+            status_code = http_exc.response.status_code
+            logger.error(f"{log(user)} HTTP error creating payment for extra devices: status={status_code}, body={http_exc.response.text}")
+            
+            if status_code == 401 and selected_payment_method in (PaymentGatewayType.HELEKET, PaymentGatewayType.CRYPTOMUS):
+                gateway_name = "Heleket" if selected_payment_method == PaymentGatewayType.HELEKET else "Cryptomus"
+                await notification_service.notify_user(
+                    user=user,
+                    payload=MessagePayload(
+                        i18n_key="ntf-payment-gateway-not-configured",
+                        i18n_kwargs={"gateway_name": gateway_name},
+                        auto_delete_after=5,
+                    ),
+                )
+            else:
+                await notification_service.notify_user(
+                    user=user,
+                    payload=MessagePayload(i18n_key="ntf-payment-creation-failed"),
+                )
+            return
+
         except Exception as exception:
             logger.error(f"{log(user)} Failed to create payment for extra devices: {exception}")
             await notification_service.notify_user(

@@ -695,6 +695,7 @@ ntf-subscription-gateways-not-available = <i>❌ No available payment systems.</
 ntf-subscription-renew-plan-unavailable = <i>❌ Your plan is outdated and not available for renewal.</i>
 ntf-subscription-change-plans-not-available = <i>❌ No available subscriptions to change. You already have the only available subscription activated.</i>
 ntf-subscription-payment-creation-failed = <i>❌ Error creating payment, try later.</i>
+ntf-payment-gateway-not-configured = <i>❌ Merchant data for { $gateway_name } is not configured</i>
 ntf-subscription-insufficient-balance = <i>❌ Insufficient balance to pay for subscription.</i>
 
 ntf-balance-payment-link = 

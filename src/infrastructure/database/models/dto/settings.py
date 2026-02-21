@@ -132,7 +132,7 @@ class FeatureSettingsDto(TrackableDto):
     community_enabled: bool = False  # Кнопка "Сообщество" в главном меню (по-умолчанию выключена)
     community_url: Optional[str] = None  # URL Telegram группы сообщества
     tos_enabled: bool = False  # Кнопка "Соглашение" в главном меню (по-умолчанию выключена)
-    balance_enabled: bool = False  # Функционал баланса (по умолчанию выключён)
+    balance_enabled: bool = True  # Функционал баланса (по умолчанию включён)
     balance_mode: BalanceMode = BalanceMode.SEPARATE  # Режим баланса (раздельный/объединённый)
     balance_min_amount: Optional[int] = 10  # Минимальная сумма пополнения баланса
     balance_max_amount: Optional[int] = 100000  # Максимальная сумма пополнения баланса
@@ -163,7 +163,7 @@ class SettingsDto(TrackableDto):
     purchases_allowed: bool = True
     registration_allowed: bool = True
 
-    default_currency: Currency = Currency.XTR
+    default_currency: Currency = Currency.RUB
     bot_locale: Locale = Locale.RU  # Язык бота по умолчанию
 
     user_notifications: UserNotificationDto = UserNotificationDto()

@@ -114,7 +114,7 @@ class PaymentGatewayService(BaseService):
 
             match gateway_type:
                 case PaymentGatewayType.TELEGRAM_STARS:
-                    is_active = True
+                    is_active = False
                     settings = None
                 case PaymentGatewayType.YOOKASSA:
                     is_active = False

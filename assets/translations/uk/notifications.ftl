@@ -693,6 +693,7 @@ ntf-subscription-gateways-not-available = <i>❌ Немає доступних �
 ntf-subscription-renew-plan-unavailable = <i>❌ Ваш план застарів і недоступний для продовження.</i>
 ntf-subscription-change-plans-not-available = <i>❌ Немає доступних підписок для зміни. У вас вже активовано єдину доступну підписку.</i>
 ntf-subscription-payment-creation-failed = <i>❌ Помилка створення платежу, спробуйте пізніше.</i>
+ntf-payment-gateway-not-configured = <i>❌ Не налаштовані дані мерчанта { $gateway_name }</i>
 ntf-subscription-insufficient-balance = <i>❌ Недостатньо коштів на балансі для оплати підписки.</i>
 
 ntf-balance-payment-link = 

@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.kbd import Button, Select
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from fluentogram import TranslatorRunner
+from httpx import HTTPStatusError
 from loguru import logger
 
 from remnapy.exceptions import NotFoundError as RemnaNotFoundError
@@ -969,6 +970,26 @@ async def on_balance_amount_select(
         logger.info(f"{log(user)} Payment created: {payment_result.url}")
         await dialog_manager.switch_to(state=MainMenu.BALANCE_CONFIRM, show_mode=ShowMode.EDIT)
         
+    except HTTPStatusError as http_exc:
+        status_code = http_exc.response.status_code
+        logger.error(f"{log(user)} HTTP error creating topup payment: status={status_code}, body={http_exc.response.text}")
+        
+        if status_code == 401 and gateway_type in (PaymentGatewayType.HELEKET, PaymentGatewayType.CRYPTOMUS):
+            gateway_name = "Heleket" if gateway_type == PaymentGatewayType.HELEKET else "Cryptomus"
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(
+                    i18n_key="ntf-payment-gateway-not-configured",
+                    i18n_kwargs={"gateway_name": gateway_name},
+                    auto_delete_after=5,
+                ),
+            )
+        else:
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(i18n_key="ntf-subscription-payment-creation-failed"),
+            )
+
     except Exception as e:
         logger.error(f"{log(user)} Failed to create topup payment: {e}")
         await notification_service.notify_user(
@@ -1084,6 +1105,26 @@ async def on_balance_amount_input(
         logger.info(f"{log(user)} Payment created: {payment_result.url}")
         await dialog_manager.switch_to(state=MainMenu.BALANCE_CONFIRM, show_mode=ShowMode.EDIT)
         
+    except HTTPStatusError as http_exc:
+        status_code = http_exc.response.status_code
+        logger.error(f"{log(user)} HTTP error creating topup payment: status={status_code}, body={http_exc.response.text}")
+        
+        if status_code == 401 and gateway_type in (PaymentGatewayType.HELEKET, PaymentGatewayType.CRYPTOMUS):
+            gateway_name = "Heleket" if gateway_type == PaymentGatewayType.HELEKET else "Cryptomus"
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(
+                    i18n_key="ntf-payment-gateway-not-configured",
+                    i18n_kwargs={"gateway_name": gateway_name},
+                    auto_delete_after=5,
+                ),
+            )
+        else:
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(i18n_key="ntf-subscription-payment-creation-failed"),
+            )
+
     except Exception as e:
         logger.error(f"{log(user)} Failed to create topup payment: {e}")
         await notification_service.notify_user(
