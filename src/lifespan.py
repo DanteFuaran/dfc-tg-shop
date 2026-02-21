@@ -10,7 +10,7 @@ from dishka import AsyncContainer, Scope
 from fastapi import FastAPI
 from fluentogram import TranslatorHub
 from loguru import logger
-from redis.asyncio import from_url
+from redis.asyncio import Redis, from_url
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 
 from src.__version__ import __version__
@@ -21,6 +21,7 @@ from src.core.storage.keys import ShutdownMessagesKey, UpdateInProgressKey, Upda
 from src.core.utils.message_payload import MessagePayload
 from src.infrastructure.database import UnitOfWork
 from src.infrastructure.redis.repository import RedisRepository
+from src.core.keepalive import keepalive_loop
 from src.services.command import CommandService
 from src.services.mirror_bot import MirrorBotService
 from src.services.mirror_bot_manager import MirrorBotManager
@@ -626,7 +627,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Schedule notifications to be sent after server starts
     asyncio.create_task(_send_startup_notifications())
 
+    # ── Start connection keepalive task ─────────────────────────────────
+    # Keeps DB pool, Redis connections, and Telegram API aiohttp sessions warm.
+    # Without this, the first request after idle suffers reconnection delays.
+    try:
+        _engine: AsyncEngine = await container.get(AsyncEngine)
+        _redis: Redis = await container.get(Redis)
+        _all_bots = [bot] + list(mirror_bot_manager.active_bots.values())
+        _keepalive_task = asyncio.create_task(
+            keepalive_loop(engine=_engine, redis_client=_redis, bots=_all_bots)
+        )
+        app.state.keepalive_task = _keepalive_task
+        logger.info(f"Connection keepalive started ({len(_all_bots)} bot(s))")
+    except Exception as e:
+        logger.warning(f"Failed to start keepalive task: {e}")
+
     yield
+
+    # ── Cancel keepalive task ───────────────────────────────────────────
+    keepalive_task = getattr(app.state, "keepalive_task", None)
+    if keepalive_task and not keepalive_task.done():
+        keepalive_task.cancel()
+        try:
+            await keepalive_task
+        except asyncio.CancelledError:
+            pass
 
     # Send shutdown notifications
     logger.info("Lifespan shutdown: starting shutdown notifications")

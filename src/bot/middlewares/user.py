@@ -1,9 +1,11 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable, Optional
 
 from aiogram.types import TelegramObject
 from aiogram.types import User as AiogramUser
 from aiogram_dialog.api.internal import FakeUser
+from cachetools import TTLCache
 from dishka import AsyncContainer
 from fluentogram import TranslatorHub
 from loguru import logger
@@ -30,6 +32,10 @@ from src.services.user import UserService
 
 from .base import EventTypedMiddleware
 
+# Debounce activity updates — skip if user was active within last 30s.
+# This saves 3 Redis commands (lrem+lpush+ltrim) per redundant update.
+_ACTIVITY_DEBOUNCE: TTLCache[int, None] = TTLCache(maxsize=10_000, ttl=30)
+
 
 class UserMiddleware(EventTypedMiddleware):
     __event_types__ = [
@@ -54,24 +60,30 @@ class UserMiddleware(EventTypedMiddleware):
             return
 
         container: AsyncContainer = data[CONTAINER_KEY]
-        notification_service: NotificationService = await container.get(NotificationService)
+
+        # ── Fast path: resolve only essential services ──────────────────
+        # Heavy services (RemnawaveService, PlanService, etc.) are resolved
+        # lazily — only when a NEW user is being created.
         config: AppConfig = await container.get(AppConfig)
         user_service: UserService = await container.get(UserService)
-        referral_service: ReferralService = await container.get(ReferralService)
-        remnawave_service: RemnawaveService = await container.get(RemnawaveService)
-        plan_service: PlanService = await container.get(PlanService)
-        subscription_service: SubscriptionService = await container.get(SubscriptionService)
         settings_service: SettingsService = await container.get(SettingsService)
-        translator_hub: TranslatorHub = await container.get(TranslatorHub)
 
-        # Получаем настройки для определения языка
-        settings = await settings_service.get()
+        # Parallel load: settings + user from Redis cache simultaneously
+        settings, user = await asyncio.gather(
+            settings_service.get(),
+            user_service.get(telegram_id=aiogram_user.id),
+        )
         data[SETTINGS_KEY] = settings
 
-        user: Optional[UserDto] = await user_service.get(telegram_id=aiogram_user.id)
-
-
         if user is None:
+            # ── NEW USER: resolve heavy services lazily ─────────────────
+            notification_service: NotificationService = await container.get(NotificationService)
+            referral_service: ReferralService = await container.get(ReferralService)
+            remnawave_service: RemnawaveService = await container.get(RemnawaveService)
+            plan_service: PlanService = await container.get(PlanService)
+            subscription_service: SubscriptionService = await container.get(SubscriptionService)
+            translator_hub: TranslatorHub = await container.get(TranslatorHub)
+
             user = await user_service.create(aiogram_user, settings=settings)
 
             # Проверяем существующую подписку в Remnawave
@@ -317,9 +329,13 @@ class UserMiddleware(EventTypedMiddleware):
         elif not isinstance(aiogram_user, FakeUser):
             await user_service.compare_and_update(user, aiogram_user, settings=settings)
 
-        await user_service.update_recent_activity(telegram_id=user.telegram_id)
+        # Fire-and-forget: don't block handler on 3 Redis commands for activity
+        tid = user.telegram_id
+        if tid not in _ACTIVITY_DEBOUNCE:
+            _ACTIVITY_DEBOUNCE[tid] = None
+            asyncio.create_task(user_service.update_recent_activity(telegram_id=tid))
 
         data[USER_KEY] = user
-        data[IS_SUPER_DEV_KEY] = user.telegram_id == config.bot.dev_id
+        data[IS_SUPER_DEV_KEY] = tid == config.bot.dev_id
 
         return await handler(event, data)
