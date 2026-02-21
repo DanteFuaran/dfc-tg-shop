@@ -1,5 +1,6 @@
 from typing import Optional
 
+from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from loguru import logger
 
@@ -10,6 +11,11 @@ from .base import BaseService
 
 class CommandService(BaseService):
     async def setup(self) -> None:
+        """Set up commands for the main bot."""
+        await self.setup_for_bot(self.bot)
+
+    async def setup_for_bot(self, bot: Bot) -> None:
+        """Set up commands for any bot instance (main or mirror)."""
         if not self.config.bot.setup_commands:
             logger.debug("Bot commands setup is disabled")
             return
@@ -30,7 +36,7 @@ class CommandService(BaseService):
                 for cmd_enum in Command
             ]
 
-            success = await self.bot.set_my_commands(
+            success = await bot.set_my_commands(
                 commands=commands_for_locale,
                 scope=BotCommandScopeAllPrivateChats(),
                 language_code=language_code,
@@ -45,6 +51,11 @@ class CommandService(BaseService):
                 logger.error(f"Failed to set commands for language '{display_language_code}'")
 
     async def delete(self) -> None:
+        """Delete commands for the main bot."""
+        await self.delete_for_bot(self.bot)
+
+    async def delete_for_bot(self, bot: Bot) -> None:
+        """Delete commands for any bot instance (main or mirror)."""
         if not self.config.bot.setup_commands:
             logger.debug("Bot commands deletion is disabled")
             return
@@ -54,7 +65,7 @@ class CommandService(BaseService):
         for language_code in locales_to_delete:
             display_language_code = language_code if language_code else "default"
 
-            success = await self.bot.delete_my_commands(
+            success = await bot.delete_my_commands(
                 scope=BotCommandScopeAllPrivateChats(),
                 language_code=language_code,
             )

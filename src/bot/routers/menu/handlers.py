@@ -144,15 +144,15 @@ async def clear_chat_history(bot: Bot, chat_id: int, current_message_id: int) ->
         logger.debug(f"Cleared {deleted_count} messages from chat {chat_id}")
 
 
-@inject
 @router.message(CommandStart(ignore_case=True))
 async def on_start_command(
     message: Message,
     user: UserDto,
     dialog_manager: DialogManager,
-    bot: FromDishka[Bot],
 ) -> None:
-    # Очищаем историю чата для уменьшения загроможденности
+    # Используем message.bot — это всегда тот бот, через которого пришло сообщение
+    # (работает корректно и для основного бота, и для зеркальных)
+    bot = message.bot
     asyncio.create_task(clear_chat_history(bot, message.chat.id, message.message_id))
     await on_start_dialog(user, dialog_manager)
 

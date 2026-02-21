@@ -272,6 +272,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 if not started:
                     logger.warning(f"Failed to start mirror bot @{mirror.username} (id={mirror.id})")
             logger.info(f"Mirror bots running: {len(mirror_bot_manager.active_bots)}")
+
+            # Set up bot commands for each mirror bot (same as main bot)
+            for mirror_db_id, mirror_bot in mirror_bot_manager.active_bots.items():
+                try:
+                    await command_service.setup_for_bot(mirror_bot)
+                except Exception as e:
+                    logger.warning(f"Failed to set commands for mirror bot {mirror_db_id}: {e}")
         else:
             logger.debug("No active mirror bots to start")
     except Exception as e:
