@@ -6,7 +6,7 @@ ___
 
 ### ▶️ Полная установка одной командой
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/DanteFuaran/dfc-tg-shop/main/install-wrapper.sh)
+bash <(curl -s https://raw.githubusercontent.com/DanteFuaran/dfc-tg-shop/dev/install-wrapper.sh)
 ```
 
 ### 📝 Данные для настройки
