@@ -750,9 +750,9 @@ async def on_show_key(
     
     # Create close button
     close_button = InlineKeyboardButton(
-        text=i18n.get("btn-subscription-key-close"),
+        text=i18n.get("btn-notification-close-success"),
         callback_data="close_subscription_key",
-        style="danger",
+        style="success",
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[close_button]])
     
