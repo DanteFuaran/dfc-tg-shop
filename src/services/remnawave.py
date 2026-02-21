@@ -1252,6 +1252,8 @@ class RemnawaveService(BaseService):
     async def handle_node_event(self, event: str, node: NodeDto) -> None:
         logger.info(f"Received node event '{event}' for node '{node.name}'")
 
+        close_button_style = "danger"
+
         if event == RemnaNodeEvent.CONNECTION_LOST:
             logger.warning(f"Connection lost for node '{node.name}'")
             i18n_key = "ntf-event-node-connection-lost"
@@ -1259,6 +1261,7 @@ class RemnawaveService(BaseService):
         elif event == RemnaNodeEvent.CONNECTION_RESTORED:
             logger.info(f"Connection restored for node '{node.name}'")
             i18n_key = "ntf-event-node-connection-restored"
+            close_button_style = "success"
 
         elif event == RemnaNodeEvent.TRAFFIC_NOTIFY:
             # TODO: Temporarily shutting down the node (and plans?) before the traffic is reset
@@ -1273,6 +1276,7 @@ class RemnawaveService(BaseService):
             ntf_type=SystemNotificationType.NODE_STATUS,
             payload=MessagePayload.not_deleted(
                 i18n_key=i18n_key,
+                close_button_style=close_button_style,
                 i18n_kwargs={
                     "country": format_country_code(code=node.country_code),
                     "name": node.name,

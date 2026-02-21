@@ -83,7 +83,7 @@ async def on_back_to_source(
     state_map = {
         "recent_registered": DashboardUsers.RECENT_REGISTERED,
         "recent_activity": DashboardUsers.RECENT_ACTIVITY,
-        "search_results": DashboardUsers.SEARCH_RESULTS,
+        "search_results": DashboardUsers.SEARCH,
         "blacklist": DashboardUsers.BLACKLIST,
         "search": DashboardUsers.SEARCH,
     }

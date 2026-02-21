@@ -196,6 +196,7 @@ class NotificationService(BaseService):
             payload.auto_delete_after,
             locale,
             user.telegram_id,
+            payload.close_button_style,
         )
         try:
             if (payload.media or payload.media_id) and payload.media_type:
@@ -320,17 +321,18 @@ class NotificationService(BaseService):
         auto_delete_after: Optional[int],
         locale: Locale,
         chat_id: int,
+        close_button_style: str = "danger",
     ) -> Optional[AnyKeyboard]:
         if reply_markup is None:
             if add_close_button and auto_delete_after is None:
-                close_button = self._get_close_notification_button(locale=locale)
+                close_button = self._get_close_notification_button(locale=locale, style=close_button_style)
                 return self._get_close_notification_keyboard(close_button)
             return None
 
         if not add_close_button or auto_delete_after is not None:
             return self._translate_keyboard_texts(reply_markup, locale)
 
-        close_button = self._get_close_notification_button(locale=locale)
+        close_button = self._get_close_notification_button(locale=locale, style=close_button_style)
 
         if isinstance(reply_markup, InlineKeyboardMarkup):
             translated_markup = self._translate_keyboard_texts(reply_markup, locale)
@@ -348,10 +350,11 @@ class NotificationService(BaseService):
         )
         return reply_markup
 
-    def _get_close_notification_button(self, locale: Locale) -> InlineKeyboardButton:
+    def _get_close_notification_button(self, locale: Locale, style: str = "danger") -> InlineKeyboardButton:
         i18n = self.translator_hub.get_translator_by_locale(locale=locale)
-        button_text = i18n.get("btn-notification-close")
-        return InlineKeyboardButton(text=button_text, callback_data=Notification.CLOSE.state, style="danger")
+        i18n_key = "btn-notification-close-success" if style == "success" else "btn-notification-close"
+        button_text = i18n.get(i18n_key)
+        return InlineKeyboardButton(text=button_text, callback_data=Notification.CLOSE.state, style=style)
 
     def _get_close_notification_keyboard(
         self,

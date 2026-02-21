@@ -320,6 +320,7 @@ btn-rules-accept = ✅ Accept Rules
 btn-channel-join = ❤️ Go to Channel
 btn-channel-confirm = ✅ Confirm
 btn-notification-close = ❌ Close
+btn-notification-close-success = ✅ Close
 btn-goto-main-menu = 🏠 To Main Menu
 btn-contact-support = 📩 Go to Support
 btn-cancel = ❌ Cancel

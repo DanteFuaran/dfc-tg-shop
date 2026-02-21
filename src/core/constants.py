@@ -14,10 +14,10 @@ try:
     _update_content = _update_file.read_text()
     DEFAULT_BRANCH: Final[str] = next(
         (line.split(":", 1)[1].strip() for line in _update_content.splitlines() if line.startswith("branch:")),
-        "dev",
+        "main",
     )
 except FileNotFoundError:
-    DEFAULT_BRANCH: Final[str] = "dev"
+    DEFAULT_BRANCH: Final[str] = "main"
 
 
 def get_update_branch() -> str:

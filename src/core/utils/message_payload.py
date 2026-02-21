@@ -17,6 +17,7 @@ class MessagePayload(BaseModel):
     reply_markup: Optional[AnyKeyboard] = None
     auto_delete_after: Optional[int] = 5
     add_close_button: bool = False
+    close_button_style: str = "danger"
     message_effect: Optional[MessageEffect] = None
 
     model_config = ConfigDict(
@@ -37,6 +38,7 @@ class MessagePayload(BaseModel):
         reply_markup: Optional[AnyKeyboard] = None,
         auto_delete_after: Optional[int] = None,
         add_close_button: bool = True,
+        close_button_style: str = "danger",
         message_effect: Optional[MessageEffect] = None,
     ) -> Self:
         data = {
@@ -48,6 +50,7 @@ class MessagePayload(BaseModel):
             "reply_markup": reply_markup,
             "auto_delete_after": auto_delete_after,
             "add_close_button": add_close_button,
+            "close_button_style": close_button_style,
             "message_effect": message_effect,
         }
         return cls(**data)

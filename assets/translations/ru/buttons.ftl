@@ -320,6 +320,7 @@ btn-rules-accept = ✅ Принять правила
 btn-channel-join = ❤️ Перейти в канал
 btn-channel-confirm = ✅ Подтвердить
 btn-notification-close = ❌ Закрыть
+btn-notification-close-success = ✅ Закрыть
 btn-goto-main-menu = 🏠 В главное меню
 btn-contact-support = 📩 Перейти в поддержку
 btn-cancel = ❌ Отмена

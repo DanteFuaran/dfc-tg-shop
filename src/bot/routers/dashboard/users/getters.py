@@ -11,6 +11,8 @@ from src.services.user import UserService
 
 async def search_results_getter(dialog_manager: DialogManager, **kwargs: Any) -> dict[str, Any]:
     start_data = cast(dict[str, Any], dialog_manager.start_data)
+    if not start_data or "found_users" not in start_data:
+        return {"found_users": [], "count": 0}
     found_users_data: list[str] = start_data["found_users"]
     found_users: list[UserDto] = [
         UserDto.model_validate_json(json_string) for json_string in found_users_data
