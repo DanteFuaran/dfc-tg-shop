@@ -4,13 +4,13 @@ from typing import Any
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from dishka.integrations.aiogram import setup_dishka as setup_aiogram_dishka
 from dishka.integrations.taskiq import setup_dishka as setup_taskiq_dishka
 from taskiq import TaskiqMiddleware
 from taskiq_redis import RedisStreamBroker
 from loguru import logger
 
-from src.bot.dispatcher import create_bg_manager_factory, create_dispatcher
-from src.bot.routers import setup_routers
+from src.bot.dispatcher import create_bg_manager_factory, create_dispatcher, setup_dispatcher
 from src.core.config import AppConfig
 from src.core.logger import setup_logger
 from src.infrastructure.di import create_container
@@ -108,17 +108,19 @@ def worker() -> RedisStreamBroker:
 
     config = AppConfig.get()
 
-    # Worker не обрабатывает Telegram-апдейты — ему не нужны хэндлеры, middleware, фильтры.
-    # Но для redirect-задач НЕОБХОДИМО зарегистрировать Dialog-роутеры,
-    # чтобы aiogram_dialog знал о state groups (Subscription, MainMenu и др.).
-    # Без этого BgManagerFactory выбрасывает UnknownState при попытке редиректа.
+    # Worker не обрабатывает Telegram-апдейты напрямую, но для redirect-задач
+    # BgManagerFactory рендерит dialog-окна в контексте worker’а.
+    # Поэтому нужны:
+    #   1) setup_dispatcher — роутеры, middleware, фильтры
+    #   2) setup_aiogram_dishka — DI-контейнер для aiogram (геттеры, хэндлеры)
     dispatcher = create_dispatcher(config=config)
-    setup_routers(dispatcher)
     bg_manager_factory = create_bg_manager_factory(dispatcher=dispatcher)
+    setup_dispatcher(dispatcher)
 
     container = create_container(config=config, bg_manager_factory=bg_manager_factory)
 
     setup_taskiq_dishka(container=container, broker=broker)
+    setup_aiogram_dishka(container=container, router=dispatcher, auto_inject=True)
     
     # Добавляем middleware для фильтрации dishka параметров из task_hints и инициализации зеркальных ботов
     broker.add_middlewares(DishkaParamsFilterMiddleware(container=container))
