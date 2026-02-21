@@ -16,7 +16,7 @@ from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardBroadcast
-from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
+from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import BroadcastAudience, BroadcastStatus
 
 from .getters import buttons_getter, content_getter, list_getter, plans_getter, send_getter, view_getter
@@ -26,6 +26,8 @@ from .handlers import (
     on_broadcast_select,
     on_button_select,
     on_cancel,
+    on_cancel_content,
+    on_accept_content,
     on_content_input,
     on_delete,
     on_plan_select,
@@ -260,16 +262,16 @@ content = Window(
         ),
     ),
     Row(
-        ColoredSwitchTo(
+        ColoredButton(
             I18nFormat("btn-broadcast-cancel-edit"),
-            id="cancel",
-            state=DashboardBroadcast.SEND,
+            id="cancel_content",
+            on_click=on_cancel_content,
             style="danger",
         ),
-        ColoredSwitchTo(
+        ColoredButton(
             I18nFormat("btn-broadcast-accept"),
-            id="accept",
-            state=DashboardBroadcast.SEND,
+            id="accept_content",
+            on_click=on_accept_content,
             style="success",
         ),
     ),

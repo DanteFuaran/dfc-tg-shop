@@ -207,6 +207,34 @@ async def on_content_input(
     )
 
 
+async def on_cancel_content(
+    callback: CallbackQuery,
+    button: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Отмена редактирования содержимого — откат к состоянию до входа в окно."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    backup = dialog_manager.dialog_data.pop("payload_backup", None)
+    if backup is not None:
+        dialog_manager.dialog_data["payload"] = backup
+    else:
+        dialog_manager.dialog_data.pop("payload", None)
+    logger.info(f"{log(user)} Cancelled content editing, payload restored")
+    await dialog_manager.switch_to(state=DashboardBroadcast.SEND)
+
+
+async def on_accept_content(
+    callback: CallbackQuery,
+    button: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Принять изменения содержимого — сохраняем текущий payload и возвращаемся."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    dialog_manager.dialog_data.pop("payload_backup", None)
+    logger.info(f"{log(user)} Accepted content editing")
+    await dialog_manager.switch_to(state=DashboardBroadcast.SEND)
+
+
 @inject
 async def on_button_select(
     callback: CallbackQuery,

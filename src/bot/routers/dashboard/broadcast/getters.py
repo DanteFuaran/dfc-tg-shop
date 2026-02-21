@@ -85,7 +85,11 @@ async def content_getter(
         payload = MessagePayload.model_validate(raw_payload)
         i18n_kwargs = payload.i18n_kwargs or {}
         current_content = i18n_kwargs.get("content", "")
-    
+
+    # Сохраняем бэкап при первом входе в окно (чтобы можно было откатить через "Отмена")
+    if "payload_backup" not in dialog_manager.dialog_data:
+        dialog_manager.dialog_data["payload_backup"] = dialog_manager.dialog_data.get("payload")
+
     return {
         "current_content": current_content,
         "has_content": 1 if current_content else 0,

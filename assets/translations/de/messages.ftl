@@ -1006,13 +1006,12 @@ msg-broadcast-send = <b>📢 Send Broadcast ({ audience-type })</b>
 msg-broadcast-content =
     <b>✉️ Broadcast-Inhalt</b>
 
-    Senden Sie eine Nachricht: Text, Bild oder beides zusammen (HTML wird unterstützt).
-    { $has_content ->
-        [1] 
     <b>Aktueller Inhalt:</b>
-    <blockquote>{ $current_content }</blockquote>
-        *[other] {""}
+    { $has_content ->
+        [1] <blockquote>{ $current_content }</blockquote>
+        *[other] <blockquote>• Nicht ausgefüllt</blockquote>
     }
+    <i>Senden Sie eine Nachricht: Text, Bild oder beides zusammen (HTML wird unterstützt).</i>
 
 msg-broadcast-buttons = <b>✳️ Broadcast Buttons</b>
 
