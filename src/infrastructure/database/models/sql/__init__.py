@@ -2,6 +2,7 @@ from .balance_transfer import BalanceTransfer
 from .base import BaseSql
 from .broadcast import Broadcast, BroadcastMessage
 from .extra_device_purchase import ExtraDevicePurchase
+from .mirror_bot import MirrorBot
 from .payment_gateway import PaymentGateway
 from .plan import Plan, PlanDuration, PlanPrice
 from .promocode import Promocode, PromocodeActivation
@@ -17,6 +18,7 @@ __all__ = [
     "Broadcast",
     "BroadcastMessage",
     "ExtraDevicePurchase",
+    "MirrorBot",
     "PaymentGateway",
     "Plan",
     "PlanDuration",

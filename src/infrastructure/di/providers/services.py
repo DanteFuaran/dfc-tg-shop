@@ -6,6 +6,7 @@ from src.services.broadcast import BroadcastService
 from src.services.command import CommandService
 from src.services.extra_device import ExtraDeviceService
 from src.services.importer import ImporterService
+from src.services.mirror_bot import MirrorBotService
 from src.services.notification import NotificationService
 from src.services.payment_gateway import PaymentGatewayService
 from src.services.plan import PlanService
@@ -42,4 +43,5 @@ class ServicesProvider(Provider):
     importer_service = provide(source=ImporterService)
     referral_service = provide(source=ReferralService, scope=Scope.REQUEST)
     extra_device_service = provide(source=ExtraDeviceService, scope=Scope.REQUEST)
+    mirror_bot_service = provide(source=MirrorBotService, scope=Scope.REQUEST)
     update_checker_service = provide(source=UpdateCheckerService, scope=Scope.REQUEST)

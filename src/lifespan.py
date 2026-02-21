@@ -22,6 +22,8 @@ from src.core.utils.message_payload import MessagePayload
 from src.infrastructure.database import UnitOfWork
 from src.infrastructure.redis.repository import RedisRepository
 from src.services.command import CommandService
+from src.services.mirror_bot import MirrorBotService
+from src.services.mirror_bot_manager import MirrorBotManager
 from src.services.notification import NotificationService
 from src.services.payment_gateway import PaymentGatewayService
 from src.services.remnawave import RemnawaveService
@@ -244,6 +246,25 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     await command_service.setup()
     await telegram_webhook_endpoint.startup()
+
+    # ── Start mirror (additional) bots ──────────────────────────────────
+    mirror_bot_manager: MirrorBotManager = app.state.mirror_bot_manager
+    try:
+        async with container(scope=Scope.REQUEST) as mirror_container:
+            mirror_service: MirrorBotService = await mirror_container.get(MirrorBotService)
+            active_mirrors = await mirror_service.get_active()
+
+        if active_mirrors:
+            logger.info(f"Starting {len(active_mirrors)} mirror bot(s)...")
+            for mirror in active_mirrors:
+                started = await mirror_bot_manager.start_mirror_bot(mirror, allowed_updates)
+                if not started:
+                    logger.warning(f"Failed to start mirror bot @{mirror.username} (id={mirror.id})")
+            logger.info(f"Mirror bots running: {len(mirror_bot_manager.active_bots)}")
+        else:
+            logger.debug("No active mirror bots to start")
+    except Exception as e:
+        logger.warning(f"Failed to start mirror bots: {e}")
 
     bot: Bot = await container.get(Bot)
     bot_info = await bot.get_me()
@@ -552,6 +573,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Send shutdown notifications
     logger.info("Lifespan shutdown: starting shutdown notifications")
     await send_shutdown_notifications(container)
+
+    # Stop mirror bots
+    try:
+        mirror_bot_manager: MirrorBotManager = app.state.mirror_bot_manager
+        await mirror_bot_manager.stop_all()
+        logger.info("All mirror bots stopped")
+    except Exception as e:
+        logger.warning(f"Failed to stop mirror bots: {e}")
 
     await telegram_webhook_endpoint.shutdown()
     await command_service.delete()

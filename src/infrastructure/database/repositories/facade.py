@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .balance_transfer import BalanceTransferRepository
 from .broadcast import BroadcastRepository
 from .extra_device_purchase import ExtraDevicePurchaseRepository
+from .mirror_bot import MirrorBotRepository
 from .payment_gateway import PaymentGatewayRepository
 from .plan import PlanRepository
 from .promocode import PromocodeRepository
@@ -27,6 +28,7 @@ class RepositoriesFacade:
     broadcasts: BroadcastRepository
     referrals: ReferralRepository
     extra_device_purchases: ExtraDevicePurchaseRepository
+    mirror_bots: MirrorBotRepository
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -42,3 +44,4 @@ class RepositoriesFacade:
         self.broadcasts = BroadcastRepository(session)
         self.referrals = ReferralRepository(session)
         self.extra_device_purchases = ExtraDevicePurchaseRepository(session)
+        self.mirror_bots = MirrorBotRepository(session)

@@ -779,6 +779,14 @@ msg-bot-management =
     <b>🤖 Bot-Verwaltung</b>
 
     • Bot-Version: <code>{ $bot_version }</code>
+msg-mirror-bots =
+    <b>🤖 Zusätzliche Bots</b>
+
+    <blockquote>Hier können Sie zusätzliche Bots hinzufügen, die als Spiegel des Hauptbots arbeiten.</blockquote>
+msg-mirror-bot-add-token =
+    <b>➕ Neuen Bot hinzufügen</b>
+
+    Senden Sie das API-Token des neuen Bots, das Sie von @BotFather erhalten haben.
 msg-dashboard-user-management =
     <b>👥 Benutzerverwaltung</b>
 msg-dashboard-features =

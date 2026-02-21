@@ -2,6 +2,7 @@ from .balance_transfer import BalanceTransferDto
 from .base import BaseDto, TrackableDto
 from .broadcast import BroadcastDto, BroadcastMessageDto
 from .extra_device_purchase import ExtraDevicePurchaseDto
+from .mirror_bot import MirrorBotDto
 from .payment_gateway import (
     AnyGatewaySettingsDto,
     CryptomusGatewaySettingsDto,
@@ -39,6 +40,7 @@ __all__ = [
     "BroadcastDto",
     "BroadcastMessageDto",
     "ExtraDevicePurchaseDto",
+    "MirrorBotDto",
     "TrackableDto",
     "AnyGatewaySettingsDto",
     "CryptomusGatewaySettingsDto",

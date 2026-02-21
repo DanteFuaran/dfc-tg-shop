@@ -79,6 +79,12 @@ class DashboardBotManagement(StatesGroup):
     MAIN = State()
 
 
+class DashboardMirrorBots(StatesGroup):
+    MAIN = State()
+    ADD_TOKEN = State()
+    CONFIRM_DELETE = State()
+
+
 class DashboardStatistics(StatesGroup):
     MAIN = State()
 

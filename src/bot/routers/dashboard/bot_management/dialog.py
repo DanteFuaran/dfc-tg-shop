@@ -1,11 +1,11 @@
-from aiogram_dialog import Dialog, Window
+from aiogram_dialog import Dialog, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, Row, Start
 from aiogram_dialog.widgets.text import Const
 from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
 from src.bot.routers.dashboard.telegram.handlers import on_logs_request
-from src.bot.states import Dashboard, DashboardBotManagement
+from src.bot.states import Dashboard, DashboardBotManagement, DashboardMirrorBots
 from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from .handlers import (
     bot_management_getter,
@@ -27,6 +27,12 @@ bot_management_window = Window(
         text=I18nFormat("btn-bot-check-update"),
         id="check_update",
         on_click=on_check_update,
+    ),
+    Start(
+        text=I18nFormat("btn-mirror-bots"),
+        id="mirror_bots",
+        state=DashboardMirrorBots.MAIN,
+        mode=StartMode.RESET_STACK,
     ),
     Button(
         text=I18nFormat("btn-bot-restart"),

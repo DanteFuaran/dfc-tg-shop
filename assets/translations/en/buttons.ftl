@@ -15,6 +15,8 @@ btn-dashboard-user-management = 👥 Users
 # Bot Management
 btn-bot-check-update = 🔍 Check for Updates
 btn-bot-restart = 🔁 Restart
+btn-mirror-bots = 🤖 Additional Bot
+btn-mirror-bot-add = ➕ Add New Bot
 
 # Database Management
 btn-dashboard-db = 🗄 Database Management

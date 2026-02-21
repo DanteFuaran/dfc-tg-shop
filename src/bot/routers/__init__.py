@@ -23,6 +23,7 @@ from .dashboard import (
     users,
     settings,
 )
+from .dashboard.bot_management import mirror_bots
 
 __all__ = [
     "setup_routers",
@@ -47,6 +48,7 @@ def setup_routers(router: Router) -> None:
         dashboard.dialog.router,
         dashboard.db.dialog,
         bot_management.dialog,
+        mirror_bots.dialog,
         settings.dialog.router,
         statistics.dialog.router,
         access.dialog.router,

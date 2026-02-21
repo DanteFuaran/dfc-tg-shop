@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from src.api.endpoints import TelegramWebhookEndpoint, connect_router, payments_router, remnawave_router
 from src.core.config import AppConfig
 from src.lifespan import lifespan
+from src.services.mirror_bot_manager import MirrorBotManager
 
 
 def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
@@ -27,5 +28,11 @@ def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
     telegram_webhook_endpoint.register(app=app, path=config.bot.webhook_path)
     app.state.telegram_webhook_endpoint = telegram_webhook_endpoint
     app.state.dispatcher = dispatcher
+
+    # Mirror bot manager — handles additional bot webhooks
+    mirror_bot_manager = MirrorBotManager(dispatcher=dispatcher, domain=config.domain)
+    mirror_bot_manager.register_routes(app)
+    app.state.mirror_bot_manager = mirror_bot_manager
+    dispatcher["mirror_bot_manager"] = mirror_bot_manager
 
     return app
