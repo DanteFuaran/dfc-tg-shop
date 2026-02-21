@@ -129,16 +129,16 @@ class CurrencyRatesDto(TrackableDto):
 
 class FeatureSettingsDto(TrackableDto):
     """Настройки функционала - включение/выключение различных функций."""
-    community_enabled: bool = False  # Кнопка "Сообщество" в главном меню (по-умолчанию выключена)
+    community_enabled: bool = True  # Кнопка "Сообщество" в главном меню (по умолчанию включена)
     community_url: Optional[str] = "https://t.me/+DUPpl-nIFV5iNTFi"  # URL Telegram группы сообщества
-    tos_enabled: bool = False  # Кнопка "Соглашение" в главном меню (по-умолчанию выключена)
+    tos_enabled: bool = True  # Кнопка "Соглашение" в главном меню (по умолчанию включена)
     balance_enabled: bool = True  # Функционал баланса (по умолчанию включён)
     balance_mode: BalanceMode = BalanceMode.SEPARATE  # Режим баланса (раздельный/объединённый)
     balance_min_amount: Optional[int] = 10  # Минимальная сумма пополнения баланса
     balance_max_amount: Optional[int] = 100000  # Максимальная сумма пополнения баланса
     notifications_enabled: bool = True  # Отправка уведомлений пользователям
     access_enabled: bool = True  # Глобальный доступ к боту (регистрация и покупки)
-    referral_enabled: bool = False  # Реферальная система (по умолчанию выключена)
+    referral_enabled: bool = True  # Реферальная система (по умолчанию включена)
     promocodes_enabled: bool = False  # Промокоды в главном меню (по умолчанию выключены)
     extra_devices: ExtraDeviceSettingsDto = ExtraDeviceSettingsDto()  # Настройки доп. устройств
     transfers: TransferSettingsDto = TransferSettingsDto()  # Настройки переводов
