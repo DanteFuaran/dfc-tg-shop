@@ -158,7 +158,7 @@ show_spinner_until_log() {
       
       # Проверяем ошибки
       if echo "$logs" | grep -E "^\s*(ERROR|CRITICAL|Traceback)" >/dev/null 2>&1; then
-        printf "\r${RED}❌${NC} %s (ошибка)\n" "$msg"
+        printf "\r${YELLOW}🔍${NC} %s (проверка)\n" "$msg"
         tput cnorm 2>/dev/null || true
         return 2
       fi
