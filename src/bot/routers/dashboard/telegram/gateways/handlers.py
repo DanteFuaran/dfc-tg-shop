@@ -183,7 +183,7 @@ async def on_field_input(
 
     input_value = message.text
 
-    if selected_field in ["api_key", "secret_key"]:
+    if selected_field in ["api_key", "secret_key", "access_token"]:
         input_value = SecretStr(input_value)  # type: ignore[assignment]
 
     try:

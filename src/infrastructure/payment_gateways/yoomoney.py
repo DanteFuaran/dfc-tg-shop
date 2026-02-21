@@ -1,7 +1,7 @@
 import hashlib
 import uuid
 from decimal import Decimal
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, Optional
 from urllib.parse import parse_qs
 from uuid import UUID
 
@@ -162,3 +162,57 @@ class YoomoneyGateway(BasePaymentGateway):
             )
 
         return is_valid
+
+    async def check_payment_by_label(self, label: str) -> Optional[bool]:
+        """Check if a payment with the given label was received via YooMoney API.
+
+        Uses the operation-history API to find completed incoming operations
+        matching the label (= payment_id UUID).
+
+        Returns:
+            True  — payment found and confirmed
+            False — payment not found in history
+            None  — access_token not configured (check impossible)
+        """
+        settings: YoomoneyGatewaySettingsDto = self.data.settings  # type: ignore[assignment]
+
+        if not settings.access_token:
+            return None
+
+        token = settings.access_token.get_secret_value()
+
+        try:
+            response = await self._client.post(
+                "api/operation-history",
+                data={
+                    "type": "deposition",
+                    "label": label,
+                    "records": 1,
+                },
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            operations = data.get("operations", [])
+            if operations:
+                op = operations[0]
+                op_status = op.get("status", "")
+                logger.info(
+                    f"YooMoney reconciliation: label={label} found, "
+                    f"status={op_status}, amount={op.get('amount')}"
+                )
+                return op_status == "success"
+
+            logger.debug(f"YooMoney reconciliation: label={label} not found in history")
+            return False
+
+        except HTTPStatusError as exc:
+            logger.warning(
+                f"YooMoney API error during reconciliation: "
+                f"status={exc.response.status_code}, body={exc.response.text[:256]}"
+            )
+            return None
+        except Exception as exc:
+            logger.warning(f"YooMoney reconciliation failed for label={label}: {exc}")
+            return None

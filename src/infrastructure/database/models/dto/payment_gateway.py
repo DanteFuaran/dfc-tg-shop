@@ -62,6 +62,7 @@ class YoomoneyGatewaySettingsDto(GatewaySettingsDto):
     type: Literal[PaymentGatewayType.YOOMONEY] = PaymentGatewayType.YOOMONEY
     wallet_id: Optional[str] = None
     secret_key: Optional[SecretStr] = None
+    access_token: Optional[SecretStr] = None
 
 
 class CryptomusGatewaySettingsDto(GatewaySettingsDto):
