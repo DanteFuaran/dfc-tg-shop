@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from typing import Any, Optional, Union, cast
+from typing import Any, ClassVar, Optional, Union, cast
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramRetryAfter
@@ -43,6 +43,17 @@ from .user import UserService
 
 
 class NotificationService(BaseService):
+    # Module-level singleton for the mirror bot manager.
+    # Set once during app startup via set_mirror_bot_manager().
+    _mirror_bot_manager: ClassVar[Optional[Any]] = None  # type: MirrorBotManager
+
+    @classmethod
+    def set_mirror_bot_manager(cls, manager: Optional[Any]) -> None:  # type: MirrorBotManager
+        """Register the active MirrorBotManager so notifications reach all bots."""
+        cls._mirror_bot_manager = manager
+        count = len(manager.active_bots) if manager else 0
+        logger.info(f"NotificationService: mirror bot manager set ({count} active mirror bots)")
+
     user_service: UserService
     settings_service: SettingsService
 
@@ -229,6 +240,19 @@ class NotificationService(BaseService):
                     message_id=sent_message.message_id,
                 )
 
+            # ── Also send via any active mirror bots ───────────────────
+            if self._mirror_bot_manager:
+                for mirror_bot in self._mirror_bot_manager.active_bots.values():
+                    try:
+                        if (payload.media or payload.media_id) and payload.media_type:
+                            await self._send_media_message(user, payload, reply_markup, locale, bot=mirror_bot)
+                        else:
+                            await self._send_text_message(user, payload, reply_markup, locale, bot=mirror_bot)
+                    except (TelegramBadRequest, TelegramForbiddenError):
+                        pass  # User never started this mirror bot — expected
+                    except Exception as e:
+                        logger.debug(f"Mirror bot {mirror_bot.id}: notification to {user.telegram_id} skipped: {e}")
+
             return sent_message
 
         except TelegramBadRequest as exception:
@@ -262,6 +286,7 @@ class NotificationService(BaseService):
         payload: MessagePayload,
         reply_markup: Optional[AnyKeyboard],
         locale: Optional[Locale] = None,
+        bot: Optional[Bot] = None,
     ) -> Message:
         message_text = self._get_translated_text(
             locale=locale or user.language,
@@ -270,7 +295,8 @@ class NotificationService(BaseService):
         )
 
         assert payload.media_type
-        send_func = payload.media_type.get_function(self.bot)
+        _bot = bot or self.bot
+        send_func = payload.media_type.get_function(_bot)
         media_arg_name = payload.media_type.lower()
 
         media_input = payload.media or payload.media_id
@@ -292,6 +318,7 @@ class NotificationService(BaseService):
         payload: MessagePayload,
         reply_markup: Optional[AnyKeyboard],
         locale: Optional[Locale] = None,
+        bot: Optional[Bot] = None,
     ) -> Message:
         # Используем raw text если он предоставлен, иначе переводим i18n ключ
         effective_locale = locale or user.language
@@ -306,7 +333,8 @@ class NotificationService(BaseService):
         else:
             raise ValueError("Either 'text' or 'i18n_key' must be provided in MessagePayload")
 
-        return await self.bot.send_message(
+        _bot = bot or self.bot
+        return await _bot.send_message(
             chat_id=user.telegram_id,
             text=message_text,
             message_effect_id=payload.message_effect,

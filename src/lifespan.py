@@ -266,6 +266,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as e:
         logger.warning(f"Failed to start mirror bots: {e}")
 
+    # Register mirror bot manager in NotificationService so all notifications
+    # are automatically forwarded to mirror bots as well.
+    from src.services.notification import NotificationService as _NtfSvc
+    _NtfSvc.set_mirror_bot_manager(mirror_bot_manager)
+
     bot: Bot = await container.get(Bot)
     bot_info = await bot.get_me()
     states: dict[Optional[bool], str] = {True: "Enabled", False: "Disabled", None: "Unknown"}
@@ -408,6 +413,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # so that the user can interact with menus immediately.
     async def _send_startup_notifications() -> None:
         """Send all startup notifications after the server starts accepting webhooks."""
+
+        async def _send_all(chat_id: int, **kwargs) -> None:
+            """Send a message via main bot and all active mirror bots."""
+            for _b in [bot] + list(mirror_bot_manager.active_bots.values()):
+                try:
+                    await _b.send_message(chat_id=chat_id, **kwargs)
+                except Exception as _e:
+                    logger.debug(f"Bot {_b.id} failed to send startup message to {chat_id}: {_e}")
+
         await asyncio.sleep(2)  # Wait for uvicorn to fully start accepting requests
         logger.debug("Sending deferred startup notifications...")
 
@@ -494,8 +508,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 ])
                 for dev in devs_for_donate:
                     try:
-                        await bot.send_message(
-                            chat_id=dev.telegram_id,
+                        await _send_all(
+                            dev.telegram_id,
                             text=donate_text,
                             reply_markup=donate_keyboard,
                             disable_web_page_preview=True,
@@ -521,8 +535,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                         keyboard = InlineKeyboardMarkup(inline_keyboard=[
                             [InlineKeyboardButton(text=close_btn_text, callback_data=Notification.CLOSE.state, style="success")]
                         ])
-                        await bot.send_message(
-                            chat_id=dev.telegram_id,
+                        await _send_all(
+                            dev.telegram_id,
                             text=text,
                             reply_markup=keyboard,
                         )
@@ -550,6 +564,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     text="✅ <b>Бот успешно обновлен!</b>",
                     parse_mode="HTML",
                 )
+                for _mb in mirror_bot_manager.active_bots.values():
+                    try:
+                        await _mb.send_message(chat_id=dev_id, text="✅ <b>Бот успешно обновлен!</b>", parse_mode="HTML")
+                    except Exception:
+                        pass
 
                 async def _auto_delete_success() -> None:
                     await asyncio.sleep(5)
