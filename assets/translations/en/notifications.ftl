@@ -888,3 +888,15 @@ ntf-system-update-available =
 ntf-no-subscription-for-devices = <i>⚠️ You need to get a subscription first.</i>
 
 ntf-no-subscription-for-connect = <i>⚠️ You need to get a subscription first.</i>
+
+ntf-event-stuck-payments =
+    ⚠️ <b>Stuck YooMoney payments</b>
+
+    Found <b>{ $count }</b> unfinished payment(s).
+    Check your YooMoney wallet for incoming transfers.
+
+    <blockquote>
+    { $details }
+    </blockquote>
+
+    <i>If payment was received, confirm manually in the dashboard.</i>

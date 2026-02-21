@@ -1,6 +1,5 @@
 import traceback
 
-from aiogram.utils.formatting import Text
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Request, Response, status
@@ -69,7 +68,6 @@ async def payments_webhook(
         traceback_str = traceback.format_exc()
         error_type_name = type(exception).__name__
         error_message_str = str(exception)[:512]
-        error_message = Text(error_message_str)
         
         # Отправляем уведомление об ошибке (может быть тестовый webhook с ошибкой)
         await notification_service.system_notify(
@@ -90,7 +88,7 @@ async def payments_webhook(
                 i18n_key="ntf-event-error",
                 i18n_kwargs={
                     "user": False,
-                    "error": f"{error_type_name}: {error_message.as_html()}",
+                    "error": f"{error_type_name}: {error_message_str}",
                 },
             ),
         )
