@@ -526,11 +526,35 @@ get_local_version() {
     # а не из временной клонированной папки (при запуске через install-wrapper.sh)
     for _uf in "$PROJECT_DIR/version" "$SCRIPT_CWD/version"; do
         if [ -f "$_uf" ]; then
-            grep '^version:' "$_uf" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo ""
-            return
+            # Поддерживаем оба формата: "version: X.Y.Z" и plain "X.Y.Z"
+            local _v=$(grep '^version:' "$_uf" 2>/dev/null | cut -d: -f2 | tr -d ' \n')
+            if [ -n "$_v" ]; then
+                echo "$_v"
+                return
+            else
+                # Plain format — первая непустая строка которая выглядит как версия (x.y.z)
+                _v=$(grep -v '^#\|^[[:space:]]*$' "$_uf" 2>/dev/null | head -1 | tr -d ' \n')
+                if [ -n "$_v" ]; then
+                    echo "$_v"
+                    return
+                fi
+            fi
         fi
     done
     echo ""
+}
+
+# Функция для парсинга версии из содержимого файла version
+# Поддерживает оба формата: "version: X.Y.Z" и plain "X.Y.Z"
+parse_version_from_content() {
+    local content="$1"
+    local _v=$(echo "$content" | grep '^version:' 2>/dev/null | cut -d: -f2 | tr -d ' \n')
+    if [ -n "$_v" ]; then
+        echo "$_v"
+    else
+        # Plain format — первая непустая строка
+        echo "$content" | grep -v '^#\|^[[:space:]]*$' 2>/dev/null | head -1 | tr -d ' \n'
+    fi
 }
 
 # Функция для сравнения версий (true если version1 < version2)
@@ -563,7 +587,9 @@ check_updates_available() {
         # Клонируем только последний коммит нужной ветки (быстро, ~500kb)
         if git clone -b "$REPO_BRANCH" --depth 1 --single-branch "$REPO_URL" "$TEMP_CHECK_DIR" >/dev/null 2>&1; then
             # Получаем удаленную версию из клонированного репозитория (файл version)
-            REMOTE_VERSION=$(grep '^version:' "$TEMP_CHECK_DIR/version" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
+            if [ -f "$TEMP_CHECK_DIR/version" ]; then
+                REMOTE_VERSION=$(parse_version_from_content "$(cat "$TEMP_CHECK_DIR/version")")
+            fi
             
             # Удаляем временную папку
             rm -rf "$TEMP_CHECK_DIR" 2>/dev/null || true
@@ -589,7 +615,8 @@ check_updates_available() {
             
             GITHUB_RAW_URL=$(echo "$REPO_URL" | sed 's|github.com|raw.githubusercontent.com|; s|\.git$||')
             REMOTE_VERSION_URL="${GITHUB_RAW_URL}/${REPO_BRANCH}/version"
-            REMOTE_VERSION=$(curl -s "$REMOTE_VERSION_URL" 2>/dev/null | grep '^version:' | cut -d: -f2 | tr -d ' \n' || echo "")
+            REMOTE_CONTENT=$(curl -s "$REMOTE_VERSION_URL" 2>/dev/null)
+            REMOTE_VERSION=$(parse_version_from_content "$REMOTE_CONTENT")
             
             if [ -n "$REMOTE_VERSION" ] && [ -n "$LOCAL_VERSION" ]; then
                 # Преобразуем версии в числа для сравнения (inline без вызова функции)
