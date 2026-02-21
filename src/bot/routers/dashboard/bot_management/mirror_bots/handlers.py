@@ -2,6 +2,7 @@ from typing import Any
 
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
+from aiogram_dialog.api.entities import ShowMode
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.kbd.list_group import SubManager
 from dishka import FromDishka
@@ -37,7 +38,8 @@ async def mirror_bots_getter(
         "username": f"@{main_username}",
         "is_primary": main_is_primary,
         "is_main": True,
-        "display": f"[{main_username}] ⭐" if main_is_primary else f"{main_username}",
+        "display": f"{'🔘' if main_is_primary else '⚪'} {main_username}",
+        "right_label": "Системный",
     }
     mirror_items = [
         {
@@ -45,7 +47,8 @@ async def mirror_bots_getter(
             "username": f"@{b.username}",
             "is_primary": b.is_primary,
             "is_main": False,
-            "display": f"[{b.username}]" if b.is_primary else f"{b.username}",
+            "display": f"{'🔘' if b.is_primary else '⚪'} {b.username}",
+            "right_label": "Удалить",
         }
         for b in bots
     ]
@@ -90,13 +93,41 @@ async def on_select_mirror_bot(
     already_primary = any(b.is_primary and b.id == mirror_bot_id for b in current_bots)
 
     if already_primary:
-        # Unselect — back to main bot as entry point
         await mirror_bot_service.set_primary(None)
         await callback.answer("✅ Основной бот сброшен — используется главный бот")
     else:
         await mirror_bot_service.set_primary(mirror_bot_id)
         username = next((b.username for b in current_bots if b.id == mirror_bot_id), "?")
         await callback.answer(f"✅ @{username} назначен основным ботом")
+
+
+@inject
+async def on_action_bot(
+    callback: CallbackQuery,
+    widget: Button,
+    sub_manager: SubManager,
+    mirror_bot_service: FromDishka[MirrorBotService],
+) -> None:
+    """Handle right-column action: ignore for main bot, delete for mirror bots."""
+    item_id = sub_manager.item_id
+
+    if item_id == "main":
+        await callback.answer("ℹ️ Основной бот системы — нельзя удалить")
+        return
+
+    user = sub_manager.middleware_data.get(USER_KEY)
+    mirror_bot_id = int(item_id)
+
+    mirror_bot_manager = sub_manager.middleware_data.get("mirror_bot_manager")
+    if mirror_bot_manager:
+        await mirror_bot_manager.stop_mirror_bot(mirror_bot_id)
+
+    username = await mirror_bot_service.remove(mirror_bot_id)
+    if username:
+        logger.info(f"{log(user)} Removed mirror bot @{username}")
+        await callback.answer(f"Бот @{username} удалён")
+    else:
+        await callback.answer("Бот не найден")
 
 
 async def on_add_mirror_bot(
@@ -144,7 +175,8 @@ async def on_token_input(
             allowed_updates = dispatcher.resolve_used_update_types() if dispatcher else []
             await mirror_bot_manager.start_mirror_bot(mirror_bot, allowed_updates)
 
-        # Switch back to the list (no extra messages)
+        # Delete old dialog message (token input) and send fresh MAIN message
+        manager.show_mode = ShowMode.DELETE_AND_SEND
         await manager.switch_to(DashboardMirrorBots.MAIN)
 
     except ValueError as e:
@@ -185,6 +217,7 @@ async def on_cancel_add(
 ) -> None:
     """Cancel adding a new mirror bot."""
     manager.dialog_data.pop("add_error", None)
+    manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.switch_to(DashboardMirrorBots.MAIN)
 
 

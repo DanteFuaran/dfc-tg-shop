@@ -1,8 +1,7 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Button, ListGroup, Row
-from aiogram_dialog.widgets.text import Const, Format
-from magic_filter import F
+from aiogram_dialog.widgets.text import Format
 
 from src.bot.keyboards import main_menu_button
 from src.bot.states import DashboardMirrorBots
@@ -11,10 +10,10 @@ from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from .handlers import (
     add_token_getter,
     mirror_bots_getter,
+    on_action_bot,
     on_add_mirror_bot,
     on_back_to_bot_management,
     on_cancel_add,
-    on_delete_mirror_bot,
     on_select_mirror_bot,
     on_token_input,
 )
@@ -32,10 +31,9 @@ mirror_bots_main = Window(
                 on_click=on_select_mirror_bot,
             ),
             Button(
-                text=Const("❌"),
-                id="delete_bot",
-                on_click=on_delete_mirror_bot,
-                when=lambda data, widget, manager: not data.get("item", {}).get("is_main", False),
+                text=Format("{item[right_label]}"),
+                id="action_bot",
+                on_click=on_action_bot,
             ),
         ),
         id="mirror_bots_list",
