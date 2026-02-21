@@ -1007,10 +1007,12 @@ msg-broadcast-content =
     <b>✉️ Broadcast Content</b>
 
     <b>Current content:</b>
+
     { $has_content ->
         [1] <blockquote>{ $current_content }</blockquote>
         *[other] <blockquote>• Not filled</blockquote>
     }
+
     <i>Send any message: text, image or both together (HTML supported).</i>
 
 msg-broadcast-buttons = <b>✳️ Broadcast Buttons</b>

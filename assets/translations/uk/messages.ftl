@@ -1007,10 +1007,12 @@ msg-broadcast-content =
     <b>✉️ Вміст розсилки</b>
 
     <b>Поточний вміст:</b>
+
     { $has_content ->
         [1] <blockquote>{ $current_content }</blockquote>
         *[other] <blockquote>• Не заповнено</blockquote>
     }
+
     <i>Надішліть будь-яке повідомлення: текст, зображення або все разом (підтримується HTML).</i>
 
 msg-broadcast-buttons = <b>✳️ Кнопки рассылки</b>
