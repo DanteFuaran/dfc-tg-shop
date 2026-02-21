@@ -359,12 +359,7 @@ btn-menu-download-windows = 🖥 Windows
 btn-menu-download-iphone = 🍎 iPhone
 btn-menu-download-macos = 💻 macOS
 
-btn-menu-connect-not-available =
-    ⚠️ { $status -> 
-    [LIMITED] Traffic-Limit überschritten
-    [EXPIRED] Abonnement abgelaufen
-    *[OTHER] Kein Abonnement
-    }
+btn-menu-connect-not-available = 🚀 Verbinden
 
 btn-menu-trial = { $is_referral_trial ->
     [1] 📢 Empfehlungs-Abonnement

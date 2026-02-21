@@ -883,3 +883,5 @@ ntf-system-update-available =
     Press <b>"Update now"</b> or run the update from the bot management menu.
 
 ntf-no-subscription-for-devices = <i>⚠️ An active subscription is required to increase the device limit.</i>
+
+ntf-no-subscription-for-connect = <i>⚠️ You need to get a subscription first to connect.</i>

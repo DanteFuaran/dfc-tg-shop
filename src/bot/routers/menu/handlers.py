@@ -648,19 +648,24 @@ async def show_reason(
     widget: Button,
     dialog_manager: DialogManager,
     i18n: FromDishka[TranslatorRunner],
+    notification_service: FromDishka[NotificationService],
 ) -> None:
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
     subscription = user.current_subscription
 
-    if subscription:
-        kwargs = {
-            "status": subscription.get_status,
-            "is_trial": subscription.is_trial,
-            "traffic_strategy": subscription.traffic_limit_strategy,
-            "reset_time": subscription.get_expire_time,
-        }
-    else:
-        kwargs = {"status": False}
+    if not subscription:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-no-subscription-for-connect"),
+        )
+        return
+
+    kwargs = {
+        "status": subscription.get_status,
+        "is_trial": subscription.is_trial,
+        "traffic_strategy": subscription.traffic_limit_strategy,
+        "reset_time": subscription.get_expire_time,
+    }
 
     await callback.answer(
         text=i18n.get("ntf-connect-not-available", **get_translated_kwargs(i18n, kwargs)),

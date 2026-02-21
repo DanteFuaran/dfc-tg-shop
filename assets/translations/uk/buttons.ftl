@@ -359,12 +359,7 @@ btn-menu-download-windows = 🖥 Windows
 btn-menu-download-iphone = 🍎 iPhone
 btn-menu-download-macos = 💻 macOS
 
-btn-menu-connect-not-available =
-    ⚠️ { $status -> 
-    [LIMITED] Ліміт трафіку вичерпано
-    [EXPIRED] Підписка закінчилася
-    *[OTHER] Немає підписки
-    }
+btn-menu-connect-not-available = 🚀 Підключитись
 
 btn-menu-trial = { $is_referral_trial ->
     [1] 📢 Реферальна підписка

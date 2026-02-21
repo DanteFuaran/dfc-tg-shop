@@ -881,3 +881,5 @@ ntf-system-update-available =
     Klicken Sie auf <b>«Jetzt aktualisieren»</b> oder starten Sie das Update über das Bot-Verwaltungsmenü.
 
 ntf-no-subscription-for-devices = <i>⚠️ Um das Gerätelimit zu erhöhen, ist ein aktives Abonnement erforderlich.</i>
+
+ntf-no-subscription-for-connect = <i>⚠️ Um sich zu verbinden, benötigen Sie zuerst ein Abonnement.</i>
