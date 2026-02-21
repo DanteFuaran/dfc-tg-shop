@@ -9,6 +9,7 @@ from src.bot.states import DashboardMirrorBots
 from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 
 from .handlers import (
+    add_token_getter,
     mirror_bots_getter,
     on_add_mirror_bot,
     on_back_to_bot_management,
@@ -63,6 +64,7 @@ mirror_bots_main = Window(
 add_token_window = Window(
     Banner(),
     I18nFormat("msg-mirror-bot-add-token"),
+    Format("\n❌ <b>{add_error}</b>", when="add_error"),
     TextInput(
         id="mirror_bot_token",
         on_success=on_token_input,
@@ -78,6 +80,7 @@ add_token_window = Window(
     ),
     IgnoreUpdate(),
     state=DashboardMirrorBots.ADD_TOKEN,
+    getter=add_token_getter,
 )
 
 dialog = Dialog(

@@ -98,8 +98,11 @@ async def on_token_input(
     except Exception:
         pass
 
+    # Clear previous error
+    manager.dialog_data.pop("add_error", None)
+
     if ":" not in token:
-        await message.answer("❌ <b>Невалидный формат токена.</b>\n\nТокен должен быть в формате: <code>123456:ABC-DEF...</code>")
+        manager.dialog_data["add_error"] = "Невалидный формат токена. Используйте формат: 123456:ABC-DEF..."
         return
 
     try:
@@ -107,31 +110,20 @@ async def on_token_input(
         logger.info(f"{log(user)} Added mirror bot @{mirror_bot.username}")
 
         # Start the mirror bot immediately if MirrorBotManager is available
-        started = False
         mirror_bot_manager = manager.middleware_data.get("mirror_bot_manager")
         if mirror_bot_manager and mirror_bot.id is not None:
             dispatcher = manager.middleware_data.get("aiogd_original_dispatcher") or manager.middleware_data.get("dispatcher")
-            if dispatcher:
-                allowed_updates = dispatcher.resolve_used_update_types()
-            else:
-                allowed_updates = []
-            started = await mirror_bot_manager.start_mirror_bot(mirror_bot, allowed_updates)
+            allowed_updates = dispatcher.resolve_used_update_types() if dispatcher else []
+            await mirror_bot_manager.start_mirror_bot(mirror_bot, allowed_updates)
 
-        if started:
-            await message.answer(
-                f"✅ <b>Бот @{mirror_bot.username} успешно добавлен и запущен!</b>",
-            )
-        else:
-            await message.answer(
-                f"✅ <b>Бот @{mirror_bot.username} добавлен!</b>\n\n"
-                f"⚠️ Бот будет активирован после перезапуска основного бота.",
-            )
+        # Switch back to the list (no extra messages)
         await manager.switch_to(DashboardMirrorBots.MAIN)
+
     except ValueError as e:
-        await message.answer(f"❌ <b>Ошибка:</b> {e}")
+        manager.dialog_data["add_error"] = str(e)
     except Exception as e:
         logger.error(f"Error adding mirror bot: {e}")
-        await message.answer("❌ <b>Произошла ошибка при добавлении бота.</b>")
+        manager.dialog_data["add_error"] = "Произошла внутренняя ошибка. Попробуйте позже."
 
 
 @inject
@@ -164,4 +156,15 @@ async def on_cancel_add(
     manager: DialogManager,
 ) -> None:
     """Cancel adding a new mirror bot."""
+    manager.dialog_data.pop("add_error", None)
     await manager.switch_to(DashboardMirrorBots.MAIN)
+
+
+async def add_token_getter(
+    dialog_manager: DialogManager,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Getter for add-token window — passes dialog_data error if set."""
+    return {
+        "add_error": dialog_manager.dialog_data.get("add_error", ""),
+    }
