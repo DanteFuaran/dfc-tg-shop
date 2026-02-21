@@ -166,6 +166,7 @@ async def notify_device_connected(
                                 "user_agent": device.user_agent,
                             },
                             reply_markup=get_user_keyboard(user.telegram_id),
+                            close_button_style="success",
                         ),
                     )
                     break  # Отправляем уведомление только для одного нового устройства

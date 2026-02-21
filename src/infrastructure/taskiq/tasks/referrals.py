@@ -93,6 +93,7 @@ async def give_referrer_reward_task(
                 "currency": reward.currency.symbol if reward.currency else "?",
             },
             message_effect=MessageEffect.CONFETTI,
+            close_button_style="success",
         ),
         ntf_type=UserNotificationType.REFERRAL_REWARD,
     )

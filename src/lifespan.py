@@ -320,7 +320,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                         "registration_allowed": settings.registration_allowed,
                     })
                     text = i18n_postprocess_text(i18n.get("ntf-event-bot-startup", **kwargs))
-                    close_btn_text = i18n.get("btn-notification-close")
+                    close_btn_text = i18n.get("btn-notification-close-success")
                     startup_i18n_data[dev.telegram_id] = (text, close_btn_text)
                 except Exception as e:
                     logger.warning(f"Failed to prepare startup text for {dev.telegram_id}: {e}")
@@ -469,7 +469,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                         InlineKeyboardButton(text="⭐ GitHub", url="https://github.com/DanteFuaran/dfc-tg-shop", style="primary"),
                         InlineKeyboardButton(text="💬 Telegram", url="https://t.me/dfc_soft", style="primary")
                     ],
-                    [InlineKeyboardButton(text="❌ Закрыть", callback_data="donate_close", style="danger")]
+                    [InlineKeyboardButton(text="✅ Закрыть", callback_data="donate_close", style="success")]
                 ])
                 for dev in devs_for_donate:
                     try:
@@ -498,7 +498,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                             continue
                         text, close_btn_text = data
                         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                            [InlineKeyboardButton(text=close_btn_text, callback_data=Notification.CLOSE.state, style="danger")]
+                            [InlineKeyboardButton(text=close_btn_text, callback_data=Notification.CLOSE.state, style="success")]
                         ])
                         await bot.send_message(
                             chat_id=dev.telegram_id,

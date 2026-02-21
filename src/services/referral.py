@@ -370,6 +370,7 @@ class ReferralService(BaseService):
                     i18n_key="ntf-event-user-referral-attached",
                     i18n_kwargs={"name": user.name},
                     message_effect=MessageEffect.CONFETTI,
+                    close_button_style="success",
                 ),
             )
 

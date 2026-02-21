@@ -54,6 +54,7 @@ async def payments_webhook(
                         "gateway_name": gateway_data.type.value,
                         "gateway_type": gateway_enum.value,
                     },
+                    close_button_style="success",
                 ),
                 ntf_type=SystemNotificationType.BILLING,
             )

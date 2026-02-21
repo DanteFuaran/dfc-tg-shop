@@ -298,6 +298,7 @@ class UserMiddleware(EventTypedMiddleware):
                     i18n_key="ntf-event-new-user",
                     i18n_kwargs={**base_i18n_kwargs, **referrer_i18n_kwargs},
                     reply_markup=get_user_keyboard(user.telegram_id),
+                    close_button_style="success",
                 ),
                 ntf_type=SystemNotificationType.USER_REGISTERED,
             )

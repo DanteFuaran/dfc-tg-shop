@@ -640,6 +640,7 @@ class PaymentGatewayService(BaseService):
                     i18n_key=i18n_key,
                     i18n_kwargs=i18n_kwargs,
                     reply_markup=get_user_keyboard(transaction.user.telegram_id),
+                    close_button_style="success",
                 ),
             )
             
@@ -673,6 +674,7 @@ class PaymentGatewayService(BaseService):
                     i18n_key=i18n_key,
                     i18n_kwargs=i18n_kwargs,
                     reply_markup=get_user_keyboard(transaction.user.telegram_id),
+                    close_button_style="success",
                 ),
             )
             
@@ -769,6 +771,7 @@ class PaymentGatewayService(BaseService):
                 i18n_key=i18n_key,
                 i18n_kwargs={**i18n_kwargs, **extra_i18n_kwargs},
                 reply_markup=get_user_keyboard(transaction.user.telegram_id),
+                close_button_style="success",
             ),
         )
 

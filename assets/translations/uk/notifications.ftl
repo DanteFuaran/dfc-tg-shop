@@ -172,9 +172,7 @@ ntf-invite-link-copied = <i>⚠️ Посилання скопійовано в 
 
 # Events
 ntf-event-error =
-    #EventError
-
-    <b>🔅 Подія: Виникла помилка!</b>
+    🤖 <b>Система: Виникла помилка!</b>
     
     { $user -> 
     [1]
@@ -189,9 +187,7 @@ ntf-event-error =
     </blockquote>
 
 ntf-event-error-remnawave =
-    #EventError
-
-    <b>🔅 Подія: Помилка підключення до Remnawave!</b>
+    🤖 <b>Система: Помилка підключення до Remnawave!</b>
 
     <blockquote>
     Без активного підключення бот не може працювати коректно!
@@ -203,9 +199,7 @@ ntf-event-error-remnawave =
     </blockquote>
 
 ntf-event-error-webhook =
-    #EventError
-
-    <b>🔅 Подія: Виявлено помилку webhook!</b>
+    🤖 <b>Система: Виявлено помилку webhook!</b>
 
     { hdr-error }
     <blockquote>
@@ -213,9 +207,7 @@ ntf-event-error-webhook =
     </blockquote>
 
 ntf-event-bot-startup =
-    #EventBotStarted
-
-    <b>🔅 Подія: Бот запущено!</b>
+    🤖 <b>Система: Бот запущено!</b>
 
     <blockquote>
     • <b>Режим доступу</b>: { access-mode }
@@ -230,19 +222,13 @@ ntf-event-bot-startup =
     </blockquote>
 
 ntf-event-bot-shutdown =
-    #EventBotShutdown
-
-    <b>🔅 Подія: Бот зупинено!</b>
+    🤖 <b>Система: Бот зупинено!</b>
 
 ntf-event-bot-started =
-    #Event
-
-    <b>🟢 Подія: Бот увімкнено!</b>
+    🤖 <b>Система: Бот увімкнено!</b>
 
 ntf-event-bot-update =
-    #EventBotUpdate
-
-    <b>🔅 Подія: Виявлено оновлення DFC Shop!</b>
+    🤖 <b>Система: Виявлено оновлення DFC Shop!</b>
 
     <blockquote>
     • <b>Поточна версія</b>: { $local_version }
@@ -250,9 +236,7 @@ ntf-event-bot-update =
     </blockquote>
 
 ntf-event-new-user =
-    #EventNewUser
-
-    <b>🔅 Подія: Новий користувач!</b>
+    🤖 <b>Система: Новий користувач!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -271,9 +255,7 @@ ntf-event-new-user =
     }
 
 ntf-event-referral-upgrade =
-    #EventReferralUpgrade
-
-    <b>🔅 Подія: Покращення підписки до реферальної!</b>
+    🤖 <b>Система: Покращення підписки до реферальної!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -288,9 +270,7 @@ ntf-event-referral-upgrade =
     </blockquote>
 
 ntf-event-promocode-activated =
-    #EventPromocodeActivated
-
-    <b>🔅 Подія: Промокод активовано!</b>
+    🤖 <b>Система: Промокод активовано!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -307,9 +287,7 @@ ntf-event-promocode-activated =
     </blockquote>
 
 ntf-event-test-webhook-success =
-    #EventTestWebhookSuccess
-
-    <b>✅ Подія: Тестовий webhook успішний!</b>
+    🤖 <b>Система: Тестовий webhook успішний!</b>
 
     <b>💳 Платіжний шлюз:</b>
     <blockquote>
@@ -320,9 +298,7 @@ ntf-event-test-webhook-success =
     <i>Тестове повідомлення отримано та оброблено успішно.</i>
 
 ntf-event-test-webhook-failed =
-    #EventTestWebhookFailed
-
-    <b>❌ Подія: Помилка тестового webhook!</b>
+    🤖 <b>Система: Помилка тестового webhook!</b>
 
     <b>💳 Платіжний шлюз:</b>
     <blockquote>
@@ -336,9 +312,7 @@ ntf-event-test-webhook-failed =
     </blockquote>
     
 ntf-event-subscription-trial =
-    #EventTrialGetted
-
-    <b>🔅 Подія: Отримано пробну підписку!</b>
+    🤖 <b>Система: Отримано пробну підписку!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -347,9 +321,7 @@ ntf-event-subscription-trial =
     { frg-plan-snapshot }
 
 ntf-event-subscription-new =
-    #EventSubscriptionNew
-
-    <b>🔅 Подія: Підписку придбано!</b>
+    🤖 <b>Система: Підписку придбано!</b>
 
     { hdr-payment }
     { frg-payment-info }
@@ -361,9 +333,7 @@ ntf-event-subscription-new =
     { frg-plan-snapshot }
 
 ntf-event-subscription-renew =
-    #EventSubscriptionRenew
-
-    <b>🔅 Подія: Підписку продовжено!</b>
+    🤖 <b>Система: Підписку продовжено!</b>
     
     { hdr-payment }
     { frg-payment-info }
@@ -386,9 +356,7 @@ ntf-event-subscription-renew =
     }
 
 ntf-event-subscription-change =
-    #EventSubscriptionChange
-
-    <b>🔅 Подія: Підписку змінено!</b>
+    🤖 <b>Система: Підписку змінено!</b>
 
     { hdr-payment }
     { frg-payment-info }
@@ -400,9 +368,7 @@ ntf-event-subscription-change =
     { frg-plan-snapshot-comparison }
 
 ntf-event-balance-topup =
-    #EventBalanceTopup
-
-    <b>💰 Подія: Баланс поповнено!</b>
+    🤖 <b>Система: Баланс поповнено!</b>
 
     <blockquote>
     • <b>ID</b>: <code>{ $payment_id }</code>
@@ -414,9 +380,7 @@ ntf-event-balance-topup =
     { frg-user-info }
 
 ntf-event-extra-devices =
-    #EventExtraDevices
-
-    <b>📱 Подія: Придбано додаткові пристрої!</b>
+    🤖 <b>Система: Придбано додаткові пристрої!</b>
 
     <blockquote>
     • <b>ID</b>: <code>{ $payment_id }</code>
@@ -433,9 +397,7 @@ ntf-event-extra-devices =
     { frg-user-info }
 
 ntf-event-extra-devices-balance =
-    #EventExtraDevices
-
-    <b>📱 Подія: Придбано додаткові пристрої!</b>
+    🤖 <b>Система: Придбано додаткові пристрої!</b>
 
     <blockquote>
     • <b>Спосіб оплати</b>: 💰 З балансу
@@ -447,9 +409,7 @@ ntf-event-extra-devices-balance =
     { hdr-user }
     { frg-user-info }
 ntf-event-extra-devices-deletion =
-    #EventExtraDevicesDelete
-
-    <b>🗑 Подія: Видалення додаткових пристроїв!</b>
+    🤖 <b>Система: Видалення додаткових пристроїв!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -459,9 +419,7 @@ ntf-event-extra-devices-deletion =
     • <b>Видалення через</b>: { $delete_after }
     </blockquote>
 ntf-event-balance-transfer =
-    #EventBalanceTransfer
-
-    <b>💸 Подія: Фінансовий переказ!</b>
+    🤖 <b>Система: Фінансовий переказ!</b>
 
     <b>👤 Відправник:</b>
     <blockquote>
@@ -489,33 +447,25 @@ ntf-event-balance-transfer =
     </blockquote>
 
 ntf-event-node-connection-lost =
-    #EventNode
-
-    <b>🔅 Подія: Втрачено з'єднання з нодою!</b>
+    🤖 <b>Система: Втрачено з'єднання з нодою!</b>
 
     { hdr-node }
     { frg-node-info }
 
 ntf-event-node-connection-restored =
-    #EventNode
-
-    <b>🔅 Подія: З'єднання з нодою відновлено!</b>
+    🤖 <b>Система: З'єднання з нодою відновлено!</b>
 
     { hdr-node }
     { frg-node-info }
 
 ntf-event-node-traffic =
-    #EventNode
-
-    <b>🔅 Подія: Нода досягла порогу ліміту трафіку!</b>
+    🤖 <b>Система: Нода досягла порогу ліміту трафіку!</b>
 
     { hdr-node }
     { frg-node-info }
 
 ntf-event-user-first-connected =
-    #EventUser
-
-    <b>🔅 Подія: Перше підключення користувача!</b>
+    🤖 <b>Система: Перше підключення користувача!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -524,9 +474,7 @@ ntf-event-user-first-connected =
     { frg-subscription-details }
 
 ntf-event-user-not-connected =
-    #EventUserInactive
-
-    <b>⚠️ Подія: Користувач не підключився!</b>
+    🤖 <b>Система: Користувач не підключився!</b>
 
     <blockquote>
     Користувач зареєструвався { $hours } год. тому, але не оформив підписку.
@@ -581,9 +529,7 @@ ntf-event-user-limited =
     }
 
 ntf-event-user-hwid-added =
-    #EventUserHwid
-
-    <b>🔅 Подія: Користувач додав новий пристрій!</b>
+    🤖 <b>Система: Користувач додав новий пристрій!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -592,9 +538,7 @@ ntf-event-user-hwid-added =
     { frg-user-hwid }
 
 ntf-event-user-hwid-deleted =
-    #EventUserHwid
-
-    <b>🔅 Подія: Користувач видалив пристрій!</b>
+    🤖 <b>Система: Користувач видалив пристрій!</b>
 
     { hdr-user }
     { frg-user-info }

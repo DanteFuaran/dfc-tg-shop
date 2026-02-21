@@ -172,9 +172,7 @@ ntf-invite-link-copied = <i>⚠️ Ссылка скопирована в буф
 
 # Events
 ntf-event-error =
-    #EventError
-
-    <b>🔅 Событие: Произошла ошибка!</b>
+    🤖 <b>Система: Произошла ошибка!</b>
     
     { $user -> 
     [1]
@@ -189,9 +187,7 @@ ntf-event-error =
     </blockquote>
 
 ntf-event-error-remnawave =
-    #EventError
-
-    <b>🔅 Событие: Ошибка при подключении к Remnawave!</b>
+    🤖 <b>Система: Ошибка при подключении к Remnawave!</b>
 
     <blockquote>
     Без активного подключения корректная работа бота невозможна!
@@ -203,9 +199,7 @@ ntf-event-error-remnawave =
     </blockquote>
 
 ntf-event-error-webhook =
-    #EventError
-
-    <b>🔅 Событие: Зафиксирована ошибка вебхука!</b>
+    🤖 <b>Система: Зафиксирована ошибка вебхука!</b>
 
     { hdr-error }
     <blockquote>
@@ -213,9 +207,7 @@ ntf-event-error-webhook =
     </blockquote>
 
 ntf-event-bot-startup =
-    #EventBotStarted
-
-    <b>🔅 Событие: Бот запущен!</b>
+    🤖 <b>Система: Бот запущен!</b>
 
     <blockquote>
     • <b>Режим доступа</b>: { access-mode }
@@ -230,19 +222,13 @@ ntf-event-bot-startup =
     </blockquote>
 
 ntf-event-bot-shutdown =
-    #EventBotShutdown
-
-    <b>🔅 Событие: Бот остановлен!</b>
+    🤖 <b>Система: Бот остановлен!</b>
 
 ntf-event-bot-started =
-    #Event
-
-    <b>🟢 Событие: Бот включен!</b>
+    🤖 <b>Система: Бот включен!</b>
 
 ntf-event-bot-update =
-    #EventBotUpdate
-
-    <b>🔅 Событие: Обнаружено обновление DFC Shop!</b>
+    🤖 <b>Система: Обнаружено обновление DFC Shop!</b>
 
     <blockquote>
     • <b>Текущая версия</b>: { $local_version }
@@ -250,9 +236,7 @@ ntf-event-bot-update =
     </blockquote>
 
 ntf-event-new-user =
-    #EventNewUser
-
-    <b>🔅 Событие: Новый пользователь!</b>
+    🤖 <b>Система: Новый пользователь!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -271,9 +255,7 @@ ntf-event-new-user =
     }
 
 ntf-event-referral-upgrade =
-    #EventReferralUpgrade
-
-    <b>🔅 Событие: Улучшение подписки до реферальной!</b>
+    🤖 <b>Система: Улучшение подписки до реферальной!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -288,9 +270,7 @@ ntf-event-referral-upgrade =
     </blockquote>
 
 ntf-event-promocode-activated =
-    #EventPromocodeActivated
-
-    <b>🔅 Событие: Активация промокода!</b>
+    🤖 <b>Система: Активация промокода!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -307,9 +287,7 @@ ntf-event-promocode-activated =
     </blockquote>
 
 ntf-event-test-webhook-success =
-    #EventTestWebhookSuccess
-
-    <b>✅ Событие: Тестовый webhook успешен!</b>
+    🤖 <b>Система: Тестовый webhook успешен!</b>
 
     <b>💳 Платёжный шлюз:</b>
     <blockquote>
@@ -320,9 +298,7 @@ ntf-event-test-webhook-success =
     <i>Тестовое уведомление получено и обработано успешно.</i>
 
 ntf-event-test-webhook-failed =
-    #EventTestWebhookFailed
-
-    <b>❌ Событие: Ошибка тестового webhook!</b>
+    🤖 <b>Система: Ошибка тестового webhook!</b>
 
     <b>💳 Платёжный шлюз:</b>
     <blockquote>
@@ -336,9 +312,7 @@ ntf-event-test-webhook-failed =
     </blockquote>
     
 ntf-event-subscription-trial =
-    #EventTrialGetted
-
-    <b>🔅 Событие: Получение пробной подписки!</b>
+    🤖 <b>Система: Получение пробной подписки!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -347,9 +321,7 @@ ntf-event-subscription-trial =
     { frg-plan-snapshot }
 
 ntf-event-subscription-new =
-    #EventSubscriptionNew
-
-    <b>🔅 Событие: Покупка подписки!</b>
+    🤖 <b>Система: Покупка подписки!</b>
 
     { hdr-payment }
     { frg-payment-info }
@@ -361,9 +333,7 @@ ntf-event-subscription-new =
     { frg-plan-snapshot }
 
 ntf-event-subscription-renew =
-    #EventSubscriptionRenew
-
-    <b>🔅 Событие: Продление подписки!</b>
+    🤖 <b>Система: Продление подписки!</b>
     
     { hdr-payment }
     { frg-payment-info }
@@ -386,9 +356,7 @@ ntf-event-subscription-renew =
     }
 
 ntf-event-subscription-change =
-    #EventSubscriptionChange
-
-    <b>🔅 Событие: Изменение подписки!</b>
+    🤖 <b>Система: Изменение подписки!</b>
 
     { hdr-payment }
     { frg-payment-info }
@@ -400,9 +368,7 @@ ntf-event-subscription-change =
     { frg-plan-snapshot-comparison }
 
 ntf-event-balance-topup =
-    #EventBalanceTopup
-
-    <b>💰 Событие: Пополнение баланса!</b>
+    🤖 <b>Система: Пополнение баланса!</b>
 
     <blockquote>
     • <b>ID</b>: <code>{ $payment_id }</code>
@@ -414,9 +380,7 @@ ntf-event-balance-topup =
     { frg-user-info }
 
 ntf-event-extra-devices =
-    #EventExtraDevices
-
-    <b>📱 Событие: Покупка дополнительных устройств!</b>
+    🤖 <b>Система: Покупка дополнительных устройств!</b>
 
     <blockquote>
     • <b>ID</b>: <code>{ $payment_id }</code>
@@ -433,9 +397,7 @@ ntf-event-extra-devices =
     { frg-user-info }
 
 ntf-event-extra-devices-balance =
-    #EventExtraDevices
-
-    <b>📱 Событие: Покупка дополнительных устройств!</b>
+    🤖 <b>Система: Покупка дополнительных устройств!</b>
 
     <blockquote>
     • <b>Способ оплаты</b>: 💰 С баланса
@@ -448,9 +410,7 @@ ntf-event-extra-devices-balance =
     { frg-user-info }
 
 ntf-event-extra-devices-deletion =
-    #EventExtraDevicesDelete
-
-    <b>🗑 Событие: Удаление дополнительных устройств!</b>
+    🤖 <b>Система: Удаление дополнительных устройств!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -461,9 +421,7 @@ ntf-event-extra-devices-deletion =
     </blockquote>
 
 ntf-event-balance-transfer =
-    #EventBalanceTransfer
-
-    <b>💸 Событие: Финансовый перевод!</b>
+    🤖 <b>Система: Финансовый перевод!</b>
 
     <b>👤 Отправитель:</b>
     <blockquote>
@@ -491,25 +449,19 @@ ntf-event-balance-transfer =
     </blockquote>
 
 ntf-event-node-connection-lost =
-    #EventNode
-
-    <b>🔅 Событие: Соединение с узлом потеряно!</b>
+    🤖 <b>Система: Соединение с узлом потеряно!</b>
 
     { hdr-node }
     { frg-node-info }
 
 ntf-event-node-connection-restored =
-    #EventNode
-
-    <b>🔅 Событие: Cоединение с узлом восстановлено!</b>
+    🤖 <b>Система: Cоединение с узлом восстановлено!</b>
 
     { hdr-node }
     { frg-node-info }
 
 ntf-event-node-traffic =
-    #EventNode
-
-    <b>🔅 Событие: Узел достиг порога лимита трафика!</b>
+    🤖 <b>Система: Узел достиг порога лимита трафика!</b>
 
     { hdr-node }
     { frg-node-info }
@@ -517,7 +469,7 @@ ntf-event-node-traffic =
 # ntf-event-user-sync =
 #     #EventUser
 
-#     <b>🔅 Событие: Синхронизация пользователя!</b>
+#     🤖 <b>Система: Синхронизация пользователя!</b>
 
 #     { hdr-user }
 #     { frg-user-info }
@@ -528,7 +480,7 @@ ntf-event-node-traffic =
 # ntf-event-user-deleted =
 #     #EventUser
 
-#     <b>🔅 Событие: Пользователь удален из панели!</b>
+#     🤖 <b>Система: Пользователь удален из панели!</b>
 
 #     { hdr-user }
 #     { frg-user-info }
@@ -537,9 +489,7 @@ ntf-event-node-traffic =
 #     { frg-subscription-details }
 
 ntf-event-user-first-connected =
-    #EventUser
-
-    <b>🔅 Событие: Первое подключение пользователя!</b>
+    🤖 <b>Система: Первое подключение пользователя!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -548,9 +498,7 @@ ntf-event-user-first-connected =
     { frg-subscription-details }
 
 ntf-event-user-not-connected =
-    #EventUserInactive
-
-    <b>⚠️ Событие: Пользователь не подключился!</b>
+    🤖 <b>Система: Пользователь не подключился!</b>
 
     <blockquote>
     Пользователь зарегистрировался { $hours } ч. назад, но не оформил подписку.
@@ -605,9 +553,7 @@ ntf-event-user-limited =
     }
 
 ntf-event-user-hwid-added =
-    #EventUserHwid
-
-    <b>🔅 Событие: Пользователь добавил новое устройство!</b>
+    🤖 <b>Система: Пользователь добавил новое устройство!</b>
 
     { hdr-user }
     { frg-user-info }
@@ -616,9 +562,7 @@ ntf-event-user-hwid-added =
     { frg-user-hwid }
 
 ntf-event-user-hwid-deleted =
-    #EventUserHwid
-
-    <b>🔅 Событие: Пользователь удалил устройство!</b>
+    🤖 <b>Система: Пользователь удалил устройство!</b>
 
     { hdr-user }
     { frg-user-info }

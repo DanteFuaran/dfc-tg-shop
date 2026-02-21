@@ -1173,6 +1173,7 @@ class RemnawaveService(BaseService):
                     i18n_key="ntf-event-user-first-connected",
                     i18n_kwargs=i18n_kwargs,
                     reply_markup=get_user_keyboard(user.telegram_id),
+                    close_button_style="success",
                 ),
             )
 
@@ -1231,6 +1232,8 @@ class RemnawaveService(BaseService):
             )
             return
 
+        close_button_style = "success" if event == RemnaUserHwidDevicesEvent.ADDED else "danger"
+
         await send_system_notification_task.kiq(
             ntf_type=SystemNotificationType.USER_HWID,
             payload=MessagePayload.not_deleted(
@@ -1246,6 +1249,7 @@ class RemnawaveService(BaseService):
                     "user_agent": device.user_agent,
                 },
                 reply_markup=get_user_keyboard(user.telegram_id),
+                close_button_style=close_button_style,
             ),
         )
 

@@ -162,7 +162,7 @@ def format_percent(part: int, whole: int) -> str:
 
 
 def format_country_code(code: str) -> str:
-    if not code.isalpha() or len(code) != 2:
+    if not code or not code.isalpha() or len(code) != 2:
         return "🏴‍☠️"
 
     return "".join(chr(ord("🇦") + ord(c.upper()) - ord("A")) for c in code)

@@ -224,6 +224,7 @@ async def trial_subscription_task(
                     "plan_price": "0 ₽",
                 },
                 reply_markup=get_user_keyboard(user.telegram_id),
+                close_button_style="success",
             ),
         )
         await redirect_to_successed_trial_task.kiq(user)

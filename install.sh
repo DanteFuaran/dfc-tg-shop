@@ -19,10 +19,10 @@ SYSTEM_INSTALL_DIR="/usr/local/lib/dfc-tg-shop"
 # Ветка, версия и репозиторий — единый источник: $PROJECT_DIR/version
 # Формат файла:
 #   version: x.x.x
-#   branch:  dev
+#   branch:  main
 #   repo:    https://github.com/...
 REPO_URL="https://github.com/DanteFuaran/dfc-tg-shop.git"
-REPO_BRANCH="dev"
+REPO_BRANCH="main"
 for _uf in "$PROJECT_DIR/version" "$SCRIPT_CWD/version" "$SCRIPT_CWD/.update"; do
     if [ -f "$_uf" ]; then
         _br=$(grep '^branch:' "$_uf" | cut -d: -f2 | tr -d ' \n')
