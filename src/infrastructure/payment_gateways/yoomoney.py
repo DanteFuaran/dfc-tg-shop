@@ -98,7 +98,7 @@ class YoomoneyGateway(BasePaymentGateway):
             body_str = body_bytes.decode("utf-8")
             parsed = parse_qs(body_str)
             data = {k: v[0] for k, v in parsed.items()}
-            logger.debug(f"Webhook data: {data}")
+            logger.info(f"YooMoney webhook fields: { {k: v for k, v in data.items() if k != 'sha1_hash'} }")
             return data
         except Exception as exception:
             logger.error(f"Failed to parse webhook payload: {exception}")
@@ -119,16 +119,26 @@ class YoomoneyGateway(BasePaymentGateway):
         }
 
     def _verify_webhook(self, data: dict) -> bool:
+        notification_type = data.get("notification_type", "")
+        operation_id = data.get("operation_id", "")
+        amount = data.get("amount", "")
+        currency = data.get("currency", "")
+        dt = data.get("datetime", "")
+        sender = data.get("sender", "")
+        codepro = data.get("codepro", "")
+        secret = self.data.settings.secret_key.get_secret_value()  # type: ignore[union-attr]
+        label = data.get("label", "")
+
         params = [
-            data.get("notification_type", ""),
-            data.get("operation_id", ""),
-            data.get("amount", ""),
-            data.get("currency", ""),
-            data.get("datetime", ""),
-            data.get("sender", ""),
-            data.get("codepro", ""),
-            self.data.settings.secret_key.get_secret_value(),  # type: ignore[union-attr]
-            data.get("label", ""),
+            notification_type,
+            operation_id,
+            amount,
+            currency,
+            dt,
+            sender,
+            codepro,
+            secret,
+            label,
         ]
 
         sign_str = "&".join(params)
@@ -137,7 +147,18 @@ class YoomoneyGateway(BasePaymentGateway):
         is_valid: bool = computed_hash == data.get("sha1_hash", "")
         if not is_valid:
             logger.warning(
-                f"Invalid signature. Expected {computed_hash}, received {data.get('sha1_hash')}"
+                f"Invalid signature. Expected {computed_hash}, received {data.get('sha1_hash')}\n"
+                f"  Fields used in hash:\n"
+                f"    notification_type = {notification_type!r}\n"
+                f"    operation_id      = {operation_id!r}\n"
+                f"    amount            = {amount!r}\n"
+                f"    currency          = {currency!r}\n"
+                f"    datetime          = {dt!r}\n"
+                f"    sender            = {sender!r}\n"
+                f"    codepro           = {codepro!r}\n"
+                f"    secret            = {'*' * len(secret)!r} (len={len(secret)})\n"
+                f"    label             = {label!r}\n"
+                f"  Sign string (redacted): {sign_str.replace(secret, '*' * len(secret))!r}"
             )
 
         return is_valid
