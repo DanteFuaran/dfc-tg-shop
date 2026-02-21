@@ -868,14 +868,17 @@ manage_update_bot() {
     wait $SPINNER_PID 2>/dev/null || true
     
     # Получаем версии (из файла version)
-    REMOTE_VERSION=$(grep '^version:' "$TEMP_REPO/version" 2>/dev/null | cut -d: -f2 | tr -d ' \n' || echo "")
+    REMOTE_VERSION=$(parse_version_from_content "$(cat "$TEMP_REPO/version" 2>/dev/null)")
     LOCAL_VERSION=$(get_local_version)
     
     UPDATE_NEEDED=1
     
     # Проверяем версии
     if [ -n "$REMOTE_VERSION" ] && [ -n "$LOCAL_VERSION" ]; then
-        if [ "$LOCAL_VERSION" = "$REMOTE_VERSION" ]; then
+        # Сравниваем семантически — обновление нужно ТОЛЬКО если remote > local
+        local_num=$(echo "$LOCAL_VERSION" | awk -F. '{printf "%03d%03d%03d", $1, $2, $3}')
+        remote_num=$(echo "$REMOTE_VERSION" | awk -F. '{printf "%03d%03d%03d", $1, $2, $3}')
+        if [ "$remote_num" -le "$local_num" ]; then
             UPDATE_NEEDED=0
         fi
     else
@@ -909,15 +912,35 @@ manage_update_bot() {
         echo -e "${GREEN}       🔄 ОБНОВЛЕНИЕ DFC-SHOP-BOT${NC}"
         echo -e "${BLUE}══════════════════════════════════════${NC}"
         echo
+        echo -e "${GREEN}✅ Уже установлена последняя версия бота!${NC}"
+        echo
         if [ -n "$LOCAL_VERSION" ] && [ "$LOCAL_VERSION" != "unknown" ]; then
-            echo -e "${GREEN}✅ Обновление не требуется${NC}"
-            echo -e "${GRAY}Текущая версия: $LOCAL_VERSION${NC}"
-        else
-            echo -e "${GREEN}✅ Обновление не требуется${NC}"
+            echo -e "   Текущая версия:  ${CYAN}v${LOCAL_VERSION}${NC}"
         fi
+        if [ -n "$REMOTE_VERSION" ]; then
+            echo -e "   Версия GitHub:   ${CYAN}v${REMOTE_VERSION}${NC}"
+        fi
+        echo
+        echo -e "${GRAY}Нажмите Enter для возврата в меню...${NC}"
+        read -r
+        rm -rf "$TEMP_REPO" 2>/dev/null || true
+        return
     else
         # Автоматическое начало обновления без диалога
         clear
+        echo -e "${BLUE}══════════════════════════════════════${NC}"
+        echo -e "${GREEN}       🔄 ОБНОВЛЕНИЕ DFC-SHOP-BOT${NC}"
+        echo -e "${BLUE}══════════════════════════════════════${NC}"
+        echo
+        if [ -n "$LOCAL_VERSION" ] && [ "$LOCAL_VERSION" != "unknown" ]; then
+            echo -e "   Текущая версия:  ${CYAN}v${LOCAL_VERSION}${NC}"
+        fi
+        if [ -n "$REMOTE_VERSION" ]; then
+            echo -e "   Новая версия:    ${GREEN}v${REMOTE_VERSION}${NC}"
+        fi
+        echo
+        echo -e "${YELLOW}🚀 Запуск обновления...${NC}"
+        echo
         
         # Сохраняем критические переменные перед обновлением
         ENV_BACKUP_FILE=$(preserve_env_vars "$ENV_FILE")
