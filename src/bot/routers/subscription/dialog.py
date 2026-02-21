@@ -322,14 +322,6 @@ confirm_yoomoney = Window(
         ),
     ),
     Row(
-        ColoredButton(
-            text=I18nFormat("btn-check-payment"),
-            id=f"{PURCHASE_PREFIX}check_payment",
-            on_click=on_check_payment,
-            style="success",
-        ),
-    ),
-    Row(
         ColoredSwitchTo(
             text=I18nFormat("btn-back"),
             id=f"{PURCHASE_PREFIX}back_payment_method",
@@ -356,14 +348,6 @@ confirm_yookassa = Window(
         Url(
             text=I18nFormat("btn-subscription-pay"),
             url=Format("{url}"),
-        ),
-    ),
-    Row(
-        ColoredButton(
-            text=I18nFormat("btn-check-payment"),
-            id=f"{PURCHASE_PREFIX}check_payment",
-            on_click=on_check_payment,
-            style="success",
         ),
     ),
     Row(
