@@ -22,7 +22,7 @@ SYSTEM_INSTALL_DIR="/usr/local/lib/dfc-tg-shop"
 #   branch:  dev
 #   repo:    https://github.com/...
 REPO_URL="https://github.com/DanteFuaran/dfc-tg-shop.git"
-REPO_BRANCH="dev"
+REPO_BRANCH="main"
 for _uf in "$PROJECT_DIR/version" "$SCRIPT_CWD/version" "$SCRIPT_CWD/.update"; do
     if [ -f "$_uf" ]; then
         _br=$(grep '^branch:' "$_uf" | cut -d: -f2 | tr -d ' \n')
@@ -2329,6 +2329,7 @@ echo
 
 # APP_DOMAIN
 while true; do
+    printf '\033[s'  # сохраняем позицию курсора перед промптом
     reading_inline "Введите домен бота (напр. bot.example.com):" APP_DOMAIN
     if [ -z "$APP_DOMAIN" ]; then
         print_error "Домен не может быть пустым!"
@@ -2349,6 +2350,7 @@ while true; do
             break
         fi
     done
+    printf '\033[u\033[J'  # возвращаемся к сохранённой позиции и очищаем всё ниже
 done
 update_env_var "$ENV_FILE" "APP_DOMAIN" "$APP_DOMAIN"
 
