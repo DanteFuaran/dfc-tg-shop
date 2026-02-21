@@ -272,6 +272,7 @@ async def devices_getter(
             "devices_empty": True,
             # Данные подписки
             "plan_name": "—",
+            "current_plan_name": "—",
             "traffic_limit": "—",
             "device_limit_number": 0,
             "device_limit_bonus": 0,
