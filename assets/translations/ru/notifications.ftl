@@ -906,6 +906,6 @@ ntf-system-update-available =
 
     Нажмите <b>«Обновить сейчас»</b> или запустите обновление через меню управления ботом.
 
-ntf-no-subscription-for-devices = <i>⚠️ Для увеличения лимита устройств необходимо иметь активную подписку.</i>
+ntf-no-subscription-for-devices = <i>⚠️ Вам необходимо получить подписку.</i>
 
-ntf-no-subscription-for-connect = <i>⚠️ Для подключения необходимо сначала получить подписку.</i>
+ntf-no-subscription-for-connect = <i>⚠️ Вам необходимо получить подписку.</i>

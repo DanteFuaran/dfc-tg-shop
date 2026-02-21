@@ -111,7 +111,7 @@ menu = Window(
         ),
         when=F["is_balance_enabled"],
     ),
-    # [Подписка][Мои устройства] (если есть подписка) или [Подписка][Пригласить] (если нет подписки и реферальная система включена)
+    # [Подписка][Мои устройства]
     Row(
         Start(
             text=I18nFormat("btn-menu-subscription"),
@@ -125,14 +125,8 @@ menu = Window(
             state=MainMenu.DEVICES,
             when=F["show_devices_button"],
         ),
-        Button(
-            text=I18nFormat("btn-menu-invite"),
-            id="invite",
-            on_click=on_invite,
-            when=~F["has_subscription"] & F["is_referral_enable"],
-        ),
     ),
-    # [Подключиться][Пригласить] или [Подключиться][Промокод] (если есть подписка)
+    # [Подключиться][Пригласить]
     Row(
         SwitchTo(
             text=I18nFormat("btn-menu-connect"),
@@ -148,35 +142,19 @@ menu = Window(
         ),
         Button(
             text=I18nFormat("btn-menu-invite"),
-            id="invite_with_subscription",
+            id="invite",
             on_click=on_invite,
             when=F["is_referral_enable"],
         ),
+    ),
+    # [Промокод]
+    Row(
         Button(
             text=I18nFormat("btn-menu-promocode"),
             id="promocode",
             on_click=on_promocode,
-            when=F["is_promocodes_enabled"] & ~F["is_referral_enable"],
         ),
-        when=F["has_subscription"],
-    ),
-    # [Промокод] - отдельная строка (когда реф.система включена)
-    Row(
-        Button(
-            text=I18nFormat("btn-menu-promocode"),
-            id="promocode_ref",
-            on_click=on_promocode,
-        ),
-        when=F["is_promocodes_enabled"] & F["is_referral_enable"],
-    ),
-    # [Промокод] - отдельная строка (нет подписки, реф.система выключена)
-    Row(
-        Button(
-            text=I18nFormat("btn-menu-promocode"),
-            id="promocode_nosub",
-            on_click=on_promocode,
-        ),
-        when=F["is_promocodes_enabled"] & ~F["has_subscription"] & ~F["is_referral_enable"],
+        when=F["is_promocodes_enabled"],
     ),
     # [Сообщество][Помощь]
     Row(
