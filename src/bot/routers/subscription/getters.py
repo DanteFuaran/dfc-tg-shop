@@ -1086,7 +1086,7 @@ async def confirm_balance_getter(
             "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), Currency.RUB) if extra_devices_monthly_cost > 0 else "0",
             "extra_devices_cost": format_price(int(saved_extra_devices_cost), Currency.RUB) if saved_extra_devices_cost > 0 else "0",
             "has_extra_devices_cost": 1 if saved_extra_devices_cost > 0 else 0,
-            "total_payment": format_price(pricing.final_amount, payment_gateway.currency),
+            "total_payment": format_price(pricing.final_amount, Currency.RUB),
             "balance_after": format_price(int(available_balance - pricing.final_amount), Currency.RUB),
             "original_amount": format_price(int(base_subscription_price), Currency.RUB),  # Цена подписки БЕЗ доп. устройств
             "user_balance": format_price(int(available_balance), Currency.RUB),
