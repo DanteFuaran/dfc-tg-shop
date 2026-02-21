@@ -245,9 +245,19 @@ class NotificationService(BaseService):
                 for mirror_bot in self._mirror_bot_manager.active_bots.values():
                     try:
                         if (payload.media or payload.media_id) and payload.media_type:
-                            await self._send_media_message(user, payload, reply_markup, locale, bot=mirror_bot)
+                            mirror_sent = await self._send_media_message(user, payload, reply_markup, locale, bot=mirror_bot)
                         else:
-                            await self._send_text_message(user, payload, reply_markup, locale, bot=mirror_bot)
+                            mirror_sent = await self._send_text_message(user, payload, reply_markup, locale, bot=mirror_bot)
+                        # Schedule auto-deletion for the mirror bot message using its own bot instance
+                        if payload.auto_delete_after is not None and mirror_sent:
+                            asyncio.create_task(
+                                self._schedule_message_deletion(
+                                    chat_id=user.telegram_id,
+                                    message_id=mirror_sent.message_id,
+                                    delay=payload.auto_delete_after,
+                                    bot=mirror_bot,
+                                )
+                            )
                     except (TelegramBadRequest, TelegramForbiddenError):
                         pass  # User never started this mirror bot — expected
                     except Exception as e:
@@ -414,13 +424,20 @@ class NotificationService(BaseService):
         member = f"{chat_id}:{message_id}"
         await self.redis_repository.sorted_collection_remove(key, member)
 
-    async def _schedule_message_deletion(self, chat_id: int, message_id: int, delay: int) -> None:
+    async def _schedule_message_deletion(
+        self,
+        chat_id: int,
+        message_id: int,
+        delay: int,
+        bot: Optional[Bot] = None,
+    ) -> None:
+        _bot = bot or self.bot
         logger.debug(
-            f"Scheduling message '{message_id}' for auto-deletion in '{delay}' (chat '{chat_id}')"
+            f"Scheduling message '{message_id}' for auto-deletion in '{delay}' (chat '{chat_id}', bot={_bot.id})"
         )
         try:
             await asyncio.sleep(delay)
-            await self.bot.delete_message(chat_id=chat_id, message_id=message_id)
+            await _bot.delete_message(chat_id=chat_id, message_id=message_id)
             logger.debug(
                 f"Message '{message_id}' in chat '{chat_id}' deleted after '{delay}' seconds"
             )
