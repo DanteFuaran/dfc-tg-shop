@@ -145,7 +145,9 @@ class BroadcastService(BaseService):
             return count
 
         if audience == BroadcastAudience.ALL:
-            return await self.uow.repository.users._count(User, is_not_block)
+            # Для рассылки "Всем" включаем всех пользователей кроме заблокированных администратором.
+            # is_bot_blocked не фильтруем — сообщение попытаемся доставить, провал обработается как FAILED.
+            return await self.uow.repository.users._count(User, User.is_blocked.is_(False))
 
         if audience == BroadcastAudience.SUBSCRIBED:
             conditions = and_(
@@ -206,7 +208,9 @@ class BroadcastService(BaseService):
             return UserDto.from_model_list(db_users)
 
         if audience == BroadcastAudience.ALL:
-            db_users = await self.uow.repository.users._get_many(User, is_not_block)
+            # Для рассылки "Всем" включаем всех пользователей кроме заблокированных администратором.
+            # is_bot_blocked не фильтруем — сообщение попытаемся доставить, провал обработается как FAILED.
+            db_users = await self.uow.repository.users._get_many(User, User.is_blocked.is_(False))
             return UserDto.from_model_list(db_users)
 
         if audience == BroadcastAudience.SUBSCRIBED:
