@@ -63,11 +63,7 @@ async def on_check_update(
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
             response.raise_for_status()
-            remote = ""
-            for line in response.text.splitlines():
-                if line.startswith("version:"):
-                    remote = line.split(":", 1)[1].strip()
-                    break
+            remote = response.text.strip()
 
         if _parse_version(remote) > _parse_version(__version__):
             # Update available — send notification with action buttons

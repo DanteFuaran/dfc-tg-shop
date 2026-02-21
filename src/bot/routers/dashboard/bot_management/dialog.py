@@ -18,21 +18,23 @@ from .handlers import (
 bot_management_window = Window(
     Banner(),
     I18nFormat("msg-bot-management"),
-    Button(
-        text=I18nFormat("btn-remnashop-logs"),
-        id="logs",
-        on_click=on_logs_request,
-    ),
-    Button(
-        text=I18nFormat("btn-bot-check-update"),
-        id="check_update",
-        on_click=on_check_update,
-    ),
     Start(
         text=I18nFormat("btn-mirror-bots"),
         id="mirror_bots",
         state=DashboardMirrorBots.MAIN,
         mode=StartMode.RESET_STACK,
+    ),
+    Row(
+        Button(
+            text=I18nFormat("btn-bot-check-update"),
+            id="check_update",
+            on_click=on_check_update,
+        ),
+        Button(
+            text=I18nFormat("btn-remnashop-logs"),
+            id="logs",
+            on_click=on_logs_request,
+        ),
     ),
     Button(
         text=I18nFormat("btn-bot-restart"),
