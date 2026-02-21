@@ -2,6 +2,8 @@ import asyncio
 from typing import Optional, cast
 
 from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from dishka.integrations.taskiq import FromDishka, inject
 from loguru import logger
 
@@ -11,7 +13,24 @@ from src.core.utils.message_payload import MessagePayload
 from src.infrastructure.database.models.dto import BroadcastDto, BroadcastMessageDto, UserDto
 from src.infrastructure.taskiq.broker import broker
 from src.services.broadcast import BroadcastService
+from src.services.mirror_bot import MirrorBotService
 from src.services.notification import NotificationService
+
+
+_mirror_bots_initialized = False
+
+
+class _SimpleMirrorManager:
+    """Lightweight mirror bot manager for task context."""
+    def __init__(self) -> None:
+        self._bots: dict[int, Bot] = {}
+
+    @property
+    def active_bots(self) -> dict[int, Bot]:
+        return dict(self._bots)
+
+    def add_bot(self, bot_id: int, bot: Bot) -> None:
+        self._bots[bot_id] = bot
 
 
 @broker.task
@@ -22,7 +41,35 @@ async def send_broadcast_task(
     payload: MessagePayload,
     notification_service: FromDishka[NotificationService],
     broadcast_service: FromDishka[BroadcastService],
+    mirror_bot_service: FromDishka[MirrorBotService],
 ) -> None:
+    global _mirror_bots_initialized
+    
+    # Initialize mirror бots on first call
+    if not _mirror_bots_initialized and not NotificationService._mirror_bot_manager:
+        try:
+            logger.info("Initializing mirror bots for broadcast task...")
+            active_mirrors = await mirror_bot_service.get_active()
+            if active_mirrors:
+                mirror_manager = _SimpleMirrorManager()
+                for mirror_bot_dto in active_mirrors:
+                    try:
+                        bot_instance = Bot(
+                            token=mirror_bot_dto.token,
+                            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+                        )
+                        mirror_manager.add_bot(mirror_bot_dto.id, bot_instance)
+                        logger.debug(f"Mirror bot {mirror_bot_dto.id} loaded")
+                    except Exception as e:
+                        logger.warning(f"Failed to load mirror bot {mirror_bot_dto.id}: {e}")
+                
+                NotificationService.set_mirror_bot_manager(mirror_manager)
+                logger.info(f"✓ Mirror bot manager initialized ({len(mirror_manager.active_bots)} bots)")
+        except Exception as e:
+            logger.warning(f"Failed to initialize mirror bots: {e}")
+        finally:
+            _mirror_bots_initialized = True
+    
     broadcast_id = cast(int, broadcast.id)
     total_users = len(users)
     loop = asyncio.get_running_loop()
