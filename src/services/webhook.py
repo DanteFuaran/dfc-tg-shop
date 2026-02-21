@@ -1,5 +1,7 @@
+import asyncio
 from datetime import datetime, timedelta
 
+from aiogram.exceptions import TelegramNetworkError
 from aiogram.methods import SetWebhook
 from aiogram.types import WebhookInfo
 from loguru import logger
@@ -9,6 +11,9 @@ from src.core.storage.keys import WebhookLockKey
 from src.core.utils.time import datetime_now
 
 from .base import BaseService
+
+_NETWORK_RETRY_ATTEMPTS = 5
+_NETWORK_RETRY_DELAY = 5  # seconds
 
 
 class WebhookService(BaseService):
@@ -25,24 +30,39 @@ class WebhookService(BaseService):
         webhook_data = webhook.model_dump(exclude_unset=True)
         webhook_hash: str = get_webhook_hash(webhook_data)
 
-        if (
-            await self._is_set(bot_id=self.bot.id, webhook_hash=webhook_hash)
-            and not self.config.bot.reset_webhook
-        ):
-            logger.info("Bot webhook setup skipped, already configured")
-            logger.debug(f"Current webhook URL: '{safe_webhook_url}'")
-            return await self.bot.get_webhook_info()
+        for attempt in range(1, _NETWORK_RETRY_ATTEMPTS + 1):
+            try:
+                if (
+                    await self._is_set(bot_id=self.bot.id, webhook_hash=webhook_hash)
+                    and not self.config.bot.reset_webhook
+                ):
+                    logger.info("Bot webhook setup skipped, already configured")
+                    logger.debug(f"Current webhook URL: '{safe_webhook_url}'")
+                    return await self.bot.get_webhook_info()
 
-        if not await self.bot(webhook):
-            raise RuntimeError(f"Failed to set bot webhook on URL '{safe_webhook_url}'")
+                if not await self.bot(webhook):
+                    raise RuntimeError(f"Failed to set bot webhook on URL '{safe_webhook_url}'")
 
-        await self._clear(bot_id=self.bot.id)
-        await self._set(bot_id=self.bot.id, webhook_hash=webhook_hash)
+                await self._clear(bot_id=self.bot.id)
+                await self._set(bot_id=self.bot.id, webhook_hash=webhook_hash)
 
-        logger.success("Bot webhook set successfully")
-        logger.debug(f"Webhook URL: '{safe_webhook_url}'")
+                logger.success("Bot webhook set successfully")
+                logger.debug(f"Webhook URL: '{safe_webhook_url}'")
 
-        return await self.bot.get_webhook_info()
+                return await self.bot.get_webhook_info()
+
+            except TelegramNetworkError as e:
+                if attempt < _NETWORK_RETRY_ATTEMPTS:
+                    logger.warning(
+                        f"Network error during webhook setup (attempt {attempt}/{_NETWORK_RETRY_ATTEMPTS}): {e}. "
+                        f"Retrying in {_NETWORK_RETRY_DELAY}s..."
+                    )
+                    await asyncio.sleep(_NETWORK_RETRY_DELAY)
+                else:
+                    logger.error(
+                        f"Network error during webhook setup after {_NETWORK_RETRY_ATTEMPTS} attempts: {e}"
+                    )
+                    raise
 
     async def delete(self) -> None:
         if not self.config.bot.reset_webhook:
