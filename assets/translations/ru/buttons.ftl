@@ -1522,6 +1522,7 @@ btn-subscription-payment-method =
         *[0] { $price }
     }
 btn-subscription-pay = ✅ Подтвердить оплату
+btn-check-payment = 🔄 Я оплатил
 btn-subscription-confirm-balance = ✅ Подтвердить оплату
 btn-subscription-get = 🎁 Получить бесплатно
 btn-subscription-back-plans = ⬅️ Назад к выбору плана

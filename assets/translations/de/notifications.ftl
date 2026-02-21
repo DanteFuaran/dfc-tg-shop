@@ -695,6 +695,9 @@ ntf-subscription-change-plans-not-available = <i>❌ No available subscriptions 
 ntf-subscription-payment-creation-failed = <i>❌ Error creating payment, try later.</i>
 ntf-payment-gateway-not-configured = <i>❌ Händlerdaten für { $gateway_name } sind nicht konfiguriert</i>
 ntf-subscription-insufficient-balance = <i>❌ Insufficient balance to pay for subscription.</i>
+ntf-check-payment-pending = <i>⏳ Zahlung noch nicht eingegangen. Wenn Sie bereits bezahlt haben, warten Sie bitte einen Moment und versuchen Sie es erneut.</i>
+ntf-check-payment-no-id = <i>❌ Zahlungsdaten nicht gefunden. Bitte erstellen Sie eine neue Zahlung.</i>
+ntf-check-payment-not-found = <i>❌ Transaktion nicht gefunden. Bitte erstellen Sie eine neue Zahlung.</i>
 
 ntf-balance-payment-link = 
     <b>💳 Payment link</b>

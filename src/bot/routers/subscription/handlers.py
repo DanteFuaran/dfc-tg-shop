@@ -667,6 +667,52 @@ async def on_get_subscription(
 
 
 @inject
+async def on_check_payment(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+    transaction_service: FromDishka[TransactionService],
+    notification_service: FromDishka[NotificationService],
+    user_service: FromDishka[UserService],
+) -> None:
+    """Проверяет статус транзакции и перенаправляет при успехе."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    payment_id = dialog_manager.dialog_data.get("payment_id")
+
+    if not payment_id:
+        logger.warning(f"{log(user)} Check payment: no payment_id in dialog_data")
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-check-payment-no-id"),
+        )
+        return
+
+    from uuid import UUID
+    transaction = await transaction_service.get(UUID(payment_id))
+
+    if not transaction:
+        logger.warning(f"{log(user)} Check payment: transaction '{payment_id}' not found")
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-check-payment-not-found"),
+        )
+        return
+
+    if transaction.is_completed:
+        logger.info(f"{log(user)} Check payment: transaction '{payment_id}' is completed, redirecting to success")
+        # Очищаем кэш и перенаправляем на экран успеха
+        await user_service.clear_user_cache(user.telegram_id)
+        purchase_type = dialog_manager.dialog_data.get("purchase_type", PurchaseType.NEW)
+        await dialog_manager.switch_to(state=Subscription.SUCCESS)
+    else:
+        logger.info(f"{log(user)} Check payment: transaction '{payment_id}' status is '{transaction.status}'")
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-check-payment-pending"),
+        )
+
+
+@inject
 async def on_confirm_balance_payment(
     callback: CallbackQuery,
     widget: Button,
