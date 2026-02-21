@@ -719,6 +719,7 @@ async def on_show_qr(
             i18n_key="",
             media=ref_qr,
             media_type=MediaType.PHOTO,
+            close_button_style="success",
         ),
     )
 
