@@ -621,18 +621,6 @@ add_device_duration = Window(
     Row(
         Button(
             text=I18nFormat(
-                "btn-add-device-duration-full",
-                days=F["days_full"],
-                price=F["price_full"],
-            ),
-            id="duration_full",
-            on_click=on_add_device_duration_select,
-            when=F["show_full_option"],
-        ),
-    ),
-    Row(
-        Button(
-            text=I18nFormat(
                 "btn-add-device-duration-month",
                 days=F["days_month"],
                 price=F["price_month"],
@@ -650,7 +638,6 @@ add_device_duration = Window(
             ),
             id="duration_months_1",
             on_click=on_add_device_duration_select,
-            when=F["show_unlimited_options"],
         ),
     ),
     Row(
@@ -661,7 +648,6 @@ add_device_duration = Window(
             ),
             id="duration_months_3",
             on_click=on_add_device_duration_select,
-            when=F["show_unlimited_options"],
         ),
     ),
     Row(
@@ -672,7 +658,6 @@ add_device_duration = Window(
             ),
             id="duration_months_6",
             on_click=on_add_device_duration_select,
-            when=F["show_unlimited_options"],
         ),
     ),
     Row(
@@ -683,7 +668,18 @@ add_device_duration = Window(
             ),
             id="duration_months_12",
             on_click=on_add_device_duration_select,
-            when=F["show_unlimited_options"],
+        ),
+    ),
+    Row(
+        Button(
+            text=I18nFormat(
+                "btn-add-device-duration-full",
+                days=F["days_full"],
+                price=F["price_full"],
+            ),
+            id="duration_full",
+            on_click=on_add_device_duration_select,
+            when=F["show_full_option"],
         ),
     ),
     Row(

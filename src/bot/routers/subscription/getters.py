@@ -2078,8 +2078,8 @@ async def add_device_duration_getter(
     # Показываем обычные варианты (месяц и до конца цикла) только для обычных подписок
     show_regular_options = not is_unlimited_subscription
     
-    # Показываем месячные варианты (1, 3, 6, 12 месяцев) только для безлимитных подписок
-    show_unlimited_options = is_unlimited_subscription
+    # Показываем месячные варианты (1, 3, 6, 12 месяцев) для всех типов подписок
+    show_unlimited_options = True
     
     # Проверяем, совпадают ли варианты "до конца подписки" и "до конца периода"
     # Если совпадают по количеству дней и цене, показываем только "до конца подписки"
@@ -2287,18 +2287,19 @@ async def add_device_payment_getter(
     
     payment_methods = []
     
-    # Добавляем оплату с баланса ВСЕГДА ПЕРВОЙ (даже если баланса недостаточно)
+    # Добавляем оплату с баланса ПЕРВОЙ (если функционал включен)
     # Сохраняем цены для возвращения в результате (в валюте по умолчанию - RUB)
     total_price = total_price_rub
     original_price = original_price_rub
     
-    payment_methods.append({
-        "gateway_type": PaymentGatewayType.BALANCE,
-        "price": format_price(total_price_rub, Currency.RUB),
-        "original_price": format_price(original_price_rub, Currency.RUB),
-        "has_discount": 1 if has_discount else 0,
-        "discount_percent": price_details.discount_percent,
-    })
+    if is_balance_enabled:
+        payment_methods.append({
+            "gateway_type": PaymentGatewayType.BALANCE,
+            "price": format_price(total_price_rub, Currency.RUB),
+            "original_price": format_price(original_price_rub, Currency.RUB),
+            "has_discount": 1 if has_discount else 0,
+            "discount_percent": price_details.discount_percent,
+        })
     
     # Добавляем другие способы оплаты
     for gateway in gateways:

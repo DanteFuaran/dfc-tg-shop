@@ -222,6 +222,7 @@ async def on_purchase_type_select(
     plan_service: FromDishka[PlanService],
     payment_gateway_service: FromDishka[PaymentGatewayService],
     notification_service: FromDishka[NotificationService],
+    settings_service: FromDishka[SettingsService],
 ) -> None:
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
     plans: list[PlanDto] = await plan_service.get_available_plans(user)
@@ -237,8 +238,8 @@ async def on_purchase_type_select(
         )
         return
 
-    if not gateways:
-        logger.warning(f"{log(user)} No active payment gateways")
+    if not gateways and not await settings_service.is_balance_enabled():
+        logger.warning(f"{log(user)} No active payment gateways and balance is disabled")
         await notification_service.notify_user(
             user=user,
             payload=MessagePayload(i18n_key="ntf-subscription-gateways-not-available"),
@@ -322,8 +323,8 @@ async def on_subscription_plans(  # noqa: C901
         )
         return
 
-    if not gateways:
-        logger.warning(f"{log(user)} No active payment gateways")
+    if not gateways and not await settings_service.is_balance_enabled():
+        logger.warning(f"{log(user)} No active payment gateways and balance is disabled")
         await notification_service.notify_user(
             user=user,
             payload=MessagePayload(i18n_key="ntf-subscription-gateways-not-available"),
