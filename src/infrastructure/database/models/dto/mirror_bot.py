@@ -8,3 +8,4 @@ class MirrorBotDto(BaseDto):
     token: str
     username: str
     is_active: bool = True
+    is_primary: bool = False

@@ -12,3 +12,4 @@ class MirrorBot(BaseSql, TimestampMixin):
     token: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     username: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

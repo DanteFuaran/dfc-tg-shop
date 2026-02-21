@@ -547,6 +547,14 @@ class ReferralService(BaseService):
         return ReferralLevel(next_level_value)
 
     async def _get_bot_redirect_url(self) -> str:
+        # Use primary mirror bot if one is set
+        try:
+            primary = await self.uow.repository.mirror_bots.get_primary()
+            if primary:
+                return f"{T_ME}{primary.username}"
+        except Exception:
+            pass
+
         if self._bot_username is None:
             self._bot_username = (await self.bot.get_me()).username
 

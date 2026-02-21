@@ -87,6 +87,25 @@ class MirrorBotService(BaseService):
             logger.info(f"Added mirror bot @{username} (id={created.id})")
             return self._to_dto(created)
 
+    async def get_primary(self) -> Optional[MirrorBotDto]:
+        """Get the primary mirror bot (used for invite links), or None."""
+        async with self.uow as uow:
+            bot = await uow.repository.mirror_bots.get_primary()
+            return self._to_dto(bot) if bot else None
+
+    async def set_primary(self, mirror_bot_id: Optional[int]) -> None:
+        """
+        Set a mirror bot as primary for invite links.
+        Pass None to clear the primary selection (use main bot).
+        """
+        async with self.uow as uow:
+            await uow.repository.mirror_bots.unset_all_primary()
+            if mirror_bot_id is not None:
+                bot = await uow.repository.mirror_bots.get(mirror_bot_id)
+                if bot:
+                    bot.is_primary = True
+            await uow.commit()
+
     async def remove(self, mirror_bot_id: int) -> Optional[str]:
         """Remove a mirror bot by ID. Returns the username or None."""
         async with self.uow as uow:
@@ -109,6 +128,7 @@ class MirrorBotService(BaseService):
             token=token,
             username=model.username,
             is_active=model.is_active,
+            is_primary=model.is_primary,
         )
 
     @staticmethod

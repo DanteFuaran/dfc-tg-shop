@@ -14,6 +14,7 @@ from .handlers import (
     on_back_to_bot_management,
     on_cancel_add,
     on_delete_mirror_bot,
+    on_select_mirror_bot,
     on_token_input,
 )
 
@@ -25,9 +26,9 @@ mirror_bots_main = Window(
     ListGroup(
         Row(
             Button(
-                text=Format("{item[username]}"),
+                text=Format("{item[display]}"),
                 id="select_bot",
-                on_click=lambda c, w, m: c.answer(),  # No-op, just visual
+                on_click=on_select_mirror_bot,
             ),
             Button(
                 text=Const("❌"),

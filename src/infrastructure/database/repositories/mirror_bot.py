@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from src.infrastructure.database.models.sql.mirror_bot import MirrorBot
 
@@ -27,8 +27,17 @@ class MirrorBotRepository(BaseRepository):
             order_by=MirrorBot.id,
         )
 
+    async def get_primary(self) -> Optional[MirrorBot]:
+        """Return the bot marked as primary, or None."""
+        return await self._get_one(MirrorBot, MirrorBot.is_primary == True)  # noqa: E712
+
+    async def unset_all_primary(self) -> None:
+        """Clear is_primary on all mirror bots."""
+        await self.session.execute(update(MirrorBot).values(is_primary=False))
+
     async def create(self, mirror_bot: MirrorBot) -> MirrorBot:
         return await self.create_instance(mirror_bot)
 
     async def delete(self, mirror_bot: MirrorBot) -> None:
         await self.delete_instance(mirror_bot)
+

@@ -28,7 +28,9 @@ async def mirror_bots_getter(
         {
             "id": str(b.id),
             "username": f"@{b.username}",
-            "active": b.is_active,
+            "is_primary": b.is_primary,
+            # Highlighted with brackets if primary
+            "display": f"[{b.username}]" if b.is_primary else f"{b.username}",
         }
         for b in bots
     ]
@@ -45,6 +47,28 @@ async def on_back_to_bot_management(
 ) -> None:
     """Go back to bot management menu."""
     await manager.start(DashboardBotManagement.MAIN)
+
+
+@inject
+async def on_select_mirror_bot(
+    callback: CallbackQuery,
+    widget: Button,
+    sub_manager: SubManager,
+    mirror_bot_service: FromDishka[MirrorBotService],
+) -> None:
+    """Toggle primary status for a mirror bot."""
+    mirror_bot_id = int(sub_manager.item_id)
+    current_bots = await mirror_bot_service.get_all()
+    already_primary = any(b.is_primary and b.id == mirror_bot_id for b in current_bots)
+
+    if already_primary:
+        # Unselect — back to main bot as entry point
+        await mirror_bot_service.set_primary(None)
+        await callback.answer("✅ Основной бот сброшен — используется главный бот")
+    else:
+        await mirror_bot_service.set_primary(mirror_bot_id)
+        username = next((b.username for b in current_bots if b.id == mirror_bot_id), "?")
+        await callback.answer(f"✅ @{username} назначен основным ботом")
 
 
 async def on_add_mirror_bot(
