@@ -366,7 +366,12 @@ msg-menu-devices =
     { frg-user }
 
     { hdr-subscription }
-    { frg-subscription }
+    { $has_subscription ->
+        [0] <blockquote>
+    • You have no active subscription.
+    </blockquote>
+        *[other] { frg-subscription }
+    }
 
     📱 <b>Device Management:</b>
 

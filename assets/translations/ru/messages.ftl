@@ -369,7 +369,12 @@ msg-menu-devices =
     { frg-user }
 
     { hdr-subscription }
-    { frg-subscription }
+    { $has_subscription ->
+        [0] <blockquote>
+    • У вас нет оформленной подписки.
+    </blockquote>
+        *[other] { frg-subscription }
+    }
 
     📱 <b>Управление устройствами:</b>
 

@@ -130,7 +130,7 @@ class CurrencyRatesDto(TrackableDto):
 class FeatureSettingsDto(TrackableDto):
     """Настройки функционала - включение/выключение различных функций."""
     community_enabled: bool = False  # Кнопка "Сообщество" в главном меню (по-умолчанию выключена)
-    community_url: Optional[str] = None  # URL Telegram группы сообщества
+    community_url: Optional[str] = "https://t.me/+DUPpl-nIFV5iNTFi"  # URL Telegram группы сообщества
     tos_enabled: bool = False  # Кнопка "Соглашение" в главном меню (по-умолчанию выключена)
     balance_enabled: bool = True  # Функционал баланса (по умолчанию включён)
     balance_mode: BalanceMode = BalanceMode.SEPARATE  # Режим баланса (раздельный/объединённый)
@@ -155,7 +155,7 @@ class SettingsDto(TrackableDto):
     rules_required: bool = False
     channel_required: bool = False
 
-    rules_link: SecretStr = SecretStr("https://telegram.org/tos/")
+    rules_link: SecretStr = SecretStr("https://telegra.ph/Usloviya-servisa-DFC-Online-11-29")
     channel_id: Optional[int] = False
     channel_link: SecretStr = SecretStr("@remna_shop")
 

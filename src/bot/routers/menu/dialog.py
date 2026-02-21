@@ -244,13 +244,6 @@ connect = Window(
 devices = Window(
     Banner(),
     I18nFormat("msg-menu-devices"),
-    Row(
-        Button(
-            text=I18nFormat("btn-menu-devices-empty"),
-            id="devices_empty",
-            when=F["devices_empty"],
-        ),
-    ),
     # Список слотов устройств (базовые + купленные)
     ListGroup(
         Row(
@@ -290,7 +283,7 @@ devices = Window(
             when=F["can_add_extra_device"] == 1,
         ),
     ),
-    *get_back_and_main_menu_buttons(MainMenu.MAIN),
+    Row(*main_menu_button),
     IgnoreUpdate(),
     state=MainMenu.DEVICES,
     getter=devices_getter,
@@ -320,7 +313,7 @@ invite = Window(
             copy_text=Format("{referral_link}"),
         ),
     ),
-    *get_back_and_main_menu_buttons(MainMenu.MAIN),
+    Row(*main_menu_button),
     IgnoreUpdate(),
     state=MainMenu.INVITE,
     getter=invite_getter,
@@ -412,7 +405,7 @@ balance = Window(
             when=F["has_referral_balance"],  # Показываем только если есть бонусы и режим SEPARATE
         ),
     ),
-    *get_back_and_main_menu_buttons(MainMenu.MAIN),
+    Row(*main_menu_button),
     IgnoreUpdate(),
     state=MainMenu.BALANCE,
     getter=balance_menu_getter,
