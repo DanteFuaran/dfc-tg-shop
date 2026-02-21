@@ -10,6 +10,7 @@ from taskiq_redis import RedisStreamBroker
 from loguru import logger
 
 from src.bot.dispatcher import create_bg_manager_factory, create_dispatcher
+from src.bot.routers import setup_routers
 from src.core.config import AppConfig
 from src.core.logger import setup_logger
 from src.infrastructure.di import create_container
@@ -108,10 +109,11 @@ def worker() -> RedisStreamBroker:
     config = AppConfig.get()
 
     # Worker не обрабатывает Telegram-апдейты — ему не нужны хэндлеры, middleware, фильтры.
-    # Загружаем только Dispatcher (для FSM storage) и BgManagerFactory (для redirect-задач).
-    # setup_dispatcher() НЕ вызываем — это экономит ~30-50 МБ RAM на каждом процессе,
-    # т.к. не загружаются все модули роутеров, хэндлеров и middleware.
+    # Но для redirect-задач НЕОБХОДИМО зарегистрировать Dialog-роутеры,
+    # чтобы aiogram_dialog знал о state groups (Subscription, MainMenu и др.).
+    # Без этого BgManagerFactory выбрасывает UnknownState при попытке редиректа.
     dispatcher = create_dispatcher(config=config)
+    setup_routers(dispatcher)
     bg_manager_factory = create_bg_manager_factory(dispatcher=dispatcher)
 
     container = create_container(config=config, bg_manager_factory=bg_manager_factory)

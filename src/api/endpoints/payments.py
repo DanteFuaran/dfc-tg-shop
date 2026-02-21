@@ -69,6 +69,7 @@ async def payments_webhook(
         traceback_str = traceback.format_exc()
         error_type_name = type(exception).__name__
         error_message_str = str(exception)[:512]
+        error_message = Text(error_message_str)
         
         # Отправляем уведомление об ошибке (может быть тестовый webhook с ошибкой)
         await notification_service.system_notify(
