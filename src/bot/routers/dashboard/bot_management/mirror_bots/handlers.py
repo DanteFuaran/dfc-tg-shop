@@ -61,11 +61,12 @@ async def on_token_input(
     message: Message,
     widget: Any,
     manager: DialogManager,
+    value: str,
     mirror_bot_service: FromDishka[MirrorBotService],
 ) -> None:
     """Handle token input from user."""
     user = manager.middleware_data.get(USER_KEY)
-    token = message.text.strip() if message.text else ""
+    token = value.strip()
 
     # Delete user's message with the token for security
     try:
@@ -73,7 +74,7 @@ async def on_token_input(
     except Exception:
         pass
 
-    if not token or ":" not in token:
+    if ":" not in token:
         await message.answer("❌ <b>Невалидный формат токена.</b>\n\nТокен должен быть в формате: <code>123456:ABC-DEF...</code>")
         return
 
