@@ -416,7 +416,14 @@ success_payment = Window(
     Banner(),
     I18nFormat("msg-subscription-success"),
     Row(
-        *connect_buttons,
+        Url(
+            text=I18nFormat("btn-menu-download"),
+            url=Format("{download_url}"),
+            id="download",
+        ),
+    ),
+    Row(
+        *trial_connect_buttons,
     ),
     Row(
         ColoredStart(
