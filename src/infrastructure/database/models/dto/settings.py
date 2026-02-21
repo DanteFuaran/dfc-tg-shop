@@ -78,7 +78,7 @@ class ReferralRewardSettingsDto(BaseDto):
 
 
 class ReferralSettingsDto(TrackableDto):
-    enable: bool = False  # По умолчанию реферальная система выключена
+    enable: bool = True  # По умолчанию реферальная система включена
     level: ReferralLevel = ReferralLevel.FIRST
     accrual_strategy: ReferralAccrualStrategy = ReferralAccrualStrategy.ON_EACH_PAYMENT
     reward: ReferralRewardSettingsDto = ReferralRewardSettingsDto()
@@ -87,7 +87,7 @@ class ReferralSettingsDto(TrackableDto):
 
 class ExtraDeviceSettingsDto(TrackableDto):
     """Настройки дополнительных устройств."""
-    enabled: bool = False  # Включен ли функционал доп. устройств (по умолчанию выключен)
+    enabled: bool = True  # Включен ли функционал доп. устройств (по умолчанию включён)
     price_per_device: int = 100  # Стоимость одного доп. устройства в месяц
     is_one_time: bool = False  # True = единоразовая оплата, False = ежемесячная
     min_days: int = 10  # Минимальное количество дней до истечения подписки для покупки слота
@@ -95,7 +95,7 @@ class ExtraDeviceSettingsDto(TrackableDto):
 
 class TransferSettingsDto(TrackableDto):
     """Настройки переводов баланса между пользователями."""
-    enabled: bool = False  # Включены ли переводы (по умолчанию выключены)
+    enabled: bool = True  # Включены ли переводы (по умолчанию включены)
     commission_type: str = "percent"  # "percent" или "fixed"
     commission_value: int = 5  # Значение комиссии (% или фикс. сумма)
     min_amount: int = 10  # Минимальная сумма перевода
@@ -104,7 +104,7 @@ class TransferSettingsDto(TrackableDto):
 
 class InactiveUserNotificationDto(TrackableDto):
     """Настройки уведомлений о неподключенных пользователях."""
-    enabled: bool = False  # Включены ли уведомления
+    enabled: bool = True  # Включены ли уведомления
     hours_threshold: int = 24  # Через сколько часов уведомлять
 
 
@@ -139,13 +139,13 @@ class FeatureSettingsDto(TrackableDto):
     notifications_enabled: bool = True  # Отправка уведомлений пользователям
     access_enabled: bool = True  # Глобальный доступ к боту (регистрация и покупки)
     referral_enabled: bool = True  # Реферальная система (по умолчанию включена)
-    promocodes_enabled: bool = False  # Промокоды в главном меню (по умолчанию выключены)
+    promocodes_enabled: bool = True  # Промокоды в главном меню (по умолчанию включены)
     extra_devices: ExtraDeviceSettingsDto = ExtraDeviceSettingsDto()  # Настройки доп. устройств
     transfers: TransferSettingsDto = TransferSettingsDto()  # Настройки переводов
     inactive_notifications: InactiveUserNotificationDto = InactiveUserNotificationDto()  # Уведомления о неподключенных
     global_discount: GlobalDiscountSettingsDto = GlobalDiscountSettingsDto()  # Глобальная скидка
     currency_rates: CurrencyRatesDto = CurrencyRatesDto()  # Курсы валют
-    language_enabled: bool = False  # Выбор языка бота (по умолчанию выключён - русский)
+    language_enabled: bool = True  # Выбор языка бота (по умолчанию включён)
     previous_locale: Optional[Locale] = None  # Предыдущий язык перед отключением мультиязычности (для восстановления)
 
 
