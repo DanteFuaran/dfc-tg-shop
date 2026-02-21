@@ -991,6 +991,8 @@ btn-broadcast-refresh = 🔄 Оновити дані
 btn-broadcast-viewing = 👀 Переглянути
 btn-broadcast-cancel = ⛔ Зупинити розсилку
 btn-broadcast-delete = ❌ Видалити надіслані
+btn-broadcast-accept = ✅ Прийняти
+btn-broadcast-cancel-edit = Скасувати
 
 btn-broadcast-button-choice = { $selected ->
     [1] 🔘

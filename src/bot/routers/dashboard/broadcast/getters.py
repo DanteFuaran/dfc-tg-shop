@@ -7,6 +7,7 @@ from dishka.integrations.aiogram_dialog import inject
 from src.bot.keyboards import get_goto_buttons
 from src.core.constants import DATETIME_FORMAT
 from src.core.enums import PlanAvailability
+from src.core.utils.message_payload import MessagePayload
 from src.infrastructure.database.models.dto import PlanDto
 from src.services.broadcast import BroadcastService
 from src.services.plan import PlanService
@@ -70,6 +71,24 @@ async def buttons_getter(
 
     return {
         "buttons": buttons,
+    }
+
+
+async def content_getter(
+    dialog_manager: DialogManager,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Геттер для окна редактирования содержимого рассылки."""
+    raw_payload = dialog_manager.dialog_data.get("payload")
+    current_content = ""
+    if raw_payload:
+        payload = MessagePayload.model_validate(raw_payload)
+        i18n_kwargs = payload.i18n_kwargs or {}
+        current_content = i18n_kwargs.get("content", "")
+    
+    return {
+        "current_content": current_content,
+        "has_content": 1 if current_content else 0,
     }
 
 

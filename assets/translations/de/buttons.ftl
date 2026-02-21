@@ -991,6 +991,8 @@ btn-broadcast-refresh = 🔄 Daten aktualisieren
 btn-broadcast-viewing = 👀 Ansehen
 btn-broadcast-cancel = ⛔ Rundschreiben stoppen
 btn-broadcast-delete = ❌ Gesendete löschen
+btn-broadcast-accept = ✅ Akzeptieren
+btn-broadcast-cancel-edit = Abbrechen
 
 btn-broadcast-button-choice = { $selected ->
     [1] 🔘

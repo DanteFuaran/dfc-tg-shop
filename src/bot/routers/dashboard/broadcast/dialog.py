@@ -19,7 +19,7 @@ from src.bot.states import Dashboard, DashboardBroadcast
 from src.bot.widgets import Banner, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.enums import BroadcastAudience, BroadcastStatus
 
-from .getters import buttons_getter, list_getter, plans_getter, send_getter, view_getter
+from .getters import buttons_getter, content_getter, list_getter, plans_getter, send_getter, view_getter
 from .handlers import (
     on_audience_select,
     on_broadcast_list,
@@ -122,6 +122,7 @@ list = Window(
             mode=StartMode.RESET_STACK,
             style="primary",
         ),
+        *main_menu_button,
     ),
     IgnoreUpdate(),
     state=DashboardBroadcast.LIST,
@@ -202,6 +203,7 @@ plan = Window(
             mode=StartMode.RESET_STACK,
             style="primary",
         ),
+        *main_menu_button,
     ),
     IgnoreUpdate(),
     state=DashboardBroadcast.PLAN,
@@ -240,6 +242,7 @@ send = Window(
             mode=StartMode.RESET_STACK,
             style="primary",
         ),
+        *main_menu_button,
     ),
     IgnoreUpdate(),
     state=DashboardBroadcast.SEND,
@@ -248,7 +251,7 @@ send = Window(
 
 content = Window(
     Banner(),
-    I18nFormat("msg-broadcast-content"),
+    I18nFormat("msg-broadcast-content", current_content=F["current_content"], has_content=F["has_content"]),
     Row(
         SwitchTo(
             I18nFormat("btn-broadcast-buttons"),
@@ -258,15 +261,22 @@ content = Window(
     ),
     Row(
         ColoredSwitchTo(
-            I18nFormat("btn-back"),
-            id="back",
+            I18nFormat("btn-broadcast-cancel-edit"),
+            id="cancel",
             state=DashboardBroadcast.SEND,
-            style="primary",
+            style="danger",
+        ),
+        ColoredSwitchTo(
+            I18nFormat("btn-broadcast-accept"),
+            id="accept",
+            state=DashboardBroadcast.SEND,
+            style="success",
         ),
     ),
     MessageInput(func=on_content_input),
     IgnoreUpdate(),
     state=DashboardBroadcast.CONTENT,
+    getter=content_getter,
 )
 
 buttons = Window(
@@ -290,10 +300,10 @@ buttons = Window(
     ),
     Row(
         ColoredSwitchTo(
-            I18nFormat("btn-back"),
+            I18nFormat("btn-broadcast-accept"),
             id="back",
             state=DashboardBroadcast.CONTENT,
-            style="primary",
+            style="success",
         ),
     ),
     IgnoreUpdate(),

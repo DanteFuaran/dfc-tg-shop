@@ -991,6 +991,8 @@ btn-broadcast-refresh = 🔄 Refresh Data
 btn-broadcast-viewing = 👀 View
 btn-broadcast-cancel = ⛔ Stop Broadcast
 btn-broadcast-delete = ❌ Delete Sent
+btn-broadcast-accept = ✅ Accept
+btn-broadcast-cancel-edit = Cancel
 
 btn-broadcast-button-choice = { $selected ->
     [1] 🔘

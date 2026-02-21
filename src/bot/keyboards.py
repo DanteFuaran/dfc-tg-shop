@@ -32,6 +32,16 @@ connect_buttons = (
     ),
 )
 
+# Кнопка "Подключиться" через Happ для trial/referral success
+trial_connect_buttons = (
+    Url(
+        text=I18nFormat("btn-menu-connect-open"),
+        url=Format("{happ_add_url}"),
+        id="connect_happ",
+        when=F["has_subscription"],
+    ),
+)
+
 # Создаем функцию для получения кнопок "Назад" и "Главное меню" в одной строке
 def get_back_and_main_menu_buttons(back_state) -> Tuple[Row]:
     """

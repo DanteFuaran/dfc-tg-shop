@@ -1403,10 +1403,15 @@ async def getter_connect(
             f"(but it should have been just created)"
         )
         
+        domain = config.domain.get_secret_value()
+        download_url = f"https://{domain}/api/v1/download"
+        
         # Возвращаем безопасные данные для рендеринга
         # Пользователь увидит экран с общей информацией
         return {
             "has_subscription": 0,
+            "download_url": download_url,
+            "happ_add_url": "",
             "plan_name": i18n.get("settings-subscription-activated"),
             "current_plan_name": i18n.get("settings-subscription-activated"),
             "traffic_limit": "...",
@@ -1461,10 +1466,19 @@ async def getter_connect(
     is_balance_combined = await settings_service.is_balance_combined()
     is_balance_separate = not is_balance_combined
     
+    # URL для скачивания и подключения через Happ
+    domain = config.domain.get_secret_value()
+    download_url = f"https://{domain}/api/v1/download"
+    subscription_url_value = subscription.url if subscription else ""
+    happ_add_url = f"https://{domain}/api/v1/connect/{subscription_url_value}" if subscription_url_value else ""
+    
     return {
         "is_app": config.bot.is_mini_app,
         "url": config.bot.mini_app_url or subscription.url,
         "connectable": True,
+        "download_url": download_url,
+        "happ_add_url": happ_add_url,
+        "has_subscription": 1 if subscription else 0,
         # User data
         "user_id": str(user.telegram_id),
         "user_name": user.name,

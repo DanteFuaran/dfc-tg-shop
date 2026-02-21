@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.kbd.state import StartMode
 from aiogram_dialog.widgets.input import MessageInput
 from magic_filter import F
 
-from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button
+from src.bot.keyboards import connect_buttons, get_back_and_main_menu_buttons, main_menu_button, trial_connect_buttons
 from src.bot.states import MainMenu, Subscription
 from src.bot.widgets import Banner, ColoredButton, ColoredStart, ColoredSwitchTo, I18nFormat, IgnoreUpdate
 from src.core.constants import PURCHASE_PREFIX
@@ -426,7 +426,14 @@ success_trial = Window(
     Banner(),
     I18nFormat("msg-subscription-trial"),
     Row(
-        *connect_buttons,
+        Url(
+            text=I18nFormat("btn-menu-download"),
+            url=Format("{download_url}"),
+            id="download",
+        ),
+    ),
+    Row(
+        *trial_connect_buttons,
     ),
     Row(
         ColoredStart(

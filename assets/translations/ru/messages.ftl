@@ -1007,6 +1007,12 @@ msg-broadcast-content =
     <b>✉️ Содержимое рассылки</b>
 
     Отправьте любое сообщение: текст, изображение или все вместе (поддерживается HTML).
+    { $has_content ->
+        [1] 
+    <b>Текущее содержимое:</b>
+    <blockquote>{ $current_content }</blockquote>
+        *[other] {""}
+    }
 
 msg-broadcast-buttons = <b>✳️ Кнопки рассылки</b>
 
