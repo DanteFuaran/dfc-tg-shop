@@ -372,7 +372,7 @@ btn-menu-trial = { $is_referral_trial ->
     }
 btn-menu-devices = 📱 Мої пристрої
 btn-menu-devices-empty = ⚠️ Немає прив'язаних пристроїв
-btn-menu-add-device = ➕ Додати пристрій
+btn-menu-add-device = ➕ Збільшити ліміт пристроїв
 btn-menu-extra-devices = 📱 Управління додатковими пристроями
 btn-extra-device-item = { $device_count } шт. • { $price } ₽/міс • { $expires_at }
 btn-extra-device-disable-auto-renew = ❌ Вимкнути автопродовження
@@ -843,8 +843,8 @@ btn-amount-accept = ✅ Прийняти
 
 # Bonus activation
 btn-bonus-activate-all = { $selected ->
-    [true] [Активувати все ({ $referral_balance } ₽)]
-    *[other] Активувати все ({ $referral_balance } ₽)
+    [true] [Активувати все ({ $referral_balance })]
+    *[other] Активувати все ({ $referral_balance })
 }
 btn-bonus-amount-100 = { $selected ->
     [true] [100 ₽]

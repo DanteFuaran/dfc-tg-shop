@@ -881,3 +881,5 @@ ntf-system-update-available =
     ⬆️ Available version: <code>{ $new_version }</code>
 
     Press <b>"Update now"</b> or run the update from the bot management menu.
+
+ntf-no-subscription-for-devices = <i>⚠️ An active subscription is required to increase the device limit.</i>

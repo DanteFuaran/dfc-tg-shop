@@ -11,6 +11,11 @@ from src.core.constants import USER_KEY, SETTINGS_KEY
 from src.core.enums import Locale
 from src.infrastructure.database.models.dto import UserDto, SettingsDto
 
+# Отключаем группировку разрядов чисел в Fluent (1 000 → 1000)
+# чтобы суммы отображались без пробелов: "1000 ₽" вместо "1 000 ₽"
+from fluent_compiler.types import FluentNumber, NumberFormatOptions
+FluentNumber.default_number_format_options = NumberFormatOptions(useGrouping=False)
+
 
 class I18nProvider(Provider):
     scope = Scope.APP

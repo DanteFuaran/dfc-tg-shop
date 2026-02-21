@@ -88,10 +88,7 @@ frg-user =
         [1] {"\u000A"}• <b>Balance</b>: { $balance }
         *[0] {""}
     }{ $is_balance_separate ->
-        [1] { $is_referral_enable ->
-            [1] {"\u000A"}• <b>Bonuses</b>: { $referral_balance }
-            *[0] {""}
-        }
+        [1] {"\u000A"}• <b>Bonuses</b>: { $referral_balance }
         *[0] {""}
     }
     </blockquote>
@@ -120,10 +117,7 @@ frg-user-details =
         [1] {"\u000A"}• <b>Balance</b>: { $balance } ₽
         *[0] {""}
     }{ $is_balance_separate ->
-        [1] { $is_referral_enable ->
-            [1] {"\u000A"}• <b>Referral Balance</b>: { $referral_balance } ₽
-            *[0] {""}
-        }
+        [1] {"\u000A"}• <b>Referral Balance</b>: { $referral_balance } ₽
         *[0] {""}
     }
     </blockquote>
@@ -535,10 +529,7 @@ frg-user-info-inline =
         [1] {"\u000A"}• <b>Guthaben</b>: { $balance }
         *[0] {""}
     }{ $is_balance_separate ->
-        [1] { $is_referral_enable ->
-            [1] {"\u000A"}• <b>Boni</b>: { $referral_balance }
-            *[0] {""}
-        }
+        [1] {"\u000A"}• <b>Boni</b>: { $referral_balance }
         *[0] {""}
     }
 

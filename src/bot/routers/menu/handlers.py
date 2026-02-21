@@ -870,23 +870,11 @@ async def on_balance_click(
     callback: CallbackQuery,
     widget: Button,
     dialog_manager: DialogManager,
-    payment_gateway_service: FromDishka[PaymentGatewayService],
-    notification_service: FromDishka[NotificationService],
 ) -> None:
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
-    logger.info(f"{log(user)} Opened balance topup")
+    logger.info(f"{log(user)} Opened balance menu")
 
-    gateways = await payment_gateway_service.filter_active()
-
-    if not gateways:
-        logger.warning(f"{log(user)} No active payment gateways for topup")
-        await notification_service.notify_user(
-            user=user,
-            payload=MessagePayload(i18n_key="ntf-subscription-gateways-not-available"),
-        )
-        return
-
-    # Navigate to balance payment method selection
+    # Navigate to balance menu
     await dialog_manager.switch_to(state=MainMenu.BALANCE)
 
 
@@ -2009,8 +1997,18 @@ async def on_add_device(
     callback: CallbackQuery,
     widget: Button,
     dialog_manager: DialogManager,
+    notification_service: FromDishka[NotificationService],
 ) -> None:
     """Переход к добавлению дополнительных устройств."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    if not user.current_subscription:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-no-subscription-for-devices"),
+        )
+        return
+    
     from src.bot.states import Subscription
     await dialog_manager.start(Subscription.ADD_DEVICE_SELECT_COUNT, mode=StartMode.RESET_STACK)
 

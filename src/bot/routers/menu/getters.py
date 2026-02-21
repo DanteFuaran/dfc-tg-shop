@@ -127,8 +127,8 @@ async def menu_getter(
             "tos_url": tos_url,
             "is_balance_enabled": 1 if is_balance_enabled else 0,
             "is_balance_separate": 1 if not is_balance_combined else 0,
-            # Показывать кнопку "Мои устройства" если есть подписка с лимитом устройств или купленные доп. устройства
-            "show_devices_button": has_extra_devices_purchases or (subscription and subscription.has_devices_limit),
+            # Показывать кнопку "Мои устройства" всегда
+            "show_devices_button": True,
         }
 
         if not subscription:
@@ -140,7 +140,6 @@ async def menu_getter(
                     "has_device_limit": False,
                     "connectable": False,
                     "device_limit_bonus": 0,
-                    "show_devices_button": False,
                 }
             )
             return base_data
@@ -261,6 +260,9 @@ async def devices_getter(
     # Вычисляем данные о скидке пользователя
     discount_info = calculate_user_discount(user)
     
+    # Проверяем включён ли функционал доп. устройств
+    is_extra_devices_enabled = settings.features.extra_devices.enabled
+    
     # Если нет подписки - показываем пустой список устройств
     if not subscription:
         return {
@@ -280,11 +282,14 @@ async def devices_getter(
             "has_extra_device_purchases": 0,
             # Флаги для кнопок
             "can_add_device": False,
-            "can_add_extra_device": 0,
+            "can_add_extra_device": 1 if is_extra_devices_enabled else 0,
             "has_subscription": False,
             "is_balance_enabled": 1 if is_balance_enabled else 0,
             "is_balance_separate": 1 if is_balance_separate else 0,
             "is_referral_enable": 1 if is_referral_enabled else 0,
+            # Слоты устройств (пустые без подписки)
+            "device_slots": [],
+            "has_device_slots": 0,
             # Данные профиля для frg-user
             "user_id": str(user.telegram_id),
             "user_name": user.name,

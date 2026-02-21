@@ -372,7 +372,7 @@ btn-menu-trial = { $is_referral_trial ->
     }
 btn-menu-devices = 📱 My Devices
 btn-menu-devices-empty = ⚠️ No Linked Devices
-btn-menu-add-device = ➕ Add Device
+btn-menu-add-device = ➕ Increase Device Limit
 btn-menu-extra-devices = 📱 Extra Device Management
 btn-extra-device-item = { $device_count } pcs. • { $price } ₽/mo • { $expires_at }
 btn-extra-device-disable-auto-renew = ❌ Disable Auto-Renewal
@@ -843,8 +843,8 @@ btn-amount-accept = ✅ Accept
 
 # Bonus activation
 btn-bonus-activate-all = { $selected ->
-    [true] [Activate All ({ $referral_balance } ₽)]
-    *[other] Activate All ({ $referral_balance } ₽)
+    [true] [Activate All ({ $referral_balance })]
+    *[other] Activate All ({ $referral_balance })
 }
 btn-bonus-amount-100 = { $selected ->
     [true] [100 ₽]
