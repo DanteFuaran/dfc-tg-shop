@@ -6,6 +6,7 @@ from aiogram_dialog import BgManagerFactory, setup_dialogs
 from src.bot.filters import setup_global_filters
 from src.bot.middlewares import setup_middlewares
 from src.bot.routers import setup_error_handlers, setup_routers
+from src.bot.storage import BotAwareMediaIdStorage
 from src.core.config import AppConfig
 from src.core.utils import json_utils
 
@@ -28,7 +29,7 @@ def create_dispatcher(config: AppConfig) -> Dispatcher:
 
 
 def create_bg_manager_factory(dispatcher: Dispatcher) -> BgManagerFactory:
-    return setup_dialogs(router=dispatcher)
+    return setup_dialogs(router=dispatcher, media_id_storage=BotAwareMediaIdStorage())
 
 
 def setup_dispatcher(dispatcher: Dispatcher) -> None:

@@ -23,17 +23,33 @@ async def mirror_bots_getter(
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for mirror bots list window."""
+    bot = dialog_manager.middleware_data.get("bot")
+    main_bot_info = await bot.get_me()
+    main_username = main_bot_info.username or "main_bot"
+
     bots = await mirror_bot_service.get_all()
-    items = [
+    any_mirror_primary = any(b.is_primary for b in bots)
+    main_is_primary = not any_mirror_primary
+
+    # Main bot always first
+    main_item = {
+        "id": "main",
+        "username": f"@{main_username}",
+        "is_primary": main_is_primary,
+        "is_main": True,
+        "display": f"[{main_username}] ⭐" if main_is_primary else f"{main_username}",
+    }
+    mirror_items = [
         {
             "id": str(b.id),
             "username": f"@{b.username}",
             "is_primary": b.is_primary,
-            # Highlighted with brackets if primary
+            "is_main": False,
             "display": f"[{b.username}]" if b.is_primary else f"{b.username}",
         }
         for b in bots
     ]
+    items = [main_item] + mirror_items
     return {
         "mirror_bots": items,
         "has_bots": len(items) > 0,
@@ -57,8 +73,20 @@ async def on_select_mirror_bot(
     mirror_bot_service: FromDishka[MirrorBotService],
 ) -> None:
     """Toggle primary status for a mirror bot."""
-    mirror_bot_id = int(sub_manager.item_id)
+    item_id = sub_manager.item_id
     current_bots = await mirror_bot_service.get_all()
+
+    if item_id == "main":
+        # Main bot selected — reset mirror primary so main bot is used
+        any_mirror_primary = any(b.is_primary for b in current_bots)
+        if any_mirror_primary:
+            await mirror_bot_service.set_primary(None)
+            await callback.answer("✅ Используется основной бот")
+        else:
+            await callback.answer("ℹ️ Уже используется основной бот")
+        return
+
+    mirror_bot_id = int(item_id)
     already_primary = any(b.is_primary and b.id == mirror_bot_id for b in current_bots)
 
     if already_primary:

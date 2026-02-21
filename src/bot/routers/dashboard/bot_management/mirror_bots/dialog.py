@@ -35,6 +35,7 @@ mirror_bots_main = Window(
                 text=Const("❌"),
                 id="delete_bot",
                 on_click=on_delete_mirror_bot,
+                when=lambda data, widget, manager: not data.get("item", {}).get("is_main", False),
             ),
         ),
         id="mirror_bots_list",

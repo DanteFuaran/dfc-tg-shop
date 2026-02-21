@@ -21,6 +21,7 @@ from loguru import logger
 from pydantic import SecretStr
 from typing_extensions import Annotated
 
+from src.bot.storage import current_bot_id_var
 from src.infrastructure.database.models.dto.mirror_bot import MirrorBotDto
 
 
@@ -146,12 +147,15 @@ class MirrorBotManager:
 
     async def _feed_update(self, bot: Bot, update: Update) -> None:
         """Feed an update from a mirror bot through the dispatcher."""
+        _token = current_bot_id_var.set(bot.id)
         try:
             result = await self.dispatcher.feed_update(bot=bot, update=update)
             if isinstance(result, TelegramMethod):
                 await self.dispatcher.silent_call_request(bot=bot, result=result)
         except Exception as e:
             logger.error(f"Error processing mirror bot update {update.update_id}: {e}")
+        finally:
+            current_bot_id_var.reset(_token)
 
     @staticmethod
     def _get_webhook_path(mirror_bot_id: int) -> str:

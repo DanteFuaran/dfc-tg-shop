@@ -9,6 +9,8 @@ from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import Body, FastAPI, Header, HTTPException, Response, status
 from loguru import logger
 
+from src.bot.storage import current_bot_id_var
+
 
 class TelegramWebhookEndpoint:
     dispatcher: Dispatcher
@@ -39,9 +41,13 @@ class TelegramWebhookEndpoint:
         return secrets.compare_digest(telegram_secret_token, self.secret_token)
 
     async def _feed_update(self, bot: Bot, update: Update) -> None:
-        result = await self.dispatcher.feed_update(bot=bot, update=update)
-        if isinstance(result, TelegramMethod):
-            await self.dispatcher.silent_call_request(bot=bot, result=result)
+        _token = current_bot_id_var.set(bot.id)
+        try:
+            result = await self.dispatcher.feed_update(bot=bot, update=update)
+            if isinstance(result, TelegramMethod):
+                await self.dispatcher.silent_call_request(bot=bot, result=result)
+        finally:
+            current_bot_id_var.reset(_token)
 
     @inject
     async def _handle_request(
