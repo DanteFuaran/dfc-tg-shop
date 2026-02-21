@@ -1,21 +1,24 @@
 import os
 from pathlib import Path
 
-# Читаем версию из файла version
-# Поддерживаемые форматы:
-#   plain:         0.4.21
-#   с префиксом:   version: 0.4.21
-# Приоритет: файл version → переменная окружения BUILD_TAG → "0.0.0"
+# Единый источник версии и ветки: файл version в корне проекта
+# Формат файла:
+#   version: 0.4.44
+#   branch:  main
 _version_file = Path(__file__).parent.parent / "version"
 
 try:
-    _raw = _version_file.read_text().strip()
-    # Поддерживаем оба формата
-    if _raw.startswith("version:"):
-        __version__ = _raw.split(":", 1)[1].strip()
+    _lines = _version_file.read_text().splitlines()
+    # Ищем строку вида "version: X.Y.Z"
+    _ver_line = next((l for l in _lines if l.strip().startswith("version:")), None)
+    if _ver_line:
+        __version__ = _ver_line.split(":", 1)[1].strip()
     else:
-        # Plain format: берём первую непустую строку
-        _first_line = next((l.strip() for l in _raw.splitlines() if l.strip()), "")
-        __version__ = _first_line or os.environ.get("BUILD_TAG", "0.0.0")
+        # Поддержка старого plain-формата: первая непустая строка без ключа
+        _first = next(
+            (l.strip() for l in _lines if l.strip() and ":" not in l.split()[0]),
+            "",
+        )
+        __version__ = _first or os.environ.get("BUILD_TAG", "0.0.0")
 except FileNotFoundError:
     __version__ = os.environ.get("BUILD_TAG", "0.0.0")
