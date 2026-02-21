@@ -64,15 +64,27 @@ class UpdateCheckerService(BaseService):
         self.settings_service = settings_service
 
     async def _fetch_remote_version(self, branch: str = DEFAULT_BRANCH) -> Optional[str]:
-        """Fetch the latest version from GitHub."""
+        """Fetch the latest version from GitHub.
+        
+        Supports both plain format ("0.4.21") and prefixed format ("version: 0.4.21").
+        """
         url = _GITHUB_RAW_UPDATE_URL.format(branch=branch)
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 response = await client.get(url)
                 response.raise_for_status()
-                for line in response.text.splitlines():
-                    if line.startswith("version:"):
+                raw = response.text.strip()
+                if not raw:
+                    return None
+                # Поддерживаем оба формата
+                for line in raw.splitlines():
+                    if line.strip().startswith("version:"):
                         return line.split(":", 1)[1].strip()
+                # Plain format — первая непустая строка
+                first = next((l.strip() for l in raw.splitlines() if l.strip()), None)
+                # Validate it looks like a version (x.y.z)
+                if first and all(p.isdigit() for p in first.split(".")) and "." in first:
+                    return first
                 return None
         except Exception as e:
             logger.warning(f"[update_checker] Failed to fetch remote version: {e}")

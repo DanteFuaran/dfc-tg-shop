@@ -197,6 +197,7 @@ class NotificationService(BaseService):
         user: BaseUserDto,
         payload: MessagePayload,
         locale_override: Optional[Locale] = None,
+        mirror_sent_out: Optional[list[tuple[int, Message]]] = None,
     ) -> Optional[Message]:
         # Используем переопределённую локаль или язык пользователя
         locale = locale_override or user.language
@@ -242,26 +243,30 @@ class NotificationService(BaseService):
 
             # ── Also send via any active mirror bots ───────────────────
             if self._mirror_bot_manager:
-                for mirror_bot in self._mirror_bot_manager.active_bots.values():
+                for mirror_db_id, mirror_bot in self._mirror_bot_manager.active_bots.items():
                     try:
                         if (payload.media or payload.media_id) and payload.media_type:
                             mirror_sent = await self._send_media_message(user, payload, reply_markup, locale, bot=mirror_bot)
                         else:
                             mirror_sent = await self._send_text_message(user, payload, reply_markup, locale, bot=mirror_bot)
-                        # Schedule auto-deletion for the mirror bot message using its own bot instance
-                        if payload.auto_delete_after is not None and mirror_sent:
-                            asyncio.create_task(
-                                self._schedule_message_deletion(
-                                    chat_id=user.telegram_id,
-                                    message_id=mirror_sent.message_id,
-                                    delay=payload.auto_delete_after,
-                                    bot=mirror_bot,
+                        if mirror_sent:
+                            # Expose to caller (e.g. for storing shutdown message IDs per mirror)
+                            if mirror_sent_out is not None:
+                                mirror_sent_out.append((mirror_db_id, mirror_sent))
+                            # Schedule auto-deletion for the mirror bot message using its own bot instance
+                            if payload.auto_delete_after is not None:
+                                asyncio.create_task(
+                                    self._schedule_message_deletion(
+                                        chat_id=user.telegram_id,
+                                        message_id=mirror_sent.message_id,
+                                        delay=payload.auto_delete_after,
+                                        bot=mirror_bot,
+                                    )
                                 )
-                            )
                     except (TelegramBadRequest, TelegramForbiddenError):
                         pass  # User never started this mirror bot — expected
                     except Exception as e:
-                        logger.debug(f"Mirror bot {mirror_bot.id}: notification to {user.telegram_id} skipped: {e}")
+                        logger.debug(f"Mirror bot {mirror_db_id}: notification to {user.telegram_id} skipped: {e}")
 
             return sent_message
 

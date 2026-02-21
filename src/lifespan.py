@@ -1,7 +1,7 @@
 import asyncio
 import traceback
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional
+from typing import Any, AsyncGenerator, Optional
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import WebhookInfo, User as AiogramUser, InlineKeyboardMarkup, InlineKeyboardButton
@@ -65,6 +65,7 @@ async def send_shutdown_notifications(container: AsyncContainer) -> None:
                         locale = settings.bot_locale
 
                     logger.info(f"Shutdown: sending notification to DEV user {dev.telegram_id} (locale: {locale})")
+                    mirror_sent_out: list[tuple[int, Any]] = []
                     msg = await notification_service._send_message(
                         user=dev,
                         payload=MessagePayload.not_deleted(
@@ -72,12 +73,22 @@ async def send_shutdown_notifications(container: AsyncContainer) -> None:
                             add_close_button=False,
                         ),
                         locale_override=locale,
+                        mirror_sent_out=mirror_sent_out,
                     )
                     if msg:
-                        await redis_repository.list_push(shutdown_key, f"{dev.telegram_id}:{msg.message_id}")
+                        # Format: "main:{chat_id}:{msg_id}" for main bot
+                        await redis_repository.list_push(shutdown_key, f"main:{dev.telegram_id}:{msg.message_id}")
                         logger.info(f"Shutdown: sent message {msg.message_id} for chat {dev.telegram_id}")
                     else:
                         logger.warning(f"Shutdown: _send_message returned None for {dev.telegram_id}")
+                    # Store mirror bot message IDs for cleanup on startup
+                    # Format: "{mirror_db_id}:{chat_id}:{msg_id}"
+                    for mirror_db_id, mirror_msg in mirror_sent_out:
+                        await redis_repository.list_push(
+                            shutdown_key,
+                            f"{mirror_db_id}:{dev.telegram_id}:{mirror_msg.message_id}",
+                        )
+                        logger.debug(f"Shutdown: stored mirror[{mirror_db_id}] message {mirror_msg.message_id}")
                 except Exception as e:
                     logger.error(f"Shutdown: Failed to send notification to {dev.telegram_id}: {e}", exc_info=True)
 
@@ -438,11 +449,32 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     shutdown_messages = await cleanup_redis.list_range(shutdown_key, 0, -1)
                     for msg_data in shutdown_messages:
                         try:
-                            chat_id, message_id = msg_data.split(":")
-                            await bot.delete_message(chat_id=int(chat_id), message_id=int(message_id))
+                            parts = msg_data.split(":")
+                            if len(parts) == 3:
+                                bot_key, chat_id_str, msg_id_str = parts
+                                chat_id = int(chat_id_str)
+                                message_id = int(msg_id_str)
+                                if bot_key == "main":
+                                    delete_bot = bot
+                                else:
+                                    # Look up mirror bot by DB id
+                                    db_id = int(bot_key)
+                                    delete_bot = mirror_bot_manager.active_bots.get(db_id)
+                                    if not delete_bot:
+                                        logger.debug(f"Mirror bot {db_id} not active, skipping deletion of msg {message_id}")
+                                        continue
+                            elif len(parts) == 2:
+                                # Legacy format: "{chat_id}:{msg_id}" — use main bot
+                                chat_id = int(parts[0])
+                                message_id = int(parts[1])
+                                delete_bot = bot
+                            else:
+                                logger.warning(f"Unknown shutdown message format: {msg_data}")
+                                continue
+                            await delete_bot.delete_message(chat_id=chat_id, message_id=message_id)
                             logger.debug(f"Deleted shutdown message {message_id} in chat {chat_id}")
                         except Exception as e:
-                            logger.warning(f"Failed to delete shutdown message: {e}")
+                            logger.warning(f"Failed to delete shutdown message '{msg_data}': {e}")
                     await cleanup_redis.delete(shutdown_key)
                 except Exception as e:
                     logger.warning(f"Failed to cleanup shutdown messages: {e}")
