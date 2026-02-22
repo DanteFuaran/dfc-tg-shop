@@ -146,6 +146,32 @@ async def _build_user_data(
         except Exception:
             pass
 
+        # Fetch settings for features & support
+        features_data: dict[str, Any] = {}
+        support_url = ""
+        try:
+            settings_service: SettingsService = await req_container.get(SettingsService)
+            settings = await settings_service.get()
+            features = settings.features
+            features_data = {
+                "balance_enabled": features.balance_enabled,
+                "community_enabled": features.community_enabled,
+                "community_url": features.community_url or "",
+                "tos_enabled": features.tos_enabled,
+                "tos_url": features.tos_url if hasattr(features, "tos_url") else "",
+                "referral_enabled": features.referral_enabled,
+                "promocodes_enabled": features.promocodes_enabled,
+            }
+        except Exception:
+            pass
+        try:
+            config: AppConfig = request.app.state.config
+            su = config.bot.support_username.get_secret_value() if config.bot.support_username else ""
+            if su:
+                support_url = f"https://t.me/{su}"
+        except Exception:
+            pass
+
         return {
             "user": {
                 "telegram_id": user.telegram_id,
@@ -159,6 +185,8 @@ async def _build_user_data(
             "subscription": sub_data,
             "plans": plans_data,
             "bot_username": bot_username,
+            "features": features_data,
+            "support_url": support_url,
         }
 
 
@@ -292,13 +320,23 @@ async def auth_register(request: Request, body: RegisterRequest):
         if username_taken:
             raise HTTPException(status_code=409, detail="Этот логин уже занят")
 
+        try:
+            pw_hash = hash_password(body.password)
+        except Exception as exc:
+            logger.error(f"Password hashing failed: {exc}")
+            raise HTTPException(status_code=500, detail="Ошибка при создании учётных данных")
+
         credential = WebCredential(
             telegram_id=body.telegram_id,
             web_username=body.web_username,
-            password_hash=hash_password(body.password),
+            password_hash=pw_hash,
         )
-        await uow.repository.web_credentials.create(credential)
-        await uow.commit()
+        try:
+            await uow.repository.web_credentials.create(credential)
+            await uow.commit()
+        except Exception as exc:
+            logger.error(f"Failed to save web credentials: {exc}")
+            raise HTTPException(status_code=500, detail="Ошибка при сохранении учётных данных")
 
     token = create_access_token(
         {"telegram_id": body.telegram_id, "source": "web"},
@@ -337,6 +375,26 @@ async def auth_logout():
     response = JSONResponse({"ok": True})
     response.delete_cookie("access_token")
     return response
+
+
+# ══════════════════════════════════════════════════════════════════
+# CONFIG API (domain, support, etc.)
+# ══════════════════════════════════════════════════════════════════
+
+
+@router.get("/api/config")
+async def api_config(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+    config: AppConfig = request.app.state.config
+    domain = config.domain.get_secret_value() if config.domain else ""
+    support_username = ""
+    try:
+        support_username = config.bot.support_username.get_secret_value() if config.bot.support_username else ""
+    except Exception:
+        pass
+    return JSONResponse({"domain": domain, "support_username": support_username})
 
 
 # ══════════════════════════════════════════════════════════════════

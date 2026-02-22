@@ -2,15 +2,10 @@
 {% block title %}Вход — Кабинет{% endblock %}
 
 {% block content %}
+<div class="bg-glow"></div>
 <div class="auth-container">
     <div class="auth-logo">
-        <div class="logo-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-            </svg>
-        </div>
+        <div class="logo-circle">🔐</div>
         <h1 class="auth-title">Личный кабинет</h1>
     </div>
 
@@ -20,10 +15,10 @@
         <div class="input-group">
             <input type="number" id="input-telegram-id" placeholder="Telegram ID" autocomplete="off">
         </div>
-        <button class="btn btn-primary btn-full" onclick="checkTelegramId()">Продолжить</button>
+        <button class="pill pill-cyan" onclick="checkTelegramId()">Продолжить</button>
     </div>
 
-    <!-- Step 2: Registration (first time) -->
+    <!-- Step 2: Registration -->
     <div id="step-register" class="auth-step">
         <p class="auth-hint">Добро пожаловать, <span id="reg-name"></span>!</p>
         <p class="auth-sub-hint">Придумайте логин и пароль для входа на сайт</p>
@@ -36,11 +31,11 @@
         <div class="input-group">
             <input type="password" id="input-reg-password2" placeholder="Подтвердите пароль">
         </div>
-        <button class="btn btn-primary btn-full" onclick="registerUser()">Зарегистрироваться</button>
-        <button class="btn btn-secondary btn-full" onclick="showStep('step-telegram')">Назад</button>
+        <button class="pill pill-gold" onclick="registerUser()">Зарегистрироваться</button>
+        <button class="pill pill-outline" onclick="showStep('step-telegram')" style="margin-top:8px">← Назад</button>
     </div>
 
-    <!-- Step 3: Password login -->
+    <!-- Step 3: Login -->
     <div id="step-password" class="auth-step">
         <p class="auth-hint">Добро пожаловать, <span id="login-name"></span>!</p>
         <p class="auth-sub-hint">Введите ваш логин и пароль</p>
@@ -50,8 +45,8 @@
         <div class="input-group">
             <input type="password" id="input-login-password" placeholder="Пароль" autocomplete="current-password">
         </div>
-        <button class="btn btn-primary btn-full" onclick="loginUser()">Войти</button>
-        <button class="btn btn-secondary btn-full" onclick="showStep('step-telegram')">Назад</button>
+        <button class="pill pill-cyan" onclick="loginUser()">Войти</button>
+        <button class="pill pill-outline" onclick="showStep('step-telegram')" style="margin-top:8px">← Назад</button>
     </div>
 
     <div id="auth-error" class="auth-error"></div>
@@ -60,102 +55,99 @@
 
 {% block scripts %}
 <script>
-    let currentTelegramId = null;
+let currentTelegramId = null;
 
-    function showStep(stepId) {
-        document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
-        document.getElementById(stepId).classList.add('active');
-        hideError();
-    }
+function showStep(id) {
+    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    hideError();
+}
+function showError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg; el.classList.add('visible');
+}
+function hideError() {
+    document.getElementById('auth-error').classList.remove('visible');
+}
 
-    function showError(msg) {
-        const el = document.getElementById('auth-error');
-        el.textContent = msg;
-        el.classList.add('visible');
-    }
-
-    function hideError() {
-        document.getElementById('auth-error').classList.remove('visible');
-    }
-
-    async function checkTelegramId() {
-        const tid = document.getElementById('input-telegram-id').value.trim();
-        if (!tid) { showError('Введите Telegram ID'); return; }
-        hideError();
-
-        try {
-            const res = await fetch('/web/api/auth/check', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({telegram_id: parseInt(tid)})
-            });
-            const data = await res.json();
-            if (!res.ok) { showError(data.detail || 'Ошибка'); return; }
-
-            currentTelegramId = parseInt(tid);
-
-            if (data.has_credentials) {
-                document.getElementById('login-name').textContent = data.name;
-                showStep('step-password');
-            } else {
-                document.getElementById('reg-name').textContent = data.name;
-                showStep('step-register');
-            }
-        } catch (e) {
-            showError('Ошибка соединения');
+async function checkTelegramId() {
+    const tid = document.getElementById('input-telegram-id').value.trim();
+    if (!tid) { showError('Введите Telegram ID'); return; }
+    hideError();
+    try {
+        const res = await fetch('/web/api/auth/check', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id: parseInt(tid)})
+        });
+        const data = await res.json();
+        if (!res.ok) { showError(data.detail || 'Ошибка'); return; }
+        currentTelegramId = parseInt(tid);
+        if (data.has_credentials) {
+            document.getElementById('login-name').textContent = data.name;
+            showStep('step-password');
+        } else {
+            document.getElementById('reg-name').textContent = data.name;
+            showStep('step-register');
         }
+    } catch (e) {
+        showError('Ошибка соединения с сервером');
     }
+}
 
-    async function registerUser() {
-        const username = document.getElementById('input-reg-username').value.trim();
-        const password = document.getElementById('input-reg-password').value;
-        const password2 = document.getElementById('input-reg-password2').value;
-
-        if (!username || username.length < 3) { showError('Логин должен быть не менее 3 символов'); return; }
-        if (!password || password.length < 6) { showError('Пароль должен быть не менее 6 символов'); return; }
-        if (password !== password2) { showError('Пароли не совпадают'); return; }
-        hideError();
-
-        try {
-            const res = await fetch('/web/api/auth/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({telegram_id: currentTelegramId, web_username: username, password: password})
-            });
-            const data = await res.json();
-            if (!res.ok) { showError(data.detail || 'Ошибка регистрации'); return; }
-            window.location.href = '/web/dashboard';
-        } catch (e) {
-            showError('Ошибка соединения');
+async function registerUser() {
+    const username = document.getElementById('input-reg-username').value.trim();
+    const password = document.getElementById('input-reg-password').value;
+    const password2 = document.getElementById('input-reg-password2').value;
+    if (!username || username.length < 3) { showError('Логин должен быть не менее 3 символов'); return; }
+    if (!password || password.length < 6) { showError('Пароль должен быть не менее 6 символов'); return; }
+    if (password !== password2) { showError('Пароли не совпадают'); return; }
+    hideError();
+    try {
+        const res = await fetch('/web/api/auth/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id: currentTelegramId, web_username: username, password: password})
+        });
+        if (!res.ok) {
+            let detail = 'Ошибка регистрации';
+            try { const d = await res.json(); detail = d.detail || detail; } catch(e) {}
+            showError(detail);
+            return;
         }
+        window.location.href = '/web/dashboard';
+    } catch (e) {
+        showError('Ошибка соединения с сервером. Попробуйте позже.');
     }
+}
 
-    async function loginUser() {
-        const username = document.getElementById('input-login-username').value.trim();
-        const password = document.getElementById('input-login-password').value;
-
-        if (!username || !password) { showError('Заполните все поля'); return; }
-        hideError();
-
-        try {
-            const res = await fetch('/web/api/auth/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({web_username: username, password: password})
-            });
-            const data = await res.json();
-            if (!res.ok) { showError(data.detail || 'Неверный логин или пароль'); return; }
-            window.location.href = '/web/dashboard';
-        } catch (e) {
-            showError('Ошибка соединения');
+async function loginUser() {
+    const username = document.getElementById('input-login-username').value.trim();
+    const password = document.getElementById('input-login-password').value;
+    if (!username || !password) { showError('Заполните все поля'); return; }
+    hideError();
+    try {
+        const res = await fetch('/web/api/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({web_username: username, password: password})
+        });
+        if (!res.ok) {
+            let detail = 'Неверный логин или пароль';
+            try { const d = await res.json(); detail = d.detail || detail; } catch(e) {}
+            showError(detail);
+            return;
         }
+        window.location.href = '/web/dashboard';
+    } catch (e) {
+        showError('Ошибка соединения с сервером');
     }
+}
 
-    // Enter key support
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('input-telegram-id').addEventListener('keydown', e => { if (e.key === 'Enter') checkTelegramId(); });
-        document.getElementById('input-reg-password2').addEventListener('keydown', e => { if (e.key === 'Enter') registerUser(); });
-        document.getElementById('input-login-password').addEventListener('keydown', e => { if (e.key === 'Enter') loginUser(); });
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('input-telegram-id').addEventListener('keydown', e => { if (e.key === 'Enter') checkTelegramId(); });
+    document.getElementById('input-reg-password2').addEventListener('keydown', e => { if (e.key === 'Enter') registerUser(); });
+    document.getElementById('input-login-password').addEventListener('keydown', e => { if (e.key === 'Enter') loginUser(); });
+});
 </script>
 {% endblock %}

@@ -1,268 +1,436 @@
 {% extends "base.html" %}
-{% block title %}Панель — Кабинет{% endblock %}
+{% block title %}Кабинет{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Header -->
-    <header class="dash-header">
-        <div class="logo-small">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-            </svg>
+<div class="bg-glow"></div>
+<div class="app-wrapper">
+
+<header class="app-header">
+    <div class="brand">
+        <span class="brand-logo">🔐</span>
+        <span class="brand-name">Личный кабинет</span>
+    </div>
+    <button class="btn-icon" onclick="logout()" title="Выйти">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+    </button>
+</header>
+
+<main class="app-content">
+
+<!-- ═══ HOME ═══ -->
+<section id="p-home" class="page active">
+    <div class="card sub-card">
+        <div class="sub-card-top">
+            <span class="sub-badge sub-badge-none" id="sub-badge">—</span>
+            <span class="sub-expire" id="sub-expire"></span>
         </div>
-        <span class="header-title">Мой кабинет</span>
-        <button class="btn-icon" onclick="logout()" title="Выйти">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-        </button>
-    </header>
-
-    <!-- Pages -->
-    <main class="dash-main">
-        <!-- Home Page -->
-        <div id="page-home" class="page active">
-            <div class="card subscription-card">
-                <div class="card-badge" id="sub-badge">—</div>
-                <h3 class="card-title" id="sub-plan-name">Загрузка…</h3>
-                <div class="card-row">
-                    <span class="card-label">Истекает</span>
-                    <span class="card-value" id="sub-expire">—</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Трафик</span>
-                    <span class="card-value" id="sub-traffic">—</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Устройства</span>
-                    <span class="card-value" id="sub-devices">—</span>
-                </div>
-            </div>
-
-            <div class="actions-grid">
-                <button class="action-btn" onclick="openSubUrl()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <path d="M16 10a4 4 0 01-8 0"/>
-                    </svg>
-                    <span>Купить</span>
-                </button>
-                <button class="action-btn" onclick="copySubUrl()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
-                    </svg>
-                    <span>Подключить</span>
-                </button>
-                <button class="action-btn" onclick="showPage('page-plans')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                    <span>Тарифы</span>
-                </button>
-                <button class="action-btn" onclick="showPage('page-profile')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>Профиль</span>
-                </button>
-            </div>
+        <div class="sub-traffic" id="sub-traffic"></div>
+    </div>
+    <div class="action-pills">
+        <button class="pill pill-gold" onclick="go('plans')">🛒&nbsp; Купить</button>
+        <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Установить и настроить</button>
+        <div class="pill-row">
+            <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
+            <button class="pill pill-outline" onclick="go('devices')">📱 Устройства</button>
         </div>
+    </div>
+</section>
 
-        <!-- Plans Page -->
-        <div id="page-plans" class="page">
-            <div class="page-header">
-                <button class="btn-back" onclick="showPage('page-home')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                        <polyline points="15 18 9 12 15 6"/>
-                    </svg>
-                </button>
-                <h2 class="page-title">Тарифные планы</h2>
-            </div>
-            <div id="plans-list" class="plans-list"></div>
+<!-- ═══ PLANS ═══ -->
+<section id="p-plans" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Тарифные планы</h2>
+    </div>
+    <div id="plans-list" class="plans-list"></div>
+</section>
+
+<!-- ═══ CONNECT ═══ -->
+<section id="p-connect" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Подключение</h2>
+    </div>
+    <div class="card">
+        <div class="card-title">Ссылка подписки</div>
+        <div class="connect-box">
+            <code id="con-url">—</code>
+            <button onclick="copyUrl()">Копировать</button>
         </div>
-
-        <!-- Profile Page -->
-        <div id="page-profile" class="page">
-            <div class="page-header">
-                <button class="btn-back" onclick="showPage('page-home')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                        <polyline points="15 18 9 12 15 6"/>
-                    </svg>
-                </button>
-                <h2 class="page-title">Профиль</h2>
-            </div>
-            <div class="card">
-                <div class="card-row">
-                    <span class="card-label">Имя</span>
-                    <span class="card-value" id="prof-name">—</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Telegram</span>
-                    <span class="card-value" id="prof-username">—</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Telegram ID</span>
-                    <span class="card-value" id="prof-tid">—</span>
-                </div>
-                <div class="card-row">
-                    <span class="card-label">Баланс</span>
-                    <span class="card-value" id="prof-balance">—</span>
-                </div>
-            </div>
+    </div>
+    <div class="card">
+        <div class="card-title">Скачать приложение</div>
+        <div class="apps-grid">
+            <a class="app-link" href="https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973" target="_blank"><span class="app-icon">🍏</span> iOS</a>
+            <a class="app-link" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank"><span class="app-icon">🤖</span> Android</a>
+            <a class="app-link" href="https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe" target="_blank"><span class="app-icon">🪟</span> Windows</a>
+            <a class="app-link" href="https://github.com/Happ-proxy/happ-desktop/releases/" target="_blank"><span class="app-icon">🍎</span> macOS</a>
         </div>
-    </main>
+    </div>
+</section>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="showPage('page-home')" data-page="page-home">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span>Главная</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('page-plans')" data-page="page-plans">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                <line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-            <span>Тарифы</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('page-profile')" data-page="page-profile">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span>Профиль</span>
-        </button>
-    </nav>
+<!-- ═══ DEVICES ═══ -->
+<section id="p-devices" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Мои устройства</h2>
+    </div>
+    <div class="card">
+        <div class="card-row"><span class="card-label">Лимит</span><span class="card-value" id="dev-limit">—</span></div>
+        <div class="card-row"><span class="card-label">Занято</span><span class="card-value" id="dev-used">—</span></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--text3);margin-top:8px">Управление устройствами доступно в боте.</p>
+</section>
+
+<!-- ═══ PROMO ═══ -->
+<section id="p-promo" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Промокоды</h2>
+    </div>
+    <div class="card">
+        <div class="card-title">Активировать промокод</div>
+        <div style="display:flex;gap:8px">
+            <input class="form-input" id="promo-input" placeholder="Введите код" style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="activatePromo()">OK</button>
+        </div>
+        <p id="promo-result" style="font-size:.8rem;margin-top:8px;display:none"></p>
+    </div>
+</section>
+
+<!-- ═══ SUPPORT ═══ -->
+<section id="p-support" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Поддержка</h2>
+    </div>
+    <div class="card" id="support-community" style="display:none">
+        <div class="card-title">💬 Сообщество</div>
+        <p style="font-size:.84rem;color:var(--text2);margin-bottom:12px">Присоединяйтесь к нашей группе</p>
+        <a class="pill pill-cyan" id="btn-community" href="#" target="_blank">Открыть</a>
+    </div>
+    <div class="card" id="support-help" style="display:none">
+        <div class="card-title">🛟 Помощь</div>
+        <p style="font-size:.84rem;color:var(--text2);margin-bottom:12px">Написать в поддержку</p>
+        <a class="pill pill-outline" id="btn-support" href="#" target="_blank">Написать</a>
+    </div>
+</section>
+
+<!-- ═══ PROFILE ═══ -->
+<section id="p-profile" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Профиль</h2>
+    </div>
+    <div class="card">
+        <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="pr-name">—</span></div>
+        <div class="card-row"><span class="card-label">Telegram</span><span class="card-value" id="pr-uname">—</span></div>
+        <div class="card-row"><span class="card-label">ID</span><span class="card-value" id="pr-tid">—</span></div>
+        <div class="card-row"><span class="card-label">Баланс</span><span class="card-value" id="pr-balance">—</span></div>
+        <div class="card-row"><span class="card-label">Роль</span><span class="card-value" id="pr-role">—</span></div>
+    </div>
+    <div class="card" id="ref-card" style="display:none">
+        <div class="card-title">🤝 Пригласить друга</div>
+        <div class="ref-box">
+            <code id="ref-link">—</code>
+            <button class="btn btn-primary btn-sm btn-full" onclick="copyRef()" style="margin-top:4px">Скопировать ссылку</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ ADMIN ═══ -->
+<section id="p-admin" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('home')">‹</button>
+        <h2 class="page-title">Панель управления</h2>
+    </div>
+    <div class="admin-tabs" id="adm-tabs">
+        <button class="admin-tab active" onclick="admTab('stats')">Статистика</button>
+        <button class="admin-tab" onclick="admTab('users')">Польз.</button>
+        <button class="admin-tab" onclick="admTab('plans')">Тарифы</button>
+        <button class="admin-tab" onclick="admTab('settings')">Настройки</button>
+        <button class="admin-tab" onclick="admTab('brand')">Бренд</button>
+    </div>
+    <div id="adm-stats" class="admin-content active">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" id="st-total">—</div><div class="stat-label">Пользователей</div></div>
+            <div class="stat-card"><div class="stat-value" id="st-active">—</div><div class="stat-label">Активных</div></div>
+            <div class="stat-card"><div class="stat-value" id="st-expired">—</div><div class="stat-label">Истекших</div></div>
+            <div class="stat-card"><div class="stat-value" id="st-revenue">—</div><div class="stat-label">Баланс ₽</div></div>
+        </div>
+    </div>
+    <div id="adm-users" class="admin-content">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="user-search" placeholder="Поиск по имени / ID" oninput="filterUsers()">
+        </div>
+        <div id="users-list" class="user-list"></div>
+    </div>
+    <div id="adm-plans" class="admin-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span style="color:var(--text2);font-size:.84rem" id="adm-plans-count">Тарифы</span>
+            <button class="btn btn-primary btn-sm" onclick="showCreatePlan()">+ Создать</button>
+        </div>
+        <div id="adm-plans-list" class="plans-list"></div>
+    </div>
+    <div id="adm-settings" class="admin-content"><div id="settings-list"></div></div>
+    <div id="adm-brand" class="admin-content">
+        <div class="card">
+            <div class="card-title">Настройки бренда</div>
+            <div class="form-group"><label>Название</label><input class="form-input" id="br-name" placeholder="VPN Shop"></div>
+            <div class="form-group"><label>Логотип (эмодзи)</label><input class="form-input" id="br-logo" placeholder="🔐"></div>
+            <div class="form-group"><label>Слоган</label><input class="form-input" id="br-slogan" placeholder=""></div>
+            <button class="btn btn-primary btn-full" onclick="saveBrand()">Сохранить</button>
+        </div>
+    </div>
+</section>
+
+<!-- Admin user detail -->
+<section id="p-auser" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="admTab('users');go('admin')">‹</button>
+        <h2 class="page-title" id="aud-title">Пользователь</h2>
+    </div>
+    <div id="aud-body"></div>
+</section>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <button class="nav-item active" data-p="home" onclick="go('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Главная</span>
+    </button>
+    <button class="nav-item" data-p="support" onclick="go('support')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span>Поддержка</span>
+    </button>
+    <button class="nav-item" data-p="profile" onclick="go('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Профиль</span>
+    </button>
+    <button class="nav-item admin-nav" data-p="admin" onclick="go('admin')" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Админ</span>
+    </button>
+</nav>
+
 </div>
 
-<!-- Toast notification -->
+<div id="modal-root"></div>
 <div id="toast" class="toast"></div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const DATA = {{ data_json | safe }};
+const API='/web', D={{ data_json | safe }};
+let IS_ADMIN=D.user.role==='DEV'||D.user.role==='ADMIN';
+let usersCache=[],curAdmTab='stats';
 
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => {
-            b.classList.toggle('active', b.dataset.page === pageId);
-        });
-    }
+/* ── INIT ── */
+(function(){
+    if(IS_ADMIN) document.querySelectorAll('.admin-nav').forEach(e=>e.style.display='');
+    render();
+})();
 
-    function showToast(msg, duration) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), duration || 3000);
-    }
+/* ── NAV ── */
+function go(p){
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.getElementById('p-'+p).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
+    if(p==='admin')loadAdm(curAdmTab);
+    if(p==='plans')renderPlans();
+}
 
-    function renderSubscription() {
-        const sub = DATA.subscription;
-        const badge = document.getElementById('sub-badge');
+/* ── RENDER ── */
+function render(){renderSub();renderConnect();renderProfile();renderSupport()}
 
-        if (!sub || !sub.status) {
-            badge.textContent = 'Нет подписки';
-            badge.className = 'card-badge badge-inactive';
-            document.getElementById('sub-plan-name').textContent = 'Нет активной подписки';
-            document.getElementById('sub-expire').textContent = '—';
-            document.getElementById('sub-traffic').textContent = '—';
-            document.getElementById('sub-devices').textContent = '—';
-            return;
-        }
+function renderSub(){
+    const s=D.subscription,b=document.getElementById('sub-badge'),e=document.getElementById('sub-expire'),t=document.getElementById('sub-traffic');
+    if(!s||!s.status){b.textContent='Нет подписки';b.className='sub-badge sub-badge-none';e.textContent='';t.innerHTML='';return}
+    if(s.is_trial){b.textContent='Пробный период';b.className='sub-badge sub-badge-trial'}
+    else if(s.status==='ACTIVE'){b.textContent='Активна';b.className='sub-badge sub-badge-active'}
+    else if(s.status==='EXPIRED'){b.textContent='Истекла';b.className='sub-badge sub-badge-expired'}
+    else{b.textContent=s.status;b.className='sub-badge sub-badge-none'}
+    e.innerHTML=s.expire_at?'📅 до '+s.expire_at:'';
+    const tl=s.traffic_limit?s.traffic_limit+' GB':'∞';
+    t.innerHTML='Трафик <b>0 B / '+tl+'</b>';
+}
 
-        if (sub.is_trial) {
-            badge.textContent = 'Пробный период';
-            badge.className = 'card-badge badge-trial';
-        } else if (sub.status === 'ACTIVE') {
-            badge.textContent = 'Активна';
-            badge.className = 'card-badge badge-active';
-        } else if (sub.status === 'EXPIRED') {
-            badge.textContent = 'Истекла';
-            badge.className = 'card-badge badge-expired';
-        } else {
-            badge.textContent = sub.status;
-            badge.className = 'card-badge';
-        }
-
-        document.getElementById('sub-plan-name').textContent = sub.plan_name || '—';
-        document.getElementById('sub-expire').textContent = sub.expire_at || '—';
-        document.getElementById('sub-traffic').textContent = sub.traffic_limit ? sub.traffic_limit + ' GB' : '—';
-        document.getElementById('sub-devices').textContent = sub.device_limit || '—';
-    }
-
-    function renderPlans() {
-        const list = document.getElementById('plans-list');
-        if (!DATA.plans || DATA.plans.length === 0) {
-            list.innerHTML = '<div class="empty-state">Нет доступных тарифов</div>';
-            return;
-        }
-        list.innerHTML = DATA.plans.map(plan => {
-            const durationsHtml = (plan.durations || []).map(d => {
-                const pricesHtml = (d.prices || []).map(p => 
-                    `<span class="plan-price">${p.amount} ${p.currency}</span>`
-                ).join(' / ');
-                return `<div class="plan-duration"><span class="plan-days">${d.days} дн.</span> ${pricesHtml}</div>`;
-            }).join('');
-            return `
-                <div class="card plan-card">
-                    <h3 class="plan-name">${plan.name}</h3>
-                    <div class="plan-info">
-                        <span>Трафик: ${plan.traffic_limit} GB</span>
-                        <span>Устройства: ${plan.device_limit}</span>
-                    </div>
-                    <div class="plan-durations">${durationsHtml}</div>
-                </div>
-            `;
+function renderPlans(){
+    const el=document.getElementById('plans-list');
+    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>Нет тарифов</h3></div>';return}
+    el.innerHTML=D.plans.map(p=>{
+        const durs=(p.durations||[]).map(d=>{
+            const pr=(d.prices||[]).map(x=>'<span class="plan-price">'+x.amount+' '+x.currency+'</span>').join(' / ');
+            return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span>'+pr+'</div>';
         }).join('');
-    }
+        return '<div class="card plan-card"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
+    }).join('');
+}
 
-    function renderProfile() {
-        const u = DATA.user;
-        document.getElementById('prof-name').textContent = u.name || '—';
-        document.getElementById('prof-username').textContent = u.username ? '@' + u.username : '—';
-        document.getElementById('prof-tid').textContent = u.telegram_id;
-        document.getElementById('prof-balance').textContent = u.balance + ' ₽';
-    }
+function renderConnect(){
+    const s=D.subscription;
+    document.getElementById('con-url').textContent=(s&&s.url)?s.url:'Нет активной подписки';
+    const dl=s&&s.device_limit;
+    document.getElementById('dev-limit').textContent=dl||'—';
+    document.getElementById('dev-used').textContent='—';
+}
 
-    function openSubUrl() {
-        const sub = DATA.subscription;
-        if (sub && sub.url) {
-            window.open(sub.url, '_blank');
-        } else {
-            showToast('Нет активной подписки');
+function renderProfile(){
+    const u=D.user;
+    document.getElementById('pr-name').textContent=u.name||'—';
+    document.getElementById('pr-uname').textContent=u.username?'@'+u.username:'—';
+    document.getElementById('pr-tid').textContent=u.telegram_id;
+    document.getElementById('pr-balance').textContent=u.balance+' ₽';
+    const rm={USER:'Пользователь',ADMIN:'Администратор',DEV:'Разработчик'};
+    document.getElementById('pr-role').textContent=rm[u.role]||u.role;
+    if(D.features&&D.features.referral_enabled!==false){
+        document.getElementById('ref-card').style.display='';
+        const bot=D.bot_username||'bot';
+        document.getElementById('ref-link').textContent='https://t.me/'+bot+'?start=ref_'+u.telegram_id;
+    }
+}
+
+function renderSupport(){
+    if(D.features){
+        if(D.features.community_enabled&&D.features.community_url){
+            document.getElementById('support-community').style.display='';
+            document.getElementById('btn-community').href=D.features.community_url;
         }
     }
-
-    function copySubUrl() {
-        const sub = DATA.subscription;
-        if (sub && sub.url) {
-            navigator.clipboard.writeText(sub.url).then(() => showToast('Ссылка скопирована!')).catch(() => showToast('Ошибка копирования'));
-        } else {
-            showToast('Нет активной подписки');
-        }
+    if(D.support_url){
+        document.getElementById('support-help').style.display='';
+        document.getElementById('btn-support').href=D.support_url;
     }
+}
 
-    async function logout() {
-        await fetch('/web/api/auth/logout', {method: 'POST'});
-        window.location.href = '/web/login';
-    }
+/* ── ACTIONS ── */
+function copyUrl(){
+    const s=D.subscription;
+    if(s&&s.url)navigator.clipboard.writeText(s.url).then(()=>toast('Скопировано!')).catch(()=>toast('Ошибка','error'));
+    else toast('Нет подписки','error');
+}
+function copyRef(){
+    navigator.clipboard.writeText(document.getElementById('ref-link').textContent).then(()=>toast('Ссылка скопирована!')).catch(()=>toast('Ошибка','error'));
+}
+async function activatePromo(){
+    const code=document.getElementById('promo-input').value.trim();if(!code)return;
+    const r=document.getElementById('promo-result');
+    try{
+        const res=await fetch(API+'/api/promocode/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+        const d=await res.json();r.style.display='block';
+        if(res.ok){r.style.color='var(--green)';r.textContent=d.message||'Промокод активирован!'}
+        else{r.style.color='var(--red)';r.textContent=d.detail||'Ошибка'}
+    }catch(e){r.style.display='block';r.style.color='var(--red)';r.textContent='Ошибка сети'}
+}
+async function logout(){await fetch(API+'/api/auth/logout',{method:'POST'});window.location.href='/web/login'}
 
-    // Init
-    renderSubscription();
-    renderPlans();
-    renderProfile();
+/* ── ADMIN ── */
+function admTab(t){
+    curAdmTab=t;
+    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','brand'][i]===t));
+    document.querySelectorAll('.admin-content').forEach(c=>c.classList.remove('active'));
+    const el=document.getElementById('adm-'+t);if(el)el.classList.add('active');
+    loadAdm(t);
+}
+async function loadAdm(t){
+    if(t==='stats')await loadStats();if(t==='users')await loadUsers();
+    if(t==='plans')await loadAdmPlans();if(t==='settings')await loadSettings();
+    if(t==='brand')loadBrandForm();
+}
+async function loadStats(){
+    try{const r=await fetch(API+'/api/admin/stats');if(!r.ok)return;const d=await r.json();
+    document.getElementById('st-total').textContent=d.total_users||0;document.getElementById('st-active').textContent=d.active_subscriptions||0;
+    document.getElementById('st-expired').textContent=d.expired_subscriptions||0;document.getElementById('st-revenue').textContent=d.total_revenue||0}catch(e){}
+}
+async function loadUsers(){
+    try{const r=await fetch(API+'/api/admin/users');if(!r.ok)return;usersCache=await r.json();drawUsers(usersCache)}catch(e){}
+}
+function filterUsers(){
+    const q=document.getElementById('user-search').value.toLowerCase().trim();
+    if(!q)return drawUsers(usersCache);
+    drawUsers(usersCache.filter(u=>(u.name||'').toLowerCase().includes(q)||String(u.telegram_id).includes(q)||(u.username||'').toLowerCase().includes(q)));
+}
+function drawUsers(list){
+    const el=document.getElementById('users-list');
+    if(!list.length){el.innerHTML='<div class="empty-state">Пусто</div>';return}
+    el.innerHTML=list.slice(0,50).map(u=>{
+        const ini=(u.name||'?')[0].toUpperCase();
+        const rc=u.role==='DEV'?'role-dev':u.role==='ADMIN'?'role-admin':'role-user';
+        const rn=u.role==='DEV'?'DEV':u.role==='ADMIN'?'ADM':'USER';
+        return '<div class="user-item" onclick="openUser('+u.telegram_id+')"><div class="user-item-info"><div class="user-avatar">'+esc(ini)+'</div><div><div class="user-name">'+esc(u.name||'—')+'</div><div class="user-sub">ID: '+u.telegram_id+'</div></div></div><span class="role-badge '+rc+'">'+rn+'</span></div>';
+    }).join('');
+}
+async function openUser(tid){
+    go('auser');document.getElementById('aud-title').textContent='Загрузка…';
+    document.getElementById('aud-body').innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+    try{
+        const r=await fetch(API+'/api/admin/users/'+tid);if(!r.ok){document.getElementById('aud-body').innerHTML='<div class="empty-state">Ошибка</div>';return}
+        const u=await r.json();document.getElementById('aud-title').textContent=u.name||'Пользователь';drawUserDetail(u);
+    }catch(e){document.getElementById('aud-body').innerHTML='<div class="empty-state">'+e.message+'</div>'}
+}
+function drawUserDetail(u){
+    const rm={USER:'Пользователь',ADMIN:'Администратор',DEV:'Разработчик'};
+    const si=u.subscription?'<div class="card-row"><span class="card-label">Подписка</span><span class="card-value">'+(u.subscription.plan_name||'—')+'</span></div><div class="card-row"><span class="card-label">Статус</span><span class="card-value">'+u.subscription.status+'</span></div><div class="card-row"><span class="card-label">Истекает</span><span class="card-value">'+(u.subscription.expire_at||'—')+'</span></div>':'<div class="card-row"><span class="card-label">Подписка</span><span class="card-value" style="color:var(--text3)">Нет</span></div>';
+    document.getElementById('aud-body').innerHTML='<div class="card"><div class="card-row"><span class="card-label">Имя</span><span class="card-value">'+esc(u.name||'—')+'</span></div><div class="card-row"><span class="card-label">Username</span><span class="card-value">'+(u.username?'@'+esc(u.username):'—')+'</span></div><div class="card-row"><span class="card-label">ID</span><span class="card-value">'+u.telegram_id+'</span></div><div class="card-row"><span class="card-label">Баланс</span><span class="card-value">'+u.balance+' ₽</span></div><div class="card-row"><span class="card-label">Роль</span><span class="card-value">'+(rm[u.role]||u.role)+'</span></div><div class="card-row"><span class="card-label">Заблокирован</span><span class="card-value">'+(u.is_blocked?'Да':'Нет')+'</span></div>'+si+'</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-secondary btn-full" onclick="changeRole('+u.telegram_id+',\''+u.role+'\')">Изменить роль</button><button class="btn btn-secondary btn-full" onclick="changeBal('+u.telegram_id+','+u.balance+')">Изменить баланс</button><button class="btn '+(u.is_blocked?'btn-primary':'btn-danger')+' btn-full" onclick="toggleBlock('+u.telegram_id+','+u.is_blocked+')">'+(u.is_blocked?'Разблокировать':'Заблокировать')+'</button></div>';
+}
+function changeRole(tid,cur){
+    const roles=['USER','ADMIN','DEV'],names=['Пользователь','Администратор','Разработчик'];
+    showModal('<h3>Изменить роль</h3>'+roles.map((r,i)=>'<button class="btn '+(r===cur?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="setRole('+tid+',\''+r+'\')">'+names[i]+'</button>').join('')+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>');
+}
+async function setRole(tid,role){closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/role',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role})});if(r.ok){toast('Роль изменена');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+function changeBal(tid,cur){
+    showModal('<h3>Изменить баланс</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:10px">Текущий: '+cur+' ₽</p><div class="form-group"><label>Сумма (+/-)</label><input class="form-input" id="bal-amt" type="number" placeholder="100"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="setBal('+tid+')">Применить</button></div>');
+}
+async function setBal(tid){const a=parseFloat(document.getElementById('bal-amt').value);if(isNaN(a))return toast('Введите число','error');closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:a})});if(r.ok){toast('Баланс изменён');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+async function toggleBlock(tid,blocked){try{const r=await fetch(API+'/api/admin/users/'+tid+'/block',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({block:!blocked})});if(r.ok){toast(blocked?'Разблокирован':'Заблокирован');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+
+/* Plans admin */
+async function loadAdmPlans(){
+    try{const r=await fetch(API+'/api/admin/plans');if(!r.ok)return;const plans=await r.json();
+    document.getElementById('adm-plans-count').textContent='Тарифы ('+plans.length+')';
+    const el=document.getElementById('adm-plans-list');
+    if(!plans.length){el.innerHTML='<div class="empty-state">Нет тарифов</div>';return}
+    el.innerHTML=plans.map(p=>{
+        const durs=(p.durations||[]).map(d=>{const pr=(d.prices||[]).map(x=>x.amount+' '+x.currency).join(', ');return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span><span class="plan-price">'+pr+'</span></div>'}).join('');
+        return '<div class="card plan-card"><div style="display:flex;justify-content:space-between;align-items:start"><h3 class="plan-name">'+esc(p.name)+'</h3><button class="btn btn-danger btn-sm" onclick="delPlan('+p.id+')">Удалить</button></div><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
+    }).join('')}catch(e){}
+}
+function showCreatePlan(){showModal('<h3>Создать тариф</h3><div class="form-group"><label>Название</label><input class="form-input" id="np-name" placeholder="Базовый"></div><div class="form-group"><label>Трафик (GB)</label><input class="form-input" id="np-traffic" type="number" placeholder="100"></div><div class="form-group"><label>Устройств</label><input class="form-input" id="np-dev" type="number" placeholder="3"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="createPlan()">Создать</button></div>')}
+async function createPlan(){const n=document.getElementById('np-name').value.trim(),t=parseInt(document.getElementById('np-traffic').value)||0,d=parseInt(document.getElementById('np-dev').value)||1;if(!n)return toast('Введите название','error');closeModal();try{const r=await fetch(API+'/api/admin/plans',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,traffic_limit:t,device_limit:d})});if(r.ok){toast('Тариф создан');loadAdmPlans()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+async function delPlan(id){if(!confirm('Удалить тариф?'))return;try{const r=await fetch(API+'/api/admin/plans/'+id,{method:'DELETE'});if(r.ok){toast('Удалён');loadAdmPlans()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+
+/* Settings */
+async function loadSettings(){
+    try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;const s=await r.json();
+    document.getElementById('settings-list').innerHTML='<div class="card">'+Object.entries(s).map(([k,v])=>{
+        const l=sLabel(k);
+        if(typeof v==='boolean')return '<div class="toggle-row"><label>'+l+'</label><button class="toggle-switch '+(v?'active':'')+'" onclick="toggleSet(\''+k+'\','+(!v)+',this)"></button></div>';
+        return '<div class="card-row"><span class="card-label">'+l+'</span><span class="card-value">'+esc(String(v))+'</span></div>';
+    }).join('')+'</div>'}catch(e){}
+}
+function sLabel(k){const m={balance_enabled:'Баланс',community_enabled:'Сообщество',tos_enabled:'Оферта',referral_enabled:'Рефералы',promocodes_enabled:'Промокоды',notifications_enabled:'Уведомления',access_enabled:'Доступ',language_enabled:'Мультиязычность',access_mode:'Режим доступа',default_currency:'Валюта',purchases_allowed:'Покупки',registration_allowed:'Регистрация'};return m[k]||k}
+async function toggleSet(k,v,btn){try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});if(r.ok){btn.classList.toggle('active',v);toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}}
+
+/* Brand */
+function loadBrandForm(){document.getElementById('br-name').value='';document.getElementById('br-logo').value='';document.getElementById('br-slogan').value='';
+    fetch(API+'/api/settings/brand').then(r=>r.json()).then(d=>{document.getElementById('br-name').value=d.name||'';document.getElementById('br-logo').value=d.logo||'';document.getElementById('br-slogan').value=d.slogan||''}).catch(()=>{})
+}
+async function saveBrand(){
+    const d={name:document.getElementById('br-name').value.trim()||'VPN Shop',logo:document.getElementById('br-logo').value.trim()||'🔐',slogan:document.getElementById('br-slogan').value.trim()};
+    try{const r=await fetch(API+'/api/settings/brand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(r.ok)toast('Сохранено');else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+
+/* ── UTILS ── */
+function toast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
+function showModal(h){document.getElementById('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+h+'</div></div>'}
+function closeModal(){document.getElementById('modal-root').innerHTML=''}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 </script>
 {% endblock %}
