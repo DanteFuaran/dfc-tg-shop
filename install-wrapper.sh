@@ -10,7 +10,7 @@ trap 'stty sane 2>/dev/null; tput cnorm 2>/dev/null; exit 130' INT TERM
 echo -e "${BLUE}Пожалуйста, подождите...${NC}"
 
 # Ветка по умолчанию (совпадает с веткой, из которой запущен этот скрипт)
-REPO_BRANCH="dev"
+REPO_BRANCH="web_dev"
 
 # Если в version указана другая ветка — она имеет приоритет
 GITHUB_RAW_URL="https://raw.githubusercontent.com/DanteFuaran/dfc-tg-shop"
