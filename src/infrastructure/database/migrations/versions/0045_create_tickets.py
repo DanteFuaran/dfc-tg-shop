@@ -19,9 +19,16 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Create ticket tables."""
-    # Enum type
-    ticket_status = sa.Enum("OPEN", "ANSWERED", "CLOSED", name="ticket_status")
-    ticket_status.create(op.get_bind(), checkfirst=True)
+    # Create enum type safely (IF NOT EXISTS)
+
+    op.execute(sa.text(
+        "DO $$ BEGIN "
+        "  CREATE TYPE ticket_status AS ENUM ('OPEN', 'ANSWERED', 'CLOSED'); "
+        "EXCEPTION WHEN duplicate_object THEN NULL; "
+        "END $$;"
+    ))
+
+    ticket_status = sa.Enum("OPEN", "ANSWERED", "CLOSED", name="ticket_status", create_type=False)
 
     op.create_table(
         "tickets",
