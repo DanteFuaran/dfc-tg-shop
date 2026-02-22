@@ -701,6 +701,44 @@ async def on_currency_select(
     await dialog_manager.switch_to(state=TelegramPlans.PRICE)
 
 
+async def on_price_preset(
+    callback: CallbackQuery,
+    widget: Button,
+    manager: DialogManager,
+) -> None:
+    """Handle preset price button clicks (100, 200, 400, 800, 5000)."""
+    manager.show_mode = ShowMode.EDIT
+
+    price_str = widget.widget_id.split("_")[-1]  # price_100 -> 100
+    selected_duration = manager.dialog_data.get("selected_duration")
+    selected_currency = manager.dialog_data.get("selected_currency")
+
+    if not selected_duration or not selected_currency:
+        return
+
+    try:
+        new_price = Decimal(price_str)
+    except Exception:
+        return
+
+    adapter = DialogDataAdapter(manager)
+    plan = adapter.load(PlanDto)
+
+    if not plan:
+        return
+
+    for duration in plan.durations:
+        if duration.days == selected_duration:
+            for price in duration.prices:
+                if price.currency == selected_currency:
+                    price.price = new_price
+                    break
+            break
+
+    adapter.save(plan)
+    await manager.switch_to(state=TelegramPlans.PRICES)
+
+
 @inject
 async def on_price_input(
     message: Message,

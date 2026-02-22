@@ -17,9 +17,9 @@ from aiogram import Bot
 
 from src.core.config import AppConfig
 from src.core.constants import CONTAINER_KEY
-from src.core.enums import UserRole
+from src.core.enums import Currency, PlanAvailability, PlanType, UserRole
 from src.infrastructure.database import UnitOfWork
-from src.infrastructure.database.models.dto.plan import PlanDto
+from src.infrastructure.database.models.dto.plan import PlanDto, PlanDurationDto, PlanPriceDto
 from src.infrastructure.database.models.dto.web_credential import WebCredentialDto
 from src.infrastructure.database.models.sql.web_credential import WebCredential
 from src.services.plan import PlanService
@@ -149,10 +149,12 @@ async def _build_user_data(
         # Fetch settings for features & support
         features_data: dict[str, Any] = {}
         support_url = ""
+        default_currency = "RUB"
         try:
             settings_service: SettingsService = await req_container.get(SettingsService)
             settings = await settings_service.get()
             features = settings.features
+            default_currency = settings.default_currency.value if hasattr(settings.default_currency, "value") else str(settings.default_currency)
             features_data = {
                 "balance_enabled": features.balance_enabled,
                 "community_enabled": features.community_enabled,
@@ -172,6 +174,17 @@ async def _build_user_data(
         except Exception:
             pass
 
+        # Trial availability check
+        trial_available = False
+        try:
+            has_used = await subscription_service.has_used_trial(telegram_id)
+            if not has_used:
+                trial_plan = await plan_service.get_trial_plan()
+                if trial_plan and trial_plan.is_active:
+                    trial_available = True
+        except Exception:
+            pass
+
         return {
             "user": {
                 "telegram_id": user.telegram_id,
@@ -187,6 +200,8 @@ async def _build_user_data(
             "bot_username": bot_username,
             "features": features_data,
             "support_url": support_url,
+            "trial_available": trial_available,
+            "default_currency": default_currency,
         }
 
 
@@ -679,14 +694,18 @@ async def api_admin_plans(request: Request, access_token: Optional[str] = Cookie
                         "currency": pr.currency.value if hasattr(pr.currency, "value") else str(pr.currency),
                         "amount": str(pr.price),
                     })
-                durations.append({"days": d.days, "prices": prices})
+                durations.append({"id": d.id, "days": d.days, "prices": prices})
             result.append({
                 "id": p.id,
                 "name": p.name,
                 "is_active": p.is_active,
+                "type": p.type.value if hasattr(p.type, "value") else str(p.type),
+                "availability": p.availability.value if hasattr(p.availability, "value") else str(p.availability),
                 "traffic_limit": p.traffic_limit,
                 "device_limit": p.device_limit,
                 "description": p.description or "",
+                "tag": p.tag or "",
+                "order_index": p.order_index,
                 "durations": durations,
             })
         return JSONResponse(result)
@@ -703,14 +722,117 @@ async def api_admin_create_plan(request: Request, access_token: Optional[str] = 
     container: AsyncContainer = request.app.state.dishka_container
     async with container(scope=Scope.REQUEST) as req_container:
         plan_service: PlanService = await req_container.get(PlanService)
+
+        # Parse availability
+        avail_str = body.get("availability", "ALL")
+        try:
+            availability = PlanAvailability(avail_str)
+        except (ValueError, KeyError):
+            availability = PlanAvailability.ALL
+
+        # Parse type
+        type_str = body.get("type", "BOTH")
+        try:
+            plan_type = PlanType(type_str)
+        except (ValueError, KeyError):
+            plan_type = PlanType.BOTH
+
+        # Parse durations
+        durations = []
+        for dur_data in body.get("durations", []):
+            prices = []
+            for price_data in dur_data.get("prices", []):
+                try:
+                    currency = Currency(price_data.get("currency", "RUB"))
+                except (ValueError, KeyError):
+                    currency = Currency.RUB
+                from decimal import Decimal
+                prices.append(PlanPriceDto(
+                    currency=currency,
+                    price=Decimal(str(price_data.get("amount", "0"))),
+                ))
+            durations.append(PlanDurationDto(
+                days=int(dur_data.get("days", 30)),
+                prices=prices,
+            ))
+
         plan = PlanDto(
             name=name,
+            description=body.get("description", "").strip() or None,
+            tag=body.get("tag", "").strip() or None,
             traffic_limit=body.get("traffic_limit", 100),
             device_limit=body.get("device_limit", 1),
-            is_active=True,
+            is_active=body.get("is_active", True),
+            type=plan_type,
+            availability=availability,
+            durations=durations,
         )
         created = await plan_service.create(plan)
         return JSONResponse({"ok": True, "id": created.id})
+
+
+@router.put("/api/admin/plans/{plan_id}")
+async def api_admin_update_plan(plan_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    await _require_admin(request, access_token)
+    body = await request.json()
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        plan_service: PlanService = await req_container.get(PlanService)
+        existing = await plan_service.get(plan_id)
+        if not existing:
+            raise HTTPException(status_code=404, detail="Тариф не найден")
+
+        # Update fields if provided
+        if "name" in body:
+            existing.name = body["name"].strip() or existing.name
+        if "description" in body:
+            existing.description = body["description"].strip() or None
+        if "tag" in body:
+            existing.tag = body["tag"].strip() or None
+        if "traffic_limit" in body:
+            existing.traffic_limit = int(body["traffic_limit"])
+        if "device_limit" in body:
+            existing.device_limit = int(body["device_limit"])
+        if "is_active" in body:
+            existing.is_active = bool(body["is_active"])
+
+        if "availability" in body:
+            try:
+                existing.availability = PlanAvailability(body["availability"])
+            except (ValueError, KeyError):
+                pass
+        if "type" in body:
+            try:
+                existing.type = PlanType(body["type"])
+            except (ValueError, KeyError):
+                pass
+
+        # Update durations if provided
+        if "durations" in body:
+            durations = []
+            for dur_data in body["durations"]:
+                prices = []
+                for price_data in dur_data.get("prices", []):
+                    try:
+                        currency = Currency(price_data.get("currency", "RUB"))
+                    except (ValueError, KeyError):
+                        currency = Currency.RUB
+                    from decimal import Decimal
+                    prices.append(PlanPriceDto(
+                        currency=currency,
+                        price=Decimal(str(price_data.get("amount", "0"))),
+                    ))
+                durations.append(PlanDurationDto(
+                    days=int(dur_data.get("days", 30)),
+                    prices=prices,
+                ))
+            existing.durations = durations
+
+        updated = await plan_service.update(existing)
+        if not updated:
+            raise HTTPException(status_code=500, detail="Ошибка обновления тарифа")
+        return JSONResponse({"ok": True})
 
 
 @router.delete("/api/admin/plans/{plan_id}")
@@ -723,6 +845,23 @@ async def api_admin_delete_plan(plan_id: int, request: Request, access_token: Op
         if not result:
             raise HTTPException(status_code=404, detail="Тариф не найден")
         return JSONResponse({"ok": True})
+
+
+@router.patch("/api/admin/plans/{plan_id}/toggle")
+async def api_admin_toggle_plan(plan_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Toggle is_active for a plan."""
+    await _require_admin(request, access_token)
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        plan_service: PlanService = await req_container.get(PlanService)
+        plan = await plan_service.get(plan_id)
+        if not plan:
+            raise HTTPException(status_code=404, detail="Тариф не найден")
+        plan.is_active = not plan.is_active
+        updated = await plan_service.update(plan)
+        if not updated:
+            raise HTTPException(status_code=500, detail="Ошибка обновления")
+        return JSONResponse({"ok": True, "is_active": plan.is_active})
 
 
 # ══════════════════════════════════════════════════════════════════

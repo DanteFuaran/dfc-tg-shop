@@ -69,6 +69,13 @@ a{color:var(--cyan);text-decoration:none}
     border-radius:50%;
 }
 
+/* ── Particles.js background ────────────────── */
+#particles-js{
+    position:fixed;z-index:0;left:0;top:0;
+    width:100vw;height:100vh;
+    background:transparent;pointer-events:none;
+}
+
 /* ══════════════════════════════════════════════
    LAYOUT
    ══════════════════════════════════════════════ */
@@ -511,3 +518,107 @@ a{color:var(--cyan);text-decoration:none}
     .stats-grid{gap:8px}
     .apps-grid{grid-template-columns:1fr}
 }
+
+/* ══════════════════════════════════════════════
+   COMPACT LAYOUT HELPERS
+   ══════════════════════════════════════════════ */
+.card-compact{padding:12px;margin-bottom:10px}
+.card-compact .card-title{margin-bottom:8px;font-size:.92rem}
+.card-compact p{margin-bottom:6px}
+.action-pills-compact{gap:7px;margin-top:10px}
+.pill-sm{padding:10px 16px;font-size:.84rem}
+
+/* ══════════════════════════════════════════════
+   ADMIN PLAN CARDS — enhanced
+   ══════════════════════════════════════════════ */
+.plan-admin-card{
+    position:relative;overflow:hidden;cursor:pointer;
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:var(--r);padding:14px 16px;margin-bottom:10px;
+    transition:all .25s;
+}
+.plan-admin-card:hover{border-color:var(--border-accent);transform:translateY(-1px);box-shadow:0 6px 24px rgba(36,196,241,.06)}
+.plan-admin-card.inactive{opacity:.55}
+.plan-admin-top{display:flex;align-items:center;gap:10px}
+.plan-admin-name{font-size:.95rem;font-weight:700;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-admin-tag{
+    padding:2px 8px;border-radius:6px;font-size:.68rem;font-weight:600;
+    background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);
+}
+.plan-admin-meta{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:.76rem;color:var(--text2)}
+.plan-admin-meta span{display:flex;align-items:center;gap:4px}
+.plan-admin-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-toggle-plan{
+    position:relative;width:36px;height:20px;
+    background:rgba(255,255,255,.08);border-radius:10px;
+    cursor:pointer;transition:background .3s,box-shadow .3s;border:none;flex-shrink:0;
+}
+.btn-toggle-plan.active{background:var(--green);box-shadow:0 0 8px rgba(25,195,125,.25)}
+.btn-toggle-plan::after{
+    content:'';position:absolute;top:2px;left:2px;
+    width:16px;height:16px;border-radius:50%;background:#fff;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.btn-toggle-plan.active::after{transform:translateX(16px)}
+.btn-trash{
+    background:none;border:none;color:var(--text3);cursor:pointer;
+    padding:4px;border-radius:6px;transition:all .2s;font-size:1rem;line-height:1;
+}
+.btn-trash:hover{color:var(--red);background:var(--red-dim)}
+
+/* Availability badge */
+.avail-badge{
+    padding:2px 7px;border-radius:6px;font-size:.66rem;font-weight:600;
+    background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan-border);
+}
+.avail-badge.trial{background:var(--green-dim);color:var(--green);border-color:rgba(25,195,125,.25)}
+
+/* ══════════════════════════════════════════════
+   PLAN USER VIEW — discount badge + buy
+   ══════════════════════════════════════════════ */
+.plan-discount-badge{
+    display:inline-block;padding:1px 7px;border-radius:50px;
+    font-size:.68rem;font-weight:700;margin-left:6px;
+    background:var(--green-dim);color:var(--green);border:1px solid rgba(25,195,125,.25);
+}
+.plan-buy-btn{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;padding:10px;margin-top:10px;border-radius:var(--r-pill);
+    font-size:.86rem;font-weight:600;cursor:pointer;
+    background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff;
+    border:none;transition:all .25s;font-family:var(--font);
+}
+.plan-buy-btn:hover{box-shadow:var(--cyan-glow)}
+.plan-trial-btn{
+    background:linear-gradient(135deg,var(--green),#14A868);
+}
+.plan-trial-btn:hover{box-shadow:0 0 28px rgba(25,195,125,.35)}
+
+/* ══════════════════════════════════════════════
+   TRIAL BUTTON (home page)
+   ══════════════════════════════════════════════ */
+.trial-pill{
+    border:1.5px solid rgba(25,195,125,.35);color:var(--green);
+    animation:trialPulse 2.5s ease-in-out infinite;
+}
+.trial-pill:hover{background:var(--green-dim);border-color:var(--green)}
+@keyframes trialPulse{0%,100%{box-shadow:0 0 0 0 rgba(25,195,125,.15)}50%{box-shadow:0 0 18px 0 rgba(25,195,125,.2)}}
+
+/* ══════════════════════════════════════════════
+   PLAN EDIT MODAL — duration builder
+   ══════════════════════════════════════════════ */
+.duration-entry{
+    background:rgba(0,0,0,.2);border:1px solid var(--border);
+    border-radius:var(--r-sm);padding:10px 12px;margin-bottom:8px;
+}
+.duration-entry-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:6px;
+}
+.dur-remove{
+    background:none;border:none;color:var(--text3);cursor:pointer;
+    font-size:.9rem;padding:2px 6px;border-radius:4px;transition:all .2s;
+}
+.dur-remove:hover{color:var(--red);background:var(--red-dim)}
+.form-row{display:flex;gap:8px}
+.form-row .form-group{flex:1}

@@ -76,6 +76,7 @@ from .handlers import (
     on_plan_move,
     on_plan_select,
     on_price_input,
+    on_price_preset,
     on_squads,
     on_strategy_select,
     on_tag_delete,
@@ -533,15 +534,15 @@ plan_price = Window(
     Banner(),
     I18nFormat("msg-plan-price", value=F["duration"], currency=F["currency"]),
     Row(
-        Button(text=Format("100 ₽"), id="price_100", on_click=lambda c, w, m: on_price_input(c, m, "100")),
-        Button(text=Format("200 ₽"), id="price_200", on_click=lambda c, w, m: on_price_input(c, m, "200")),
+        Button(text=Format("100 ₽"), id="price_100", on_click=on_price_preset),
+        Button(text=Format("200 ₽"), id="price_200", on_click=on_price_preset),
     ),
     Row(
-        Button(text=Format("400 ₽"), id="price_400", on_click=lambda c, w, m: on_price_input(c, m, "400")),
-        Button(text=Format("800 ₽"), id="price_800", on_click=lambda c, w, m: on_price_input(c, m, "800")),
+        Button(text=Format("400 ₽"), id="price_400", on_click=on_price_preset),
+        Button(text=Format("800 ₽"), id="price_800", on_click=on_price_preset),
     ),
     Row(
-        Button(text=Format("5000 ₽"), id="price_5000", on_click=lambda c, w, m: on_price_input(c, m, "5000")),
+        Button(text=Format("5000 ₽"), id="price_5000", on_click=on_price_preset),
     ),
     Row(
         ColoredSwitchTo(

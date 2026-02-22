@@ -32,6 +32,7 @@
     </div>
     <div class="action-pills">
         <button class="pill pill-gold" onclick="go('plans')">🛒&nbsp; Купить</button>
+        <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
         <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Установить и настроить</button>
         <div class="pill-row">
             <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
@@ -108,15 +109,13 @@
         <button class="btn-back" onclick="go('home')">‹</button>
         <h2 class="page-title">Поддержка</h2>
     </div>
-    <div class="card" id="support-community" style="display:none">
+    <div class="card card-compact" id="support-community" style="display:none">
         <div class="card-title">💬 Сообщество</div>
-        <p style="font-size:.84rem;color:var(--text2);margin-bottom:12px">Присоединяйтесь к нашей группе</p>
-        <a class="pill pill-cyan" id="btn-community" href="#" target="_blank">Открыть</a>
+        <a class="pill pill-cyan pill-sm" id="btn-community" href="#" target="_blank">Открыть</a>
     </div>
-    <div class="card" id="support-help" style="display:none">
+    <div class="card card-compact" id="support-help" style="display:none">
         <div class="card-title">🛟 Помощь</div>
-        <p style="font-size:.84rem;color:var(--text2);margin-bottom:12px">Написать в поддержку</p>
-        <a class="pill pill-outline" id="btn-support" href="#" target="_blank">Написать</a>
+        <a class="pill pill-outline pill-sm" id="btn-support" href="#" target="_blank">Написать</a>
     </div>
 </section>
 
@@ -231,27 +230,59 @@
 const API='/web', D={{ data_json | safe }};
 let IS_ADMIN=D.user.role==='DEV'||D.user.role==='ADMIN';
 let usersCache=[],curAdmTab='stats';
+const AVAIL_LABELS={ALL:'Все',NEW:'Новые',EXISTING:'Действующие',INVITED:'Приглашённые',ALLOWED:'Разрешённые',TRIAL:'Пробный'};
+const TYPE_LABELS={TRAFFIC:'Трафик',DEVICES:'Устройства',BOTH:'Трафик+Устр.',UNLIMITED:'Безлимит'};
+const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
 
 /* ── INIT ── */
 (function(){
+    initParticles();
     if(IS_ADMIN) document.querySelectorAll('.admin-nav').forEach(e=>e.style.display='');
     render();
 })();
 
+function initParticles(){
+    if(typeof particlesJS!=='undefined'){
+        particlesJS('particles-js',{
+            particles:{
+                number:{value:60,density:{enable:true,value_area:800}},
+                color:{value:'#24C4F1'},
+                shape:{type:'circle'},
+                opacity:{value:0.25,random:true,anim:{enable:false}},
+                size:{value:2,random:true,anim:{enable:false}},
+                line_linked:{enable:true,distance:180,color:'#24C4F1',opacity:0.08,width:1},
+                move:{enable:true,speed:0.6,direction:'none',random:false,straight:false,out_mode:'out',bounce:false}
+            },
+            interactivity:{
+                detect_on:'window',
+                events:{onhover:{enable:true,mode:'grab'},onclick:{enable:true,mode:'push'},resize:true},
+                modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:1}}
+            },
+            retina_detect:true
+        });
+    }
+}
+
+function $(id){return document.getElementById(id)}
+
 /* ── NAV ── */
 function go(p){
     document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-    document.getElementById('p-'+p).classList.add('active');
+    $('p-'+p).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans')renderPlans();
 }
 
 /* ── RENDER ── */
-function render(){renderSub();renderConnect();renderProfile();renderSupport()}
+function render(){
+    renderSub();renderConnect();renderProfile();renderSupport();
+    // Trial button
+    if(D.trial_available) $('btn-trial').style.display='';
+}
 
 function renderSub(){
-    const s=D.subscription,b=document.getElementById('sub-badge'),e=document.getElementById('sub-expire'),t=document.getElementById('sub-traffic');
+    const s=D.subscription,b=$('sub-badge'),e=$('sub-expire'),t=$('sub-traffic');
     if(!s||!s.status){b.textContent='Нет подписки';b.className='sub-badge sub-badge-none';e.textContent='';t.innerHTML='';return}
     if(s.is_trial){b.textContent='Пробный период';b.className='sub-badge sub-badge-trial'}
     else if(s.status==='ACTIVE'){b.textContent='Активна';b.className='sub-badge sub-badge-active'}
@@ -263,65 +294,101 @@ function renderSub(){
 }
 
 function renderPlans(){
-    const el=document.getElementById('plans-list');
-    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>Нет тарифов</h3></div>';return}
+    const el=$('plans-list'), dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
+    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>Нет доступных тарифов</h3></div>';return}
+    // Find base price-per-day for discount calc
+    let basePpd=null;
+    D.plans.forEach(p=>{
+        (p.durations||[]).forEach(d=>{
+            const pr=findPrice(d,dc);
+            if(pr!==null && d.days>0){
+                const ppd=pr/d.days;
+                if(basePpd===null||d.days<=(basePpd.days||9999)){basePpd={ppd,days:d.days}}
+            }
+        });
+    });
+
     el.innerHTML=D.plans.map(p=>{
         const durs=(p.durations||[]).map(d=>{
-            const pr=(d.prices||[]).map(x=>'<span class="plan-price">'+x.amount+' '+x.currency+'</span>').join(' / ');
-            return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span>'+pr+'</div>';
+            const pr=findPrice(d,dc);
+            if(pr===null) return '';
+            let discountHtml='';
+            if(basePpd && d.days>basePpd.days && pr>0){
+                const ppd=pr/d.days;
+                const pct=Math.round((1-ppd/basePpd.ppd)*100);
+                if(pct>0) discountHtml='<span class="plan-discount-badge">-'+pct+'%</span>';
+            }
+            return '<div class="plan-duration"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+discountHtml+'</span></div>';
         }).join('');
-        return '<div class="card plan-card"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
+        return '<div class="card plan-card"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>📦 '+(p.traffic_limit||'∞')+' GB</span><span>📱 '+(p.device_limit||'∞')+' устр.</span></div><div class="plan-durations">'+durs+'</div><button class="plan-buy-btn">Выбрать тариф</button></div>';
     }).join('');
+}
+
+function findPrice(dur,currency){
+    const p=(dur.prices||[]).find(x=>x.currency===currency);
+    return p?parseFloat(p.amount):null;
+}
+function fmtDays(d){
+    if(d<=0)return '∞';
+    if(d===1)return '1 день';
+    if(d===7)return '7 дней';
+    if(d===30)return '1 мес.';
+    if(d===60)return '2 мес.';
+    if(d===90)return '3 мес.';
+    if(d===180)return '6 мес.';
+    if(d===365)return '1 год';
+    return d+' дн.';
 }
 
 function renderConnect(){
     const s=D.subscription;
-    document.getElementById('con-url').textContent=(s&&s.url)?s.url:'Нет активной подписки';
+    $('con-url').textContent=(s&&s.url)?s.url:'Нет активной подписки';
     const dl=s&&s.device_limit;
-    document.getElementById('dev-limit').textContent=dl||'—';
-    document.getElementById('dev-used').textContent='—';
+    $('dev-limit').textContent=dl||'—';
+    $('dev-used').textContent='—';
 }
 
 function renderProfile(){
-    const u=D.user;
-    document.getElementById('pr-name').textContent=u.name||'—';
-    document.getElementById('pr-uname').textContent=u.username?'@'+u.username:'—';
-    document.getElementById('pr-tid').textContent=u.telegram_id;
-    document.getElementById('pr-balance').textContent=u.balance+' ₽';
+    const u=D.user, sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    $('pr-name').textContent=u.name||'—';
+    $('pr-uname').textContent=u.username?'@'+u.username:'—';
+    $('pr-tid').textContent=u.telegram_id;
+    $('pr-balance').textContent=u.balance+' '+sym;
     const rm={USER:'Пользователь',ADMIN:'Администратор',DEV:'Разработчик'};
-    document.getElementById('pr-role').textContent=rm[u.role]||u.role;
+    $('pr-role').textContent=rm[u.role]||u.role;
     if(D.features&&D.features.referral_enabled!==false){
-        document.getElementById('ref-card').style.display='';
+        $('ref-card').style.display='';
         const bot=D.bot_username||'bot';
-        document.getElementById('ref-link').textContent='https://t.me/'+bot+'?start=ref_'+u.telegram_id;
+        $('ref-link').textContent='https://t.me/'+bot+'?start=ref_'+u.telegram_id;
     }
 }
 
 function renderSupport(){
     if(D.features){
         if(D.features.community_enabled&&D.features.community_url){
-            document.getElementById('support-community').style.display='';
-            document.getElementById('btn-community').href=D.features.community_url;
+            $('support-community').style.display='';
+            $('btn-community').href=D.features.community_url;
         }
     }
     if(D.support_url){
-        document.getElementById('support-help').style.display='';
-        document.getElementById('btn-support').href=D.support_url;
+        $('support-help').style.display='';
+        $('btn-support').href=D.support_url;
     }
 }
 
 /* ── ACTIONS ── */
+function startTrial(){toast('Пробная подписка доступна через бота')}
 function copyUrl(){
     const s=D.subscription;
     if(s&&s.url)navigator.clipboard.writeText(s.url).then(()=>toast('Скопировано!')).catch(()=>toast('Ошибка','error'));
     else toast('Нет подписки','error');
 }
 function copyRef(){
-    navigator.clipboard.writeText(document.getElementById('ref-link').textContent).then(()=>toast('Ссылка скопирована!')).catch(()=>toast('Ошибка','error'));
+    navigator.clipboard.writeText($('ref-link').textContent).then(()=>toast('Ссылка скопирована!')).catch(()=>toast('Ошибка','error'));
 }
 async function activatePromo(){
-    const code=document.getElementById('promo-input').value.trim();if(!code)return;
-    const r=document.getElementById('promo-result');
+    const code=$('promo-input').value.trim();if(!code)return;
+    const r=$('promo-result');
     try{
         const res=await fetch(API+'/api/promocode/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
         const d=await res.json();r.style.display='block';
@@ -336,7 +403,7 @@ function admTab(t){
     curAdmTab=t;
     document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','brand'][i]===t));
     document.querySelectorAll('.admin-content').forEach(c=>c.classList.remove('active'));
-    const el=document.getElementById('adm-'+t);if(el)el.classList.add('active');
+    const el=$('adm-'+t);if(el)el.classList.add('active');
     loadAdm(t);
 }
 async function loadAdm(t){
@@ -346,19 +413,19 @@ async function loadAdm(t){
 }
 async function loadStats(){
     try{const r=await fetch(API+'/api/admin/stats');if(!r.ok)return;const d=await r.json();
-    document.getElementById('st-total').textContent=d.total_users||0;document.getElementById('st-active').textContent=d.active_subscriptions||0;
-    document.getElementById('st-expired').textContent=d.expired_subscriptions||0;document.getElementById('st-revenue').textContent=d.total_revenue||0}catch(e){}
+    $('st-total').textContent=d.total_users||0;$('st-active').textContent=d.active_subscriptions||0;
+    $('st-expired').textContent=d.expired_subscriptions||0;$('st-revenue').textContent=d.total_revenue||0}catch(e){}
 }
 async function loadUsers(){
     try{const r=await fetch(API+'/api/admin/users');if(!r.ok)return;usersCache=await r.json();drawUsers(usersCache)}catch(e){}
 }
 function filterUsers(){
-    const q=document.getElementById('user-search').value.toLowerCase().trim();
+    const q=$('user-search').value.toLowerCase().trim();
     if(!q)return drawUsers(usersCache);
     drawUsers(usersCache.filter(u=>(u.name||'').toLowerCase().includes(q)||String(u.telegram_id).includes(q)||(u.username||'').toLowerCase().includes(q)));
 }
 function drawUsers(list){
-    const el=document.getElementById('users-list');
+    const el=$('users-list');
     if(!list.length){el.innerHTML='<div class="empty-state">Пусто</div>';return}
     el.innerHTML=list.slice(0,50).map(u=>{
         const ini=(u.name||'?')[0].toUpperCase();
@@ -368,17 +435,17 @@ function drawUsers(list){
     }).join('');
 }
 async function openUser(tid){
-    go('auser');document.getElementById('aud-title').textContent='Загрузка…';
-    document.getElementById('aud-body').innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+    go('auser');$('aud-title').textContent='Загрузка…';
+    $('aud-body').innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
     try{
-        const r=await fetch(API+'/api/admin/users/'+tid);if(!r.ok){document.getElementById('aud-body').innerHTML='<div class="empty-state">Ошибка</div>';return}
-        const u=await r.json();document.getElementById('aud-title').textContent=u.name||'Пользователь';drawUserDetail(u);
-    }catch(e){document.getElementById('aud-body').innerHTML='<div class="empty-state">'+e.message+'</div>'}
+        const r=await fetch(API+'/api/admin/users/'+tid);if(!r.ok){$('aud-body').innerHTML='<div class="empty-state">Ошибка</div>';return}
+        const u=await r.json();$('aud-title').textContent=u.name||'Пользователь';drawUserDetail(u);
+    }catch(e){$('aud-body').innerHTML='<div class="empty-state">'+e.message+'</div>'}
 }
 function drawUserDetail(u){
     const rm={USER:'Пользователь',ADMIN:'Администратор',DEV:'Разработчик'};
     const si=u.subscription?'<div class="card-row"><span class="card-label">Подписка</span><span class="card-value">'+(u.subscription.plan_name||'—')+'</span></div><div class="card-row"><span class="card-label">Статус</span><span class="card-value">'+u.subscription.status+'</span></div><div class="card-row"><span class="card-label">Истекает</span><span class="card-value">'+(u.subscription.expire_at||'—')+'</span></div>':'<div class="card-row"><span class="card-label">Подписка</span><span class="card-value" style="color:var(--text3)">Нет</span></div>';
-    document.getElementById('aud-body').innerHTML='<div class="card"><div class="card-row"><span class="card-label">Имя</span><span class="card-value">'+esc(u.name||'—')+'</span></div><div class="card-row"><span class="card-label">Username</span><span class="card-value">'+(u.username?'@'+esc(u.username):'—')+'</span></div><div class="card-row"><span class="card-label">ID</span><span class="card-value">'+u.telegram_id+'</span></div><div class="card-row"><span class="card-label">Баланс</span><span class="card-value">'+u.balance+' ₽</span></div><div class="card-row"><span class="card-label">Роль</span><span class="card-value">'+(rm[u.role]||u.role)+'</span></div><div class="card-row"><span class="card-label">Заблокирован</span><span class="card-value">'+(u.is_blocked?'Да':'Нет')+'</span></div>'+si+'</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-secondary btn-full" onclick="changeRole('+u.telegram_id+',\''+u.role+'\')">Изменить роль</button><button class="btn btn-secondary btn-full" onclick="changeBal('+u.telegram_id+','+u.balance+')">Изменить баланс</button><button class="btn '+(u.is_blocked?'btn-primary':'btn-danger')+' btn-full" onclick="toggleBlock('+u.telegram_id+','+u.is_blocked+')">'+(u.is_blocked?'Разблокировать':'Заблокировать')+'</button></div>';
+    $('aud-body').innerHTML='<div class="card"><div class="card-row"><span class="card-label">Имя</span><span class="card-value">'+esc(u.name||'—')+'</span></div><div class="card-row"><span class="card-label">Username</span><span class="card-value">'+(u.username?'@'+esc(u.username):'—')+'</span></div><div class="card-row"><span class="card-label">ID</span><span class="card-value">'+u.telegram_id+'</span></div><div class="card-row"><span class="card-label">Баланс</span><span class="card-value">'+u.balance+' ₽</span></div><div class="card-row"><span class="card-label">Роль</span><span class="card-value">'+(rm[u.role]||u.role)+'</span></div><div class="card-row"><span class="card-label">Заблокирован</span><span class="card-value">'+(u.is_blocked?'Да':'Нет')+'</span></div>'+si+'</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-secondary btn-full" onclick="changeRole('+u.telegram_id+',\''+u.role+'\')">Изменить роль</button><button class="btn btn-secondary btn-full" onclick="changeBal('+u.telegram_id+','+u.balance+')">Изменить баланс</button><button class="btn '+(u.is_blocked?'btn-primary':'btn-danger')+' btn-full" onclick="toggleBlock('+u.telegram_id+','+u.is_blocked+')">'+(u.is_blocked?'Разблокировать':'Заблокировать')+'</button></div>';
 }
 function changeRole(tid,cur){
     const roles=['USER','ADMIN','DEV'],names=['Пользователь','Администратор','Разработчик'];
@@ -388,28 +455,120 @@ async function setRole(tid,role){closeModal();try{const r=await fetch(API+'/api/
 function changeBal(tid,cur){
     showModal('<h3>Изменить баланс</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:10px">Текущий: '+cur+' ₽</p><div class="form-group"><label>Сумма (+/-)</label><input class="form-input" id="bal-amt" type="number" placeholder="100"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="setBal('+tid+')">Применить</button></div>');
 }
-async function setBal(tid){const a=parseFloat(document.getElementById('bal-amt').value);if(isNaN(a))return toast('Введите число','error');closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:a})});if(r.ok){toast('Баланс изменён');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+async function setBal(tid){const a=parseFloat($('bal-amt').value);if(isNaN(a))return toast('Введите число','error');closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:a})});if(r.ok){toast('Баланс изменён');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
 async function toggleBlock(tid,blocked){try{const r=await fetch(API+'/api/admin/users/'+tid+'/block',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({block:!blocked})});if(r.ok){toast(blocked?'Разблокирован':'Заблокирован');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
 
-/* Plans admin */
+/* ── Admin Plans (enhanced) ── */
+let admPlansCache=[];
 async function loadAdmPlans(){
-    try{const r=await fetch(API+'/api/admin/plans');if(!r.ok)return;const plans=await r.json();
-    document.getElementById('adm-plans-count').textContent='Тарифы ('+plans.length+')';
-    const el=document.getElementById('adm-plans-list');
-    if(!plans.length){el.innerHTML='<div class="empty-state">Нет тарифов</div>';return}
-    el.innerHTML=plans.map(p=>{
-        const durs=(p.durations||[]).map(d=>{const pr=(d.prices||[]).map(x=>x.amount+' '+x.currency).join(', ');return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span><span class="plan-price">'+pr+'</span></div>'}).join('');
-        return '<div class="card plan-card"><div style="display:flex;justify-content:space-between;align-items:start"><h3 class="plan-name">'+esc(p.name)+'</h3><button class="btn btn-danger btn-sm" onclick="delPlan('+p.id+')">Удалить</button></div><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
-    }).join('')}catch(e){}
+    try{const r=await fetch(API+'/api/admin/plans');if(!r.ok)return;admPlansCache=await r.json();
+    $('adm-plans-count').textContent='Тарифы ('+admPlansCache.length+')';
+    drawAdmPlans()}catch(e){}
 }
-function showCreatePlan(){showModal('<h3>Создать тариф</h3><div class="form-group"><label>Название</label><input class="form-input" id="np-name" placeholder="Базовый"></div><div class="form-group"><label>Трафик (GB)</label><input class="form-input" id="np-traffic" type="number" placeholder="100"></div><div class="form-group"><label>Устройств</label><input class="form-input" id="np-dev" type="number" placeholder="3"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="createPlan()">Создать</button></div>')}
-async function createPlan(){const n=document.getElementById('np-name').value.trim(),t=parseInt(document.getElementById('np-traffic').value)||0,d=parseInt(document.getElementById('np-dev').value)||1;if(!n)return toast('Введите название','error');closeModal();try{const r=await fetch(API+'/api/admin/plans',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,traffic_limit:t,device_limit:d})});if(r.ok){toast('Тариф создан');loadAdmPlans()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+function drawAdmPlans(){
+    const el=$('adm-plans-list');
+    if(!admPlansCache.length){el.innerHTML='<div class="empty-state">Нет тарифов</div>';return}
+    el.innerHTML=admPlansCache.map(p=>{
+        const avl=AVAIL_LABELS[p.availability]||p.availability;
+        const isTrial=p.availability==='TRIAL';
+        return '<div class="plan-admin-card'+(p.is_active?'':' inactive')+'" onclick="editPlan('+p.id+')">'+
+            '<div class="plan-admin-top">'+
+                '<span class="plan-admin-name">'+esc(p.name)+'</span>'+
+                (p.tag?'<span class="plan-admin-tag">'+esc(p.tag)+'</span>':'')+
+                '<span class="avail-badge'+(isTrial?' trial':'')+'">'+avl+'</span>'+
+                '<div class="plan-admin-actions" onclick="event.stopPropagation()">'+
+                    '<button class="btn-toggle-plan'+(p.is_active?' active':'')+'" onclick="togglePlan('+p.id+',this)" title="'+(p.is_active?'Выключить':'Включить')+'"></button>'+
+                    '<button class="btn-trash" onclick="delPlan('+p.id+')" title="Удалить">🗑</button>'+
+                '</div>'+
+            '</div>'+
+            '<div class="plan-admin-meta">'+
+                '<span>📦 '+(p.traffic_limit||'∞')+' GB</span>'+
+                '<span>📱 '+(p.device_limit||'∞')+' устр.</span>'+
+                '<span>⏱ '+(p.durations||[]).length+' период(ов)</span>'+
+            '</div>'+
+        '</div>';
+    }).join('');
+}
+async function togglePlan(id,btn){
+    try{const r=await fetch(API+'/api/admin/plans/'+id+'/toggle',{method:'PATCH'});
+    if(r.ok){const d=await r.json();btn.classList.toggle('active',d.is_active);
+    const p=admPlansCache.find(x=>x.id===id);if(p)p.is_active=d.is_active;
+    btn.closest('.plan-admin-card').classList.toggle('inactive',!d.is_active);
+    toast(d.is_active?'Включён':'Выключен')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
 async function delPlan(id){if(!confirm('Удалить тариф?'))return;try{const r=await fetch(API+'/api/admin/plans/'+id,{method:'DELETE'});if(r.ok){toast('Удалён');loadAdmPlans()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+
+/* ── Plan Create / Edit Modal ── */
+let editingPlanId=null;
+function showCreatePlan(){editingPlanId=null;showPlanModal({name:'',description:'',tag:'',availability:'ALL',type:'BOTH',traffic_limit:100,device_limit:1,durations:[{days:30,prices:[{currency:D.default_currency||'RUB',amount:'0'}]}]},'Создать тариф')}
+function editPlan(id){
+    const p=admPlansCache.find(x=>x.id===id);if(!p)return;
+    editingPlanId=id;
+    showPlanModal(p,'Редактировать тариф');
+}
+function showPlanModal(p,title){
+    const dc=D.default_currency||'RUB';
+    const durs=(p.durations||[]).map((d,i)=>{
+        const pr=(d.prices||[]).find(x=>x.currency===dc);
+        const amt=pr?pr.amount:'0';
+        return durEntryHtml(i,d.days,amt);
+    }).join('');
+    const availOpts=Object.entries(AVAIL_LABELS).map(([k,v])=>'<option value="'+k+'"'+(p.availability===k?' selected':'')+'>'+v+'</option>').join('');
+    const typeOpts=Object.entries(TYPE_LABELS).map(([k,v])=>'<option value="'+k+'"'+(p.type===k?' selected':'')+'>'+v+'</option>').join('');
+    showModal(
+        '<h3>'+title+'</h3>'+
+        '<div class="form-group"><label>Название</label><input class="form-input" id="np-name" value="'+esc(p.name)+'" placeholder="Базовый"></div>'+
+        '<div class="form-group"><label>Описание</label><input class="form-input" id="np-desc" value="'+esc(p.description||'')+'" placeholder="Описание тарифа"></div>'+
+        '<div class="form-row"><div class="form-group"><label>Тег</label><input class="form-input" id="np-tag" value="'+esc(p.tag||'')+'" placeholder="base"></div><div class="form-group"><label>Доступность</label><select class="form-input" id="np-avail">'+availOpts+'</select></div></div>'+
+        '<div class="form-row"><div class="form-group"><label>Тип</label><select class="form-input" id="np-type">'+typeOpts+'</select></div><div class="form-group"><label>Трафик (GB)</label><input class="form-input" id="np-traffic" type="number" value="'+p.traffic_limit+'"></div></div>'+
+        '<div class="form-group"><label>Устройств</label><input class="form-input" id="np-dev" type="number" value="'+p.device_limit+'"></div>'+
+        '<div style="margin-bottom:8px"><label style="font-size:.8rem;color:var(--text3);font-weight:500">Периоды и цены ('+(CURRENCY_SYMBOLS[dc]||dc)+')</label></div>'+
+        '<div id="dur-list">'+durs+'</div>'+
+        '<button class="btn btn-secondary btn-sm" onclick="addDurEntry()" style="margin-bottom:10px">+ Период</button>'+
+        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="savePlan()">Сохранить</button></div>'
+    );
+}
+function durEntryHtml(i,days,amount){
+    return '<div class="duration-entry" data-idx="'+i+'"><div class="duration-entry-header"><span style="font-size:.8rem;color:var(--text2);font-weight:600">Период #'+(i+1)+'</span><button class="dur-remove" onclick="this.closest(\'.duration-entry\').remove()">✕</button></div><div class="form-row"><div class="form-group"><label>Дней</label><input class="form-input dur-days" type="number" value="'+days+'" min="1"></div><div class="form-group"><label>Цена</label><input class="form-input dur-price" type="number" value="'+amount+'" min="0" step="0.01"></div></div></div>';
+}
+function addDurEntry(){
+    const list=$('dur-list');
+    const idx=list.querySelectorAll('.duration-entry').length;
+    list.insertAdjacentHTML('beforeend',durEntryHtml(idx,30,'0'));
+}
+async function savePlan(){
+    const name=$('np-name').value.trim();if(!name)return toast('Введите название','error');
+    const dc=D.default_currency||'RUB';
+    const durations=[];
+    $('dur-list').querySelectorAll('.duration-entry').forEach(el=>{
+        const days=parseInt(el.querySelector('.dur-days').value)||30;
+        const price=el.querySelector('.dur-price').value||'0';
+        durations.push({days,prices:[{currency:dc,amount:price}]});
+    });
+    const body={
+        name,
+        description:$('np-desc').value.trim(),
+        tag:$('np-tag').value.trim(),
+        availability:$('np-avail').value,
+        type:$('np-type').value,
+        traffic_limit:parseInt($('np-traffic').value)||100,
+        device_limit:parseInt($('np-dev').value)||1,
+        durations
+    };
+    closeModal();
+    try{
+        const url=editingPlanId?API+'/api/admin/plans/'+editingPlanId:API+'/api/admin/plans';
+        const method=editingPlanId?'PUT':'POST';
+        const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(r.ok){toast(editingPlanId?'Тариф обновлён':'Тариф создан');loadAdmPlans()}
+        else{const j=await r.json();toast(j.detail||'Ошибка','error')}
+    }catch(e){toast('Ошибка','error')}
+}
 
 /* Settings */
 async function loadSettings(){
     try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;const s=await r.json();
-    document.getElementById('settings-list').innerHTML='<div class="card">'+Object.entries(s).map(([k,v])=>{
+    $('settings-list').innerHTML='<div class="card">'+Object.entries(s).map(([k,v])=>{
         const l=sLabel(k);
         if(typeof v==='boolean')return '<div class="toggle-row"><label>'+l+'</label><button class="toggle-switch '+(v?'active':'')+'" onclick="toggleSet(\''+k+'\','+(!v)+',this)"></button></div>';
         return '<div class="card-row"><span class="card-label">'+l+'</span><span class="card-value">'+esc(String(v))+'</span></div>';
@@ -419,18 +578,18 @@ function sLabel(k){const m={balance_enabled:'Баланс',community_enabled:'С
 async function toggleSet(k,v,btn){try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});if(r.ok){btn.classList.toggle('active',v);toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}}
 
 /* Brand */
-function loadBrandForm(){document.getElementById('br-name').value='';document.getElementById('br-logo').value='';document.getElementById('br-slogan').value='';
-    fetch(API+'/api/settings/brand').then(r=>r.json()).then(d=>{document.getElementById('br-name').value=d.name||'';document.getElementById('br-logo').value=d.logo||'';document.getElementById('br-slogan').value=d.slogan||''}).catch(()=>{})
+function loadBrandForm(){$('br-name').value='';$('br-logo').value='';$('br-slogan').value='';
+    fetch(API+'/api/settings/brand').then(r=>r.json()).then(d=>{$('br-name').value=d.name||'';$('br-logo').value=d.logo||'';$('br-slogan').value=d.slogan||''}).catch(()=>{})
 }
 async function saveBrand(){
-    const d={name:document.getElementById('br-name').value.trim()||'VPN Shop',logo:document.getElementById('br-logo').value.trim()||'🔐',slogan:document.getElementById('br-slogan').value.trim()};
+    const d={name:$('br-name').value.trim()||'VPN Shop',logo:$('br-logo').value.trim()||'🔐',slogan:$('br-slogan').value.trim()};
     try{const r=await fetch(API+'/api/settings/brand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(r.ok)toast('Сохранено');else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 
 /* ── UTILS ── */
-function toast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
-function showModal(h){document.getElementById('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+h+'</div></div>'}
-function closeModal(){document.getElementById('modal-root').innerHTML=''}
+function toast(m,t){const e=$('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
+function showModal(h){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+h+'</div></div>'}
+function closeModal(){$('modal-root').innerHTML=''}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 </script>
 {% endblock %}

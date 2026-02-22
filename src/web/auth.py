@@ -9,24 +9,28 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from urllib.parse import parse_qsl
 
+import bcrypt as _bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ── Password helpers ──────────────────────────────────────────────
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash password using bcrypt directly (passlib-free)."""
+    pw = password.encode("utf-8")[:72]  # bcrypt limit
+    return _bcrypt.hashpw(pw, _bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    """Verify password against bcrypt hash."""
+    try:
+        return _bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 
 # ── JWT helpers ───────────────────────────────────────────────────
