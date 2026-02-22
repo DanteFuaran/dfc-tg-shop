@@ -13,12 +13,12 @@ from src.bot.states import (
     DashboardFeatures,
     DashboardImporter,
     DashboardPromocodes,
+    DashboardSettings,
     DashboardTelegram,
     DashboardRemnawave,
     DashboardStatistics,
     DashboardUsers,
     DashboardDB,
-    DashboardSettings,
     TelegramPlans,
 )
 from src.bot.widgets import Banner, ColoredSwitchTo, I18nFormat, IgnoreUpdate
@@ -45,6 +45,14 @@ dashboard = Window(
             text=I18nFormat("btn-dashboard-plans"),
             id="plans",
             state=TelegramPlans.MAIN,
+            mode=StartMode.RESET_STACK,
+        ),
+    ),
+    Row(
+        Start(
+            text=I18nFormat("btn-dashboard-payment-settings"),
+            id="payment_settings",
+            state=DashboardSettings.FINANCES,
             mode=StartMode.RESET_STACK,
         ),
     ),

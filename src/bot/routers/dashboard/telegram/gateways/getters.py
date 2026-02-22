@@ -49,11 +49,43 @@ async def gateway_getter(
     if not gateway.settings:
         raise ValueError(f"Gateway '{gateway_id}' has not settings")
 
+    # Save original settings snapshot for cancel
+    if "original_gateway_settings" not in dialog_manager.dialog_data:
+        original = {}
+        for item in gateway.settings.get_settings_as_list_data:
+            field = item["field"]
+            value = item["value"]
+            if hasattr(value, "get_secret_value"):
+                original[field] = value.get_secret_value()
+            else:
+                original[field] = value
+        dialog_manager.dialog_data["original_gateway_settings"] = original
+
+    # Build display string showing current field values (masked for secrets)
+    lines = []
+    for item in gateway.settings.get_settings_as_list_data:
+        field = item["field"]
+        value = item["value"]
+        if value is None:
+            display_value = "—"
+        elif hasattr(value, "get_secret_value"):
+            secret = value.get_secret_value()
+            if len(secret) > 6:
+                display_value = secret[:5] + "**********" + secret[-4:]
+            else:
+                display_value = "****"
+        else:
+            display_value = str(value)
+        lines.append(f"• {field.upper()}: {display_value}")
+    
+    settings_display = "\n".join(lines) if lines else "—"
+
     return {
         "id": gateway.id,
         "gateway_type": gateway.type,
         "is_active": gateway.is_active,
         "settings": gateway.settings.get_settings_as_list_data,
+        "settings_display": settings_display,
         "webhook": config.get_webhook(gateway.type),
         "requires_webhook": gateway.requires_webhook,
     }

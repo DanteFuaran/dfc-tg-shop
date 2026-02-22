@@ -10,6 +10,7 @@ btn-dashboard-access = 🔓 Access Mode
 btn-dashboard-features = ⚙️ Features
 btn-dashboard-importer = 📥 X-UI Import
 btn-dashboard-bot-management = 🤖 Bot Management
+btn-dashboard-payment-settings = 💳 Payment Settings
 btn-dashboard-user-management = 👥 Users
 
 # Bot Management

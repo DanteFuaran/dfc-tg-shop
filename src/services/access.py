@@ -101,7 +101,6 @@ class AccessService(BaseService):
 
         if self._is_purchase_action(event) and is_purchase_blocked:
             logger.info(f"Access denied for user '{user.telegram_id}' (purchase event)")
-            await redirect_to_main_menu_task.kiq(user.telegram_id)
 
             await self.notification_service.notify_user(
                 user=user,

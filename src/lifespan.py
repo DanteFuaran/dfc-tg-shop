@@ -211,6 +211,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         user_service: UserService = await startup_container.get(UserService)
         bot: Bot = await startup_container.get(Bot)
 
+        # Ensure web_credentials table exists (auto-create on first run)
+        try:
+            from sqlalchemy.ext.asyncio import AsyncEngine as _AE
+            _engine: _AE = await startup_container.get(_AE)
+            from src.infrastructure.database.models.sql.web_credential import WebCredential
+            async with _engine.begin() as conn:
+                await conn.run_sync(
+                    WebCredential.__table__.create,
+                    checkfirst=True,
+                )
+            logger.debug("web_credentials table ensured")
+        except Exception as _e:
+            logger.debug(f"web_credentials table check: {_e}")
+
         await gateway_service.create_default()
         settings = await settings_service.get()
         

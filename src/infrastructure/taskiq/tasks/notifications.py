@@ -64,6 +64,29 @@ async def send_access_opened_notifications_task(
         await asyncio.sleep(BATCH_DELAY)
 
 
+@broker.task
+@inject
+async def send_payments_available_notifications_task(
+    waiting_user_ids: list[int],
+    user_service: FromDishka[UserService],
+    notification_service: FromDishka[NotificationService],
+) -> None:
+    """Уведомление пользователей о том, что оплата сервиса снова доступна."""
+    for batch in chunked(waiting_user_ids, BATCH_SIZE):
+        for user_telegram_id in batch:
+            user = await user_service.get(user_telegram_id)
+            if user:
+                await notification_service.notify_user(
+                    user=user,
+                    payload=MessagePayload(
+                        i18n_key="ntf-payments-available-again",
+                        auto_delete_after=None,
+                        add_close_button=True,
+                    ),
+                )
+        await asyncio.sleep(BATCH_DELAY)
+
+
 @broker.task(retry_on_error=True)
 @inject
 async def send_subscription_expire_notification_task(

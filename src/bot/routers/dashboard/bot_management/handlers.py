@@ -13,9 +13,11 @@ from loguru import logger
 
 from src.__version__ import __version__
 from src.core.constants import REPOSITORY, USER_KEY, get_update_branch
+from src.core.enums import AccessMode
 from src.core.storage.keys import UpdateMessageKey
 from src.core.utils.formatters import format_user_log as log
 from src.infrastructure.redis.repository import RedisRepository
+from src.services.settings import SettingsService
 from src.services.update_checker import (
     UPDATE_CLOSE,
     UPDATE_NOW,
@@ -35,13 +37,19 @@ def _parse_version(version_str: str) -> tuple[int, ...]:
         return (0, 0, 0)
 
 
+@inject
 async def bot_management_getter(
     dialog_manager: DialogManager,
+    settings_service: FromDishka[SettingsService],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for bot management page."""
+    settings = await settings_service.get()
+    features = settings.features
     return {
         "bot_version": __version__,
+        "access_enabled": 1 if settings.access_mode == AccessMode.PUBLIC else 0,
+        "notifications_enabled": 1 if features.notifications_enabled else 0,
     }
 
 

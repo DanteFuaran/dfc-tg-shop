@@ -1,7 +1,7 @@
 from typing import Optional
 
 from aiogram import Bot
-from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
+from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats, MenuButtonWebApp, WebAppInfo
 from loguru import logger
 
 from src.core.enums import Command, Locale
@@ -13,6 +13,22 @@ class CommandService(BaseService):
     async def setup(self) -> None:
         """Set up commands for the main bot."""
         await self.setup_for_bot(self.bot)
+        await self._setup_menu_button(self.bot)
+
+    async def _setup_menu_button(self, bot: Bot) -> None:
+        """Set Telegram menu button to open Mini App if configured."""
+        domain = self.config.effective_web_domain
+        miniapp_url = f"https://{domain}/web/miniapp"
+        try:
+            await bot.set_chat_menu_button(
+                menu_button=MenuButtonWebApp(
+                    text="Кабинет",
+                    web_app=WebAppInfo(url=miniapp_url),
+                ),
+            )
+            logger.info(f"Menu button set to Mini App: {miniapp_url}")
+        except Exception as e:
+            logger.warning(f"Failed to set menu button: {e}")
 
     async def setup_for_bot(self, bot: Bot) -> None:
         """Set up commands for any bot instance (main or mirror)."""

@@ -926,6 +926,14 @@ async def on_toggle_access(
         settings.registration_allowed = True
         settings.purchases_allowed = True
         logger.info(f"{log(user)} Access enabled -> mode=PUBLIC, registration=True, purchases=True")
+        
+        # Уведомляем ожидающих пользователей о том, что оплаты снова доступны
+        from src.infrastructure.taskiq.tasks.notifications import send_payments_available_notifications_task
+        waiting_users = await access_service.get_all_waiting_users()
+        if waiting_users:
+            logger.info(f"{log(user)} Notifying {len(waiting_users)} users about payments re-enabled")
+            await send_payments_available_notifications_task.kiq(waiting_users)
+            await access_service.clear_all_waiting_users()
     
     settings.features = settings.features  # Trigger change tracking
     await settings_service.update(settings)

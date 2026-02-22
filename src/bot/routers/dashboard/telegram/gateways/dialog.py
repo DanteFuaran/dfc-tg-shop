@@ -32,6 +32,8 @@ from .handlers import (
     on_placement_accept,
     on_currency_cancel,
     on_currency_accept,
+    on_gateway_settings_cancel,
+    on_gateway_settings_accept,
 )
 
 from .getters import (
@@ -102,7 +104,7 @@ gateways = Window(
 
 gateway_settings = Window(
     Banner(),
-    I18nFormat("msg-gateways-settings", gateway_type=F["gateway_type"]),
+    I18nFormat("msg-gateways-settings-detail", gateway_type=F["gateway_type"], settings_display=F["settings_display"]),
     Group(
         Select(
             text=I18nFormat("btn-gateways-setting", field=F["item"]["field"].upper()),
@@ -122,11 +124,17 @@ gateway_settings = Window(
         when=F["requires_webhook"],
     ),
     Row(
-        ColoredSwitchTo(
-            text=I18nFormat("btn-back"),
-            id="back",
-            state=TelegramGateways.MAIN,
-            style="primary",
+        ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_gateway_settings_cancel,
+            style="danger",
+        ),
+        ColoredButton(
+            text=I18nFormat("btn-accept"),
+            id="accept",
+            on_click=on_gateway_settings_accept,
+            style="success",
         ),
     ),
     IgnoreUpdate(),

@@ -11,6 +11,7 @@ from .settings import Settings
 from .subscription import Subscription
 from .transaction import Transaction
 from .user import User
+from .web_credential import WebCredential
 
 __all__ = [
     "BalanceTransfer",
@@ -31,4 +32,5 @@ __all__ = [
     "Subscription",
     "Transaction",
     "User",
+    "WebCredential",
 ]

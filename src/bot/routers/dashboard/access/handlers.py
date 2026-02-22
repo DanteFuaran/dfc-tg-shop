@@ -227,9 +227,13 @@ async def on_access_accept(
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
     
     changes = dialog_manager.dialog_data.get("access_changes", {})
+    initial_state = dialog_manager.dialog_data.get("initial_access_state", {})
     
     if changes:
         settings = await settings_service.get()
+        
+        # Проверяем, были ли оплаты выключены, а теперь включаются
+        was_purchases_disabled = not initial_state.get("purchases_allowed", settings.purchases_allowed)
         
         # Применяем изменения режима доступа
         if "mode" in changes:
@@ -247,6 +251,16 @@ async def on_access_accept(
             logger.info(f"{log(user)} Applied registration_allowed -> '{changes['registration_allowed']}'")
         
         await settings_service.update(settings)
+        
+        # Если оплаты были выключены и теперь включаются - уведомляем ожидающих пользователей
+        now_purchases_enabled = changes.get("purchases_allowed", initial_state.get("purchases_allowed", True))
+        if was_purchases_disabled and now_purchases_enabled:
+            from src.infrastructure.taskiq.tasks.notifications import send_payments_available_notifications_task
+            waiting_users = await access_service.get_all_waiting_users()
+            if waiting_users:
+                logger.info(f"{log(user)} Notifying {len(waiting_users)} users about payments re-enabled")
+                await send_payments_available_notifications_task.kiq(waiting_users)
+                await access_service.clear_all_waiting_users()
     
     # Очищаем временные данные
     dialog_manager.dialog_data.pop("access_changes", None)

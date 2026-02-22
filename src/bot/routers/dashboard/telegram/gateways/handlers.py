@@ -220,6 +220,51 @@ async def on_default_currency_select(
 
 
 @inject
+async def on_gateway_settings_cancel(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+    payment_gateway_service: FromDishka[PaymentGatewayService],
+) -> None:
+    """Отменить изменения настроек конкретного шлюза и вернуться назад."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    # Восстанавливаем оригинальные настройки
+    original = dialog_manager.dialog_data.pop("original_gateway_settings", None)
+    if original:
+        gateway_id = dialog_manager.dialog_data.get("gateway_id")
+        if gateway_id:
+            gateway = await payment_gateway_service.get(gateway_id)
+            if gateway and gateway.settings:
+                for field, value in original.items():
+                    if field in ["api_key", "secret_key"]:
+                        if value is not None:
+                            setattr(gateway.settings, field, SecretStr(value))
+                        else:
+                            setattr(gateway.settings, field, None)
+                    else:
+                        setattr(gateway.settings, field, value)
+                await payment_gateway_service.update(gateway)
+                logger.info(f"{log(user)} Reverted settings for gateway '{gateway_id}'")
+    
+    await dialog_manager.switch_to(state=TelegramGateways.MAIN)
+
+
+async def on_gateway_settings_accept(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Принять изменения настроек конкретного шлюза."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    # Просто очищаем оригинальный снимок — изменения уже в БД
+    dialog_manager.dialog_data.pop("original_gateway_settings", None)
+    logger.info(f"{log(user)} Accepted settings changes for gateway '{dialog_manager.dialog_data.get('gateway_id')}'")
+    await dialog_manager.switch_to(state=TelegramGateways.MAIN)
+
+
+@inject
 async def on_gateway_move(
     callback: CallbackQuery,
     widget: Button,

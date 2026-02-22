@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}Панель — Кабинет{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="dash-header">
+        <div class="logo-small">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+            </svg>
+        </div>
+        <span class="header-title">Мой кабинет</span>
+        <button class="btn-icon" onclick="logout()" title="Выйти">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+        </button>
+    </header>
+
+    <!-- Pages -->
+    <main class="dash-main">
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <div class="card subscription-card">
+                <div class="card-badge" id="sub-badge">—</div>
+                <h3 class="card-title" id="sub-plan-name">Загрузка…</h3>
+                <div class="card-row">
+                    <span class="card-label">Истекает</span>
+                    <span class="card-value" id="sub-expire">—</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Трафик</span>
+                    <span class="card-value" id="sub-traffic">—</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Устройства</span>
+                    <span class="card-value" id="sub-devices">—</span>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <button class="action-btn" onclick="openSubUrl()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 01-8 0"/>
+                    </svg>
+                    <span>Купить</span>
+                </button>
+                <button class="action-btn" onclick="copySubUrl()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                    </svg>
+                    <span>Подключить</span>
+                </button>
+                <button class="action-btn" onclick="showPage('page-plans')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <span>Тарифы</span>
+                </button>
+                <button class="action-btn" onclick="showPage('page-profile')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span>Профиль</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Plans Page -->
+        <div id="page-plans" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('page-home')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+                <h2 class="page-title">Тарифные планы</h2>
+            </div>
+            <div id="plans-list" class="plans-list"></div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="page-profile" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('page-home')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+                <h2 class="page-title">Профиль</h2>
+            </div>
+            <div class="card">
+                <div class="card-row">
+                    <span class="card-label">Имя</span>
+                    <span class="card-value" id="prof-name">—</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Telegram</span>
+                    <span class="card-value" id="prof-username">—</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Telegram ID</span>
+                    <span class="card-value" id="prof-tid">—</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Баланс</span>
+                    <span class="card-value" id="prof-balance">—</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="showPage('page-home')" data-page="page-home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span>Главная</span>
+        </button>
+        <button class="nav-btn" onclick="showPage('page-plans')" data-page="page-plans">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            <span>Тарифы</span>
+        </button>
+        <button class="nav-btn" onclick="showPage('page-profile')" data-page="page-profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Профиль</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const DATA = {{ data_json | safe }};
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.page === pageId);
+        });
+    }
+
+    function showToast(msg, duration) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('visible');
+        setTimeout(() => t.classList.remove('visible'), duration || 3000);
+    }
+
+    function renderSubscription() {
+        const sub = DATA.subscription;
+        const badge = document.getElementById('sub-badge');
+
+        if (!sub || !sub.status) {
+            badge.textContent = 'Нет подписки';
+            badge.className = 'card-badge badge-inactive';
+            document.getElementById('sub-plan-name').textContent = 'Нет активной подписки';
+            document.getElementById('sub-expire').textContent = '—';
+            document.getElementById('sub-traffic').textContent = '—';
+            document.getElementById('sub-devices').textContent = '—';
+            return;
+        }
+
+        if (sub.is_trial) {
+            badge.textContent = 'Пробный период';
+            badge.className = 'card-badge badge-trial';
+        } else if (sub.status === 'ACTIVE') {
+            badge.textContent = 'Активна';
+            badge.className = 'card-badge badge-active';
+        } else if (sub.status === 'EXPIRED') {
+            badge.textContent = 'Истекла';
+            badge.className = 'card-badge badge-expired';
+        } else {
+            badge.textContent = sub.status;
+            badge.className = 'card-badge';
+        }
+
+        document.getElementById('sub-plan-name').textContent = sub.plan_name || '—';
+        document.getElementById('sub-expire').textContent = sub.expire_at || '—';
+        document.getElementById('sub-traffic').textContent = sub.traffic_limit ? sub.traffic_limit + ' GB' : '—';
+        document.getElementById('sub-devices').textContent = sub.device_limit || '—';
+    }
+
+    function renderPlans() {
+        const list = document.getElementById('plans-list');
+        if (!DATA.plans || DATA.plans.length === 0) {
+            list.innerHTML = '<div class="empty-state">Нет доступных тарифов</div>';
+            return;
+        }
+        list.innerHTML = DATA.plans.map(plan => {
+            const durationsHtml = (plan.durations || []).map(d => {
+                const pricesHtml = (d.prices || []).map(p => 
+                    `<span class="plan-price">${p.amount} ${p.currency}</span>`
+                ).join(' / ');
+                return `<div class="plan-duration"><span class="plan-days">${d.days} дн.</span> ${pricesHtml}</div>`;
+            }).join('');
+            return `
+                <div class="card plan-card">
+                    <h3 class="plan-name">${plan.name}</h3>
+                    <div class="plan-info">
+                        <span>Трафик: ${plan.traffic_limit} GB</span>
+                        <span>Устройства: ${plan.device_limit}</span>
+                    </div>
+                    <div class="plan-durations">${durationsHtml}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderProfile() {
+        const u = DATA.user;
+        document.getElementById('prof-name').textContent = u.name || '—';
+        document.getElementById('prof-username').textContent = u.username ? '@' + u.username : '—';
+        document.getElementById('prof-tid').textContent = u.telegram_id;
+        document.getElementById('prof-balance').textContent = u.balance + ' ₽';
+    }
+
+    function openSubUrl() {
+        const sub = DATA.subscription;
+        if (sub && sub.url) {
+            window.open(sub.url, '_blank');
+        } else {
+            showToast('Нет активной подписки');
+        }
+    }
+
+    function copySubUrl() {
+        const sub = DATA.subscription;
+        if (sub && sub.url) {
+            navigator.clipboard.writeText(sub.url).then(() => showToast('Ссылка скопирована!')).catch(() => showToast('Ошибка копирования'));
+        } else {
+            showToast('Нет активной подписки');
+        }
+    }
+
+    async function logout() {
+        await fetch('/web/api/auth/logout', {method: 'POST'});
+        window.location.href = '/web/login';
+    }
+
+    // Init
+    renderSubscription();
+    renderPlans();
+    renderProfile();
+</script>
+{% endblock %}

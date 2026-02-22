@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Кабинет</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="/web/static/css/style.css">
+    <style>
+        /* Mini App uses Telegram theme vars */
+        :root {
+            --tg-bg: var(--tg-theme-bg-color, #1a1a2e);
+            --tg-text: var(--tg-theme-text-color, #e0e0e0);
+            --tg-hint: var(--tg-theme-hint-color, #8a8a9a);
+            --tg-link: var(--tg-theme-link-color, #4fc3f7);
+            --tg-btn: var(--tg-theme-button-color, #4361ee);
+            --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #16213e);
+        }
+        body { background: var(--tg-bg); color: var(--tg-text); }
+        .btn-primary { background: var(--tg-btn); color: var(--tg-btn-text); }
+        .card { background: var(--tg-secondary-bg); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Loading state -->
+        <div id="miniapp-loading" class="auth-container" style="text-align:center;padding-top:40vh;">
+            <div class="spinner"></div>
+            <p style="margin-top:16px;color:var(--tg-hint);">Авторизация…</p>
+        </div>
+
+        <!-- Main content (hidden until auth) -->
+        <div id="miniapp-content" class="dashboard-container" style="display:none;">
+            <header class="dash-header">
+                <div class="logo-small">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="header-title" id="ma-user-name">Кабинет</span>
+            </header>
+
+            <main class="dash-main">
+                <!-- Home -->
+                <div id="ma-page-home" class="page active">
+                    <div class="card subscription-card">
+                        <div class="card-badge" id="ma-sub-badge">—</div>
+                        <h3 class="card-title" id="ma-sub-plan">Загрузка…</h3>
+                        <div class="card-row">
+                            <span class="card-label">Истекает</span>
+                            <span class="card-value" id="ma-sub-expire">—</span>
+                        </div>
+                        <div class="card-row">
+                            <span class="card-label">Трафик</span>
+                            <span class="card-value" id="ma-sub-traffic">—</span>
+                        </div>
+                        <div class="card-row">
+                            <span class="card-label">Устройства</span>
+                            <span class="card-value" id="ma-sub-devices">—</span>
+                        </div>
+                    </div>
+
+                    <div class="actions-grid">
+                        <button class="action-btn" id="ma-btn-buy" onclick="maOpenSub()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 01-8 0"/>
+                            </svg>
+                            <span>Купить</span>
+                        </button>
+                        <button class="action-btn" onclick="maCopySub()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                            </svg>
+                            <span>Подключить</span>
+                        </button>
+                        <button class="action-btn" onclick="maShowPage('ma-page-plans')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                            <span>Тарифы</span>
+                        </button>
+                        <button class="action-btn" onclick="maShowPage('ma-page-profile')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>Профиль</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plans -->
+                <div id="ma-page-plans" class="page">
+                    <div class="page-header">
+                        <button class="btn-back" onclick="maShowPage('ma-page-home')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                        </button>
+                        <h2 class="page-title">Тарифные планы</h2>
+                    </div>
+                    <div id="ma-plans-list" class="plans-list"></div>
+                </div>
+
+                <!-- Profile -->
+                <div id="ma-page-profile" class="page">
+                    <div class="page-header">
+                        <button class="btn-back" onclick="maShowPage('ma-page-home')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                        </button>
+                        <h2 class="page-title">Профиль</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-row">
+                            <span class="card-label">Имя</span>
+                            <span class="card-value" id="ma-prof-name">—</span>
+                        </div>
+                        <div class="card-row">
+                            <span class="card-label">Telegram</span>
+                            <span class="card-value" id="ma-prof-username">—</span>
+                        </div>
+                        <div class="card-row">
+                            <span class="card-label">Баланс</span>
+                            <span class="card-value" id="ma-prof-balance">—</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <nav class="bottom-nav">
+                <button class="nav-btn active" onclick="maShowPage('ma-page-home')" data-page="ma-page-home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>Главная</span>
+                </button>
+                <button class="nav-btn" onclick="maShowPage('ma-page-plans')" data-page="ma-page-plans">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <span>Тарифы</span>
+                </button>
+                <button class="nav-btn" onclick="maShowPage('ma-page-profile')" data-page="ma-page-profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span>Профиль</span>
+                </button>
+            </nav>
+        </div>
+        <div id="ma-toast" class="toast"></div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        let maData = null;
+
+        function maShowPage(pageId) {
+            document.querySelectorAll('#miniapp-content .page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('#miniapp-content .nav-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.page === pageId);
+            });
+
+            // Telegram back button
+            if (pageId === 'ma-page-home') {
+                tg.BackButton.hide();
+            } else {
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => maShowPage('ma-page-home'));
+            }
+        }
+
+        function maShowToast(msg) {
+            const t = document.getElementById('ma-toast');
+            t.textContent = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3000);
+        }
+
+        function maRender() {
+            if (!maData) return;
+            const sub = maData.subscription;
+            const u = maData.user;
+
+            document.getElementById('ma-user-name').textContent = u.name || 'Кабинет';
+
+            // Subscription
+            const badge = document.getElementById('ma-sub-badge');
+            if (!sub || !sub.status) {
+                badge.textContent = 'Нет подписки';
+                badge.className = 'card-badge badge-inactive';
+                document.getElementById('ma-sub-plan').textContent = 'Нет активной подписки';
+            } else {
+                if (sub.is_trial) {
+                    badge.textContent = 'Пробный период';
+                    badge.className = 'card-badge badge-trial';
+                } else if (sub.status === 'ACTIVE') {
+                    badge.textContent = 'Активна';
+                    badge.className = 'card-badge badge-active';
+                } else {
+                    badge.textContent = sub.status;
+                    badge.className = 'card-badge badge-expired';
+                }
+                document.getElementById('ma-sub-plan').textContent = sub.plan_name || '—';
+                document.getElementById('ma-sub-expire').textContent = sub.expire_at || '—';
+                document.getElementById('ma-sub-traffic').textContent = sub.traffic_limit ? sub.traffic_limit + ' GB' : '—';
+                document.getElementById('ma-sub-devices').textContent = sub.device_limit || '—';
+            }
+
+            // Plans
+            const list = document.getElementById('ma-plans-list');
+            if (!maData.plans || maData.plans.length === 0) {
+                list.innerHTML = '<div class="empty-state">Нет доступных тарифов</div>';
+            } else {
+                list.innerHTML = maData.plans.map(plan => {
+                    const durs = (plan.durations || []).map(d => {
+                        const pr = (d.prices || []).map(p => `<span class="plan-price">${p.amount} ${p.currency}</span>`).join(' / ');
+                        return `<div class="plan-duration"><span class="plan-days">${d.days} дн.</span> ${pr}</div>`;
+                    }).join('');
+                    return `<div class="card plan-card"><h3 class="plan-name">${plan.name}</h3><div class="plan-info"><span>Трафик: ${plan.traffic_limit} GB</span><span>Устройства: ${plan.device_limit}</span></div><div class="plan-durations">${durs}</div></div>`;
+                }).join('');
+            }
+
+            // Profile
+            document.getElementById('ma-prof-name').textContent = u.name || '—';
+            document.getElementById('ma-prof-username').textContent = u.username ? '@' + u.username : '—';
+            document.getElementById('ma-prof-balance').textContent = u.balance + ' ₽';
+        }
+
+        function maOpenSub() {
+            if (maData && maData.subscription && maData.subscription.url) {
+                tg.openLink(maData.subscription.url);
+            } else {
+                maShowToast('Нет активной подписки');
+            }
+        }
+
+        function maCopySub() {
+            if (maData && maData.subscription && maData.subscription.url) {
+                navigator.clipboard.writeText(maData.subscription.url)
+                    .then(() => maShowToast('Ссылка скопирована!'))
+                    .catch(() => maShowToast('Ошибка копирования'));
+            } else {
+                maShowToast('Нет активной подписки');
+            }
+        }
+
+        // Auth & init
+        async function maInit() {
+            try {
+                const authRes = await fetch('/web/api/auth/tg', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({initData: tg.initData})
+                });
+                if (!authRes.ok) {
+                    document.getElementById('miniapp-loading').innerHTML =
+                        '<p style="color:#f44;padding:20px;">Ошибка авторизации. Откройте приложение из Telegram.</p>';
+                    return;
+                }
+
+                const dataRes = await fetch('/web/api/user/data');
+                if (!dataRes.ok) {
+                    document.getElementById('miniapp-loading').innerHTML =
+                        '<p style="color:#f44;padding:20px;">Пользователь не найден. Сначала запустите бота.</p>';
+                    return;
+                }
+                maData = await dataRes.json();
+
+                document.getElementById('miniapp-loading').style.display = 'none';
+                document.getElementById('miniapp-content').style.display = 'flex';
+                maRender();
+            } catch (e) {
+                document.getElementById('miniapp-loading').innerHTML =
+                    '<p style="color:#f44;padding:20px;">Ошибка загрузки</p>';
+            }
+        }
+
+        maInit();
+    </script>
+</body>
+</html>

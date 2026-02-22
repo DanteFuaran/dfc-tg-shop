@@ -20,6 +20,7 @@ from .validators import validate_not_change_me
 
 class AppConfig(BaseConfig, env_prefix="APP_"):
     domain: SecretStr
+    web_domain: SecretStr = SecretStr("")
     host: str = "0.0.0.0"
     port: int = 5000
 
@@ -43,6 +44,12 @@ class AppConfig(BaseConfig, env_prefix="APP_"):
     @property
     def translations_dir(self) -> Path:
         return self.assets_dir / "translations"
+
+    @property
+    def effective_web_domain(self) -> str:
+        """Return web_domain if set, otherwise fall back to domain."""
+        web = self.web_domain.get_secret_value()
+        return web if web else self.domain.get_secret_value()
 
     def get_webhook(self, gateway_type: PaymentGatewayType) -> str:
         domain = f"https://{self.domain.get_secret_value()}"

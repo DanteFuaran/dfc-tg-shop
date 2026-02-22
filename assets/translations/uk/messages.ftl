@@ -1439,6 +1439,12 @@ msg-admins-main = <b>👮‍♂️ Администраторы</b>
 # Gateways
 msg-gateways-main = <b>🌐 Платежные системы</b>
 msg-gateways-settings = <b>🌐 Конфигурация { gateway-type }</b>
+msg-gateways-settings-detail =
+    <b>⚙️ Налаштування системи: { gateway-type }</b>
+
+    { $settings_display }
+
+    Оберіть що змінити:
 msg-gateways-default-currency = <b>💸 Валюта по умолчанию</b>
 msg-gateways-placement = <b>🔢 Изменить позиционирование</b>
 

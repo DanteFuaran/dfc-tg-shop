@@ -1433,6 +1433,12 @@ msg-admins-main = <b>👮‍♂️ Administrators</b>
 # Gateways
 msg-gateways-main = <b>🌐 Payment Systems</b>
 msg-gateways-settings = <b>🌐 { gateway-type } Configuration</b>
+msg-gateways-settings-detail =
+    <b>⚙️ Systemeinstellungen: { gateway-type }</b>
+
+    { $settings_display }
+
+    Wählen Sie was geändert werden soll:
 msg-gateways-default-currency = <b>💸 Default Currency</b>
 msg-gateways-placement = <b>🔢 Change Positioning</b>
 

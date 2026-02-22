@@ -163,56 +163,7 @@ from .handlers import (
 settings_main = Window(
     Banner(),
     I18nFormat("msg-dashboard-settings"),
-    # 1. Режим доступа
-    Row(
-        Start(
-            text=I18nFormat("btn-settings-access"),
-            id="access",
-            state=DashboardAccess.MAIN,
-            mode=StartMode.RESET_STACK,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["access_enabled"],
-            ),
-            id="toggle_access",
-            on_click=on_toggle_access,
-        ),
-    ),
-    # 2. Уведомления
-    Row(
-        Start(
-            text=I18nFormat("btn-settings-notifications"),
-            id="notifications",
-            state=TelegramNotifications.MAIN,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["notifications_enabled"],
-            ),
-            id="toggle_notifications",
-            on_click=on_toggle_notifications,
-        ),
-    ),
-    # 3. Финансы (авторасчёт курса)
-    Row(
-        Button(
-            text=I18nFormat("btn-settings-finances"),
-            id="finances",
-            on_click=on_finances_click,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["finances_enabled"],
-            ),
-            id="toggle_finances",
-            on_click=on_toggle_finances_sync,
-        ),
-    ),
-    # 4. Баланс
+    # 1. Баланс
     Row(
         Button(
             text=I18nFormat("btn-settings-balance"),

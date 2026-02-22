@@ -2404,6 +2404,13 @@ while true; do
 done
 update_env_var "$ENV_FILE" "APP_DOMAIN" "$APP_DOMAIN"
 
+# APP_WEB_DOMAIN
+reading_inline "Введите домен веб-кабинета (Enter = тот же домен бота):" APP_WEB_DOMAIN
+if [ -z "$APP_WEB_DOMAIN" ]; then
+    APP_WEB_DOMAIN="$APP_DOMAIN"
+fi
+update_env_var "$ENV_FILE" "APP_WEB_DOMAIN" "$APP_WEB_DOMAIN"
+
 # BOT_TOKEN
 reading_inline "Введите Токен телеграм бота:" BOT_TOKEN
 if [ -z "$BOT_TOKEN" ]; then
@@ -2585,11 +2592,19 @@ show_spinner "Сборка Docker образа"
 if [ "$REVERSE_PROXY" = "caddy" ]; then
   (
     configure_caddy "$APP_DOMAIN"
+    # Add web domain to Caddy if different from bot domain
+    if [ -n "$APP_WEB_DOMAIN" ] && [ "$APP_WEB_DOMAIN" != "$APP_DOMAIN" ]; then
+        configure_caddy "$APP_WEB_DOMAIN"
+    fi
   ) &
   show_spinner "Настройка и перезапуск Caddy"
 elif [ "$REVERSE_PROXY" = "nginx" ]; then
   (
     configure_nginx "$APP_DOMAIN"
+    # Add web domain to Nginx if different from bot domain
+    if [ -n "$APP_WEB_DOMAIN" ] && [ "$APP_WEB_DOMAIN" != "$APP_DOMAIN" ]; then
+        configure_nginx "$APP_WEB_DOMAIN"
+    fi
   ) &
   show_spinner "Настройка и перезапуск Nginx"
 fi

@@ -30,10 +30,12 @@ from src.services.subscription import SubscriptionService
 from src.services.user import UserService
 
 
+@inject
 async def on_plan_create(
     callback: CallbackQuery,
     widget: Button,
     dialog_manager: DialogManager,
+    remnawave: FromDishka[RemnawaveSDK],
 ) -> None:
     """Переход к созданию нового плана с предустановленными длительностями."""
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
@@ -50,6 +52,16 @@ async def on_plan_create(
     # Очищаем сохранённый план (ключ от DialogDataAdapter)
     dialog_manager.dialog_data.pop("plandto", None)
     
+    # Получаем первый доступный внутренний сквад для установки по умолчанию
+    default_internal_squads = []
+    try:
+        internal_response = await remnawave.internal_squads.get_internal_squads()
+        if internal_response.internal_squads:
+            default_internal_squads = [internal_response.internal_squads[0].uuid]
+            logger.info(f"{log(user)} Auto-selected first internal squad: {default_internal_squads[0]}")
+    except Exception as e:
+        logger.warning(f"{log(user)} Failed to get internal squads for default: {e}")
+    
     # Создаем новый план с предустановленными длительностями
     from src.core.enums import Currency
     
@@ -62,6 +74,7 @@ async def on_plan_create(
     ]
     
     new_plan = PlanDto()
+    new_plan.internal_squads = default_internal_squads
     new_plan.durations = [
         PlanDurationDto(
             days=days,

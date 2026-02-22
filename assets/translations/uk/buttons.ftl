@@ -10,6 +10,7 @@ btn-dashboard-access = 🔓 Режим доступу
 btn-dashboard-features = ⚙️ Функції
 btn-dashboard-importer = 📥 Імпорт X-UI
 btn-dashboard-bot-management = 🤖 Керування ботом
+btn-dashboard-payment-settings = 💳 Налаштування платежів
 btn-dashboard-user-management = 👥 Користувачі
 
 # Bot Management

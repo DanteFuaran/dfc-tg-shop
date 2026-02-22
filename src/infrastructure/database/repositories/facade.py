@@ -12,6 +12,7 @@ from .settings import SettingsRepository
 from .subscription import SubscriptionRepository
 from .transaction import TransactionRepository
 from .user import UserRepository
+from .web_credential import WebCredentialRepository
 
 
 class RepositoriesFacade:
@@ -29,6 +30,7 @@ class RepositoriesFacade:
     referrals: ReferralRepository
     extra_device_purchases: ExtraDevicePurchaseRepository
     mirror_bots: MirrorBotRepository
+    web_credentials: WebCredentialRepository
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -45,3 +47,4 @@ class RepositoriesFacade:
         self.referrals = ReferralRepository(session)
         self.extra_device_purchases = ExtraDevicePurchaseRepository(session)
         self.mirror_bots = MirrorBotRepository(session)
+        self.web_credentials = WebCredentialRepository(session)
