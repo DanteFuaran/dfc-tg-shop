@@ -887,14 +887,3 @@ ntf-no-subscription-for-devices = <i>⚠️ Sie müssen zuerst ein Abonnement er
 
 ntf-no-subscription-for-connect = <i>⚠️ Sie müssen zuerst ein Abonnement erwerben.</i>
 
-ntf-event-stuck-payments =
-    ⚠️ <b>Hängende YooMoney-Zahlungen</b>
-
-    Es wurden <b>{ $count }</b> unvollständige Zahlung(en) gefunden.
-    Überprüfen Sie Ihr YooMoney-Wallet auf eingehende Überweisungen.
-
-    <blockquote>
-    { $details }
-    </blockquote>
-
-    <i>Wenn die Zahlung eingegangen ist, bestätigen Sie diese manuell im Dashboard.</i>

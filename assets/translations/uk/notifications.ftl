@@ -883,14 +883,3 @@ ntf-no-subscription-for-devices = <i>⚠️ Вам необхідно отрим
 
 ntf-no-subscription-for-connect = <i>⚠️ Вам необхідно отримати підписку.</i>
 
-ntf-event-stuck-payments =
-    ⚠️ <b>Завислі платежі YooMoney</b>
-
-    Знайдено <b>{ $count }</b> незавершених платежів.
-    Перевірте гаманець YooMoney на наявність вхідних переказів.
-
-    <blockquote>
-    { $details }
-    </blockquote>
-
-    <i>Якщо оплата надійшла, підтвердіть вручну в дашборді.</i>
