@@ -1,6 +1,6 @@
 from decimal import Decimal
 from io import BytesIO
-from typing import Any, List, Optional, cast
+from typing import Any, ClassVar, List, Optional, cast
 
 from aiogram import Bot
 from aiogram.types import BufferedInputFile, Message, TelegramObject
@@ -43,7 +43,7 @@ class ReferralService(BaseService):
     uow: UnitOfWork
     user_service: UserService
     settings_service: SettingsService
-    _bot_username: Optional[str]
+    _bot_username: ClassVar[Optional[str]] = None
 
     def __init__(
         self,
@@ -63,7 +63,6 @@ class ReferralService(BaseService):
         self.user_service = user_service
         self.settings_service = settings_service
         self.notification_service = notification_service
-        self._bot_username: Optional[str] = None
 
     async def create_referral(
         self,
@@ -555,8 +554,8 @@ class ReferralService(BaseService):
         except Exception:
             pass
 
-        if self._bot_username is None:
-            self._bot_username = (await self.bot.get_me()).username
+        if ReferralService._bot_username is None:
+            ReferralService._bot_username = (await self.bot.get_me()).username
 
         return f"{T_ME}{self._bot_username}"
 

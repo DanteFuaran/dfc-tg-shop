@@ -292,6 +292,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     bot: Bot = await container.get(Bot)
     bot_info = await bot.get_me()
+
+    # Кэшируем username один раз, чтобы ReferralService не вызывал get_me() на каждый рендер
+    from src.services.referral import ReferralService as _RefSvc
+    _RefSvc._bot_username = bot_info.username
     states: dict[Optional[bool], str] = {True: "Enabled", False: "Disabled", None: "Unknown"}
 
     logger.opt(colors=True).info(
