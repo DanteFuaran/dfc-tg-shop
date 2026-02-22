@@ -91,6 +91,9 @@ async def send_subscription_expire_notification_task(
     elif ntf_type == UserNotificationType.EXPIRED_1_DAY_AGO:
         i18n_key = "ntf-event-user-expired-ago"
         i18n_kwargs_extra = {"value": 1}
+    else:
+        logger.error(f"Unsupported notification type: {ntf_type}")
+        return
 
     user = await user_service.get(telegram_id)
 

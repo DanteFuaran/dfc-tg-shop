@@ -1583,6 +1583,18 @@ btn-pay = 💳 Pay
 # Devices
 btn-device-pending-deletion = ⏳ Deleting
 btn-device-marked-for-deletion = ✅ Marked for deletion
+btn-device-count = { $device_count } pcs.
+btn-pending-deletion-label = 🗑 Pending deletion
+
+# Alerts (callback.answer)
+alert-active-subscription-required = ❌ Active subscription required
+alert-active-subscription-required-for-devices = ❌ Active subscription required to purchase extra devices
+alert-trial-subscription-not-allowed = ❌ Trial subscription is not eligible. Paid subscription required
+alert-referral-subscription-not-allowed = ❌ Referral subscription is not eligible. Paid subscription required
+alert-trial-subscription-not-suitable = ❌ Trial subscription is not suitable
+alert-referral-subscription-not-suitable = ❌ Referral subscription is not suitable
+alert-slot-empty = Slot is empty
+frg-empty-slot = Empty slot
 
 # Update snooze
 btn-update-now = 🔄 Update now

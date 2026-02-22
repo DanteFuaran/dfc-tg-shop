@@ -67,7 +67,7 @@ async def send_broadcast_task(
                 logger.info(f"✓ Mirror bot manager initialized ({len(mirror_manager.active_bots)} bots)")
         except Exception as e:
             logger.warning(f"Failed to initialize mirror bots: {e}")
-        finally:
+        else:
             _mirror_bots_initialized = True
     
     broadcast_id = cast(int, broadcast.id)

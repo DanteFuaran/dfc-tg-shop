@@ -51,7 +51,7 @@ class YoomoneyGateway(BasePaymentGateway):
         try:
             response = await self._client.post(
                 "quickpay/confirm.xml",
-                json=payload,
+                data=payload,
                 follow_redirects=True,
             )
             response.raise_for_status()
@@ -89,6 +89,9 @@ class YoomoneyGateway(BasePaymentGateway):
 
         payment_id = UUID(payment_id_str)
         transaction_status = TransactionStatus.COMPLETED
+
+        # Возвращаем сумму из webhook для последующей верификации
+        webhook_amount = webhook_data.get("withdraw_amount") or webhook_data.get("amount")
 
         return payment_id, transaction_status
 
@@ -154,7 +157,7 @@ class YoomoneyGateway(BasePaymentGateway):
                 f"    amount            = {amount!r}\n"
                 f"    currency          = {currency!r}\n"
                 f"    datetime          = {dt!r}\n"
-                f"    sender            = {sender!r}\n"
+                f"    sender            = {(sender[:3] + '***') if sender else ''!r}\n"
                 f"    codepro           = {codepro!r}\n"
                 f"    secret            = {'*' * len(secret)!r} (len={len(secret)})\n"
                 f"    label             = {label!r}\n"

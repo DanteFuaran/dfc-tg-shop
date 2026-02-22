@@ -2276,3 +2276,7 @@ Klicken Sie auf die Schaltfläche unten, um zur Zahlung für zusätzliche Gerät
 # Device Deletion Warning
 msg-device-deletion-warning = ⚠️ Drücken Sie die Löschtaste erneut zur Bestätigung.
     Das Gerät funktioniert bis zum Ende des bezahlten Zeitraums.
+msg-extra-device-deletion-confirm = ⚠️ Zusätzliche Geräte werden am { $expires_date } entfernt.
+    Sie funktionieren bis zum Ende des bezahlten Zeitraums und werden bei der Abonnementverlängerung nicht berücksichtigt.
+    Drücken Sie die Löschtaste erneut zur Bestätigung.g.
+    Das Gerät funktioniert bis zum Ende des bezahlten Zeitraums.

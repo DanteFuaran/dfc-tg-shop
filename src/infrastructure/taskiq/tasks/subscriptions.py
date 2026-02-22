@@ -221,7 +221,7 @@ async def trial_subscription_task(
                     "plan_traffic_limit": i18n_format_traffic_limit(plan.traffic_limit),
                     "plan_device_limit": i18n_format_device_limit(plan.device_limit),
                     "plan_duration": i18n_format_days(plan.duration),
-                    "plan_price": "0 ₽",
+                    "plan_price": "0",
                 },
                 reply_markup=get_user_keyboard(user.telegram_id),
                 close_button_style="success",
@@ -296,7 +296,7 @@ async def process_subscription_purchase(
         logger.error(f"User not found for transaction '{transaction.id}'")
         return
 
-    # Определяем, есть ли пробная/реферальная подписка (по флагу ИЛИ по названию)
+    # Определяем, есть ли пробная/реферальная подписка (по флагу или по названию)
     def is_trial_or_referral(sub: Optional[SubscriptionDto]) -> bool:
         if not sub:
             return False
@@ -304,7 +304,10 @@ async def process_subscription_purchase(
             return True
         if sub.plan and sub.plan.name:
             name_lower = sub.plan.name.lower()
-            return "пробн" in name_lower or "реферал" in name_lower
+            return (
+                "пробн" in name_lower or "реферал" in name_lower
+                or "trial" in name_lower or "referral" in name_lower
+            )
         return False
 
     has_trial = is_trial_or_referral(subscription)
@@ -744,7 +747,7 @@ async def check_expired_extra_devices_task(
                     
                     logger.info(
                         f"[check_expired_extra_devices] Auto-renewed purchase '{purchase.id}' for user '{user.telegram_id}', "
-                        f"charged {purchase.price} ₽"
+                        f"charged {purchase.price}"
                     )
                     
                     await notification_service.notify_user(

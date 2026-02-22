@@ -823,7 +823,7 @@ extra_devices_list = Window(
     ListGroup(
         Row(
             Button(
-                text=Format("{item[device_count]} шт."),
+                text=I18nFormat("btn-device-count", device_count=F["item"]["device_count"]),
                 id="info_count",
             ),
             Button(
@@ -833,7 +833,7 @@ extra_devices_list = Window(
                 when=~F["item"]["pending_deletion"],
             ),
             Button(
-                text=Format("🗑 На удалении"),
+                text=I18nFormat("btn-pending-deletion-label"),
                 id="pending_deletion",
                 on_click=on_pending_deletion_info,
                 when=F["item"]["pending_deletion"],

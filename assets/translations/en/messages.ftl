@@ -2276,3 +2276,6 @@ Click the button below to proceed to payment for extra devices.
 # Device Deletion Warning
 msg-device-deletion-warning = ⚠️ Press the delete button again to confirm.
     Device will work until the end of the paid period.
+msg-extra-device-deletion-confirm = ⚠️ Extra devices will be removed on { $expires_date }.
+    They will work until the end of the paid period and will not be counted during subscription renewal.
+    Press the delete button again to confirm.

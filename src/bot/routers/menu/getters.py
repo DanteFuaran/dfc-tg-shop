@@ -183,7 +183,7 @@ async def menu_getter(
 DOWNLOAD_URLS = {
     "android": "https://play.google.com/store/apps/details?id=com.happproxy",
     "windows": "https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe",
-    "iphone": "https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973",
+    "iphone": "https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973",
     "macos": "https://github.com/Happ-proxy/happ-desktop/releases/",
 }
 
@@ -909,13 +909,14 @@ async def balance_gateways_getter(
 async def balance_amounts_getter(
     dialog_manager: DialogManager,
     payment_gateway_service: FromDishka[PaymentGatewayService],
+    settings_service: FromDishka[SettingsService],
     i18n: FromDishka[TranslatorRunner],
     **kwargs: Any,
 ) -> dict[str, Any]:
     from src.core.enums import PaymentGatewayType
     
     gateway_type = dialog_manager.dialog_data.get("selected_gateway")
-    currency_symbol = "₽"
+    currency_symbol = (await settings_service.get()).default_currency.symbol
     
     # Конвертируем строку в enum если нужно
     if isinstance(gateway_type, str):
@@ -957,7 +958,7 @@ async def balance_amount_getter(
     from src.core.enums import PaymentGatewayType
     
     gateway_type = dialog_manager.dialog_data.get("selected_gateway")
-    currency_symbol = "₽"
+    currency_symbol = (await settings_service.get()).default_currency.symbol
     
     # Конвертируем строку в enum если нужно
     if isinstance(gateway_type, str):
@@ -1029,12 +1030,9 @@ async def balance_confirm_getter(
     # currency может быть enum или строкой после сериализации
     if hasattr(currency, 'symbol'):
         currency_symbol = currency.symbol
-    elif currency == "RUB":
-        currency_symbol = "₽"
-    elif currency == "USD":
-        currency_symbol = "$"
-    elif currency == "XTR":
-        currency_symbol = "★"
+    elif isinstance(currency, str) and currency in ("RUB", "USD", "EUR", "XTR"):
+        from src.core.enums import Currency as CurrencyEnum
+        currency_symbol = CurrencyEnum.from_code(currency).symbol
     else:
         currency_symbol = currency or "₽"
     
@@ -1049,12 +1047,14 @@ async def balance_confirm_getter(
 @inject
 async def balance_success_getter(
     dialog_manager: DialogManager,
+    settings_service: FromDishka[SettingsService],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Getter for balance success screen."""
     start_data = dialog_manager.start_data or {}
     amount = start_data.get("amount", 0)
-    currency = start_data.get("currency", "₽")
+    default_symbol = (await settings_service.get()).default_currency.symbol
+    currency = start_data.get("currency", default_symbol)
     
     return {
         "amount": amount,

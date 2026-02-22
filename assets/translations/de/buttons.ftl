@@ -1583,6 +1583,18 @@ btn-pay = 💳 Bezahlen
 # Devices
 btn-device-pending-deletion = ⏳ Wird gelöscht
 btn-device-marked-for-deletion = ✅ Zum Löschen markiert
+btn-device-count = { $device_count } St.
+btn-pending-deletion-label = 🗑 Wird gelöscht
+
+# Alerts (callback.answer)
+alert-active-subscription-required = ❌ Aktives Abonnement erforderlich
+alert-active-subscription-required-for-devices = ❌ Aktives Abonnement für den Kauf zusätzlicher Geräte erforderlich
+alert-trial-subscription-not-allowed = ❌ Testabonnement nicht geeignet. Bezahltes Abonnement erforderlich
+alert-referral-subscription-not-allowed = ❌ Empfehlungsabonnement nicht geeignet. Bezahltes Abonnement erforderlich
+alert-trial-subscription-not-suitable = ❌ Testabonnement nicht geeignet
+alert-referral-subscription-not-suitable = ❌ Empfehlungsabonnement nicht geeignet
+alert-slot-empty = Slot ist leer
+frg-empty-slot = Leerer Slot
 
 # Update snooze
 btn-update-now = 🔄 Jetzt aktualisieren

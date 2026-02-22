@@ -9,7 +9,7 @@ from loguru import logger
 import asyncio
 
 from src.bot.states import MainMenu, Subscription
-from src.core.enums import PurchaseType
+from src.core.enums import Locale, PurchaseType
 from src.infrastructure.database.models.dto import UserDto
 from src.infrastructure.taskiq.broker import broker
 from src.services.user import UserService
@@ -218,13 +218,18 @@ async def send_balance_topup_notification_task(
     currency_symbol: str,
     bot: FromDishka[Bot],
     translator_hub: FromDishka[TranslatorHub],
+    user_service: FromDishka["UserService"],
 ) -> None:
     """Send balance topup success notification with close button."""
     try:
         # Wait for main menu to be rendered first
         await asyncio.sleep(2)
         
-        translator = translator_hub.get_translator_by_locale(locale="ru")
+        # Используем язык пользователя вместо хардкода "ru"
+        from src.services.user import UserService as _US
+        user = await user_service.get(telegram_id)
+        locale = user.language if user else Locale.RU
+        translator = translator_hub.get_translator_by_locale(locale=locale)
         
         # Format notification message
         message_text = translator.get(
@@ -233,10 +238,11 @@ async def send_balance_topup_notification_task(
             currency=currency_symbol,
         )
         
-        # Create inline keyboard with "Done" button
+        # Create inline keyboard with close button (localized)
+        close_text = translator.get("btn-notification-close-success")
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="✅ Готово", callback_data="delete_message", style="success")]
+                [InlineKeyboardButton(text=close_text, callback_data="delete_message")]
             ]
         )
         

@@ -174,8 +174,8 @@ class PaymentGatewayService(BaseService):
         logger.debug(f"Retrieved payment gateway of type '{gateway_type}'")
         return PaymentGatewayDto.from_model(db_gateway, decrypt=True)
 
-    async def get_all(self, sorted: bool = False) -> list[PaymentGatewayDto]:
-        db_gateways = await self.uow.repository.gateways.get_all(sorted)
+    async def get_all(self, order_by_priority: bool = False) -> list[PaymentGatewayDto]:
+        db_gateways = await self.uow.repository.gateways.get_all(order_by_priority)
         logger.debug(f"Retrieved '{len(db_gateways)}' payment gateways")
         return PaymentGatewayDto.from_model_list(db_gateways, decrypt=False)
 
@@ -192,13 +192,13 @@ class PaymentGatewayService(BaseService):
 
         if db_updated_gateway:
             logger.info(f"Payment gateway '{gateway.type}' updated successfully")
-        else:
-            logger.warning(
-                f"Attempted to update gateway '{gateway.type}' (ID: '{gateway.id}'), "
-                f"but gateway was not found or update failed"
-            )
+            return PaymentGatewayDto.from_model(db_updated_gateway, decrypt=True)
 
-        return PaymentGatewayDto.from_model(db_updated_gateway, decrypt=True)
+        logger.warning(
+            f"Attempted to update gateway '{gateway.type}' (ID: '{gateway.id}'), "
+            f"but gateway was not found or update failed"
+        )
+        return None
 
     async def filter_active(self, is_active: bool = True) -> list[PaymentGatewayDto]:
         db_gateways = await self.uow.repository.gateways.filter_active(is_active)
@@ -556,7 +556,7 @@ class PaymentGatewayService(BaseService):
             if "x" in transaction.plan.name:
                 try:
                     device_count = int(transaction.plan.name.split("x")[1].split(")")[0])
-                except:
+                except (ValueError, IndexError, AttributeError):
                     device_count = 1
             
             # Получаем текущую подписку пользователя
@@ -575,13 +575,13 @@ class PaymentGatewayService(BaseService):
             # Обновляем в БД
             await subscription_service.update(subscription)
             
-            # Создаём запись о покупке дополнительных устройств (срок 30 дней)
+            # Создаём запись о покупке дополнительных устройств
             await extra_device_service.create_purchase(
                 user=fresh_user,
                 subscription=subscription,
                 device_count=device_count,
                 price=int(transaction.pricing.final_amount),
-                duration_days=30,
+                duration_days=transaction.plan.duration,
             )
             
             # Обновляем в RemnaWave
@@ -718,13 +718,13 @@ class PaymentGatewayService(BaseService):
                 extra_i18n_kwargs = {
                     "has_extra_devices": 1,
                     "extra_devices_count": extra_devices,
-                    "extra_devices_cost": f"{extra_devices_cost_value} ₽",
+                    "extra_devices_cost": format_price(extra_devices_cost_value, transaction.currency),
                 }
             else:
                 extra_i18n_kwargs = {
                     "has_extra_devices": 0,
                     "extra_devices_count": 0,
-                    "extra_devices_cost": "0 ₽",
+                    "extra_devices_cost": format_price(0, transaction.currency),
                 }
 
         if transaction.purchase_type == PurchaseType.CHANGE:

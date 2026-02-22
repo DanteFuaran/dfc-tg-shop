@@ -1583,6 +1583,18 @@ btn-pay = 💳 Оплатить
 # Devices
 btn-device-pending-deletion = ⏳ Удаляется
 btn-device-marked-for-deletion = ✅ Помечено на удаление
+btn-device-count = { $device_count } шт.
+btn-pending-deletion-label = 🗑 На удалении
+
+# Alerts (callback.answer)
+alert-active-subscription-required = ❌ Требуется активная подписка
+alert-active-subscription-required-for-devices = ❌ Требуется активная подписка для покупки дополнительных устройств
+alert-trial-subscription-not-allowed = ❌ Пробная подписка не подходит. Требуется платная подписка
+alert-referral-subscription-not-allowed = ❌ Реферальная подписка не подходит. Требуется платная подписка
+alert-trial-subscription-not-suitable = ❌ Пробная подписка не подходит
+alert-referral-subscription-not-suitable = ❌ Реферальная подписка не подходит
+alert-slot-empty = Слот пустой
+frg-empty-slot = Пустой слот
 
 # Update snooze
 btn-update-now = 🔄 Обновить сейчас

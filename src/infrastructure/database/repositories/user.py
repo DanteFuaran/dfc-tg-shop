@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, update
 
 from src.core.enums import UserRole
 from src.infrastructure.database.models.sql import User
@@ -51,3 +51,21 @@ class UserRepository(BaseRepository):
 
     async def filter_by_blocked(self, blocked: bool) -> list[User]:
         return await self._get_many(User, User.is_blocked == blocked)
+
+    async def atomic_add_balance(self, telegram_id: int, amount: int) -> bool:
+        """Atomically add amount to user balance. Returns True if row was updated."""
+        result = await self.session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(balance=User.balance + amount)
+        )
+        return result.rowcount > 0  # type: ignore[union-attr]
+
+    async def atomic_subtract_balance(self, telegram_id: int, amount: int) -> bool:
+        """Atomically subtract amount from balance. Only succeeds if balance >= amount."""
+        result = await self.session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id, User.balance >= amount)
+            .values(balance=User.balance - amount)
+        )
+        return result.rowcount > 0  # type: ignore[union-attr]

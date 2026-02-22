@@ -179,8 +179,10 @@ class NotificationService(BaseService):
         self,
         traceback_str: str,
         payload: MessagePayload,
-        error_id: Optional[Union[str, int]] = str(uuid.uuid4()),
+        error_id: Optional[Union[str, int]] = None,
     ) -> None:
+        if error_id is None:
+            error_id = str(uuid.uuid4())
         file_data = BufferedInputFile(
             file=traceback_str.encode(),
             filename=f"error_{error_id}.txt",
@@ -455,8 +457,10 @@ class NotificationService(BaseService):
         self,
         locale: Locale,
         i18n_key: str,
-        i18n_kwargs: dict[str, Any] = {},
+        i18n_kwargs: Optional[dict[str, Any]] = None,
     ) -> str:
+        if i18n_kwargs is None:
+            i18n_kwargs = {}
         if not i18n_key:
             return i18n_key
 

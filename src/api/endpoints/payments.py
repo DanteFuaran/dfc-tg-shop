@@ -92,5 +92,4 @@ async def payments_webhook(
                 },
             ),
         )
-    finally:
         return Response(status_code=status.HTTP_200_OK)

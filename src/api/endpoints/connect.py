@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import html
+import json
+import re
 from typing import Any
 
 from fastapi import APIRouter, Request
@@ -18,7 +21,7 @@ router = APIRouter(prefix="/api/v1", tags=["connect"])
 DOWNLOAD_URLS = {
     "android": "https://play.google.com/store/apps/details?id=com.happproxy",
     "windows": "https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe",
-    "ios": "https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973",
+    "ios": "https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973",
     "macos": "https://github.com/Happ-proxy/happ-desktop/releases/",
 }
 
@@ -177,7 +180,7 @@ async def notify_device_connected(
     except Exception as e:
         from loguru import logger
         logger.error(f"Error sending device connected notification: {e}")
-        return JSONResponse({"status": "error", "error": str(e)})
+        return JSONResponse({"status": "error", "error": "Internal server error"}, status_code=500)
 
 
 @router.get("/connect/{subscription_url:path}")
@@ -202,7 +205,13 @@ async def connect_to_happ(
     if not subscription_url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="Invalid subscription URL format")
     
-    happ_url = f"happ://add/{subscription_url}"
+    # Дополнительная валидация: только буквы, цифры, допустимые URL-символы
+    if not re.match(r'^https?://[a-zA-Z0-9._\-:/\?&=%#+@]+$', subscription_url):
+        raise HTTPException(status_code=400, detail="Invalid subscription URL format")
+    
+    # Экранируем URL для безопасной вставки в HTML/JS
+    safe_happ_url = json.dumps(f"happ://add/{subscription_url}")
+    safe_display_url = html.escape(subscription_url)
     
     html_content = f"""
     <!DOCTYPE html>
@@ -266,7 +275,7 @@ async def connect_to_happ(
         </div>
         
         <script>
-            const happUrl = "{happ_url}";
+            const happUrl = {safe_happ_url};
             
             // Создаем невидимый iframe для попытки открытия deep link
             const iframe = document.createElement('iframe');

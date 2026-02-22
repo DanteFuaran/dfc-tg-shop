@@ -1582,6 +1582,7 @@ async def on_add_device(
     widget: Button,
     dialog_manager: DialogManager,
     user: FromDishka[UserService],
+    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Переход к выбору количества устройств для добавления."""
     # Проверяем наличие активной платной подписки
@@ -1589,18 +1590,18 @@ async def on_add_device(
     
     # Проверяем наличие активной подписки
     if not fresh_user.current_subscription or not fresh_user.current_subscription.is_active:
-        await callback.answer("❌ Требуется активная подписка для покупки дополнительных устройств", show_alert=True)
+        await callback.answer(i18n.get("alert-active-subscription-required-for-devices"), show_alert=True)
         return
     
     # Проверяем, что это не пробная подписка
     if fresh_user.current_subscription.is_trial:
-        await callback.answer("❌ Пробная подписка не подходит. Требуется платная подписка", show_alert=True)
+        await callback.answer(i18n.get("alert-trial-subscription-not-allowed"), show_alert=True)
         return
     
     # Проверяем, что это не реферальная подписка (по имени плана)
     plan_name = fresh_user.current_subscription.plan.name.lower() if fresh_user.current_subscription.plan else ""
-    if "реферал" in plan_name:
-        await callback.answer("❌ Реферальная подписка не подходит. Требуется платная подписка", show_alert=True)
+    if "реферал" in plan_name or "referral" in plan_name:
+        await callback.answer(i18n.get("alert-referral-subscription-not-allowed"), show_alert=True)
         return
     
     await dialog_manager.switch_to(state=Subscription.ADD_DEVICE_SELECT_COUNT)
@@ -2062,6 +2063,7 @@ async def on_extra_devices_list(
     widget: Button,
     dialog_manager: DialogManager,
     user: FromDishka[UserService],
+    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Переход к списку купленных дополнительных устройств."""
     # Проверяем наличие активной платной подписки
@@ -2069,18 +2071,18 @@ async def on_extra_devices_list(
     
     # Проверяем наличие активной подписки
     if not fresh_user.current_subscription or not fresh_user.current_subscription.is_active:
-        await callback.answer("❌ Требуется активная подписка", show_alert=True)
+        await callback.answer(i18n.get("alert-active-subscription-required"), show_alert=True)
         return
     
     # Проверяем, что это не пробная подписка
     if fresh_user.current_subscription.is_trial:
-        await callback.answer("❌ Пробная подписка не подходит", show_alert=True)
+        await callback.answer(i18n.get("alert-trial-subscription-not-suitable"), show_alert=True)
         return
     
     # Проверяем, что это не реферальная подписка (по имени плана)
     plan_name = fresh_user.current_subscription.plan.name.lower() if fresh_user.current_subscription.plan else ""
-    if "реферал" in plan_name:
-        await callback.answer("❌ Реферальная подписка не подходит", show_alert=True)
+    if "реферал" in plan_name or "referral" in plan_name:
+        await callback.answer(i18n.get("alert-referral-subscription-not-suitable"), show_alert=True)
         return
     
     await dialog_manager.switch_to(state=Subscription.EXTRA_DEVICES_LIST)
@@ -2133,6 +2135,7 @@ async def on_delete_extra_device_purchase(
     extra_device_service: FromDishka[ExtraDeviceService],
     notification_service: FromDishka[NotificationService],
     user_service: FromDishka[UserService],
+    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Пометить покупку дополнительных устройств на удаление."""
     import time
@@ -2177,9 +2180,7 @@ async def on_delete_extra_device_purchase(
         expires_date = purchase.expires_at.strftime("%d.%m.%Y %H:%M")
         
         warning_msg = await callback.message.answer(
-            f"⚠️ Дополнительные устройства будут удалены {expires_date}.\n"
-            "Они будут работать до конца оплаченного срока и не будут учитываться при продлении подписки.\n\n"
-            "Нажмите кнопку удаления повторно для подтверждения."
+            i18n.get("msg-extra-device-deletion-confirm", expires_date=expires_date)
         )
         
         # Удаляем сообщение через 5 секунд
@@ -2215,7 +2216,7 @@ async def on_delete_extra_device_purchase(
         payload=MessagePayload(i18n_key="ntf-extra-device-marked-deletion"),
     )
     
-    await callback.answer("✅ Помечено на удаление")
+    await callback.answer(i18n.get("btn-device-marked-for-deletion"))
     
     # Обновляем окно, чтобы отобразить изменения
     await dialog_manager.update({})
@@ -2228,6 +2229,7 @@ async def on_pending_deletion_info(
     sub_manager: SubManager,
     remnawave_service: FromDishka[RemnawaveService],
     notification_service: FromDishka[NotificationService],
+    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Удалить устройство из слота на удалении."""
     await sub_manager.load_data()
@@ -2243,7 +2245,7 @@ async def on_pending_deletion_info(
     
     if not selected_short_hwid:
         # Слот пустой - ничего не делаем
-        await callback.answer("Слот пустой", show_alert=False)
+        await callback.answer(i18n.get("alert-slot-empty"), show_alert=False)
         return
     
     # Удаляем устройство из слота

@@ -233,7 +233,7 @@ async def on_gateway_move(
     # Сохраняем изменения placement в pending
     if "pending_placement" not in sub_manager.manager.dialog_data:
         # Получаем и сохраняем текущий порядок всех шлюзов
-        gateways = await payment_gateway_service.get_all(sorted=True)
+        gateways = await payment_gateway_service.get_all(order_by_priority=True)
         sub_manager.manager.dialog_data["pending_placement"] = {
             gw.id: gw.order_index for gw in gateways
         }

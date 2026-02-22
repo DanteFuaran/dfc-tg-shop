@@ -18,8 +18,8 @@ class PaymentGatewayRepository(BaseRepository):
     async def get_by_type(self, gateway_type: PaymentGatewayType) -> Optional[PaymentGateway]:
         return await self._get_one(PaymentGateway, PaymentGateway.type == gateway_type)
 
-    async def get_all(self, sorted: bool = False) -> list[PaymentGateway]:
-        if sorted:
+    async def get_all(self, order_by_priority: bool = False) -> list[PaymentGateway]:
+        if order_by_priority:
             order_by = PaymentGateway.order_index.asc()
         else:
             order_by = PaymentGateway.id.asc()

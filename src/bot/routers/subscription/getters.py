@@ -54,6 +54,7 @@ async def subscription_getter(
     settings_service: FromDishka[SettingsService],
     **kwargs: Any,
 ) -> dict[str, Any]:
+    currency = (await settings_service.get()).default_currency
     has_active = bool(user.current_subscription and not user.current_subscription.is_trial)
     is_unlimited = user.current_subscription.is_unlimited if user.current_subscription else False
     purchase_type = dialog_manager.dialog_data.get("purchase_type")
@@ -182,8 +183,8 @@ async def subscription_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
@@ -243,6 +244,7 @@ async def plans_getter(
     i18n: FromDishka[TranslatorRunner],
     **kwargs: Any,
 ) -> dict[str, Any]:
+    currency = (await settings_service.get()).default_currency
     plans = await plan_service.get_available_plans(user)
 
     # Если пользователь меняет подписку (CHANGE), исключаем текущий активный план из списка
@@ -289,8 +291,8 @@ async def plans_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
@@ -359,6 +361,7 @@ async def duration_getter(
     
     # Получаем курсы валют для конвертации
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
@@ -457,8 +460,8 @@ async def duration_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
@@ -599,6 +602,7 @@ async def payment_method_getter(
     
     # Получаем курсы валют для конвертации
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
@@ -621,8 +625,8 @@ async def payment_method_getter(
         payment_methods.append(
             {
                 "gateway_type": PaymentGatewayType.BALANCE,
-                "price": format_price(price.final_amount, Currency.RUB),
-                "original_price": format_price(price.original_amount, Currency.RUB),
+                "price": format_price(price.final_amount, currency),
+                "original_price": format_price(price.original_amount, currency),
                 "user_balance": available_balance,
                 "discount_percent": price.discount_percent,
                 "has_discount": 1 if price.discount_percent > 0 else 0,
@@ -709,8 +713,8 @@ async def payment_method_getter(
         # Данные пользователя для шапки
         "user_id": str(user.telegram_id),
         "user_name": user.name,
-        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
@@ -776,6 +780,7 @@ async def confirm_getter(
     
     # Получаем курсы валют и настройки для пересчёта цены
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
@@ -900,8 +905,8 @@ async def confirm_getter(
         # Данные пользователя для шапки
         "user_id": str(user.telegram_id),
         "user_name": user.name,
-        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "discount_value": discount_info.value,
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
@@ -976,12 +981,13 @@ async def confirm_balance_getter(
     
     # Пересчитываем цену с учётом актуальной скидки пользователя
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     global_discount = await settings_service.get_global_discount_settings()
-    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    base_price = duration.get_price(currency, rates.usd_rate, rates.eur_rate, rates.stars_rate)
     extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
     total_price = base_price + Decimal(extra_devices_cost)
-    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
+    pricing = pricing_service.calculate(user, total_price, currency, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
 
@@ -1006,18 +1012,18 @@ async def confirm_balance_getter(
         "devices": i18n_format_device_limit(plan.device_limit),
         "traffic": i18n_format_traffic_limit(plan.traffic_limit),
         "period": i18n.get(key, **kw),
-        "final_amount": format_price(int(pricing.final_amount), Currency.RUB),
+        "final_amount": format_price(int(pricing.final_amount), currency),
         "discount_percent": pricing.discount_percent,
-        "original_amount": format_price(int(pricing.original_amount), Currency.RUB),
+        "original_amount": format_price(int(pricing.original_amount), currency),
         "currency": currency,
-        "user_balance": format_price(int(available_balance), Currency.RUB),
-        "balance_after": format_price(int(available_balance - pricing.final_amount), Currency.RUB),
+        "user_balance": format_price(int(available_balance), currency),
+        "balance_after": format_price(int(available_balance - pricing.final_amount), currency),
         "only_single_duration": only_single_duration,
         # Данные пользователя для профиля
         "user_id": str(user.telegram_id),
         "user_name": user.name,
-        "balance": format_price(int(available_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(available_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         "discount_value": discount_info.value,
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
@@ -1083,13 +1089,13 @@ async def confirm_balance_getter(
             "device_limit_bonus": device_limit_bonus,
             "extra_devices": extra_devices,
             "expire_time": i18n_format_expire_time(subscription.expire_at),
-            "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), Currency.RUB) if extra_devices_monthly_cost > 0 else "0",
-            "extra_devices_cost": format_price(int(saved_extra_devices_cost), Currency.RUB) if saved_extra_devices_cost > 0 else "0",
+            "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), currency) if extra_devices_monthly_cost > 0 else "0",
+            "extra_devices_cost": format_price(int(saved_extra_devices_cost), currency) if saved_extra_devices_cost > 0 else "0",
             "has_extra_devices_cost": 1 if saved_extra_devices_cost > 0 else 0,
-            "total_payment": format_price(pricing.final_amount, Currency.RUB),
-            "balance_after": format_price(int(available_balance - pricing.final_amount), Currency.RUB),
-            "original_amount": format_price(int(base_subscription_price), Currency.RUB),  # Цена подписки БЕЗ доп. устройств
-            "user_balance": format_price(int(available_balance), Currency.RUB),
+            "total_payment": format_price(pricing.final_amount, currency),
+            "balance_after": format_price(int(available_balance - pricing.final_amount), currency),
+            "original_amount": format_price(int(base_subscription_price), currency),  # Цена подписки БЕЗ доп. устройств
+            "user_balance": format_price(int(available_balance), currency),
             "planned_extra_devices": planned_extra_devices,
             "has_planned_extra_devices": 1 if planned_extra_devices > 0 else 0,
         })
@@ -1107,7 +1113,7 @@ async def confirm_balance_getter(
             "extra_devices_monthly_cost": "0",
             "extra_devices_cost": "0",
             "has_extra_devices_cost": 0,
-            "total_payment": format_price(int(pricing.final_amount), Currency.RUB),
+            "total_payment": format_price(int(pricing.final_amount), currency),
             "planned_extra_devices": planned_extra_devices,
             "has_planned_extra_devices": 1 if planned_extra_devices > 0 else 0,
         })
@@ -1153,12 +1159,13 @@ async def confirm_yoomoney_getter(
     
     # Пересчитываем цену с учётом актуальной скидки пользователя
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     global_discount = await settings_service.get_global_discount_settings()
-    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    base_price = duration.get_price(currency, rates.usd_rate, rates.eur_rate, rates.stars_rate)
     extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
     total_price = base_price + Decimal(extra_devices_cost)
-    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
+    pricing = pricing_service.calculate(user, total_price, currency, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
     
@@ -1200,24 +1207,24 @@ async def confirm_yoomoney_getter(
         "devices": i18n_format_device_limit(plan.device_limit),
         "traffic": i18n_format_traffic_limit(plan.traffic_limit),
         "period": i18n.get(key, **kw),
-        "final_amount": format_price(int(pricing.final_amount), Currency.RUB),
+        "final_amount": format_price(int(pricing.final_amount), currency),
         "discount_percent": pricing.discount_percent,
-        "original_amount": format_price(int(base_subscription_price), Currency.RUB),  # Цена подписки БЕЗ доп. устройств
+        "original_amount": format_price(int(base_subscription_price), currency),  # Цена подписки БЕЗ доп. устройств
         "currency": currency,
         "url": result_url,
         # Данные о стоимости доп. устройств
-        "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), Currency.RUB) if extra_devices_monthly_cost > 0 else "0",
-        "extra_devices_cost": format_price(int(saved_extra_devices_cost), Currency.RUB) if saved_extra_devices_cost > 0 else "0",
+        "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), currency) if extra_devices_monthly_cost > 0 else "0",
+        "extra_devices_cost": format_price(int(saved_extra_devices_cost), currency) if saved_extra_devices_cost > 0 else "0",
         "has_extra_devices_cost": 1 if saved_extra_devices_cost > 0 else 0,
-        "total_payment": format_price(int(pricing.final_amount), Currency.RUB),
+        "total_payment": format_price(int(pricing.final_amount), currency),
         # Планируемые дополнительные устройства
         "planned_extra_devices": planned_extra_devices,
         "has_planned_extra_devices": 1 if planned_extra_devices > 0 else 0,
         # User profile data
         "user_id": str(user.telegram_id),
         "user_name": user.name,
-        "balance": format_price(int(user.balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(user.balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         # Discount data
         "discount_value": discount_info.value,
@@ -1278,12 +1285,13 @@ async def confirm_yookassa_getter(
     
     # Пересчитываем цену с учётом актуальной скидки пользователя
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     global_discount = await settings_service.get_global_discount_settings()
-    base_price = duration.get_price(Currency.RUB, rates.usd_rate, rates.eur_rate, rates.stars_rate)
+    base_price = duration.get_price(currency, rates.usd_rate, rates.eur_rate, rates.stars_rate)
     extra_devices_cost = float(dialog_manager.dialog_data.get("extra_devices_cost", 0) or 0)
     total_price = base_price + Decimal(extra_devices_cost)
-    pricing = pricing_service.calculate(user, total_price, Currency.RUB, global_discount, context="subscription")
+    pricing = pricing_service.calculate(user, total_price, currency, global_discount, context="subscription")
 
     key, kw = i18n_format_days(duration.days)
     
@@ -1325,24 +1333,24 @@ async def confirm_yookassa_getter(
         "devices": i18n_format_device_limit(plan.device_limit),
         "traffic": i18n_format_traffic_limit(plan.traffic_limit),
         "period": i18n.get(key, **kw),
-        "final_amount": format_price(int(pricing.final_amount), Currency.RUB),
+        "final_amount": format_price(int(pricing.final_amount), currency),
         "discount_percent": pricing.discount_percent,
-        "original_amount": format_price(int(base_subscription_price), Currency.RUB),  # Цена подписки БЕЗ доп. устройств
+        "original_amount": format_price(int(base_subscription_price), currency),  # Цена подписки БЕЗ доп. устройств
         "currency": currency,
         "url": result_url,
         # Данные о стоимости доп. устройств
-        "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), Currency.RUB) if extra_devices_monthly_cost > 0 else "0",
-        "extra_devices_cost": format_price(int(saved_extra_devices_cost), Currency.RUB) if saved_extra_devices_cost > 0 else "0",
+        "extra_devices_monthly_cost": format_price(int(extra_devices_monthly_cost), currency) if extra_devices_monthly_cost > 0 else "0",
+        "extra_devices_cost": format_price(int(saved_extra_devices_cost), currency) if saved_extra_devices_cost > 0 else "0",
         "has_extra_devices_cost": 1 if saved_extra_devices_cost > 0 else 0,
-        "total_payment": format_price(int(pricing.final_amount), Currency.RUB),
+        "total_payment": format_price(int(pricing.final_amount), currency),
         # Планируемые дополнительные устройства
         "planned_extra_devices": planned_extra_devices,
         "has_planned_extra_devices": 1 if planned_extra_devices > 0 else 0,
         # User profile data
         "user_id": str(user.telegram_id),
         "user_name": user.name,
-        "balance": format_price(int(user.balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(user.balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": user.referral_code,
         # Discount data
         "discount_value": discount_info.value,
@@ -1380,6 +1388,7 @@ async def getter_connect(
     Getter для экрана подключения после успешного создания пробной подписки.
     Безопасно работает даже если подписка не найдена сразу (может быть задержка БД).
     """
+    currency = (await settings_service.get()).default_currency
     
     # Пытаемся получить подписку
     subscription = user.current_subscription
@@ -1419,7 +1428,7 @@ async def getter_connect(
             "expire_time": "...",
             "user_id": str(user.telegram_id),
             "user_name": user.name,
-            "balance": format_price(int(user.balance), Currency.RUB),
+            "balance": format_price(int(user.balance), currency),
             "referral_balance": 0,
             "referral_code": user.referral_code,
             "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
@@ -1483,8 +1492,8 @@ async def getter_connect(
         "user_id": str(user.telegram_id),
         "user_name": user.name,
         "referral_code": user.referral_code or "—",
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
-        "balance": format_price(int(user.balance), Currency.RUB),
+        "referral_balance": format_price(int(referral_balance), currency),
+        "balance": format_price(int(user.balance), currency),
         "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -1515,6 +1524,7 @@ async def success_payment_getter(
     i18n: FromDishka[TranslatorRunner],
     **kwargs: Any,
 ) -> dict[str, Any]:
+    currency = (await settings_service.get()).default_currency
     # Try to get purchase_type from dialog_data first, then from start_data
     purchase_type: PurchaseType = dialog_manager.dialog_data.get("purchase_type")
     if not purchase_type:
@@ -1636,8 +1646,8 @@ async def success_payment_getter(
             # Данные профиля пользователя
             "user_id": str(fresh_user.telegram_id),
             "user_name": fresh_user.name,
-            "balance": format_price(int(display_balance), Currency.RUB),
-            "referral_balance": format_price(int(referral_balance), Currency.RUB),
+            "balance": format_price(int(display_balance), currency),
+            "referral_balance": format_price(int(referral_balance), currency),
             "referral_code": fresh_user.referral_code,
             "discount_value": discount_info.value,
             "discount_is_temporary": 1 if discount_info.is_temporary else 0,
@@ -1720,8 +1730,8 @@ async def success_payment_getter(
         # Данные профиля пользователя
         "user_id": str(fresh_user.telegram_id),
         "user_name": fresh_user.name,
-        "balance": format_price(int(fallback_display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(fallback_display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "referral_code": fresh_user.referral_code,
         "discount_value": discount_info.value,
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
@@ -1735,7 +1745,6 @@ async def success_payment_getter(
     }
 
 
-@inject
 @inject
 async def referral_success_getter(
     dialog_manager: DialogManager,
@@ -1751,6 +1760,7 @@ async def referral_success_getter(
     ВАЖНО: Получает СВЕЖИЕ данные пользователя из базы, так как
     user из middleware может быть устаревшим после обновления подписки.
     """
+    currency = (await settings_service.get()).default_currency
     # Получаем свежие данные пользователя
     await user_service.clear_user_cache(user.telegram_id)
     fresh_user = await user_service.get(user.telegram_id)
@@ -1784,8 +1794,8 @@ async def referral_success_getter(
         "user_id": str(fresh_user.telegram_id),
         "user_name": fresh_user.name,
         "referral_code": fresh_user.referral_code or "—",
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
-        "balance": format_price(int(display_balance), Currency.RUB),
+        "referral_balance": format_price(int(referral_balance), currency),
+        "balance": format_price(int(display_balance), currency),
         "discount_value": discount_info.value,
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
@@ -1816,6 +1826,7 @@ async def add_device_select_count_getter(
 ) -> dict[str, Any]:
     """Геттер для окна выбора количества дополнительных устройств."""
     from decimal import Decimal
+    currency = (await settings_service.get()).default_currency
     
     # Проверяем наличие активной подписки
     subscription = user.current_subscription
@@ -1830,8 +1841,8 @@ async def add_device_select_count_getter(
             "discount_is_temporary": 0,
             "discount_is_permanent": 0,
             "discount_remaining": 0,
-            "balance": format_price(0, Currency.RUB),
-            "referral_balance": format_price(0, Currency.RUB),
+            "balance": format_price(0, currency),
+            "referral_balance": format_price(0, currency),
             "is_balance_enabled": 0,
             "is_balance_separate": 0,
             "is_referral_enable": 0,
@@ -1865,7 +1876,7 @@ async def add_device_select_count_getter(
     price_details = pricing_service.calculate(
         user=user,
         price=Decimal(device_price_monthly),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -1905,8 +1916,8 @@ async def add_device_select_count_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -1941,6 +1952,7 @@ async def add_device_duration_getter(
         calculate_device_price_until_subscription_end,
         calculate_device_price_until_month_end,
     )
+    currency = (await settings_service.get()).default_currency
     
     # Проверяем наличие активной подписки
     subscription = user.current_subscription
@@ -2030,7 +2042,7 @@ async def add_device_duration_getter(
     price_details_full = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_full),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2038,7 +2050,7 @@ async def add_device_duration_getter(
     price_details_full_month = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_full_month),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2046,7 +2058,7 @@ async def add_device_duration_getter(
     price_details_month = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_month),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2054,7 +2066,7 @@ async def add_device_duration_getter(
     price_details_months_1 = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_months_1),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2062,7 +2074,7 @@ async def add_device_duration_getter(
     price_details_months_3 = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_months_3),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2070,7 +2082,7 @@ async def add_device_duration_getter(
     price_details_months_6 = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_months_6),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2078,7 +2090,7 @@ async def add_device_duration_getter(
     price_details_months_12 = pricing_service.calculate(
         user=user,
         price=Decimal(total_price_months_12),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2140,8 +2152,8 @@ async def add_device_duration_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -2263,6 +2275,7 @@ async def add_device_payment_getter(
     
     # Получаем курсы валют для конвертации
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
@@ -2273,7 +2286,7 @@ async def add_device_payment_getter(
     price_details = pricing_service.calculate(
         user=user,
         price=Decimal(original_price),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2318,8 +2331,8 @@ async def add_device_payment_getter(
     if is_balance_enabled:
         payment_methods.append({
             "gateway_type": PaymentGatewayType.BALANCE,
-            "price": format_price(total_price_rub, Currency.RUB),
-            "original_price": format_price(original_price_rub, Currency.RUB),
+            "price": format_price(total_price_rub, currency),
+            "original_price": format_price(original_price_rub, currency),
             "has_discount": 1 if has_discount else 0,
             "discount_percent": price_details.discount_percent,
         })
@@ -2373,8 +2386,8 @@ async def add_device_payment_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -2493,7 +2506,7 @@ async def add_device_confirm_getter(
     price_details = pricing_service.calculate(
         user=user,
         price=Decimal(original_price_rub),
-        currency=Currency.RUB,
+        currency=currency,
         global_discount=global_discount,
         context="extra_devices",
     )
@@ -2565,9 +2578,9 @@ async def add_device_confirm_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "new_balance": format_price(int(new_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "new_balance": format_price(int(new_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -2604,9 +2617,11 @@ async def devices_getter(
     referral_service: FromDishka[ReferralService],
     settings_service: FromDishka[SettingsService],
     extra_device_service: FromDishka[ExtraDeviceService],
+    i18n: FromDishka[TranslatorRunner],
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Геттер для окна управления устройствами в меню подписки."""
+    currency = (await settings_service.get()).default_currency
     
     if not user.current_subscription:
         raise ValueError(f"Current subscription for user '{user.telegram_id}' not found")
@@ -2692,7 +2707,7 @@ async def devices_getter(
                 "show_delete_button": False,  # Нет ❌ для пустых базовых слотов
                 "show_trash_button": False,
                 "show_pending_text": False,
-                "device_info": "Пустой слот",
+                "device_info": i18n.get("frg-empty-slot"),
             }
         device_slots.append(slot)
         slot_index += 1
@@ -2722,7 +2737,7 @@ async def devices_getter(
                 "show_delete_button": False,  # Нет ❌ для пустых бонусных слотов
                 "show_trash_button": False,
                 "show_pending_text": False,
-                "device_info": "Пустой слот",
+                "device_info": i18n.get("frg-empty-slot"),
             }
         device_slots.append(slot)
         slot_index += 1
@@ -2763,7 +2778,7 @@ async def devices_getter(
                     "show_delete_button": not p.pending_deletion,  # ❌ только если НЕ на удалении
                     "show_trash_button": False,  # Нет 🗑 для пустых слотов
                     "show_pending_text": p.pending_deletion,  # "Удаляется" если на удалении
-                    "device_info": "Пустой слот",
+                    "device_info": i18n.get("frg-empty-slot"),
                 }
                 # Сохраняем purchase_id для удаления пустого слота
                 slot_purchase_map[str(slot_index)] = p.id
@@ -2871,8 +2886,8 @@ async def devices_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
-        "balance": format_price(int(display_balance), Currency.RUB),
+        "referral_balance": format_price(int(referral_balance), currency),
+        "balance": format_price(int(display_balance), currency),
         "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
         "is_balance_separate": 1 if not is_balance_combined else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -2897,6 +2912,7 @@ async def add_device_success_getter(
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Геттер для окна успешного добавления устройств."""
+    currency = (await settings_service.get()).default_currency
     # Очищаем кэш и получаем свежие данные пользователя из БД
     await user_service.clear_user_cache(user.telegram_id)
     fresh_user = await user_service.get(user.telegram_id)
@@ -2948,8 +2964,8 @@ async def add_device_success_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "balance": format_price(int(display_balance), Currency.RUB),
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
+        "balance": format_price(int(display_balance), currency),
+        "referral_balance": format_price(int(referral_balance), currency),
         "is_balance_enabled": 1 if is_balance_enabled else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
@@ -2990,6 +3006,7 @@ async def extra_devices_list_getter(
     
     # Получаем курсы валют для конвертации
     settings = await settings_service.get()
+    currency = settings.default_currency
     rates = settings.features.currency_rates
     usd_rate = rates.usd_rate
     eur_rate = rates.eur_rate
@@ -3074,8 +3091,8 @@ async def extra_devices_list_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
-        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), Currency.RUB),
+        "referral_balance": format_price(int(referral_balance), currency),
+        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), currency),
         "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
         "is_balance_separate": 1 if is_balance_separate else 0,
         "is_referral_enable": 1 if is_referral_enable else 0,
@@ -3104,6 +3121,7 @@ async def extra_device_manage_getter(
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Геттер для управления конкретной покупкой дополнительных устройств."""
+    currency = (await settings_service.get()).default_currency
     
     purchase_id = dialog_manager.dialog_data.get("selected_purchase_id")
     if not purchase_id:
@@ -3149,8 +3167,8 @@ async def extra_device_manage_getter(
         "discount_is_temporary": 1 if discount_info.is_temporary else 0,
         "discount_is_permanent": 1 if discount_info.is_permanent else 0,
         "discount_remaining": discount_info.remaining_days,
-        "referral_balance": format_price(int(referral_balance), Currency.RUB),
-        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), Currency.RUB),
+        "referral_balance": format_price(int(referral_balance), currency),
+        "balance": format_price(int(get_display_balance(user.balance, referral_balance, is_balance_combined)), currency),
         "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
         # Данные подписки
         "is_trial": 1 if subscription.is_trial else 0,

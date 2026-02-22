@@ -64,10 +64,10 @@ class UserService(BaseService):
                 language = Locale(aiogram_user.language_code)
                 logger.info(f"User {aiogram_user.id} created with Telegram language: {language.value}")
             else:
-                language = Locale.RU
+                language = settings.bot_locale if settings else Locale.RU
                 logger.info(
                     f"User {aiogram_user.id} Telegram language '{aiogram_user.language_code}' "
-                    f"not supported, using Russian"
+                    f"not supported, using bot locale: {language.value}"
                 )
         else:
             # Мультиязычность выключена - используем язык выбранный админом
@@ -136,9 +136,6 @@ class UserService(BaseService):
         if db_user:
             logger.debug(f"Retrieved user '{telegram_id}'")
             user_dto = UserDto.from_model(db_user)
-            if user_dto:
-                # Расширенное логирование для отладки
-                logger.debug(f"🔍 DEBUG get: User {telegram_id}, is_invited_user={user_dto.is_invited_user}")
             return user_dto
         else:
             logger.warning(f"User '{telegram_id}' not found")
@@ -151,8 +148,6 @@ class UserService(BaseService):
         if db_user:
             logger.debug(f"Retrieved user '{telegram_id}' without cache")
             user_dto = UserDto.from_model(db_user)
-            if user_dto:
-                logger.debug(f"🔍 DEBUG get without cache: User {telegram_id}, is_invited_user={user_dto.is_invited_user}")
             return user_dto
         else:
             logger.warning(f"User '{telegram_id}' not found (without cache)")
@@ -207,13 +202,13 @@ class UserService(BaseService):
                             f"({user.language.value} -> {new_language})"
                         )
                         user.language = Locale(new_language)
-                elif user.language != Locale.RU:
-                    # Язык Telegram не поддерживается - используем русский
+                elif user.language != settings.bot_locale:
+                    # Язык Telegram не поддерживается - используем язык из настроек
                     logger.warning(
                         f"User '{user.telegram_id}' language '{new_language}' not supported. "
-                        f"Using Russian ({user.language.value} -> {Locale.RU.value})"
+                        f"Using bot locale ({user.language.value} -> {settings.bot_locale.value})"
                     )
-                    user.language = Locale.RU
+                    user.language = settings.bot_locale
             else:
                 # Мультиязычность выключена - используем язык выбранный админом
                 if user.language != settings.bot_locale:
@@ -325,9 +320,11 @@ class UserService(BaseService):
         logger.debug(f"Retrieved '{len(db_users)}' recent registered users")
         return UserDto.from_model_list(list(reversed(db_users)))
 
-    async def get_recent_activity_users(self, excluded_ids: list[int] = []) -> list[UserDto]:
+    async def get_recent_activity_users(self, excluded_ids: Optional[list[int]] = None) -> list[UserDto]:
         telegram_ids = await self._get_recent_activity()
         users: list[UserDto] = []
+        if excluded_ids is None:
+            excluded_ids = []
 
         for telegram_id in telegram_ids:
             if telegram_id in excluded_ids:
@@ -489,11 +486,11 @@ class UserService(BaseService):
         from_main = min(user.balance, amount)
         from_bonus = amount - from_main
         
-        # Обновляем основной баланс
+        # Атомарно обновляем основной баланс
         if from_main > 0:
-            await self.uow.repository.users.update(
+            await self.uow.repository.users.atomic_subtract_balance(
                 telegram_id=user.telegram_id,
-                balance=user.balance - from_main,
+                amount=from_main,
             )
             await self.uow.commit()
         
@@ -511,33 +508,17 @@ class UserService(BaseService):
         user = await self.get(telegram_id)
         return user.balance if user else 0
 
-    async def get_available_balance(self, user: Union[BaseUserDto, UserDto], referral_balance: int = 0) -> int:
+    async def get_available_balance(
+        self,
+        user: Union[BaseUserDto, UserDto],
+        referral_balance: int = 0,
+        is_combined: bool = False,
+    ) -> int:
         """
         Получить доступный баланс пользователя с учётом режима баланса.
         В режиме COMBINED возвращает сумму основного и бонусного баланса.
         В режиме SEPARATE возвращает только основной баланс.
-        
-        Args:
-            user: Пользователь
-            referral_balance: Бонусный баланс (нужно передать из referral_service)
-        
-        Returns:
-            Доступная сумма для трат
         """
-        from src.services.settings import SettingsService
-        from dishka import AsyncContainer
-        
-        # Получаем настройки режима баланса
-        # Если нет доступа к контейнеру, по умолчанию используем SEPARATE режим
-        try:
-            # Это временное решение - в идеале передавать settings_service через параметр
-            is_combined = False  # По умолчанию SEPARATE
-            # Но мы можем проверить через self, если есть доступ
-            # В реальности нужно передавать settings_service как зависимость
-        except Exception:
-            is_combined = False
-        
-        # В COMBINED режиме суммируем балансы
         return user.balance + referral_balance if is_combined else user.balance
 
     #
