@@ -10,6 +10,7 @@ from .promocode import PromocodeRepository
 from .referral import ReferralRepository
 from .settings import SettingsRepository
 from .subscription import SubscriptionRepository
+from .ticket import TicketRepository
 from .transaction import TransactionRepository
 from .user import UserRepository
 from .web_credential import WebCredentialRepository
@@ -23,6 +24,7 @@ class RepositoriesFacade:
     plans: PlanRepository
     promocodes: PromocodeRepository
     subscriptions: SubscriptionRepository
+    tickets: TicketRepository
     transactions: TransactionRepository
     users: UserRepository
     settings: SettingsRepository
@@ -40,6 +42,7 @@ class RepositoriesFacade:
         self.plans = PlanRepository(session)
         self.promocodes = PromocodeRepository(session)
         self.subscriptions = SubscriptionRepository(session)
+        self.tickets = TicketRepository(session)
         self.transactions = TransactionRepository(session)
         self.users = UserRepository(session)
         self.settings = SettingsRepository(session)

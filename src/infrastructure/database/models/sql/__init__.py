@@ -9,6 +9,7 @@ from .promocode import Promocode, PromocodeActivation
 from .referral import Referral, ReferralReward
 from .settings import Settings
 from .subscription import Subscription
+from .ticket import Ticket, TicketMessage
 from .transaction import Transaction
 from .user import User
 from .web_credential import WebCredential
@@ -30,6 +31,8 @@ __all__ = [
     "ReferralReward",
     "Settings",
     "Subscription",
+    "Ticket",
+    "TicketMessage",
     "Transaction",
     "User",
     "WebCredential",

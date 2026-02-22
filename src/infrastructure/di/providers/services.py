@@ -16,6 +16,7 @@ from src.services.referral import ReferralService
 from src.services.remnawave import RemnawaveService
 from src.services.settings import SettingsService
 from src.services.subscription import SubscriptionService
+from src.services.ticket import TicketService
 from src.services.transaction import TransactionService
 from src.services.update_checker import UpdateCheckerService
 from src.services.user import UserService
@@ -34,6 +35,7 @@ class ServicesProvider(Provider):
     promocode_service = provide(source=PromocodeService, scope=Scope.REQUEST)
     remnawave_service = provide(source=RemnawaveService, scope=Scope.REQUEST)
     subscription_service = provide(source=SubscriptionService, scope=Scope.REQUEST)
+    ticket_service = provide(source=TicketService)
     transaction_service = provide(source=TransactionService, scope=Scope.REQUEST)
     user_service = provide(source=UserService, scope=Scope.REQUEST)
     webhook_service = provide(source=WebhookService)

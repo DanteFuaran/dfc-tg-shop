@@ -233,6 +233,12 @@ class PaymentGatewayType(UpperStrEnum):
     BALANCE = auto()  # Payment from user balance
 
 
+class TicketStatus(UpperStrEnum):
+    OPEN = auto()
+    ANSWERED = auto()
+    CLOSED = auto()
+
+
 class Currency(UpperStrEnum):
     USD = auto()
     EUR = auto()

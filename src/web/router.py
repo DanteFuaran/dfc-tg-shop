@@ -26,6 +26,7 @@ from src.services.plan import PlanService
 from src.services.promocode import PromocodeService
 from src.services.settings import SettingsService
 from src.services.subscription import SubscriptionService
+from src.services.ticket import TicketService
 from src.services.user import UserService
 
 from .auth import (
@@ -185,6 +186,15 @@ async def _build_user_data(
         except Exception:
             pass
 
+        # Ticket unread count
+        ticket_unread = 0
+        try:
+            ticket_svc: TicketService = await req_container.get(TicketService)
+            uow_t: UnitOfWork = await req_container.get(UnitOfWork)
+            ticket_unread = await ticket_svc.count_unread_user(uow_t, telegram_id)
+        except Exception:
+            pass
+
         return {
             "user": {
                 "telegram_id": user.telegram_id,
@@ -202,6 +212,7 @@ async def _build_user_data(
             "support_url": support_url,
             "trial_available": trial_available,
             "default_currency": default_currency,
+            "ticket_unread": ticket_unread,
         }
 
 
@@ -952,3 +963,242 @@ async def api_activate_promocode(request: Request, access_token: Optional[str] =
                 raise HTTPException(status_code=400, detail="Вы уже активировали этот промокод")
 
         return JSONResponse({"message": f"Промокод '{code}' найден. Тип: {promo.reward_type.value if hasattr(promo.reward_type, 'value') else promo.reward_type}. Для полной активации используйте бота."})
+
+
+# ══════════════════════════════════════════════════════════════════
+# TICKETS  (Support ticket system)
+# ══════════════════════════════════════════════════════════════════
+
+
+def _ticket_to_dict(t) -> dict[str, Any]:
+    """Convert TicketDto to JSON-serialisable dict."""
+    return {
+        "id": t.id,
+        "subject": t.subject,
+        "status": t.status.value if hasattr(t.status, "value") else str(t.status),
+        "user_telegram_id": t.user_telegram_id,
+        "is_read_by_user": t.is_read_by_user,
+        "is_read_by_admin": t.is_read_by_admin,
+        "created_at": t.created_at.strftime("%d.%m.%Y %H:%M") if t.created_at else "",
+        "updated_at": t.updated_at.strftime("%d.%m.%Y %H:%M") if t.updated_at else "",
+        "messages": [
+            {
+                "id": m.id,
+                "is_admin": m.is_admin,
+                "text": m.text,
+                "created_at": m.created_at.strftime("%d.%m.%Y %H:%M") if m.created_at else "",
+            }
+            for m in (t.messages or [])
+        ],
+    }
+
+
+@router.get("/api/tickets")
+async def api_get_tickets(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: get own tickets."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        tickets = await ticket_svc.get_user_tickets(uow, uid)
+        return JSONResponse([_ticket_to_dict(t) for t in tickets])
+
+
+@router.post("/api/tickets")
+async def api_create_ticket(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: create a new ticket."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    body = await request.json()
+    subject = (body.get("subject") or "").strip()
+    text = (body.get("text") or "").strip()
+    if not subject or not text:
+        raise HTTPException(status_code=400, detail="Заполните тему и сообщение")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.create_ticket(uow, uid, subject, text)
+
+        # Notify admins via bot
+        try:
+            from src.services.notification import NotificationService
+            from src.core.utils.message_payload import MessagePayload
+            ntf: NotificationService = await req_container.get(NotificationService)
+            user_service: UserService = await req_container.get(UserService)
+            user = await user_service.get(telegram_id=uid)
+            user_label = f"{user.name} (@{user.username})" if user and user.username else (user.name if user else str(uid))
+            await ntf.notify_super_dev(
+                payload=MessagePayload(
+                    text=f"🎫 Новый тикет #{ticket.id}\n\n👤 {user_label}\n📝 {subject}\n\n{text[:300]}",
+                ),
+            )
+        except Exception:
+            pass
+
+        return JSONResponse(_ticket_to_dict(ticket))
+
+
+@router.get("/api/tickets/{ticket_id}")
+async def api_get_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: get ticket detail. Mark as read."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket or ticket.user_telegram_id != uid:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        await ticket_svc.mark_read_by_user(uow, ticket_id)
+        return JSONResponse(_ticket_to_dict(ticket))
+
+
+@router.post("/api/tickets/{ticket_id}/reply")
+async def api_reply_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: reply to own ticket."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Введите сообщение")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        # Verify ownership
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket or ticket.user_telegram_id != uid:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        if ticket.status == "CLOSED":
+            raise HTTPException(status_code=400, detail="Тикет закрыт")
+
+        updated = await ticket_svc.add_reply(uow, ticket_id, uid, text, is_admin=False)
+        return JSONResponse(_ticket_to_dict(updated))
+
+
+@router.post("/api/tickets/{ticket_id}/close")
+async def api_close_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: close own ticket."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket or ticket.user_telegram_id != uid:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        closed = await ticket_svc.close_ticket(uow, ticket_id)
+        return JSONResponse(_ticket_to_dict(closed))
+
+
+# ── Admin Tickets ─────────────────────────────────────────────
+
+
+@router.get("/api/admin/tickets")
+async def api_admin_get_tickets(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    await _require_admin(request, access_token)
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        tickets = await ticket_svc.get_all_tickets(uow)
+        return JSONResponse([_ticket_to_dict(t) for t in tickets])
+
+
+@router.get("/api/admin/tickets/{ticket_id}")
+async def api_admin_get_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    await _require_admin(request, access_token)
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        await ticket_svc.mark_read_by_admin(uow, ticket_id)
+        return JSONResponse(_ticket_to_dict(ticket))
+
+
+@router.post("/api/admin/tickets/{ticket_id}/reply")
+async def api_admin_reply_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    uid = await _require_admin(request, access_token)
+
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Введите сообщение")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        updated = await ticket_svc.add_reply(uow, ticket_id, uid, text, is_admin=True)
+        if not updated:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+
+        # Notify user via bot
+        try:
+            from src.services.notification import NotificationService
+            from src.core.utils.message_payload import MessagePayload
+            ntf: NotificationService = await req_container.get(NotificationService)
+            user_service: UserService = await req_container.get(UserService)
+            user = await user_service.get(telegram_id=updated.user_telegram_id)
+            if user:
+                await ntf.notify_user(
+                    user=user,
+                    payload=MessagePayload(
+                        text=f"💬 Ответ на тикет #{ticket_id}\n\n{text[:500]}",
+                    ),
+                )
+        except Exception:
+            pass
+
+        return JSONResponse(_ticket_to_dict(updated))
+
+
+@router.post("/api/admin/tickets/{ticket_id}/close")
+async def api_admin_close_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    await _require_admin(request, access_token)
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        closed = await ticket_svc.close_ticket(uow, ticket_id)
+        if not closed:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        return JSONResponse(_ticket_to_dict(closed))
+
+
+@router.delete("/api/admin/tickets/{ticket_id}")
+async def api_admin_delete_ticket(ticket_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    await _require_admin(request, access_token)
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        deleted = await ticket_svc.delete_ticket(uow, ticket_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        return JSONResponse({"ok": True})

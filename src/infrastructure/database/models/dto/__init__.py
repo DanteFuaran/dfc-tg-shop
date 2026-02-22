@@ -19,6 +19,7 @@ from .promocode import PromocodeActivationDto, PromocodeDto
 from .referral import ReferralDto, ReferralRewardDto
 from .settings import ExtraDeviceSettingsDto, FeatureSettingsDto, GlobalDiscountSettingsDto, ReferralSettingsDto, SettingsDto, SystemNotificationDto, UserNotificationDto
 from .subscription import BaseSubscriptionDto, RemnaSubscriptionDto, SubscriptionDto
+from .ticket import TicketDto, TicketMessageDto
 from .transaction import BaseTransactionDto, PriceDetailsDto, TransactionDto
 from .user import BaseUserDto, UserDto
 
@@ -66,6 +67,8 @@ __all__ = [
     "SubscriptionDto",
     "RemnaSubscriptionDto",
     "PriceDetailsDto",
+    "TicketDto",
+    "TicketMessageDto",
     "TransactionDto",
     "UserDto",
 ]

@@ -109,6 +109,10 @@
         <button class="btn-back" onclick="go('home')">‹</button>
         <h2 class="page-title">Поддержка</h2>
     </div>
+    <div class="card card-compact" style="cursor:pointer" onclick="go('tickets')">
+        <div class="card-title">🎫 Тикеты <span id="ticket-badge" class="ticket-badge" style="display:none">0</span></div>
+        <span class="pill pill-cyan pill-sm">Открыть</span>
+    </div>
     <div class="card card-compact" id="support-community" style="display:none">
         <div class="card-title">💬 Сообщество</div>
         <a class="pill pill-cyan pill-sm" id="btn-community" href="#" target="_blank">Открыть</a>
@@ -116,6 +120,29 @@
     <div class="card card-compact" id="support-help" style="display:none">
         <div class="card-title">🛟 Помощь</div>
         <a class="pill pill-outline pill-sm" id="btn-support" href="#" target="_blank">Написать</a>
+    </div>
+</section>
+
+<!-- ═══ TICKET LIST ═══ -->
+<section id="p-tickets" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('support')">‹</button>
+        <h2 class="page-title">Мои тикеты</h2>
+        <button class="btn btn-primary btn-sm" onclick="showNewTicket()" style="margin-left:auto">+ Новый</button>
+    </div>
+    <div id="tickets-list" class="ticket-list"></div>
+</section>
+
+<!-- ═══ TICKET CHAT ═══ -->
+<section id="p-ticket" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="go('tickets');loadTickets()">‹</button>
+        <h2 class="page-title" id="ticket-title">Тикет</h2>
+    </div>
+    <div id="ticket-chat" class="ticket-chat"></div>
+    <div id="ticket-reply" class="ticket-reply-box" style="display:none">
+        <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
+        <button class="ticket-send-btn" onclick="sendTicketReply()">→</button>
     </div>
 </section>
 
@@ -152,6 +179,7 @@
         <button class="admin-tab" onclick="admTab('users')">Польз.</button>
         <button class="admin-tab" onclick="admTab('plans')">Тарифы</button>
         <button class="admin-tab" onclick="admTab('settings')">Настройки</button>
+        <button class="admin-tab" onclick="admTab('tickets')">Тикеты</button>
         <button class="admin-tab" onclick="admTab('brand')">Бренд</button>
     </div>
     <div id="adm-stats" class="admin-content active">
@@ -177,6 +205,9 @@
         <div id="adm-plans-list" class="plans-list"></div>
     </div>
     <div id="adm-settings" class="admin-content"><div id="settings-list"></div></div>
+    <div id="adm-tickets" class="admin-content">
+        <div id="adm-tickets-list" class="ticket-list"></div>
+    </div>
     <div id="adm-brand" class="admin-content">
         <div class="card">
             <div class="card-title">Настройки бренда</div>
@@ -195,6 +226,19 @@
         <h2 class="page-title" id="aud-title">Пользователь</h2>
     </div>
     <div id="aud-body"></div>
+</section>
+
+<!-- Admin ticket detail -->
+<section id="p-aticket" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="admTab('tickets');go('admin')">‹</button>
+        <h2 class="page-title" id="at-title">Тикет</h2>
+    </div>
+    <div id="at-chat" class="ticket-chat"></div>
+    <div id="at-reply" class="ticket-reply-box">
+        <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
+        <button class="ticket-send-btn" onclick="sendAdmTicketReply()">→</button>
+    </div>
 </section>
 
 </main>
@@ -272,6 +316,7 @@ function go(p){
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans')renderPlans();
+    if(p==='tickets')loadTickets();
 }
 
 /* ── RENDER ── */
@@ -279,6 +324,8 @@ function render(){
     renderSub();renderConnect();renderProfile();renderSupport();
     // Trial button
     if(D.trial_available) $('btn-trial').style.display='';
+    // Ticket badge
+    if(D.ticket_unread>0){$('ticket-badge').style.display='';$('ticket-badge').textContent=D.ticket_unread}
 }
 
 function renderSub(){
@@ -401,7 +448,7 @@ async function logout(){await fetch(API+'/api/auth/logout',{method:'POST'});wind
 /* ── ADMIN ── */
 function admTab(t){
     curAdmTab=t;
-    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','brand'][i]===t));
+    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','tickets','brand'][i]===t));
     document.querySelectorAll('.admin-content').forEach(c=>c.classList.remove('active'));
     const el=$('adm-'+t);if(el)el.classList.add('active');
     loadAdm(t);
@@ -409,6 +456,7 @@ function admTab(t){
 async function loadAdm(t){
     if(t==='stats')await loadStats();if(t==='users')await loadUsers();
     if(t==='plans')await loadAdmPlans();if(t==='settings')await loadSettings();
+    if(t==='tickets')await loadAdmTickets();
     if(t==='brand')loadBrandForm();
 }
 async function loadStats(){
@@ -584,6 +632,80 @@ function loadBrandForm(){$('br-name').value='';$('br-logo').value='';$('br-sloga
 async function saveBrand(){
     const d={name:$('br-name').value.trim()||'VPN Shop',logo:$('br-logo').value.trim()||'🔐',slogan:$('br-slogan').value.trim()};
     try{const r=await fetch(API+'/api/settings/brand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(r.ok)toast('Сохранено');else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+
+/* ── Tickets (User) ── */
+let curTicketId=null;
+async function loadTickets(){
+    try{const r=await fetch(API+'/api/tickets');if(!r.ok)return;const tks=await r.json();
+    const el=$('tickets-list');
+    if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>Нет тикетов</h3><p style="color:var(--text3);font-size:.84rem">Создайте первый тикет</p></div>';return}
+    el.innerHTML=tks.map(t=>{
+        const st=t.status.toLowerCase();
+        const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
+        return '<div class="ticket-item'+(t.is_read_by_user?'':' unread')+'" onclick="openTicket('+t.id+')">'+
+            '<div class="ticket-top"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+st+'</span></div>'+
+            '<div class="ticket-preview">'+esc(last.substring(0,80))+'</div>'+
+            '<div class="ticket-date">'+t.updated_at+'</div></div>';
+    }).join('')}catch(e){}
+}
+async function openTicket(id){
+    curTicketId=id;go('ticket');$('ticket-title').textContent='Загрузка…';$('ticket-chat').innerHTML='';$('ticket-reply').style.display='none';
+    try{const r=await fetch(API+'/api/tickets/'+id);if(!r.ok)return;
+    const t=await r.json();$('ticket-title').textContent=t.subject;
+    renderTicketChat($('ticket-chat'),t.messages);
+    if(t.status!=='CLOSED'){$('ticket-reply').style.display='flex'}
+    else{$('ticket-reply').style.display='none'}
+    }catch(e){}
+}
+function renderTicketChat(el,msgs){
+    el.innerHTML=(msgs||[]).map(m=>{
+        const cls=m.is_admin?'admin':'user';
+        return '<div class="ticket-msg '+cls+'">'+esc(m.text)+'<div class="ticket-msg-time">'+m.created_at+'</div></div>';
+    }).join('');el.scrollTop=el.scrollHeight;
+}
+async function sendTicketReply(){
+    const text=$('ticket-text').value.trim();if(!text||!curTicketId)return;
+    try{const r=await fetch(API+'/api/tickets/'+curTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(r.ok){$('ticket-text').value='';const t=await r.json();renderTicketChat($('ticket-chat'),t.messages)}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+function showNewTicket(){
+    showModal('<h3>Новый тикет</h3><div class="form-group"><label>Тема</label><input class="form-input" id="nt-subj" placeholder="Проблема с подключением"></div><div class="form-group"><label>Сообщение</label><textarea class="form-input" id="nt-text" rows="4" placeholder="Опишите проблему…" style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="createTicket()">Отправить</button></div>');
+}
+async function createTicket(){
+    const subject=$('nt-subj').value.trim(),text=$('nt-text').value.trim();
+    if(!subject||!text)return toast('Заполните все поля','error');closeModal();
+    try{const r=await fetch(API+'/api/tickets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject,text})});
+    if(r.ok){toast('Тикет создан');const t=await r.json();curTicketId=t.id;openTicket(t.id)}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}
+}
+
+/* ── Tickets (Admin) ── */
+let admTicketsCache=[];
+async function loadAdmTickets(){
+    try{const r=await fetch(API+'/api/admin/tickets');if(!r.ok)return;admTicketsCache=await r.json();
+    const el=$('adm-tickets-list');
+    if(!admTicketsCache.length){el.innerHTML='<div class="empty-state">Нет тикетов</div>';return}
+    el.innerHTML=admTicketsCache.map(t=>{
+        const st=t.status.toLowerCase();
+        const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
+        return '<div class="ticket-item'+(t.is_read_by_admin?'':' unread')+'" onclick="openAdmTicket('+t.id+')">'+
+            '<div class="ticket-top"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+st+'</span></div>'+
+            '<div class="ticket-preview"><b>ID '+t.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
+            '<div class="ticket-date">'+t.updated_at+'</div></div>';
+    }).join('')}catch(e){}
+}
+let admCurTicketId=null;
+async function openAdmTicket(id){
+    admCurTicketId=id;go('aticket');$('at-title').textContent='Загрузка…';$('at-chat').innerHTML='';
+    try{const r=await fetch(API+'/api/admin/tickets/'+id);if(!r.ok)return;
+    const t=await r.json();$('at-title').textContent='#'+t.id+' '+t.subject;
+    renderTicketChat($('at-chat'),t.messages);
+    }catch(e){}
+}
+async function sendAdmTicketReply(){
+    const text=$('at-text').value.trim();if(!text||!admCurTicketId)return;
+    try{const r=await fetch(API+'/api/admin/tickets/'+admCurTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(r.ok){$('at-text').value='';const t=await r.json();renderTicketChat($('at-chat'),t.messages)}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 
 /* ── UTILS ── */
