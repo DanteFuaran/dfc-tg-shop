@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
@@ -28,6 +29,11 @@ def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
     app.mount("/web/static", StaticFiles(directory=str(WEB_DIR / "static")), name="web-static")
     app.include_router(web_router, prefix="/web")
     app.state.config = config
+
+    # Root redirect — so bare domain goes to web cabinet
+    @app.get("/", include_in_schema=False)
+    async def root_redirect():
+        return RedirectResponse(url="/web/", status_code=302)
 
     telegram_webhook_endpoint = TelegramWebhookEndpoint(
         dispatcher=dispatcher,

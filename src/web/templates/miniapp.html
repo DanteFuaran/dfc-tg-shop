@@ -3,296 +3,753 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кабинет</title>
+    <title>Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="/web/static/css/style.css">
-    <style>
-        /* Mini App uses Telegram theme vars */
-        :root {
-            --tg-bg: var(--tg-theme-bg-color, #1a1a2e);
-            --tg-text: var(--tg-theme-text-color, #e0e0e0);
-            --tg-hint: var(--tg-theme-hint-color, #8a8a9a);
-            --tg-link: var(--tg-theme-link-color, #4fc3f7);
-            --tg-btn: var(--tg-theme-button-color, #4361ee);
-            --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
-            --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #16213e);
-        }
-        body { background: var(--tg-bg); color: var(--tg-text); }
-        .btn-primary { background: var(--tg-btn); color: var(--tg-btn-text); }
-        .card { background: var(--tg-secondary-bg); }
-    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Loading state -->
-        <div id="miniapp-loading" class="auth-container" style="text-align:center;padding-top:40vh;">
-            <div class="spinner"></div>
-            <p style="margin-top:16px;color:var(--tg-hint);">Авторизация…</p>
+<div class="bg-glow"></div>
+<div id="app">
+
+<!-- ═══ Loading ═══ -->
+<div id="loading-screen" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Авторизация…</p>
+</div>
+
+<!-- ═══ Error ═══ -->
+<div id="error-screen" class="loading-screen" style="display:none">
+    <p id="error-msg" style="color:var(--error);padding:20px;text-align:center;"></p>
+</div>
+
+<!-- ═══ Main App ═══ -->
+<div id="main-app" class="app-wrapper" style="display:none">
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="brand">
+            <span class="brand-logo" id="brand-logo">🔐</span>
+            <span class="brand-name" id="brand-name">VPN Shop</span>
         </div>
+        <span class="header-balance" id="header-balance" onclick="showPage('profile')">0 ₽</span>
+    </header>
 
-        <!-- Main content (hidden until auth) -->
-        <div id="miniapp-content" class="dashboard-container" style="display:none;">
-            <header class="dash-header">
-                <div class="logo-small">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                <span class="header-title" id="ma-user-name">Кабинет</span>
-            </header>
+    <!-- Content -->
+    <main class="app-content">
 
-            <main class="dash-main">
-                <!-- Home -->
-                <div id="ma-page-home" class="page active">
-                    <div class="card subscription-card">
-                        <div class="card-badge" id="ma-sub-badge">—</div>
-                        <h3 class="card-title" id="ma-sub-plan">Загрузка…</h3>
-                        <div class="card-row">
-                            <span class="card-label">Истекает</span>
-                            <span class="card-value" id="ma-sub-expire">—</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Трафик</span>
-                            <span class="card-value" id="ma-sub-traffic">—</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Устройства</span>
-                            <span class="card-value" id="ma-sub-devices">—</span>
-                        </div>
-                    </div>
-
-                    <div class="actions-grid">
-                        <button class="action-btn" id="ma-btn-buy" onclick="maOpenSub()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                                <line x1="3" y1="6" x2="21" y2="6"/>
-                                <path d="M16 10a4 4 0 01-8 0"/>
-                            </svg>
-                            <span>Купить</span>
-                        </button>
-                        <button class="action-btn" onclick="maCopySub()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
-                            </svg>
-                            <span>Подключить</span>
-                        </button>
-                        <button class="action-btn" onclick="maShowPage('ma-page-plans')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                                <line x1="1" y1="10" x2="23" y2="10"/>
-                            </svg>
-                            <span>Тарифы</span>
-                        </button>
-                        <button class="action-btn" onclick="maShowPage('ma-page-profile')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
-                            </svg>
-                            <span>Профиль</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Plans -->
-                <div id="ma-page-plans" class="page">
-                    <div class="page-header">
-                        <button class="btn-back" onclick="maShowPage('ma-page-home')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                                <polyline points="15 18 9 12 15 6"/>
-                            </svg>
-                        </button>
-                        <h2 class="page-title">Тарифные планы</h2>
-                    </div>
-                    <div id="ma-plans-list" class="plans-list"></div>
-                </div>
-
-                <!-- Profile -->
-                <div id="ma-page-profile" class="page">
-                    <div class="page-header">
-                        <button class="btn-back" onclick="maShowPage('ma-page-home')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                                <polyline points="15 18 9 12 15 6"/>
-                            </svg>
-                        </button>
-                        <h2 class="page-title">Профиль</h2>
-                    </div>
-                    <div class="card">
-                        <div class="card-row">
-                            <span class="card-label">Имя</span>
-                            <span class="card-value" id="ma-prof-name">—</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Telegram</span>
-                            <span class="card-value" id="ma-prof-username">—</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Баланс</span>
-                            <span class="card-value" id="ma-prof-balance">—</span>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <nav class="bottom-nav">
-                <button class="nav-btn active" onclick="maShowPage('ma-page-home')" data-page="ma-page-home">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                        <polyline points="9 22 9 12 15 12 15 22"/>
-                    </svg>
-                    <span>Главная</span>
+        <!-- ══ HOME ══ -->
+        <section id="page-home" class="page active">
+            <div class="card subscription-card">
+                <div class="card-badge badge-inactive" id="sub-badge">—</div>
+                <h3 class="card-title" id="sub-plan">Загрузка…</h3>
+                <div class="card-row"><span class="card-label">Истекает</span><span class="card-value" id="sub-expire">—</span></div>
+                <div class="card-row"><span class="card-label">Трафик</span><span class="card-value" id="sub-traffic">—</span></div>
+                <div class="card-row"><span class="card-label">Устройства</span><span class="card-value" id="sub-devices">—</span></div>
+            </div>
+            <div class="actions-grid">
+                <button class="action-btn" onclick="openSubUrl()">
+                    <span class="action-icon">🛒</span><span>Купить</span>
                 </button>
-                <button class="nav-btn" onclick="maShowPage('ma-page-plans')" data-page="ma-page-plans">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                    <span>Тарифы</span>
+                <button class="action-btn" onclick="showPage('connect')">
+                    <span class="action-icon">🔗</span><span>Подключение</span>
                 </button>
-                <button class="nav-btn" onclick="maShowPage('ma-page-profile')" data-page="ma-page-profile">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>Профиль</span>
+                <button class="action-btn" onclick="showPage('plans')">
+                    <span class="action-icon">📋</span><span>Тарифы</span>
                 </button>
-            </nav>
-        </div>
-        <div id="ma-toast" class="toast"></div>
-    </div>
+                <button class="action-btn" onclick="showPage('profile')">
+                    <span class="action-icon">👤</span><span>Профиль</span>
+                </button>
+            </div>
+        </section>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        <!-- ══ PLANS ══ -->
+        <section id="page-plans" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <h2 class="page-title">Тарифные планы</h2>
+            </div>
+            <div id="plans-list" class="plans-list"></div>
+        </section>
 
-        let maData = null;
+        <!-- ══ CONNECT ══ -->
+        <section id="page-connect" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <h2 class="page-title">Подключение</h2>
+            </div>
+            <div id="connect-content">
+                <div class="card">
+                    <h3 class="card-title" style="font-size:1rem;">Ссылка подписки</h3>
+                    <div class="connect-box">
+                        <code id="connect-url">—</code>
+                        <button onclick="copySubUrl()">Копировать</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title" style="font-size:1rem;">Приложения</h3>
+                    <div class="actions-grid" style="grid-template-columns:1fr 1fr 1fr;">
+                        <button class="action-btn" onclick="tg.openLink('https://apps.apple.com/app/streisand/id6450534064')"><span class="action-icon">🍎</span><span>iOS</span></button>
+                        <button class="action-btn" onclick="tg.openLink('https://play.google.com/store/apps/details?id=com.v2ray.ang')"><span class="action-icon">🤖</span><span>Android</span></button>
+                        <button class="action-btn" onclick="tg.openLink('https://github.com/hiddify/hiddify-app/releases')"><span class="action-icon">💻</span><span>Desktop</span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        function maShowPage(pageId) {
-            document.querySelectorAll('#miniapp-content .page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('#miniapp-content .nav-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.page === pageId);
-            });
+        <!-- ══ PROFILE ══ -->
+        <section id="page-profile" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <h2 class="page-title">Профиль</h2>
+            </div>
+            <div class="card">
+                <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="prof-name">—</span></div>
+                <div class="card-row"><span class="card-label">Telegram</span><span class="card-value" id="prof-username">—</span></div>
+                <div class="card-row"><span class="card-label">Telegram ID</span><span class="card-value" id="prof-tid">—</span></div>
+                <div class="card-row"><span class="card-label">Баланс</span><span class="card-value" id="prof-balance">—</span></div>
+                <div class="card-row"><span class="card-label">Роль</span><span class="card-value" id="prof-role">—</span></div>
+            </div>
+            <!-- Promo Section -->
+            <div class="card">
+                <h3 class="card-title" style="font-size:1rem;">Промокод</h3>
+                <div style="display:flex;gap:8px;">
+                    <input class="form-input" id="promo-input" placeholder="Введите промокод" style="flex:1;">
+                    <button class="btn btn-primary btn-sm" onclick="activatePromo()">Применить</button>
+                </div>
+                <p id="promo-result" style="font-size:0.82rem;margin-top:8px;display:none;"></p>
+            </div>
+            <!-- Referral Section -->
+            <div class="card" id="referral-card">
+                <h3 class="card-title" style="font-size:1rem;">Реферальная программа</h3>
+                <div class="referral-link-box">
+                    <code id="ref-link">—</code>
+                    <button class="btn btn-primary btn-sm btn-full" onclick="copyRefLink()">Копировать ссылку</button>
+                </div>
+            </div>
+        </section>
 
-            // Telegram back button
-            if (pageId === 'ma-page-home') {
-                tg.BackButton.hide();
-            } else {
-                tg.BackButton.show();
-                tg.BackButton.onClick(() => maShowPage('ma-page-home'));
-            }
+        <!-- ══ ADMIN ══ -->
+        <section id="page-admin" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showPage('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <h2 class="page-title">Панель управления</h2>
+            </div>
+            <div class="admin-tabs" id="admin-tabs">
+                <button class="admin-tab active" onclick="showAdminTab('stats')">Стат.</button>
+                <button class="admin-tab" onclick="showAdminTab('users')">Польз.</button>
+                <button class="admin-tab" onclick="showAdminTab('plans')">Тарифы</button>
+                <button class="admin-tab" onclick="showAdminTab('settings')">Настройки</button>
+                <button class="admin-tab" onclick="showAdminTab('brand')">Бренд</button>
+            </div>
+
+            <!-- Admin: Stats -->
+            <div id="admin-stats" class="admin-content active">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="st-users">—</div><div class="stat-label">Всего польз.</div></div>
+                    <div class="stat-card"><div class="stat-value" id="st-active">—</div><div class="stat-label">Активных</div></div>
+                    <div class="stat-card"><div class="stat-value" id="st-expired">—</div><div class="stat-label">Истекших</div></div>
+                    <div class="stat-card"><div class="stat-value" id="st-revenue">—</div><div class="stat-label">Доход</div></div>
+                </div>
+            </div>
+
+            <!-- Admin: Users -->
+            <div id="admin-users" class="admin-content">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input id="user-search" placeholder="Поиск по имени или ID" oninput="searchUsers()">
+                </div>
+                <div id="users-list" class="user-list"></div>
+            </div>
+
+            <!-- Admin: Plans -->
+            <div id="admin-plans" class="admin-content">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <span style="color:var(--text-secondary);font-size:0.88rem;" id="plans-count">Тарифы</span>
+                    <button class="btn btn-primary btn-sm" onclick="showCreatePlanModal()">+ Создать</button>
+                </div>
+                <div id="admin-plans-list" class="plans-list"></div>
+            </div>
+
+            <!-- Admin: Settings -->
+            <div id="admin-settings" class="admin-content">
+                <div id="settings-list"></div>
+            </div>
+
+            <!-- Admin: Brand -->
+            <div id="admin-brand" class="admin-content">
+                <div class="card">
+                    <h3 class="card-title" style="font-size:1rem;">Настройки бренда</h3>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input class="form-input" id="brand-input-name" placeholder="VPN Shop">
+                    </div>
+                    <div class="form-group">
+                        <label>Логотип (эмодзи)</label>
+                        <input class="form-input" id="brand-input-logo" placeholder="🔐">
+                    </div>
+                    <div class="form-group">
+                        <label>Слоган</label>
+                        <input class="form-input" id="brand-input-slogan" placeholder="Быстрый и безопасный VPN">
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="saveBrand()">Сохранить</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ ADMIN USER DETAIL ══ -->
+        <section id="page-admin-user" class="page">
+            <div class="page-header">
+                <button class="btn-back" onclick="showAdminTab('users');showPage('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <h2 class="page-title" id="aud-title">Пользователь</h2>
+            </div>
+            <div id="admin-user-detail"></div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-page="home" onclick="showPage('home')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Главная</span>
+        </button>
+        <button class="nav-item" data-page="plans" onclick="showPage('plans')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span>Тарифы</span>
+        </button>
+        <button class="nav-item" data-page="connect" onclick="showPage('connect')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            <span>Связь</span>
+        </button>
+        <button class="nav-item" data-page="profile" onclick="showPage('profile')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Профиль</span>
+        </button>
+        <button class="nav-item admin-only" data-page="admin" onclick="showPage('admin')" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <span>Админ</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Modal container -->
+<div id="modal-root"></div>
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+</div><!-- /app -->
+
+<script>
+const API = '/web';
+const tg = window.Telegram.WebApp;
+
+let DATA = null;
+let BRAND = {name:'VPN Shop', logo:'🔐', slogan:''};
+let IS_ADMIN = false;
+let adminUsersCache = [];
+let currentAdminTab = 'stats';
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+
+async function init() {
+    tg.ready();
+    tg.expand();
+    try { tg.setHeaderColor('#0B121A'); } catch(e) {}
+    try { tg.setBackgroundColor('#0B121A'); } catch(e) {}
+
+    try {
+        const auth = await fetch(API+'/api/auth/tg', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({initData: tg.initData})
+        });
+        if (!auth.ok) return showError('Ошибка авторизации. Откройте из Telegram.');
+
+        const dr = await fetch(API+'/api/user/data');
+        if (!dr.ok) return showError('Пользователь не найден. Сначала запустите бота.');
+        DATA = await dr.json();
+
+        try {
+            const br = await fetch(API+'/api/settings/brand');
+            if (br.ok) BRAND = await br.json();
+        } catch(e){}
+
+        IS_ADMIN = DATA.user.role === 'DEV' || DATA.user.role === 'ADMIN';
+
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+
+        if (IS_ADMIN) {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
         }
 
-        function maShowToast(msg) {
-            const t = document.getElementById('ma-toast');
-            t.textContent = msg;
-            t.classList.add('visible');
-            setTimeout(() => t.classList.remove('visible'), 3000);
-        }
+        renderApp();
+    } catch(e) {
+        showError('Ошибка загрузки: ' + e.message);
+    }
+}
 
-        function maRender() {
-            if (!maData) return;
-            const sub = maData.subscription;
-            const u = maData.user;
+function showError(msg) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('error-screen').style.display = 'flex';
+    document.getElementById('error-msg').textContent = msg;
+}
 
-            document.getElementById('ma-user-name').textContent = u.name || 'Кабинет';
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
 
-            // Subscription
-            const badge = document.getElementById('ma-sub-badge');
-            if (!sub || !sub.status) {
-                badge.textContent = 'Нет подписки';
-                badge.className = 'card-badge badge-inactive';
-                document.getElementById('ma-sub-plan').textContent = 'Нет активной подписки';
-            } else {
-                if (sub.is_trial) {
-                    badge.textContent = 'Пробный период';
-                    badge.className = 'card-badge badge-trial';
-                } else if (sub.status === 'ACTIVE') {
-                    badge.textContent = 'Активна';
-                    badge.className = 'card-badge badge-active';
-                } else {
-                    badge.textContent = sub.status;
-                    badge.className = 'card-badge badge-expired';
-                }
-                document.getElementById('ma-sub-plan').textContent = sub.plan_name || '—';
-                document.getElementById('ma-sub-expire').textContent = sub.expire_at || '—';
-                document.getElementById('ma-sub-traffic').textContent = sub.traffic_limit ? sub.traffic_limit + ' GB' : '—';
-                document.getElementById('ma-sub-devices').textContent = sub.device_limit || '—';
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+
+    if (id === 'home') { tg.BackButton.hide(); }
+    else {
+        tg.BackButton.show();
+        tg.BackButton.offClick(goHome);
+        tg.BackButton.onClick(goHome);
+    }
+
+    if (id === 'admin') loadAdminTab(currentAdminTab);
+}
+
+function goHome() { showPage('home'); }
+
+// ════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════
+
+function renderApp() {
+    document.getElementById('brand-logo').textContent = BRAND.logo || '🔐';
+    document.getElementById('brand-name').textContent = BRAND.name || 'VPN Shop';
+
+    const u = DATA.user;
+    document.getElementById('header-balance').textContent = u.balance + ' ₽';
+
+    renderSubscription();
+    renderPlans();
+    renderProfile();
+    renderConnect();
+}
+
+function renderSubscription() {
+    const sub = DATA.subscription;
+    const badge = document.getElementById('sub-badge');
+
+    if (!sub || !sub.status) {
+        badge.textContent = 'Нет подписки';
+        badge.className = 'card-badge badge-inactive';
+        document.getElementById('sub-plan').textContent = 'Нет активной подписки';
+        document.getElementById('sub-expire').textContent = '—';
+        document.getElementById('sub-traffic').textContent = '—';
+        document.getElementById('sub-devices').textContent = '—';
+        return;
+    }
+
+    if (sub.is_trial) { badge.textContent = 'Пробный период'; badge.className = 'card-badge badge-trial'; }
+    else if (sub.status === 'ACTIVE') { badge.textContent = 'Активна'; badge.className = 'card-badge badge-active'; }
+    else if (sub.status === 'EXPIRED') { badge.textContent = 'Истекла'; badge.className = 'card-badge badge-expired'; }
+    else { badge.textContent = sub.status; badge.className = 'card-badge badge-inactive'; }
+
+    document.getElementById('sub-plan').textContent = sub.plan_name || '—';
+    document.getElementById('sub-expire').textContent = sub.expire_at || '—';
+    document.getElementById('sub-traffic').textContent = sub.traffic_limit ? sub.traffic_limit + ' GB' : '∞';
+    document.getElementById('sub-devices').textContent = sub.device_limit || '—';
+}
+
+function renderPlans() {
+    const el = document.getElementById('plans-list');
+    if (!DATA.plans || !DATA.plans.length) {
+        el.innerHTML = '<div class="empty-state"><span class="empty-icon">📋</span><h3>Нет доступных тарифов</h3></div>';
+        return;
+    }
+    el.innerHTML = DATA.plans.map(p => {
+        const durs = (p.durations||[]).map(d => {
+            const pr = (d.prices||[]).map(x => '<span class="plan-price">'+x.amount+' '+x.currency+'</span>').join(' / ');
+            return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span> '+pr+'</div>';
+        }).join('');
+        return '<div class="card plan-card"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
+    }).join('');
+}
+
+function renderProfile() {
+    const u = DATA.user;
+    document.getElementById('prof-name').textContent = u.name || '—';
+    document.getElementById('prof-username').textContent = u.username ? '@'+u.username : '—';
+    document.getElementById('prof-tid').textContent = u.telegram_id;
+    document.getElementById('prof-balance').textContent = u.balance + ' ₽';
+
+    const roleMap = {USER:'Пользователь', ADMIN:'Администратор', DEV:'Разработчик'};
+    document.getElementById('prof-role').textContent = roleMap[u.role] || u.role;
+
+    const refLink = 'https://t.me/' + (DATA.bot_username||'bot') + '?start=ref_' + u.telegram_id;
+    document.getElementById('ref-link').textContent = refLink;
+}
+
+function renderConnect() {
+    const sub = DATA.subscription;
+    document.getElementById('connect-url').textContent = (sub && sub.url) ? sub.url : 'Нет активной подписки';
+}
+
+// ════════════════════════════════════════════
+// USER ACTIONS
+// ════════════════════════════════════════════
+
+function openSubUrl() {
+    const sub = DATA.subscription;
+    if (sub && sub.url) tg.openLink(sub.url);
+    else showToast('Нет активной подписки', 'error');
+}
+
+function copySubUrl() {
+    const sub = DATA.subscription;
+    if (sub && sub.url) {
+        navigator.clipboard.writeText(sub.url).then(() => showToast('Ссылка скопирована!')).catch(() => showToast('Ошибка','error'));
+    } else showToast('Нет активной подписки', 'error');
+}
+
+function copyRefLink() {
+    const link = document.getElementById('ref-link').textContent;
+    navigator.clipboard.writeText(link).then(() => showToast('Реферальная ссылка скопирована!')).catch(() => showToast('Ошибка','error'));
+}
+
+async function activatePromo() {
+    const code = document.getElementById('promo-input').value.trim();
+    if (!code) return;
+    const res = document.getElementById('promo-result');
+    try {
+        const r = await fetch(API+'/api/promocode/activate', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({code: code})
+        });
+        const d = await r.json();
+        res.style.display = 'block';
+        if (r.ok) { res.style.color = 'var(--success)'; res.textContent = d.message || 'Промокод активирован!'; }
+        else { res.style.color = 'var(--error)'; res.textContent = d.detail || 'Ошибка'; }
+    } catch(e) {
+        res.style.display = 'block';
+        res.style.color = 'var(--error)';
+        res.textContent = 'Ошибка сети';
+    }
+}
+
+// ════════════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════════════
+
+function showAdminTab(tab) {
+    currentAdminTab = tab;
+    document.querySelectorAll('#admin-tabs .admin-tab').forEach((t,i) => {
+        t.classList.toggle('active', ['stats','users','plans','settings','brand'][i] === tab);
+    });
+    document.querySelectorAll('.admin-content').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('admin-'+tab);
+    if (el) el.classList.add('active');
+    loadAdminTab(tab);
+}
+
+async function loadAdminTab(tab) {
+    if (tab === 'stats') await loadAdminStats();
+    if (tab === 'users') await loadAdminUsers();
+    if (tab === 'plans') await loadAdminPlans();
+    if (tab === 'settings') await loadAdminSettings();
+    if (tab === 'brand') loadBrandForm();
+}
+
+// ─── Admin Stats ───
+async function loadAdminStats() {
+    try {
+        const r = await fetch(API+'/api/admin/stats');
+        if (!r.ok) return;
+        const d = await r.json();
+        document.getElementById('st-users').textContent = d.total_users || 0;
+        document.getElementById('st-active').textContent = d.active_subscriptions || 0;
+        document.getElementById('st-expired').textContent = d.expired_subscriptions || 0;
+        document.getElementById('st-revenue').textContent = (d.total_revenue || 0) + ' ₽';
+    } catch(e) {}
+}
+
+// ─── Admin Users ───
+async function loadAdminUsers() {
+    try {
+        const r = await fetch(API+'/api/admin/users');
+        if (!r.ok) return;
+        adminUsersCache = await r.json();
+        renderUsersList(adminUsersCache);
+    } catch(e) {}
+}
+
+function searchUsers() {
+    const q = document.getElementById('user-search').value.toLowerCase().trim();
+    if (!q) return renderUsersList(adminUsersCache);
+    const filtered = adminUsersCache.filter(u =>
+        (u.name||'').toLowerCase().includes(q) ||
+        String(u.telegram_id).includes(q) ||
+        (u.username||'').toLowerCase().includes(q)
+    );
+    renderUsersList(filtered);
+}
+
+function renderUsersList(users) {
+    const el = document.getElementById('users-list');
+    if (!users.length) { el.innerHTML = '<div class="empty-state">Нет пользователей</div>'; return; }
+    el.innerHTML = users.slice(0, 50).map(u => {
+        const initial = (u.name||'?')[0].toUpperCase();
+        const roleClass = u.role === 'DEV' ? 'role-dev' : u.role === 'ADMIN' ? 'role-admin' : 'role-user';
+        const roleName = u.role === 'DEV' ? 'DEV' : u.role === 'ADMIN' ? 'ADM' : 'USER';
+        return '<div class="user-item" onclick="openUser('+u.telegram_id+')">' +
+            '<div class="user-item-info"><div class="user-avatar">'+esc(initial)+'</div>' +
+            '<div><div class="user-name">'+esc(u.name||'—')+'</div><div class="user-sub">ID: '+u.telegram_id+'</div></div></div>' +
+            '<span class="role-badge '+roleClass+'">'+roleName+'</span></div>';
+    }).join('');
+}
+
+async function openUser(tid) {
+    showPage('admin-user');
+    document.getElementById('aud-title').textContent = 'Загрузка…';
+    document.getElementById('admin-user-detail').innerHTML = '<div style="text-align:center;padding:40px;"><div class="spinner"></div></div>';
+
+    try {
+        const r = await fetch(API+'/api/admin/users/'+tid);
+        if (!r.ok) { document.getElementById('admin-user-detail').innerHTML = '<div class="empty-state">Ошибка загрузки</div>'; return; }
+        const u = await r.json();
+        document.getElementById('aud-title').textContent = u.name || 'Пользователь';
+        renderUserDetail(u);
+    } catch(e) {
+        document.getElementById('admin-user-detail').innerHTML = '<div class="empty-state">Ошибка: '+e.message+'</div>';
+    }
+}
+
+function renderUserDetail(u) {
+    const roleMap = {USER:'Пользователь', ADMIN:'Администратор', DEV:'Разработчик'};
+    const subInfo = u.subscription ? '<div class="card-row"><span class="card-label">Подписка</span><span class="card-value">'+(u.subscription.plan_name||'—')+'</span></div><div class="card-row"><span class="card-label">Статус</span><span class="card-value">'+u.subscription.status+'</span></div><div class="card-row"><span class="card-label">Истекает</span><span class="card-value">'+(u.subscription.expire_at||'—')+'</span></div>' : '<div class="card-row"><span class="card-label">Подписка</span><span class="card-value" style="color:var(--text-muted)">Нет</span></div>';
+
+    document.getElementById('admin-user-detail').innerHTML =
+        '<div class="card">' +
+        '<div class="card-row"><span class="card-label">Имя</span><span class="card-value">'+esc(u.name||'—')+'</span></div>' +
+        '<div class="card-row"><span class="card-label">Username</span><span class="card-value">'+(u.username?'@'+esc(u.username):'—')+'</span></div>' +
+        '<div class="card-row"><span class="card-label">Telegram ID</span><span class="card-value">'+u.telegram_id+'</span></div>' +
+        '<div class="card-row"><span class="card-label">Баланс</span><span class="card-value">'+u.balance+' ₽</span></div>' +
+        '<div class="card-row"><span class="card-label">Роль</span><span class="card-value">'+(roleMap[u.role]||u.role)+'</span></div>' +
+        '<div class="card-row"><span class="card-label">Заблокирован</span><span class="card-value">'+(u.is_blocked?'Да':'Нет')+'</span></div>' +
+        subInfo +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<button class="btn btn-secondary btn-full" onclick="changeUserRole('+u.telegram_id+',\''+u.role+'\')">Изменить роль</button>' +
+        '<button class="btn btn-secondary btn-full" onclick="changeUserBalance('+u.telegram_id+','+u.balance+')">Изменить баланс</button>' +
+        '<button class="btn '+(u.is_blocked?'btn-primary':'btn-danger')+' btn-full" onclick="toggleUserBlock('+u.telegram_id+','+u.is_blocked+')">'+(u.is_blocked?'Разблокировать':'Заблокировать')+'</button>' +
+        '</div>';
+}
+
+function changeUserRole(tid, currentRole) {
+    const roles = ['USER','ADMIN','DEV'];
+    const names = ['Пользователь','Администратор','Разработчик'];
+    const html = '<h3>Изменить роль</h3>' +
+        roles.map((r,i) => '<button class="btn '+(r===currentRole?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px;" onclick="setUserRole('+tid+',\''+r+'\')">'+names[i]+'</button>').join('') +
+        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>';
+    showModal(html);
+}
+
+async function setUserRole(tid, role) {
+    closeModal();
+    try {
+        const r = await fetch(API+'/api/admin/users/'+tid+'/role', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({role: role})
+        });
+        if (r.ok) { showToast('Роль изменена'); openUser(tid); }
+        else { const d = await r.json(); showToast(d.detail||'Ошибка','error'); }
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
+
+function changeUserBalance(tid, current) {
+    const html = '<h3>Изменить баланс</h3><p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:12px;">Текущий: '+current+' ₽</p>' +
+        '<div class="form-group"><label>Сумма (+ или -)</label><input class="form-input" id="balance-amount" type="number" placeholder="100"></div>' +
+        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="setUserBalance('+tid+')">Применить</button></div>';
+    showModal(html);
+}
+
+async function setUserBalance(tid) {
+    const amount = parseFloat(document.getElementById('balance-amount').value);
+    if (isNaN(amount)) return showToast('Введите число','error');
+    closeModal();
+    try {
+        const r = await fetch(API+'/api/admin/users/'+tid+'/balance', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({amount: amount})
+        });
+        if (r.ok) { showToast('Баланс изменён'); openUser(tid); }
+        else { const d = await r.json(); showToast(d.detail||'Ошибка','error'); }
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
+
+async function toggleUserBlock(tid, isBlocked) {
+    try {
+        const r = await fetch(API+'/api/admin/users/'+tid+'/block', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({block: !isBlocked})
+        });
+        if (r.ok) { showToast(isBlocked?'Разблокирован':'Заблокирован'); openUser(tid); }
+        else { const d = await r.json(); showToast(d.detail||'Ошибка','error'); }
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
+
+// ─── Admin Plans ───
+async function loadAdminPlans() {
+    try {
+        const r = await fetch(API+'/api/admin/plans');
+        if (!r.ok) return;
+        const plans = await r.json();
+        document.getElementById('plans-count').textContent = 'Тарифы ('+plans.length+')';
+        const el = document.getElementById('admin-plans-list');
+        if (!plans.length) { el.innerHTML = '<div class="empty-state">Нет тарифов</div>'; return; }
+        el.innerHTML = plans.map(p => {
+            const durs = (p.durations||[]).map(d => {
+                const pr = (d.prices||[]).map(x => x.amount+' '+x.currency).join(', ');
+                return '<div class="plan-duration"><span class="plan-days">'+d.days+' дн.</span><span class="plan-price">'+pr+'</span></div>';
+            }).join('');
+            return '<div class="card plan-card"><div style="display:flex;justify-content:space-between;align-items:start;"><h3 class="plan-name">'+esc(p.name)+'</h3><button class="btn btn-danger btn-sm" onclick="deletePlan('+p.id+')">Удалить</button></div><div class="plan-info"><span>Трафик: '+(p.traffic_limit||'∞')+' GB</span><span>Устройства: '+(p.device_limit||'∞')+'</span></div><div class="plan-durations">'+durs+'</div></div>';
+        }).join('');
+    } catch(e) {}
+}
+
+function showCreatePlanModal() {
+    const html = '<h3>Создать тариф</h3>' +
+        '<div class="form-group"><label>Название</label><input class="form-input" id="np-name" placeholder="Базовый"></div>' +
+        '<div class="form-group"><label>Лимит трафика (GB)</label><input class="form-input" id="np-traffic" type="number" placeholder="100"></div>' +
+        '<div class="form-group"><label>Лимит устройств</label><input class="form-input" id="np-devices" type="number" placeholder="3"></div>' +
+        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="createPlan()">Создать</button></div>';
+    showModal(html);
+}
+
+async function createPlan() {
+    const name = document.getElementById('np-name').value.trim();
+    const traffic = parseInt(document.getElementById('np-traffic').value) || 0;
+    const devices = parseInt(document.getElementById('np-devices').value) || 1;
+    if (!name) return showToast('Введите название','error');
+    closeModal();
+    try {
+        const r = await fetch(API+'/api/admin/plans', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({name, traffic_limit: traffic, device_limit: devices})
+        });
+        if (r.ok) { showToast('Тариф создан'); loadAdminPlans(); }
+        else { const d = await r.json(); showToast(d.detail||'Ошибка','error'); }
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
+
+async function deletePlan(id) {
+    if (!confirm('Удалить тариф?')) return;
+    try {
+        const r = await fetch(API+'/api/admin/plans/'+id, {method:'DELETE'});
+        if (r.ok) { showToast('Тариф удалён'); loadAdminPlans(); }
+        else { const d = await r.json(); showToast(d.detail||'Ошибка','error'); }
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
+
+// ─── Admin Settings ───
+async function loadAdminSettings() {
+    try {
+        const r = await fetch(API+'/api/admin/settings');
+        if (!r.ok) return;
+        const s = await r.json();
+        const el = document.getElementById('settings-list');
+        el.innerHTML = '<div class="card">' + Object.entries(s).map(([k,v]) => {
+            const label = settingLabel(k);
+            if (typeof v === 'boolean') {
+                return '<div class="toggle-row"><label>'+label+'</label><button class="toggle-switch '+(v?'active':'')+'" onclick="toggleSetting(\''+k+'\','+(!v)+',this)"></button></div>';
             }
+            return '<div class="card-row"><span class="card-label">'+label+'</span><span class="card-value">'+esc(String(v))+'</span></div>';
+        }).join('') + '</div>';
+    } catch(e) {}
+}
 
-            // Plans
-            const list = document.getElementById('ma-plans-list');
-            if (!maData.plans || maData.plans.length === 0) {
-                list.innerHTML = '<div class="empty-state">Нет доступных тарифов</div>';
-            } else {
-                list.innerHTML = maData.plans.map(plan => {
-                    const durs = (plan.durations || []).map(d => {
-                        const pr = (d.prices || []).map(p => `<span class="plan-price">${p.amount} ${p.currency}</span>`).join(' / ');
-                        return `<div class="plan-duration"><span class="plan-days">${d.days} дн.</span> ${pr}</div>`;
-                    }).join('');
-                    return `<div class="card plan-card"><h3 class="plan-name">${plan.name}</h3><div class="plan-info"><span>Трафик: ${plan.traffic_limit} GB</span><span>Устройства: ${plan.device_limit}</span></div><div class="plan-durations">${durs}</div></div>`;
-                }).join('');
-            }
+function settingLabel(k) {
+    const map = {
+        balance_enabled:'Баланс', community_enabled:'Сообщество', tos_enabled:'Оферта',
+        extra_devices_enabled:'Доп. устройства', transfers_enabled:'Переводы',
+        referral_enabled:'Рефералы', promocodes_enabled:'Промокоды',
+        multilang_enabled:'Мультиязычность', purchase_enabled:'Покупки',
+        registration_enabled:'Регистрация', access_mode:'Режим доступа',
+        default_currency:'Валюта по умолчанию'
+    };
+    return map[k] || k;
+}
 
-            // Profile
-            document.getElementById('ma-prof-name').textContent = u.name || '—';
-            document.getElementById('ma-prof-username').textContent = u.username ? '@' + u.username : '—';
-            document.getElementById('ma-prof-balance').textContent = u.balance + ' ₽';
-        }
+async function toggleSetting(key, val, btn) {
+    try {
+        const r = await fetch(API+'/api/admin/settings', {
+            method:'PATCH', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({[key]: val})
+        });
+        if (r.ok) {
+            btn.classList.toggle('active', val);
+            showToast('Сохранено');
+        } else showToast('Ошибка','error');
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
 
-        function maOpenSub() {
-            if (maData && maData.subscription && maData.subscription.url) {
-                tg.openLink(maData.subscription.url);
-            } else {
-                maShowToast('Нет активной подписки');
-            }
-        }
+// ─── Admin Brand ───
+function loadBrandForm() {
+    document.getElementById('brand-input-name').value = BRAND.name || '';
+    document.getElementById('brand-input-logo').value = BRAND.logo || '';
+    document.getElementById('brand-input-slogan').value = BRAND.slogan || '';
+}
 
-        function maCopySub() {
-            if (maData && maData.subscription && maData.subscription.url) {
-                navigator.clipboard.writeText(maData.subscription.url)
-                    .then(() => maShowToast('Ссылка скопирована!'))
-                    .catch(() => maShowToast('Ошибка копирования'));
-            } else {
-                maShowToast('Нет активной подписки');
-            }
-        }
+async function saveBrand() {
+    const data = {
+        name: document.getElementById('brand-input-name').value.trim() || 'VPN Shop',
+        logo: document.getElementById('brand-input-logo').value.trim() || '🔐',
+        slogan: document.getElementById('brand-input-slogan').value.trim()
+    };
+    try {
+        const r = await fetch(API+'/api/settings/brand', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        if (r.ok) {
+            BRAND = data;
+            document.getElementById('brand-logo').textContent = BRAND.logo;
+            document.getElementById('brand-name').textContent = BRAND.name;
+            showToast('Бренд сохранён');
+        } else showToast('Ошибка','error');
+    } catch(e) { showToast('Ошибка сети','error'); }
+}
 
-        // Auth & init
-        async function maInit() {
-            try {
-                const authRes = await fetch('/web/api/auth/tg', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({initData: tg.initData})
-                });
-                if (!authRes.ok) {
-                    document.getElementById('miniapp-loading').innerHTML =
-                        '<p style="color:#f44;padding:20px;">Ошибка авторизации. Откройте приложение из Telegram.</p>';
-                    return;
-                }
+// ════════════════════════════════════════════
+// TOAST & MODAL
+// ════════════════════════════════════════════
 
-                const dataRes = await fetch('/web/api/user/data');
-                if (!dataRes.ok) {
-                    document.getElementById('miniapp-loading').innerHTML =
-                        '<p style="color:#f44;padding:20px;">Пользователь не найден. Сначала запустите бота.</p>';
-                    return;
-                }
-                maData = await dataRes.json();
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast visible' + (type ? ' toast-'+type : '');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.className = 'toast', 3000);
+}
 
-                document.getElementById('miniapp-loading').style.display = 'none';
-                document.getElementById('miniapp-content').style.display = 'flex';
-                maRender();
-            } catch (e) {
-                document.getElementById('miniapp-loading').innerHTML =
-                    '<p style="color:#f44;padding:20px;">Ошибка загрузки</p>';
-            }
-        }
+function showModal(html) {
+    document.getElementById('modal-root').innerHTML = '<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+html+'</div></div>';
+}
 
-        maInit();
-    </script>
+function closeModal() {
+    document.getElementById('modal-root').innerHTML = '';
+}
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+
+function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+// Start
+init();
+</script>
 </body>
 </html>
