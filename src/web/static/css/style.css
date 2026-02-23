@@ -5,14 +5,14 @@
 
 /* ── Tokens ─────────────────────────────────── */
 :root {
-    --bg:          #060A10;
-    --bg-card:     rgba(10,15,22,.85);
-    --bg-raised:   rgba(14,20,28,.85);
-    --bg-input:    rgba(8,12,18,.85);
+    --bg:          #080C14;
+    --bg-card:     rgba(10,15,22,.90);
+    --bg-raised:   rgba(22,31,42,.90);
+    --bg-input:    rgba(13,18,25,.90);
 
-    --border:      rgba(255,255,255,.06);
-    --border-lite: rgba(255,255,255,.08);
-    --border-accent: rgba(36,196,241,.20);
+    --border:      #1A2332;
+    --border-lite: #222D3A;
+    --border-accent: rgba(36,196,241,.25);
 
     --gold:        #F5C842;
     --gold-dim:    rgba(245,200,66,.12);
@@ -33,9 +33,9 @@
     --text2:       #8B9AAB;
     --text3:       #55667A;
 
-    --r:           10px;
-    --r-sm:        10px;
-    --r-pill:      10px;
+    --r:           16px;
+    --r-sm:        12px;
+    --r-pill:      50px;
     --speed:       .22s;
     --font:        'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     --mono:        'JetBrains Mono','Fira Code',monospace;
@@ -141,9 +141,9 @@ a{color:var(--cyan);text-decoration:none}
    ══════════════════════════════════════════════ */
 
 .pill{
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    width:100%;padding:12px 18px;border-radius:var(--r-sm);
-    font-size:.86rem;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;padding:14px 20px;border-radius:var(--r-pill);
+    font-size:.92rem;font-weight:600;cursor:pointer;
     background:transparent;transition:all var(--speed);
     font-family:var(--font);
 }
@@ -151,13 +151,13 @@ a{color:var(--cyan);text-decoration:none}
 .pill-gold:hover{background:var(--gold-dim);border-color:var(--gold)}
 .pill-cyan{border:1.5px solid var(--cyan-border);color:var(--cyan)}
 .pill-cyan:hover{background:var(--cyan-dim);border-color:var(--cyan)}
-.pill-outline{border:1px solid var(--border-lite);color:var(--text2);font-weight:500}
+.pill-outline{border:1.5px solid var(--border-lite);color:var(--text)}
 .pill-outline:hover{border-color:var(--cyan-border);color:var(--cyan)}
 .pill-filled{border:none;background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff}
 .pill-filled:hover{box-shadow:var(--cyan-glow)}
 .pill:active{transform:scale(.97)}
 
-.pill-row{display:flex;gap:8px;width:100%}
+.pill-row{display:flex;gap:10px;width:100%}
 .pill-row .pill{flex:1}
 
 /* Generic btn (for modals, forms, admin) */
@@ -187,7 +187,7 @@ a{color:var(--cyan);text-decoration:none}
 
 .card{
     background:var(--bg-card);border:1px solid var(--border);
-    border-radius:var(--r);padding:16px;margin-bottom:12px;
+    border-radius:var(--r);padding:18px;margin-bottom:14px;
     transition:border-color .3s;
 }
 .card:hover{border-color:var(--border-lite)}
@@ -201,7 +201,7 @@ a{color:var(--cyan);text-decoration:none}
     gap:8px;
 }
 .sub-row-top{margin-bottom:4px}
-.sub-row-bottom{margin-top:2px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sub-row-bottom{margin-top:2px;padding-bottom:14px;border-bottom:1px solid var(--border-lite)}
 .sub-plan-name{font-size:1rem;font-weight:700;color:var(--green)}
 .sub-plan-name.sub-plan-nosub{color:var(--text3);font-size:.88rem;font-weight:500}
 .sub-plan-name.sub-plan-expired{color:var(--red)}
@@ -209,24 +209,24 @@ a{color:var(--cyan);text-decoration:none}
 .sub-traffic{font-size:.82rem;color:var(--text2);text-align:right;white-space:nowrap}
 .sub-traffic b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
-.sub-nosub-text{font-size:.9rem;color:var(--text3);text-align:center;padding:6px 0 12px;border-bottom:1px solid rgba(255,255,255,.04)}
-.sub-actions-row{display:flex;gap:8px;margin-top:12px}
+.sub-nosub-text{font-size:.9rem;color:var(--text3);text-align:center;padding:6px 0 14px;border-bottom:1px solid var(--border-lite)}
+.sub-actions-row{display:flex;gap:10px;margin-top:12px}
 .sub-action-btn{
-    flex:1;padding:10px 0;border:none;border-radius:var(--r-sm);
-    font-size:.84rem;font-weight:600;cursor:pointer;
+    flex:1;padding:13px 0;border-radius:var(--r-pill);
+    font-size:.88rem;font-weight:600;cursor:pointer;
     transition:all var(--speed);font-family:var(--font);text-align:center;
 }
-.sub-action-renew{background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff}
-.sub-action-renew:hover{box-shadow:var(--cyan-glow)}
-.sub-action-change{background:var(--bg-input);border:1px solid var(--border);color:var(--text2)}
-.sub-action-change:hover{border-color:var(--cyan-border);color:var(--text)}
+.sub-action-renew{background:transparent;border:1.5px solid var(--cyan-border);color:var(--cyan)}
+.sub-action-renew:hover{background:var(--cyan-dim);border-color:var(--cyan)}
+.sub-action-change{background:transparent;border:1.5px solid var(--gold-border);color:var(--gold)}
+.sub-action-change:hover{background:var(--gold-dim);border-color:var(--gold)}
 .sub-action-buy{
-    width:100%;padding:10px 0;border:none;border-radius:var(--r-sm);
-    font-size:.84rem;font-weight:600;cursor:pointer;
-    background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff;
+    width:100%;padding:13px 0;border-radius:var(--r-pill);
+    font-size:.88rem;font-weight:600;cursor:pointer;
+    background:transparent;border:1.5px solid var(--cyan-border);color:var(--cyan);
     transition:all var(--speed);font-family:var(--font);margin-top:12px;
 }
-.sub-action-buy:hover{box-shadow:var(--cyan-glow)}
+.sub-action-buy:hover{background:var(--cyan-dim);border-color:var(--cyan)}
 .sub-action-btn:active,.sub-action-buy:active{transform:scale(.97)}
 
 .card-row{
@@ -244,7 +244,7 @@ a{color:var(--cyan);text-decoration:none}
 /* ══════════════════════════════════════════════
    ACTION GRID  (smaller pill buttons in a row)
    ══════════════════════════════════════════════ */
-.action-pills{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.action-pills{display:flex;flex-direction:column;gap:10px;margin-top:14px}
 
 /* ══════════════════════════════════════════════
    PLANS (NEW ACCORDION CARDS)
@@ -887,3 +887,12 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-close-btn.resolved:hover{opacity:.85}
 .ticket-close-btn.unresolved{background:var(--bg-card);border:1px solid var(--border);color:var(--text2)}
 .ticket-close-btn.unresolved:hover{border-color:var(--red);color:var(--red)}
+
+/* ── Renew plan modal info ── */
+.renew-plan-info{
+    background:var(--bg-input);border:1px solid var(--border);
+    border-radius:var(--r-sm);padding:12px 14px;margin-bottom:12px;
+}
+.renew-plan-name{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:6px}
+.renew-plan-meta{display:flex;gap:16px;font-size:.78rem;color:var(--text2)}
+.renew-plan-meta span{display:flex;align-items:center;gap:4px}
