@@ -110,16 +110,25 @@ async def _build_user_data(
         plans = await plan_service.get_available_plans(user)
 
         sub_data: dict[str, Any] = {}
+        active_devices_count = 0
         if subscription:
             sub_data = {
                 "status": subscription.status.value if hasattr(subscription.status, "value") else str(subscription.status),
                 "plan_name": subscription.plan.name if subscription.plan else "—",
+                "plan_id": subscription.plan.id if subscription.plan else None,
                 "expire_at": subscription.expire_at.strftime("%d.%m.%Y %H:%M") if subscription.expire_at else "—",
                 "traffic_limit": subscription.traffic_limit,
                 "device_limit": subscription.device_limit,
                 "is_trial": subscription.is_trial,
                 "url": subscription.url or "",
             }
+            try:
+                remnawave_svc: RemnawaveService = await req_container.get(RemnawaveService)
+                devices = await remnawave_svc.get_devices_user(user=user)
+                active_devices_count = len(devices) if devices else 0
+            except Exception:
+                active_devices_count = 0
+            sub_data["active_devices_count"] = active_devices_count
 
         plans_data = []
         for plan in (plans or []):
@@ -139,6 +148,7 @@ async def _build_user_data(
                 "id": plan.id,
                 "name": plan.name,
                 "description": plan.description or "" if hasattr(plan, 'description') else "",
+                "type": plan.type.value if hasattr(plan, 'type') and plan.type else "BOTH",
                 "traffic_limit": plan.traffic_limit,
                 "device_limit": plan.device_limit,
                 "durations": durations,
@@ -508,6 +518,7 @@ async def api_user_subscription(request: Request, access_token: Optional[str] = 
             "subscription": {
                 "status": subscription.status.value if hasattr(subscription.status, "value") else str(subscription.status),
                 "plan_name": subscription.plan.name if subscription.plan else "—",
+                "plan_id": subscription.plan.id if subscription.plan else None,
                 "expire_at": subscription.expire_at.strftime("%d.%m.%Y %H:%M") if subscription.expire_at else "—",
                 "traffic_limit": subscription.traffic_limit,
                 "device_limit": subscription.device_limit,

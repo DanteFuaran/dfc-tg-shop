@@ -53,6 +53,9 @@
                 <span class="sub-plan-name" id="sub-plan-name">—</span>
                 <span class="sub-traffic" id="sub-traffic"></span>
             </div>
+            <div class="sub-row-meta">
+                <span class="sub-devices" id="sub-devices"></span>
+            </div>
             <div class="sub-row-bottom">
                 <span class="sub-expire" id="sub-expire"></span>
                 <span class="sub-remaining" id="sub-remaining"></span>
@@ -406,7 +409,7 @@ const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
 const I18N={
     RU:{
         home:'Главная',support:'Поддержка',profile:'Профиль',admin:'Админ',
-        buy:'Оплатить',buy_sub:'Купить подписку',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить подписку',change_plan:'Сменить подписку',manage_sub:'Управление подпиской',
+        buy:'Оплатить',buy_sub:'Купить подписку',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить',change_plan:'Сменить',manage_sub:'Управление подпиской',
         promo:'Промокоды',devices:'Устройства',plans:'Тарифные планы',
         connect_title:'Подключение',devices_title:'Мои устройства',
         sub_link:'Ссылка подписки',copy:'Копировать',download:'Скачать приложение',
@@ -445,7 +448,7 @@ const I18N={
     },
     EN:{
         home:'Home',support:'Support',profile:'Profile',admin:'Admin',
-        buy:'Pay',buy_sub:'Buy subscription',trial:'Try for free',connect:'Connect',renew:'Renew subscription',change_plan:'Change plan',manage_sub:'Manage subscription',
+        buy:'Pay',buy_sub:'Buy subscription',trial:'Try for free',connect:'Connect',renew:'Renew',change_plan:'Change plan',manage_sub:'Manage subscription',
         promo:'Promo codes',devices:'Devices',plans:'Plans',
         connect_title:'Connection',devices_title:'My Devices',
         sub_link:'Subscription Link',copy:'Copy',download:'Download App',
@@ -589,7 +592,7 @@ function applyLocale(){
             if(oc.includes("inviteFriend()")) p.innerHTML='🔗 '+t('invite_friend');
         });
         const commB=$('btn-community-home');if(commB&&commB.style.display!=='none')commB.innerHTML='💬 '+t('community');
-        $('btn-help-home').innerHTML='🛟 '+t('help');
+        const helpB=$('btn-help-home');if(helpB)helpB.innerHTML='🛟 '+t('help');
     }
     // Page titles
     const pts={'p-plans':'plans','p-connect':'connect_title','p-devices':'devices_title','p-promo':'promo','p-support':'support','p-tickets':'my_tickets','p-profile':'profile'};
@@ -833,9 +836,28 @@ function renderSub(){
     pn.textContent=planLabel;
     pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
 
-    // Traffic
-    const tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
+    // Traffic — use current plan type to decide display
+    const currentPlan=D.plans&&s.plan_id?D.plans.find(p=>p.id===s.plan_id):null;
+    let tl;
+    if(currentPlan){
+        if(currentPlan.type==='DEVICES') tl='Безлимитный';
+        else tl=(currentPlan.traffic_limit||'∞')+' ГБ';
+    } else {
+        tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
+    }
     tr.innerHTML=t('traffic')+': <b>'+tl+'</b>';
+
+    // Devices
+    const dl=$('sub-devices');
+    if(dl){
+        const devLimit=s.device_limit||'∞';
+        const devActive=(typeof s.active_devices_count==='number')?s.active_devices_count:null;
+        if(devActive!==null){
+            dl.innerHTML='📱 '+t('dev_short')+': <b>'+devActive+'</b> / '+devLimit;
+        } else {
+            dl.innerHTML='📱 '+t('dev_short')+': <b>'+devLimit+'</b>';
+        }
+    }
 
     // Expire date
     e.innerHTML=s.expire_at?t('to_date')+' '+s.expire_at:'';
@@ -1093,8 +1115,11 @@ function openPayment(){
 }
 function renewCurrentPlan(){
     const s=D.subscription;
-    if(!s||!s.plan) return go('plans');
-    const plan=D.plans.find(p=>p.id===s.plan.id);
+    if(!s) return go('plans');
+    // Try plan_id first, then fallback to name match
+    const planId=s.plan_id||(s.plan&&s.plan.id);
+    const plan=D.plans.find(p=>p.id===planId)||
+               (s.plan_name?D.plans.find(p=>p.name===s.plan_name):null);
     if(!plan) return go('plans');
     const dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
     // Find base ppd for savings calc
@@ -1116,7 +1141,9 @@ function renewCurrentPlan(){
         }
         return '<div class="plan-duration" style="cursor:pointer;transition:all .2s" onclick="confirmPurchase('+plan.id+','+d.days+','+pr+')" onmouseover="this.style.borderColor=\'var(--cyan-border)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span>'+savBadge+'</div>';
     }).join('');
-    const trafficText=(plan.traffic_limit||'∞')+' ГБ';
+    let trafficText;
+    if(plan.type==='DEVICES') trafficText='Безлимитный';
+    else trafficText=(plan.traffic_limit||'∞')+' ГБ';
     const devicesText=(plan.device_limit||'∞')+' '+t('dev_short');
     showModal(
         '<h3>'+t('renew')+'</h3>'+
