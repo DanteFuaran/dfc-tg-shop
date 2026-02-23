@@ -10,6 +10,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 
 revision: str = "0045"
 down_revision: Union[str, None] = "0044"
@@ -28,7 +29,7 @@ def upgrade() -> None:
         "END $$;"
     ))
 
-    ticket_status = sa.Enum("OPEN", "ANSWERED", "CLOSED", name="ticket_status", create_type=False)
+    ticket_status = PgEnum("OPEN", "ANSWERED", "CLOSED", name="ticket_status", create_type=False)
 
     op.create_table(
         "tickets",
