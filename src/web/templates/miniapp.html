@@ -357,7 +357,13 @@
 /* ═══════════════════════════════════════
    GLOBALS
    ═══════════════════════════════════════ */
-const API='/web', tg=window.Telegram.WebApp;
+const API='/web';
+let tg;
+try { tg = window.Telegram.WebApp; } catch(e) {
+    tg = {ready:()=>{},expand:()=>{},initData:'',setHeaderColor:()=>{},setBackgroundColor:()=>{},
+          openTelegramLink:u=>window.open(u,'_blank'),openLink:u=>window.open(u,'_blank'),
+          BackButton:{show:()=>{},hide:()=>{},offClick:()=>{},onClick:()=>{}}};
+}
 let D=null, BRAND={name:'VPN Shop',logo:'🔐',slogan:''}, IS_ADMIN=false;
 let usersCache=[], curAdmTab='stats', DOMAIN='';
 const AVAIL_LABELS={ALL:'Все',NEW:'Новые',EXISTING:'Действующие',INVITED:'Приглашённые',ALLOWED:'Разрешённые',TRIAL:'Пробный'};
