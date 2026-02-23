@@ -276,6 +276,32 @@ a{color:var(--cyan);text-decoration:none}
 .app-link:hover{border-color:var(--cyan-border);background:var(--cyan-dim)}
 .app-link .app-icon{font-size:1.3rem;flex-shrink:0}
 
+/* ── SVG app icon grid (4-up: Win/Mac/Android/iOS) ── */
+.apps-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.apps-icons .app-link{flex-direction:column;gap:6px;padding:10px 6px;text-align:center;
+    font-size:.7rem;font-weight:600;color:var(--text2);border-radius:var(--r-sm)}
+.apps-icons .app-link svg{width:26px;height:26px;color:var(--cyan);flex-shrink:0}
+
+/* ── Download spoiler ── */
+.spoiler-card{cursor:default}
+.spoiler-card summary{
+    cursor:pointer;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:0;margin:0;user-select:none;
+}
+.spoiler-card summary::-webkit-details-marker{display:none}
+.spoiler-chevron{transition:transform .25s;color:var(--text3);font-size:1rem;flex-shrink:0}
+.spoiler-card[open] .spoiler-chevron{transform:rotate(90deg)}
+.spoiler-title{font-size:.84rem;font-weight:600;color:var(--text)}
+
+/* ── Status dot (green/red circle for settings toggles) ── */
+.status-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block;transition:background .2s,box-shadow .2s}
+.status-dot.on{background:#25c466;box-shadow:0 0 6px rgba(37,196,102,.5)}
+.status-dot.off{background:#e5534b;box-shadow:0 0 6px rgba(229,83,75,.4)}
+
+/* ── Balance icons in profile ── */
+.bal-icon{width:16px;height:16px;vertical-align:middle;color:var(--cyan);margin-right:4px;flex-shrink:0}
+
 /* ══════════════════════════════════════════════
    REFERRAL
    ══════════════════════════════════════════════ */

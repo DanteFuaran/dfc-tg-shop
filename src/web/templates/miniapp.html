@@ -78,28 +78,55 @@
         <button class="btn-back" onclick="go('home')">‹</button>
         <h2 class="page-title">Подключение</h2>
     </div>
+    <!-- Download (spoiler, at top) -->
+    <details class="card spoiler-card" id="con-download">
+        <summary>
+            <span class="spoiler-title" id="con-download-title">Скачать приложение</span>
+            <span class="spoiler-chevron">›</span>
+        </summary>
+        <div class="apps-icons" style="margin-top:12px">
+            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe')">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5L10.5 5.4V12H3V6.5zm8.5-1.2L21 4V12h-9.5V5.3zm-8.5 7.7h7.5v6.5L3 18.5V13zm8.5 0H21v6.7l-9.5-1.2V13z"/></svg>
+                Windows
+            </a>
+            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                macOS
+            </a>
+            <a class="app-link" onclick="openLink('https://play.google.com/store/apps/details?id=com.happproxy')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 2.5L5 8m12-5.5L19.5 8M5 8a7 7 0 0014 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2V8z"/><circle cx="9" cy="14" r="1" fill="currentColor"/><circle cx="15" cy="14" r="1" fill="currentColor"/></svg>
+                Android
+            </a>
+            <a class="app-link" onclick="openLink('https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 3C14 4.2 12.8 4 12 3.5M12 3.5C10.8 4 9.5 3 9.5 3M12 3.5C12 6 10 7 8 7c0 3.5 3 6 4 8s4-4.5 4-8c-2 0-4-1-4-3.5"/><path d="M7.5 8.5C5.5 10 5 13 6 15.5c.8 2 2 4 3 4 .6 0 1-.3 1.5-.5M16.5 8.5C18.5 10 19 13 18 15.5c-.8 2-2 4-3 4-.6 0-1-.3-1.5-.5"/></svg>
+                iOS
+            </a>
+        </div>
+    </details>
+    <!-- Quick connect actions -->
+    <div class="card" id="con-actions" style="display:none">
+        <div class="action-pills" style="flex-direction:column;gap:8px">
+            <button class="pill pill-cyan btn-full" id="btn-oneclick" onclick="" style="justify-content:center">
+                <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                &nbsp;Подключиться
+            </button>
+            <button class="pill pill-outline btn-full" id="btn-subpage" onclick="" style="justify-content:center">
+                <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                &nbsp;Страница подписки
+            </button>
+        </div>
+    </div>
+    <!-- Subscription link + QR -->
     <div class="card">
-        <div class="card-title">Ссылка подписки</div>
+        <div class="card-title" id="con-link-title">Ссылка подписки</div>
         <div class="connect-box">
             <code id="con-url">—</code>
-            <button onclick="copyUrl()">Копировать</button>
+            <button onclick="copyUrl()" id="btn-copy-url">Копировать</button>
         </div>
-    </div>
-    <div class="card" id="con-actions" style="display:none">
-        <div class="card-title">Быстрое подключение</div>
-        <div class="action-pills">
-            <button class="pill pill-cyan" id="btn-oneclick" onclick="">⚡ Подключиться в один клик</button>
-            <button class="pill pill-outline" id="btn-subpage" onclick="">📄 Страница подписки</button>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-title">Скачать приложение</div>
-        <div class="apps-grid">
-            <a class="app-link" onclick="openLink('https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973')"><span class="app-icon">🍏</span> iOS</a>
-            <a class="app-link" onclick="openLink('https://play.google.com/store/apps/details?id=com.happproxy')"><span class="app-icon">🤖</span> Android</a>
-            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe')"><span class="app-icon">🪟</span> Windows</a>
-            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/')"><span class="app-icon">🍎</span> macOS</a>
-        </div>
+        <button class="pill pill-outline" id="btn-qr" onclick="showQR()" style="display:none;margin-top:8px;width:100%;justify-content:center">
+            <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3M20 14v3h-3M14 20h7v-3"/></svg>
+            &nbsp;QR-код
+        </button>
     </div>
 </section>
 
@@ -195,7 +222,8 @@
         <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="pr-name">—</span></div>
         <div class="card-row"><span class="card-label">Telegram</span><span class="card-value" id="pr-uname">—</span></div>
         <div class="card-row"><span class="card-label">ID</span><span class="card-value" id="pr-tid">—</span></div>
-        <div class="card-row"><span class="card-label">Баланс</span><span class="card-value" id="pr-balance">—</span></div>
+        <div class="card-row"><span class="card-label"><svg class="bal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>Баланс</span><span class="card-value" id="pr-balance">—</span></div>
+        <div class="card-row" id="pr-bonus-row" style="display:none"><span class="card-label"><svg class="bal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>Бонусный</span><span class="card-value" id="pr-bonus">—</span></div>
         <div class="card-row"><span class="card-label">Роль</span><span class="card-value" id="pr-role">—</span></div>
     </div>
     <!-- Balance -->
@@ -366,7 +394,7 @@ const I18N={
         ticket_closed_resolved:'Тикет закрыт как решённый',ticket_closed_unresolved:'Тикет закрыт как нерешённый',
         copied:'Скопировано!',link_copied:'Ссылка скопирована!',no_sub_err:'Нет подписки',
         user_role:'Пользователь',admin_role:'Администратор',dev_role:'Разработчик',
-        agreement:'Оферта',no_tickets:'Нет тикетов',create_first:'Создайте первый тикет',
+        agreement:'Соглашение',no_tickets:'Нет тикетов',create_first:'Создайте первый тикет',
         write_msg:'Напишите сообщение…',
         traffic:'Трафик',dev_short:'устр.',select_plan:'Выбрать тариф',to_date:'до',topup:'Пополнить',
         topup_via_bot:'Пополнение баланса доступно через бота',expand_via_bot:'Расширение устройств доступно через бота',
@@ -444,7 +472,7 @@ const I18N={
         ticket_closed_resolved:'Тікет закрито як вирішений',ticket_closed_unresolved:'Тікет закрито як невирішений',
         copied:'Скопійовано!',link_copied:'Посилання скопійовано!',no_sub_err:'Немає підписки',
         user_role:'Користувач',admin_role:'Адміністратор',dev_role:'Розробник',
-        agreement:'Оферта',no_tickets:'Немає тікетів',create_first:'Створіть перший тікет',
+        agreement:'Угода',no_tickets:'Немає тікетів',create_first:'Створіть перший тікет',
         write_msg:'Напишіть повідомлення…',
         traffic:'Трафік',dev_short:'пристр.',select_plan:'Обрати тариф',to_date:'до',topup:'Поповнити',
         topup_via_bot:'Поповнення балансу доступне через бота',expand_via_bot:'Розширення пристроїв доступне через бота',
@@ -800,8 +828,9 @@ function renderConnect(){
     $('con-url').textContent=(s&&s.url)?s.url:t('no_active_sub');
     if(s&&s.url&&DOMAIN){
         $('con-actions').style.display='';
-        $('btn-oneclick').onclick=()=>openLink('https://'+DOMAIN+'/api/v1/connect/'+s.url.split('/').pop());
+        $('btn-oneclick').onclick=()=>openLink('https://'+DOMAIN+'/api/v1/connect/'+s.url);
         $('btn-subpage').onclick=()=>openLink(s.url);
+        $('btn-qr').style.display='';
     }
     const dl=D.subscription&&D.subscription.device_limit;
     $('dev-limit').textContent=dl||'—';
@@ -814,6 +843,10 @@ function renderProfile(){
     $('pr-uname').textContent=u.username?'@'+u.username:'—';
     $('pr-tid').textContent=u.telegram_id;
     $('pr-balance').textContent=u.balance+' '+sym;
+    const bm=D.features&&D.features.balance_mode;
+    const rb=u.referral_balance||0;
+    if(bm==='SEPARATE'&&rb>0){$('pr-bonus-row').style.display='';$('pr-bonus').textContent=rb+' '+sym;}
+    else{$('pr-bonus-row').style.display='none';}
     const rm={USER:t('user_role'),ADMIN:t('admin_role'),DEV:t('dev_role')};
     $('pr-role').textContent=rm[u.role]||u.role;
     if(D.features&&D.features.balance_enabled!==false) $('balance-card').style.display='';
@@ -1159,7 +1192,7 @@ function drawSettings(){
         {title:'Функции',items:[
             {key:'balance_enabled',icon:'💰',label:'Баланс',desc:'Пополнение и использование баланса',detail:'balance'},
             {key:'community_enabled',icon:'💬',label:'Сообщество',desc:'Ссылка на Telegram-группу',detail:'community'},
-            {key:'tos_enabled',icon:'📜',label:'Оферта',desc:'Пользовательское соглашение'},
+            {key:'tos_enabled',icon:'�',label:'Соглашение',desc:'Пользовательское соглашение',detail:'tos'},
             {key:'referral_enabled',icon:'🤝',label:'Рефералы',desc:'Реферальная программа',detail:'referral'},
             {key:'promocodes_enabled',icon:'🎁',label:'Промокоды',desc:'Активация промокодов'},
             {key:'notifications_enabled',icon:'🔔',label:'Уведомления',desc:'Отправка уведомлений пользователям',detail:'notifications'},
@@ -1171,6 +1204,7 @@ function drawSettings(){
             {key:'access_enabled',icon:'🔐',label:'Доступ',desc:'Глобальный доступ к боту'},
             {key:'purchases_allowed',icon:'🛒',label:'Покупки',desc:'Разрешить покупку подписок'},
             {key:'registration_allowed',icon:'📝',label:'Регистрация',desc:'Разрешить регистрацию новых пользователей'},
+            {key:'rules_required',icon:'📜',label:'Принятие правил',desc:'Требовать принятие условий при входе'},
         ]},
         {title:'Управление ботом',items:[
             {key:'language_enabled',icon:'🌐',label:'Мультиязычность',desc:'Выбор языка интерфейса бота'},
@@ -1187,7 +1221,11 @@ function drawSettings(){
             if(item.type==='select'){
                 html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="settings-chevron">'+esc(String(val))+' ›</span></div>';
             } else if(typeof val==='boolean'){
-                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><button class="toggle-switch '+(val?'active':'')+'" onclick="event.stopPropagation();toggleSet(\''+item.key+'\','+(!val)+',this)"></button></div>';
+                if(item.detail){
+                    html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+item.detail+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="status-dot '+(val?'on':'off')+'" id="dot-'+item.key+'"></span></div>';
+                } else {
+                    html+='<div class="settings-row" onclick="toggleSet(\''+item.key+'\','+(!val)+',\'dot-'+item.key+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="status-dot '+(val?'on':'off')+'" id="dot-'+item.key+'"></span></div>';
+                }
             } else {
                 html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+esc(String(val))+'</div></div></div><span class="settings-chevron">›</span></div>';
             }
@@ -1196,7 +1234,9 @@ function drawSettings(){
     });
     $('settings-list').innerHTML=html;
 }
+let curDetailCtx=null;
 function openSettingDetail(key,label,detail){
+    curDetailCtx={key,label,detail};
     const s=settingsCache, val=s[key];
     let body='';
 
@@ -1249,6 +1289,9 @@ function openSettingDetail(key,label,detail){
             '<div class="form-group"><label>EUR → RUB</label><input class="form-input" id="sd-cr-eur" type="number" step="0.01" value="'+(s.currency_rates_eur||100)+'"></div>'+
             '<div class="form-group"><label>Stars → RUB</label><input class="form-input" id="sd-cr-stars" type="number" step="0.01" value="'+(s.currency_rates_stars||1.5)+'"></div>'+
             '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({currency_rates_usd:parseFloat($(\'sd-cr-usd\').value),currency_rates_eur:parseFloat($(\'sd-cr-eur\').value),currency_rates_stars:parseFloat($(\'sd-cr-stars\').value)})">Сохранить курсы</button>';
+    } else if(detail==='tos'){
+        body+='<div class="form-group"><label>URL соглашения</label><input class="form-input" id="sd-tos-url" value="'+esc(s.tos_url||'')+'" placeholder="https://..."></div>'+
+            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSettingStr(\'tos_url\',$(\'sd-tos-url\').value)">Сохранить</button>';
     } else if(typeof val==='boolean'){
         // Simple boolean without sub-settings — nothing extra
     } else {
@@ -1264,7 +1307,9 @@ function openSettingDetail(key,label,detail){
 }
 async function saveSubSetting(k,v){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
-    if(r.ok){settingsCache[k]=v;toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){settingsCache[k]=v;toast('Сохранено');
+        if(curDetailCtx)openSettingDetail(curDetailCtx.key,curDetailCtx.label,curDetailCtx.detail);
+    }else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 async function saveMultiSub(obj){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
@@ -1272,11 +1317,21 @@ async function saveMultiSub(obj){
 }
 async function toggleSetAndRefresh(k,v,btn){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
-    if(r.ok){settingsCache[k]=v;btn.classList.toggle('active',v);drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){settingsCache[k]=v;if(btn&&typeof btn.classList!=='undefined')btn.classList.toggle('active',v);drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
-async function toggleSet(k,v,btn){
+async function toggleSet(k,v,dotId){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
-    if(r.ok){settingsCache[k]=v;btn.classList.toggle('active',v);drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){settingsCache[k]=v;
+        const dot=typeof dotId==='string'?$(dotId):dotId;
+        if(dot){dot.className='status-dot '+(v?'on':'off');}
+        drawSettings();toast('Сохранено')
+    }else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+function showQR(){
+    const s=D&&D.subscription;
+    if(!s||!s.url)return toast(t('no_active_sub')||'Нет активной подписки','error');
+    const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=24C4F1&bgcolor=080C14&data='+encodeURIComponent(s.url);
+    showModal('<h3>QR-код</h3><div style="text-align:center;padding:10px 0"><img src="'+qrUrl+'" style="width:200px;height:200px;border-radius:12px" alt="QR"></div><p style="font-size:.75rem;color:var(--text3);text-align:center">Отсканируйте для подключения</p><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
 }
 async function saveSettingStr(k,v){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});

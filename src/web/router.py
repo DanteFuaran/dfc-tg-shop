@@ -165,6 +165,7 @@ async def _build_user_data(
             bot_locale = settings.bot_locale.value if hasattr(settings.bot_locale, "value") else str(settings.bot_locale)
             features_data = {
                 "balance_enabled": features.balance_enabled,
+                "balance_mode": features.balance_mode.value if hasattr(features.balance_mode, "value") else str(features.balance_mode),
                 "community_enabled": features.community_enabled,
                 "community_url": features.community_url or "",
                 "tos_enabled": features.tos_enabled,
@@ -172,6 +173,14 @@ async def _build_user_data(
                 "referral_enabled": features.referral_enabled,
                 "promocodes_enabled": features.promocodes_enabled,
             }
+        except Exception:
+            pass
+
+        # Referral balance for profile display
+        referral_balance_user = 0
+        try:
+            ref_svc: ReferralService = await req_container.get(ReferralService)
+            referral_balance_user = await ref_svc.get_pending_rewards_amount(telegram_id=telegram_id)
         except Exception:
             pass
         try:
@@ -211,6 +220,7 @@ async def _build_user_data(
                 "name": user.name,
                 "username": user.username or "",
                 "balance": user.balance,
+                "referral_balance": referral_balance_user,
                 "role": user.role.value if hasattr(user.role, "value") else str(user.role),
                 "language": user.language.value if hasattr(user.language, "value") else str(user.language),
                 "is_blocked": user.is_blocked,
@@ -648,11 +658,19 @@ async def api_admin_user_detail(tid: int, request: Request, access_token: Option
                 "expire_at": sub.expire_at.strftime("%d.%m.%Y %H:%M") if sub.expire_at else "—",
             }
 
+        referral_balance = 0
+        try:
+            referral_service: ReferralService = await req_container.get(ReferralService)
+            referral_balance = await referral_service.get_pending_rewards_amount(telegram_id=tid)
+        except Exception:
+            pass
+
         return JSONResponse({
             "telegram_id": user.telegram_id,
             "name": user.name,
             "username": user.username or "",
             "balance": user.balance,
+            "referral_balance": referral_balance,
             "role": user.role.value if hasattr(user.role, "value") else str(user.role),
             "is_blocked": user.is_blocked,
             "created_at": user.created_at.strftime("%d.%m.%Y %H:%M") if user.created_at else "—",
@@ -988,6 +1006,8 @@ async def api_admin_settings(request: Request, access_token: Optional[str] = Coo
             "default_currency": settings.default_currency.value if hasattr(settings.default_currency, "value") else str(settings.default_currency),
             "purchases_allowed": settings.purchases_allowed,
             "registration_allowed": settings.registration_allowed,
+            "rules_required": settings.rules_required,
+            "tos_url": settings.rules_link.get_secret_value() if hasattr(settings.rules_link, "get_secret_value") else str(settings.rules_link),
             "bot_locale": settings.bot_locale.value if hasattr(settings.bot_locale, "value") else str(settings.bot_locale),
         })
 
@@ -1007,6 +1027,8 @@ async def api_admin_update_settings(request: Request, access_token: Optional[str
             "access_enabled", "language_enabled",
         }
         settings_fields = {"purchases_allowed", "registration_allowed"}
+        settings_bool_fields = {"rules_required"}
+        settings_str_fields = {"tos_url"}
         string_feature_fields = {"community_url"}
 
         # Sub-settings mapping: key -> (parent_attr, child_attr, type)
@@ -1041,6 +1063,16 @@ async def api_admin_update_settings(request: Request, access_token: Optional[str
         for key, value in body.items():
             if key in feature_fields and isinstance(value, bool):
                 await settings_service.toggle_feature(key)
+            elif key in settings_bool_fields and isinstance(value, bool):
+                settings = await settings_service.get()
+                setattr(settings, key, value)
+                need_save = True
+            elif key in settings_str_fields and isinstance(value, str):
+                settings = await settings_service.get()
+                if key == "tos_url":
+                    from pydantic import SecretStr
+                    settings.rules_link = SecretStr(value)
+                need_save = True
             elif key in settings_fields and isinstance(value, bool):
                 settings = await settings_service.get()
                 setattr(settings, key, value)
