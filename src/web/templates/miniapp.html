@@ -5,12 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Mini App</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <link rel="stylesheet" href="/web/static/css/style.css">
 </head>
 <body>
 <div class="bg-glow"></div>
-<div id="particles-js"></div>
 <div id="app">
 
 <!-- Loading -->
@@ -29,7 +27,7 @@
 
 <header class="app-header">
     <div class="brand">
-        <span class="brand-logo" id="brand-logo">🔐</span>
+        <span class="brand-logo" id="brand-logo"></span>
         <div class="brand-info">
             <span class="brand-name" id="brand-name">VPN Shop</span>
             <span class="brand-slogan" id="brand-slogan"></span>
@@ -54,8 +52,8 @@
     <!-- Actions -->
     <div class="action-pills">
         <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
-        <button class="pill pill-gold" onclick="buySubscription()">🛒&nbsp; Купить</button>
-        <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Установить и настроить</button>
+        <button class="pill pill-gold" onclick="openPayment()">💳&nbsp; Оплатить</button>
+        <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Подключиться</button>
         <div class="pill-row">
             <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
             <button class="pill pill-outline" onclick="go('devices')">📱 Устройства</button>
@@ -254,6 +252,7 @@
         <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon">👥</span><span class="tab-label">Пользователи</span></button>
         <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon">📋</span><span class="tab-label">Тарифы</span></button>
         <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span></button>
+        <button class="admin-tab" onclick="admTab('gateways')"><span class="tab-icon">💳</span><span class="tab-label">Платежи</span></button>
         <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span></button>
         <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon">🎨</span><span class="tab-label">Бренд</span></button>
     </div>
@@ -285,6 +284,8 @@
     </div>
     <!-- Settings -->
     <div id="adm-settings" class="admin-content"><div id="settings-list"></div></div>
+    <!-- Gateways -->
+    <div id="adm-gateways" class="admin-content"><div id="gateways-list"></div></div>
     <!-- Admin Tickets -->
     <div id="adm-tickets" class="admin-content">
         <div id="adm-tickets-list" class="ticket-list"></div>
@@ -294,7 +295,7 @@
         <div class="card">
             <div class="card-title">Настройки бренда</div>
             <div class="form-group"><label>Название</label><input class="form-input" id="br-name" placeholder="VPN Shop"></div>
-            <div class="form-group"><label>Логотип (эмодзи или URL картинки)</label><input class="form-input" id="br-logo" placeholder="🔐 или https://..."></div>
+            <div class="form-group"><label>Логотип (эмодзи или URL картинки)</label><input class="form-input" id="br-logo" placeholder="Укажите эмодзи или url для логотипа"></div>
             <div class="form-group"><label>Слоган</label><input class="form-input" id="br-slogan" placeholder=""></div>
             <button class="btn btn-primary btn-full" onclick="saveBrand()">Сохранить</button>
         </div>
@@ -365,7 +366,7 @@ const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
 const I18N={
     RU:{
         home:'Главная',support:'Поддержка',profile:'Профиль',admin:'Админ',
-        buy:'Купить',trial:'Попробовать бесплатно',connect:'Установить и настроить',
+        buy:'Оплатить',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить',change_plan:'Смена тарифа',
         promo:'Промокоды',devices:'Устройства',plans:'Тарифные планы',
         connect_title:'Подключение',devices_title:'Мои устройства',
         sub_link:'Ссылка подписки',copy:'Копировать',download:'Скачать приложение',
@@ -404,7 +405,7 @@ const I18N={
     },
     EN:{
         home:'Home',support:'Support',profile:'Profile',admin:'Admin',
-        buy:'Buy',trial:'Try for free',connect:'Install & Setup',
+        buy:'Pay',trial:'Try for free',connect:'Connect',renew:'Renew',change_plan:'Change plan',
         promo:'Promo codes',devices:'Devices',plans:'Plans',
         connect_title:'Connection',devices_title:'My Devices',
         sub_link:'Subscription Link',copy:'Copy',download:'Download App',
@@ -443,7 +444,7 @@ const I18N={
     },
     UK:{
         home:'Головна',support:'Підтримка',profile:'Профіль',admin:'Адмін',
-        buy:'Купити',trial:'Спробувати безкоштовно',connect:'Встановити та налаштувати',
+        buy:'Оплатити',trial:'Спробувати безкоштовно',connect:'Підключитися',renew:'Продовжити',change_plan:'Зміна тарифу',
         promo:'Промокоди',devices:'Пристрої',plans:'Тарифні плани',
         connect_title:'Підключення',devices_title:'Мої пристрої',
         sub_link:'Посилання підписки',copy:'Копіювати',download:'Завантажити додаток',
@@ -482,7 +483,7 @@ const I18N={
     },
     DE:{
         home:'Startseite',support:'Support',profile:'Profil',admin:'Admin',
-        buy:'Kaufen',trial:'Kostenlos testen',connect:'Installieren & Einrichten',
+        buy:'Bezahlen',trial:'Kostenlos testen',connect:'Verbinden',renew:'Verlängern',change_plan:'Tarif wechseln',
         promo:'Promocodes',devices:'Geräte',plans:'Tarife',
         connect_title:'Verbindung',devices_title:'Meine Geräte',
         sub_link:'Abo-Link',copy:'Kopieren',download:'App herunterladen',
@@ -538,7 +539,7 @@ function applyLocale(){
         const pills=hp.querySelectorAll('.pill');
         pills.forEach(p=>{
             const oc=p.getAttribute('onclick')||'';
-            if(oc.includes('buySubscription')) p.innerHTML='🛒&nbsp; '+t('buy');
+            if(oc.includes('openPayment')) p.innerHTML='💳&nbsp; '+t('buy');
             if(oc.includes("go('connect')")) p.innerHTML='⊙&nbsp; '+t('connect');
             if(oc.includes("go('promo')")) p.innerHTML='🎁 '+t('promo');
             if(oc.includes("go('devices')")) p.innerHTML='📱 '+t('devices');
@@ -635,7 +636,6 @@ async function init(){
     tg.ready(); tg.expand();
     try{tg.setHeaderColor('#080C14')}catch(e){}
     try{tg.setBackgroundColor('#080C14')}catch(e){}
-    initParticles();
     try{
         const a=await fetch(API+'/api/auth/tg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})});
         if(!a.ok) return showErr('Ошибка авторизации. Откройте из Telegram.');
@@ -660,28 +660,6 @@ async function init(){
         // Start polling ticket status every 15 seconds
         setInterval(pollTicketStatus, 15000);
     }catch(e){showErr(t('error')+': '+e.message)}
-}
-
-function initParticles(){
-    if(typeof particlesJS!=='undefined'){
-        particlesJS('particles-js',{
-            particles:{
-                number:{value:60,density:{enable:true,value_area:800}},
-                color:{value:'#24C4F1'},
-                shape:{type:'circle'},
-                opacity:{value:0.25,random:true,anim:{enable:false}},
-                size:{value:2,random:true,anim:{enable:false}},
-                line_linked:{enable:true,distance:180,color:'#24C4F1',opacity:0.08,width:1},
-                move:{enable:true,speed:0.6,direction:'none',random:false,straight:false,out_mode:'out',bounce:false}
-            },
-            interactivity:{
-                detect_on:'window',
-                events:{onhover:{enable:true,mode:'grab'},onclick:{enable:true,mode:'push'},resize:true},
-                modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:1}}
-            },
-            retina_detect:true
-        });
-    }
 }
 
 function showErr(m){$('loading-screen').style.display='none';$('error-screen').style.display='flex';$('error-msg').textContent=m}
@@ -739,11 +717,12 @@ async function pollTicketStatus(){
    RENDER
    ═══════════════════════════════════════ */
 function render(){
-    // Brand logo: URL → <img>, otherwise emoji text
+    // Brand logo: URL → <img>, emoji → text, empty → placeholder
     const logoEl=$('brand-logo');
-    const logoVal=BRAND.logo||'🔐';
+    const logoVal=BRAND.logo||'';
     if(logoVal.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(logoVal)+'" alt="">';logoEl.classList.add('has-img')}
-    else{logoEl.textContent=logoVal;logoEl.classList.remove('has-img')}
+    else if(logoVal){logoEl.textContent=logoVal;logoEl.classList.remove('has-img')}
+    else{logoEl.textContent='';logoEl.classList.remove('has-img')}
     $('brand-name').textContent=BRAND.name||'VPN Shop';
     const sloganEl=$('brand-slogan');
     if(BRAND.slogan){sloganEl.textContent=BRAND.slogan;sloganEl.style.display=''}else{sloganEl.style.display='none'}
@@ -877,6 +856,28 @@ function renderSupport(){
 /* ═══════════════════════════════════════
    USER ACTIONS
    ═══════════════════════════════════════ */
+function openPayment(){
+    if(!D.plans||!D.plans.length) return toast(t('no_plans'),'error');
+    const s=D.subscription;
+    // Active non-trial subscription: offer Renew or Change plan
+    if(s && s.status==='ACTIVE' && !s.is_trial){
+        showModal('<h3>'+t('buy')+'</h3>'+
+            '<div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:12px">'+
+            '<button class="btn btn-primary btn-full" onclick="closeModal();renewCurrentPlan()">'+t('renew')+'</button>'+
+            '<button class="btn btn-secondary btn-full" onclick="closeModal();go(\'plans\')">'+t('change_plan')+'</button>'+
+            '</div>');
+    } else {
+        // Trial or no subscription: go directly to plans
+        go('plans');
+    }
+}
+function renewCurrentPlan(){
+    const s=D.subscription;
+    if(!s||!s.plan) return go('plans');
+    const plan=D.plans.find(p=>p.id===s.plan.id);
+    if(!plan) return go('plans');
+    selectPlan(plan.id);
+}
 function buySubscription(){
     if(D.plans&&D.plans.length) go('plans');
     else toast(t('no_plans'),'error');
@@ -989,7 +990,7 @@ async function activatePromo(){
    ═══════════════════════════════════════ */
 function admTab(t){
     curAdmTab=t;
-    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','tickets','brand'][i]===t));
+    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','gateways','tickets','brand'][i]===t));
     document.querySelectorAll('.admin-content').forEach(c=>c.classList.remove('active'));
     const el=$('adm-'+t);if(el)el.classList.add('active');
     loadAdm(t);
@@ -999,6 +1000,7 @@ async function loadAdm(t){
     if(t==='users')await loadUsers();
     if(t==='plans')await loadAdmPlans();
     if(t==='settings')await loadSettings();
+    if(t==='gateways')await loadGateways();
     if(t==='tickets')await loadAdmTickets();
     if(t==='brand')loadBrandForm();
 }
@@ -1323,10 +1325,65 @@ async function toggleSet(k,v,dotId){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
     if(r.ok){settingsCache[k]=v;
         const dot=typeof dotId==='string'?$(dotId):dotId;
-        if(dot){dot.className='status-dot '+(v?'on':'off');}
+        if(dot){dot.classList.toggle('active',v);}
         drawSettings();toast('Сохранено')
     }else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
+
+/* ═══ PAYMENT GATEWAYS ═══ */
+let gatewaysCache=[];
+const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'ЮMoney',CRYPTOMUS:'Cryptomus',HELEKET:'Heleket',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
+const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'💜',CRYPTOMUS:'🪙',HELEKET:'🔷',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
+const GW_SECRET_FIELDS=['api_key','secret_key'];
+async function loadGateways(){
+    try{const r=await fetch(API+'/api/admin/gateways');if(!r.ok)return;gatewaysCache=await r.json();drawGateways()}catch(e){}
+}
+function drawGateways(){
+    let html='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding:0 4px">Платёжные системы</div>';
+    html+='<div class="card" style="padding:0;overflow:hidden">';
+    gatewaysCache.forEach(gw=>{
+        const label=GW_LABELS[gw.type]||gw.type;
+        const icon=GW_ICONS[gw.type]||'💳';
+        html+='<div class="settings-row" onclick="openGatewayDetail('+gw.id+')">';
+        html+='<div class="settings-row-left"><span class="settings-icon">'+icon+'</span><div><div class="settings-label">'+label+'</div><div class="settings-desc">'+gw.currency+' • '+(gw.is_active?'Активна':'Неактивна')+'</div></div></div>';
+        html+='<button class="toggle-switch '+(gw.is_active?'active':'')+'" onclick="event.stopPropagation();toggleGw('+gw.id+','+(!gw.is_active)+',this)"></button>';
+        html+='</div>';
+    });
+    html+='</div>';
+    $('gateways-list').innerHTML=html;
+}
+async function toggleGw(id,v,btn){
+    try{const r=await fetch(API+'/api/admin/gateways/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_active:v})});
+    if(r.ok){btn.classList.toggle('active',v);const gw=gatewaysCache.find(g=>g.id===id);if(gw)gw.is_active=v;drawGateways();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+function openGatewayDetail(id){
+    const gw=gatewaysCache.find(g=>g.id===id);if(!gw)return;
+    const label=GW_LABELS[gw.type]||gw.type;
+    const settings=gw.settings||{};
+    const fields=Object.keys(settings);
+    if(!fields.length){
+        showModal('<h3>'+label+'</h3><p style="color:var(--text3);font-size:.84rem;margin:12px 0">Нет настраиваемых параметров</p><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
+        return;
+    }
+    let body='<h3>'+label+'</h3><div style="margin-top:12px">';
+    fields.forEach(f=>{
+        const isSecret=GW_SECRET_FIELDS.includes(f);
+        body+='<div class="form-group"><label>'+f+'</label><input class="form-input" id="gw-f-'+f+'" type="'+(isSecret?'password':'text')+'" value="'+esc(String(settings[f]||''))+'" placeholder="'+f+'"></div>';
+    });
+    body+='</div><div class="modal-actions"><button class="btn btn-primary" onclick="saveGwSettings('+id+')">Сохранить</button><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>';
+    showModal(body);
+}
+async function saveGwSettings(id){
+    const gw=gatewaysCache.find(g=>g.id===id);if(!gw)return;
+    const settings=gw.settings||{};
+    const upd={};
+    Object.keys(settings).forEach(f=>{
+        const el=$('gw-f-'+f);if(el)upd[f]=el.value;
+    });
+    try{const r=await fetch(API+'/api/admin/gateways/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings:upd})});
+    if(r.ok){closeModal();loadGateways();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+
 function showQR(){
     const s=D&&D.subscription;
     if(!s||!s.url)return toast(t('no_active_sub')||'Нет активной подписки','error');
