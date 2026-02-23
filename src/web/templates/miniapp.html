@@ -46,25 +46,43 @@
 <!-- ═══ HOME ═══ -->
 <section id="p-home" class="page active">
     <!-- Subscription card -->
-    <div class="card sub-card">
-        <div class="sub-row-top">
-            <span class="sub-plan-name" id="sub-plan-name">—</span>
-            <span class="sub-expire" id="sub-expire"></span>
+    <div class="card sub-card" id="sub-card">
+        <!-- Active sub layout -->
+        <div id="sub-active-layout" style="display:none">
+            <div class="sub-row-top">
+                <span class="sub-plan-name" id="sub-plan-name">—</span>
+                <span class="sub-traffic" id="sub-traffic"></span>
+            </div>
+            <div class="sub-row-bottom">
+                <span class="sub-expire" id="sub-expire"></span>
+                <span class="sub-remaining" id="sub-remaining"></span>
+            </div>
+            <div class="sub-actions-row">
+                <button class="sub-action-btn sub-action-renew" id="btn-renew" onclick="renewCurrentPlan()">Продлить</button>
+                <button class="sub-action-btn sub-action-change" id="btn-change" onclick="go('plans')">Сменить</button>
+            </div>
         </div>
-        <div class="sub-row-bottom">
-            <span class="sub-traffic" id="sub-traffic"></span>
-            <span class="sub-remaining" id="sub-remaining"></span>
+        <!-- No sub layout -->
+        <div id="sub-empty-layout">
+            <div class="sub-nosub-text" id="sub-nosub-text">У вас ещё нет активной подписки</div>
+            <button class="sub-action-btn sub-action-buy" id="btn-buy-sub" onclick="go('plans')">Купить подписку</button>
         </div>
     </div>
 
     <!-- Actions -->
     <div class="action-pills">
         <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
-        <button class="pill pill-gold" id="btn-pay" onclick="openPayment()">💳&nbsp; Оплатить</button>
-        <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Подключиться</button>
+        <div class="pill-row">
+            <button class="pill pill-outline" onclick="go('connect')">⊙ Подключиться</button>
+            <button class="pill pill-outline" id="btn-invite-home" onclick="inviteFriend()">🔗 Пригласить</button>
+        </div>
         <div class="pill-row">
             <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
             <button class="pill pill-outline" onclick="go('devices')">📱 Устройства</button>
+        </div>
+        <div class="pill-row">
+            <button class="pill pill-outline" id="btn-community-home" onclick="" style="display:none">💬 Сообщество</button>
+            <button class="pill pill-outline" id="btn-help-home" onclick="go('support')">🛟 Помощь</button>
         </div>
     </div>
 </section>
@@ -389,7 +407,7 @@ const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
 const I18N={
     RU:{
         home:'Главная',support:'Поддержка',profile:'Профиль',admin:'Админ',
-        buy:'Оплатить',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить подписку',change_plan:'Сменить подписку',manage_sub:'Управление подпиской',
+        buy:'Оплатить',buy_sub:'Купить подписку',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить подписку',change_plan:'Сменить подписку',manage_sub:'Управление подпиской',
         promo:'Промокоды',devices:'Устройства',plans:'Тарифные планы',
         connect_title:'Подключение',devices_title:'Мои устройства',
         sub_link:'Ссылка подписки',copy:'Копировать',download:'Скачать приложение',
@@ -428,7 +446,7 @@ const I18N={
     },
     EN:{
         home:'Home',support:'Support',profile:'Profile',admin:'Admin',
-        buy:'Pay',trial:'Try for free',connect:'Connect',renew:'Renew subscription',change_plan:'Change plan',manage_sub:'Manage subscription',
+        buy:'Pay',buy_sub:'Buy subscription',trial:'Try for free',connect:'Connect',renew:'Renew subscription',change_plan:'Change plan',manage_sub:'Manage subscription',
         promo:'Promo codes',devices:'Devices',plans:'Plans',
         connect_title:'Connection',devices_title:'My Devices',
         sub_link:'Subscription Link',copy:'Copy',download:'Download App',
@@ -559,20 +577,20 @@ function applyLocale(){
     const hp=$('p-home');
     if(hp){
         const trial=$('btn-trial');if(trial)trial.innerHTML='🎁&nbsp; '+t('trial');
-        const payBtn=$('btn-pay');
-        if(payBtn){
-            // Dynamic: if no sub, show "plans"; if sub, show "buy"
-            const hasSub=D&&D.subscription&&D.subscription.status;
-            if(!hasSub){payBtn.innerHTML='📋&nbsp; '+t('plans')}
-            else{payBtn.innerHTML='💳&nbsp; '+t('buy')}
-        }
+        // Sub card buttons
+        $('sub-nosub-text').textContent=t('no_active_sub');
+        $('btn-buy-sub').textContent=t('buy_sub');
+        $('btn-renew').textContent=t('renew');
         const pills=hp.querySelectorAll('.pill');
         pills.forEach(p=>{
             const oc=p.getAttribute('onclick')||'';
-            if(oc.includes("go('connect')")) p.innerHTML='⊙&nbsp; '+t('connect');
+            if(oc.includes("go('connect')")) p.innerHTML='⊙ '+t('connect');
             if(oc.includes("go('promo')")) p.innerHTML='🎁 '+t('promo');
             if(oc.includes("go('devices')")) p.innerHTML='📱 '+t('devices');
+            if(oc.includes("inviteFriend()")) p.innerHTML='🔗 '+t('invite_friend');
         });
+        const commB=$('btn-community-home');if(commB&&commB.style.display!=='none')commB.innerHTML='💬 '+t('community');
+        $('btn-help-home').innerHTML='🛟 '+t('help');
     }
     // Page titles
     const pts={'p-plans':'plans','p-connect':'connect_title','p-devices':'devices_title','p-promo':'promo','p-support':'support','p-tickets':'my_tickets','p-profile':'profile'};
@@ -781,9 +799,10 @@ function render(){
     const _bm=D.features&&D.features.balance_mode;
     const _rb=D.user.referral_balance||0;
     if(_bm==='SEPARATE'){$('hdr-bonus').style.display='';$('hdr-bonus').innerHTML='<svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>'+_rb+' '+_cs}else{$('hdr-bonus').style.display='none'}
-    renderSub(); renderConnect(); renderProfile(); renderSupport();
-    // Trial button
-    if(D.trial_available) $('btn-trial').style.display='';
+    renderSub(); renderConnect(); renderProfile(); renderSupport(); renderHomeExtras();
+    // Trial button — hide if user has/had subscription or used trial
+    const hasSub=D.subscription&&D.subscription.status;
+    if(D.trial_available && !hasSub) $('btn-trial').style.display='';
     else $('btn-trial').style.display='none';
     // Ticket FAB — only on home page, only for open (non-closed/resolved) tickets
     updateFab();
@@ -794,25 +813,36 @@ function render(){
 }
 
 function renderSub(){
-    const s=D.subscription, e=$('sub-expire'), tr=$('sub-traffic'), pn=$('sub-plan-name'), rm=$('sub-remaining'), payBtn=$('btn-pay');
-    if(!s||!s.status){
-        pn.textContent=t('no_active_sub');pn.className='sub-plan-name sub-plan-nosub';
-        e.textContent='';tr.innerHTML='';rm.innerHTML='';
-        if(payBtn){payBtn.innerHTML='📋&nbsp; '+t('plans');payBtn.onclick=()=>go('plans');payBtn.className='pill pill-cyan'}
+    const s=D.subscription;
+    const activeLayout=$('sub-active-layout'), emptyLayout=$('sub-empty-layout');
+    const pn=$('sub-plan-name'), tr=$('sub-traffic'), e=$('sub-expire'), rm=$('sub-remaining');
+
+    if(!s||!s.status||s.status==='EXPIRED'){
+        // No subscription or expired
+        activeLayout.style.display='none';
+        emptyLayout.style.display='';
+        $('sub-nosub-text').textContent=t('no_active_sub');
         return;
     }
-    // Plan name in green (use plan_name from subscription data)
+
+    // Active subscription
+    activeLayout.style.display='';
+    emptyLayout.style.display='none';
+
+    // Plan name
     const planLabel=s.is_trial?t('trial_period'):(s.plan_name||'—');
     pn.textContent=planLabel;
     pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
-    // Expire date on the right
-    e.innerHTML=s.expire_at?t('to_date')+': '+s.expire_at:'';
-    // Traffic row
+
+    // Traffic
     const tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
-    tr.innerHTML=t('traffic')+': <b>0 из '+tl+'</b>';
-    // Remaining time on the right
+    tr.innerHTML=t('traffic')+': <b>'+tl+'</b>';
+
+    // Expire date
+    e.innerHTML=s.expire_at?t('to_date')+' '+s.expire_at:'';
+
+    // Remaining time
     if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
-        // Parse DD.MM.YYYY HH:MM format correctly
         const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
         if(parts){
             const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
@@ -824,13 +854,35 @@ function renderSub(){
             } else {rm.innerHTML=''}
         } else {rm.innerHTML=''}
     } else {rm.innerHTML=''}
-    // Pay/manage button
-    if(payBtn){
-        if(s.status==='ACTIVE' && !s.is_trial){
-            payBtn.innerHTML='⚙️&nbsp; '+t('manage_sub');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold';
-        } else {
-            payBtn.innerHTML='💳&nbsp; '+t('buy');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold';
-        }
+
+    // Show/hide renew (only for paid subs)
+    if(s.is_trial){
+        $('btn-renew').style.display='none';
+        $('btn-change').textContent=t('buy_sub');
+    } else {
+        $('btn-renew').style.display='';
+        $('btn-change').textContent=t('change_plan');
+    }
+}
+
+function renderHomeExtras(){
+    // Community button on home
+    if(D.features&&D.features.community_enabled&&D.features.community_url){
+        const cb=$('btn-community-home');
+        cb.style.display='';
+        cb.onclick=()=>openLink(D.features.community_url);
+    }
+    // Help button on home
+    if(D.support_url){
+        const hb=$('btn-help-home');
+        hb.onclick=()=>openLink(D.support_url);
+    }
+    // Invite button
+    const ib=$('btn-invite-home');
+    if(D.features&&D.features.referral_enabled){
+        ib.style.display='';
+    } else {
+        ib.style.display='none';
     }
 }
 
@@ -1035,29 +1087,15 @@ function renderSupport(){
    ═══════════════════════════════════════ */
 function openPayment(){
     if(!D.plans||!D.plans.length) return toast(t('no_plans'),'error');
-    const s=D.subscription;
-    // Active non-trial subscription: offer Renew or Change plan
-    if(s && s.status==='ACTIVE' && !s.is_trial){
-        showModal('<h3>'+t('manage_sub')+'</h3>'+
-            '<div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:12px">'+
-            '<button class="btn btn-primary btn-full" onclick="closeModal();renewCurrentPlan()">'+t('renew')+'</button>'+
-            '<button class="btn btn-secondary btn-full" onclick="closeModal();go(\'plans\')">'+t('change_plan')+'</button>'+
-            '</div>');
-    } else {
-        // Trial or no subscription: go directly to plans
-        go('plans');
-    }
+    go('plans');
 }
 function renewCurrentPlan(){
     const s=D.subscription;
     if(!s||!s.plan) return go('plans');
     const plan=D.plans.find(p=>p.id===s.plan.id);
     if(!plan) return go('plans');
+    // Go directly to duration selection for current plan (no plan choice)
     selectPlan(plan.id);
-}
-function buySubscription(){
-    if(D.plans&&D.plans.length) go('plans');
-    else toast(t('no_plans'),'error');
 }
 function selectPlan(id){
     const plan=D.plans.find(p=>p.id===id);if(!plan)return;

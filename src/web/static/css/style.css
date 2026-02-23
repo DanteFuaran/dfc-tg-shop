@@ -5,14 +5,14 @@
 
 /* ── Tokens ─────────────────────────────────── */
 :root {
-    --bg:          #080C14;
-    --bg-card:     rgba(10,15,22,.80);
-    --bg-raised:   rgba(14,20,28,.80);
-    --bg-input:    rgba(8,12,18,.80);
+    --bg:          #060A10;
+    --bg-card:     rgba(10,15,22,.85);
+    --bg-raised:   rgba(14,20,28,.85);
+    --bg-input:    rgba(8,12,18,.85);
 
-    --border:      #1A2332;
-    --border-lite: #222D3A;
-    --border-accent: rgba(36,196,241,.25);
+    --border:      rgba(255,255,255,.06);
+    --border-lite: rgba(255,255,255,.08);
+    --border-accent: rgba(36,196,241,.20);
 
     --gold:        #F5C842;
     --gold-dim:    rgba(245,200,66,.12);
@@ -141,9 +141,9 @@ a{color:var(--cyan);text-decoration:none}
    ══════════════════════════════════════════════ */
 
 .pill{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    width:100%;padding:14px 20px;border-radius:var(--r-pill);
-    font-size:.92rem;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:12px 18px;border-radius:var(--r-sm);
+    font-size:.86rem;font-weight:600;cursor:pointer;
     background:transparent;transition:all var(--speed);
     font-family:var(--font);
 }
@@ -151,13 +151,13 @@ a{color:var(--cyan);text-decoration:none}
 .pill-gold:hover{background:var(--gold-dim);border-color:var(--gold)}
 .pill-cyan{border:1.5px solid var(--cyan-border);color:var(--cyan)}
 .pill-cyan:hover{background:var(--cyan-dim);border-color:var(--cyan)}
-.pill-outline{border:1.5px solid var(--border-lite);color:var(--text)}
+.pill-outline{border:1px solid var(--border-lite);color:var(--text2);font-weight:500}
 .pill-outline:hover{border-color:var(--cyan-border);color:var(--cyan)}
 .pill-filled{border:none;background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff}
 .pill-filled:hover{box-shadow:var(--cyan-glow)}
 .pill:active{transform:scale(.97)}
 
-.pill-row{display:flex;gap:10px;width:100%}
+.pill-row{display:flex;gap:8px;width:100%}
 .pill-row .pill{flex:1}
 
 /* Generic btn (for modals, forms, admin) */
@@ -187,7 +187,7 @@ a{color:var(--cyan);text-decoration:none}
 
 .card{
     background:var(--bg-card);border:1px solid var(--border);
-    border-radius:var(--r);padding:18px;margin-bottom:14px;
+    border-radius:var(--r);padding:16px;margin-bottom:12px;
     transition:border-color .3s;
 }
 .card:hover{border-color:var(--border-lite)}
@@ -200,15 +200,34 @@ a{color:var(--cyan);text-decoration:none}
     display:flex;justify-content:space-between;align-items:center;
     gap:8px;
 }
-.sub-row-top{margin-bottom:6px}
-.sub-row-bottom{margin-top:2px}
+.sub-row-top{margin-bottom:4px}
+.sub-row-bottom{margin-top:2px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.04)}
 .sub-plan-name{font-size:1rem;font-weight:700;color:var(--green)}
 .sub-plan-name.sub-plan-nosub{color:var(--text3);font-size:.88rem;font-weight:500}
 .sub-plan-name.sub-plan-expired{color:var(--red)}
-.sub-expire{font-size:.78rem;color:var(--text2);text-align:right;white-space:nowrap}
-.sub-traffic{font-size:.82rem;color:var(--text2)}
+.sub-expire{font-size:.78rem;color:var(--text3);white-space:nowrap}
+.sub-traffic{font-size:.82rem;color:var(--text2);text-align:right;white-space:nowrap}
 .sub-traffic b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
+.sub-nosub-text{font-size:.9rem;color:var(--text3);text-align:center;padding:6px 0 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sub-actions-row{display:flex;gap:8px;margin-top:12px}
+.sub-action-btn{
+    flex:1;padding:10px 0;border:none;border-radius:var(--r-sm);
+    font-size:.84rem;font-weight:600;cursor:pointer;
+    transition:all var(--speed);font-family:var(--font);text-align:center;
+}
+.sub-action-renew{background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff}
+.sub-action-renew:hover{box-shadow:var(--cyan-glow)}
+.sub-action-change{background:var(--bg-input);border:1px solid var(--border);color:var(--text2)}
+.sub-action-change:hover{border-color:var(--cyan-border);color:var(--text)}
+.sub-action-buy{
+    width:100%;padding:10px 0;border:none;border-radius:var(--r-sm);
+    font-size:.84rem;font-weight:600;cursor:pointer;
+    background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff;
+    transition:all var(--speed);font-family:var(--font);margin-top:12px;
+}
+.sub-action-buy:hover{box-shadow:var(--cyan-glow)}
+.sub-action-btn:active,.sub-action-buy:active{transform:scale(.97)}
 
 .card-row{
     display:flex;justify-content:space-between;align-items:center;
@@ -225,7 +244,7 @@ a{color:var(--cyan);text-decoration:none}
 /* ══════════════════════════════════════════════
    ACTION GRID  (smaller pill buttons in a row)
    ══════════════════════════════════════════════ */
-.action-pills{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.action-pills{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 
 /* ══════════════════════════════════════════════
    PLANS (NEW ACCORDION CARDS)

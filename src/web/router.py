@@ -192,11 +192,16 @@ async def _build_user_data(
         except Exception:
             pass
 
-        # Trial availability check
+        # Trial availability check — hide if user used trial OR has/had any subscription
         trial_available = False
         try:
             has_used = await subscription_service.has_used_trial(telegram_id)
-            if not has_used:
+            has_any_sub = sub_data is not None  # user has current subscription
+            if not has_any_sub:
+                # Also check if user ever had any subscription
+                all_subs = await subscription_service.get_all_by_user(telegram_id)
+                has_any_sub = len(all_subs) > 0
+            if not has_used and not has_any_sub:
                 trial_plan = await plan_service.get_trial_plan()
                 if trial_plan and trial_plan.is_active:
                     trial_available = True
