@@ -959,7 +959,7 @@ function renderPlans(){
                 const pct=Math.round((1-ppd/basePpd.ppd)*100);
                 if(pct>0) savingsHtml='<span class="plan-savings-badge">-'+pct+'%</span>';
             }
-            return '<div class="plan-dur-item" onclick="event.stopPropagation();showPaymentMethodPopup('+p.id+','+d.days+','+pr+')"><span class="plan-dur-period">'+fmtDays(d.days)+'</span><span class="plan-dur-price">'+pr+' '+sym+'</span>'+savingsHtml+'</div>';
+            return '<div class="plan-dur-item" onclick="event.stopPropagation();showConfirmPurchase('+p.id+','+d.days+','+pr+')"><span class="plan-dur-period">'+fmtDays(d.days)+'</span><span class="plan-dur-price">'+pr+' '+sym+'</span>'+savingsHtml+'</div>';
         }).join('');
 
         return '<div class="card plan-card-new" onclick="togglePlanCard(this)">'+
@@ -986,30 +986,47 @@ function togglePlanCard(card){
         el.textContent=el.parentElement.classList.contains('open')?'▲':'▼';
     });
 }
-function showPaymentMethodPopup(planId,days,price){
+function _buildPayOpts(){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const gateways=D.available_gateways||[];
-    let note='';
-    if(D.subscription&&D.subscription.status==='ACTIVE'){
-        note='<p style="color:var(--gold);font-size:.8rem;margin:8px 0">⚠️ '+t('active_sub_note')+'</p>';
-    }
     let options='<option value="balance">💰 '+t('balance')+' ('+D.user.balance+' '+sym+')</option>';
     gateways.forEach(gw=>{
         const label=GW_LABELS[gw.type]||gw.type;
         const icon=GW_ICONS[gw.type]||'💳';
         options+='<option value="'+gw.type+'">'+icon+' '+label+'</option>';
     });
+    return options;
+}
+function showConfirmPurchase(planId,days,price){
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const plan=D.plans.find(p=>p.id===planId);
+    const planName=plan?esc(plan.name):'—';
+    // Restore previously selected payment method if exists
+    const prevSel=$('pm-sel-renew')||$('pm-sel');
+    const prevMethod=prevSel?prevSel.value:'balance';
+    const gwOpts=_buildPayOpts();
+    let note='';
+    if(D.subscription&&D.subscription.status==='ACTIVE'){
+        note='<div class="confirm-note">Ваша активная подписка будет продлена на выбранный срок.</div>';
+    }
     showModal(
-        '<h3>'+t('renew')+'</h3>'+
-        '<p style="color:var(--text2);font-size:.88rem;margin-bottom:4px">'+fmtDays(days)+' — <b style="color:var(--cyan)">'+price+' '+sym+'</b></p>'+
+        '<h3>Подтверждение</h3>'+
+        '<div class="confirm-info">'+
+            '<div class="confirm-row"><span class="c-label">Тариф:</span><span class="c-value">'+planName+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">Период:</span><span class="c-value">'+fmtDays(days)+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">Стоимость:</span><span class="c-value" style="color:var(--cyan)">'+price+' '+sym+'</span></div>'+
+        '</div>'+
         note+
         '<div class="renew-pay-actions">'+
-            '<select class="pay-method-select" id="pm-sel">'+options+'</select>'+
+            '<select class="pay-method-select" id="pm-sel">'+gwOpts+'</select>'+
             '<button class="btn btn-primary" onclick="doPayment('+planId+','+days+','+price+')">'+t('buy')+'</button>'+
             '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
         '</div>',
         'modal-renew'
     );
+    // Restore previous selection
+    const newSel=$('pm-sel');
+    if(newSel){newSel.value=prevMethod;}
 }
 function doPayment(planId,days,price){
     const sel=$('pm-sel');
@@ -1176,12 +1193,14 @@ function renewCurrentPlan(){
             const pct=Math.round((1-ppd/basePpd.ppd)*100);
             if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
         }
-        return '<div class="plan-duration" onclick="showPaymentMethodPopup('+plan.id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
+        return '<div class="plan-duration" onclick="showConfirmPurchase('+plan.id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
     }).join('');
     let trafficText;
     if(plan.type==='DEVICES') trafficText='Безлимитный';
     else trafficText=(plan.traffic_limit||'∞')+' ГБ';
     const devicesText=(plan.device_limit||'∞')+' '+t('dev_short');
+    // Build payment options for footer
+    const gwOpts=_buildPayOpts();
     showModal(
         '<h3>'+t('renew')+'</h3>'+
         '<div class="renew-plan-info">'+
@@ -1192,7 +1211,10 @@ function renewCurrentPlan(){
         '</div>'+
         '<p style="color:var(--text3);font-size:.82rem;margin:0 0 8px">'+t('select_period')+'</p>'+
         '<div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+
-        '<div class="modal-actions"><button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button></div>',
+        '<div class="renew-pay-actions" style="margin-top:14px">'+
+            '<select class="pay-method-select" id="pm-sel-renew">'+gwOpts+'</select>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
+        '</div>',
         'modal-renew'
     );
 }
@@ -1216,14 +1238,19 @@ function selectPlan(id){
             const pct=Math.round((1-ppd/basePpd.ppd)*100);
             if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
         }
-        return '<div class="plan-duration" onclick="showPaymentMethodPopup('+id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
+        return '<div class="plan-duration" onclick="showConfirmPurchase('+id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
     }).join('');
-    // Determine purchase note
-    let purchaseNote='';
-    if(D.subscription&&D.subscription.status==='ACTIVE'){
-        purchaseNote='<p style="color:var(--gold);font-size:.8rem;margin-top:8px">⚠️ '+t('active_sub_note')+'</p>';
-    }
-    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">'+t('select_period')+'</p><div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+purchaseNote+'<div class="modal-actions"><button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button></div>','modal-renew');
+    const gwOpts=_buildPayOpts();
+    showModal(
+        '<h3>'+esc(plan.name)+'</h3>'+
+        '<p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">'+t('select_period')+'</p>'+
+        '<div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+
+        '<div class="renew-pay-actions" style="margin-top:14px">'+
+            '<select class="pay-method-select" id="pm-sel-renew">'+gwOpts+'</select>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
+        '</div>',
+        'modal-renew'
+    );
 }
 async function confirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';

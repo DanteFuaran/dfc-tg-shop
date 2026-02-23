@@ -212,6 +212,18 @@ a{color:var(--cyan);text-decoration:none}
 .sub-devices{font-size:.82rem;color:var(--text2)}
 .sub-devices b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
+/* ── Sub card grid layout ── */
+.sub-uid-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:8px}
+.sub-info-label{font-size:.74rem;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.sub-val-copy{font-size:.78rem;color:var(--text2);cursor:pointer;font-family:var(--mono);text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.sub-val-copy:hover{color:var(--cyan)}
+.sub-sep-line{height:0;border:none;border-bottom:1px solid var(--border-lite);margin:8px 0}
+.sub-plan-hdr{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0}
+.sub-label-sm{font-size:.74rem;color:var(--text3)}
+.sub-2col{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding:2px 0}
+.sub-field{display:flex;align-items:baseline;gap:5px;padding:2px 0}
+.sub-lbl{font-size:.74rem;color:var(--text3);white-space:nowrap}
+.sub-val{font-size:.82rem;color:var(--text);font-weight:500}
 .sub-nosub-text{font-size:.9rem;color:var(--text3);text-align:center;padding:6px 0 14px;border-bottom:1px solid var(--border-lite)}
 .sub-actions-row{display:flex;gap:10px;margin-top:12px}
 .sub-action-btn{
@@ -578,9 +590,14 @@ a{color:var(--cyan);text-decoration:none}
 .modal-card h3{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:14px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 /* ── Renew modal ── */
-.modal-renew{background:rgba(4,6,10,.94)}
-@keyframes borderGlow{0%,100%{box-shadow:0 16px 64px rgba(0,0,0,.5)}50%{box-shadow:0 0 24px 4px rgba(36,196,241,.2),0 16px 64px rgba(0,0,0,.5)}}
-.modal-renew:hover{border-color:var(--cyan-border);animation:borderGlow 1.8s ease-in-out infinite}
+.modal-renew{background:rgba(4,6,10,.94);transition:border-color .4s ease,box-shadow .4s ease}
+.modal-renew:hover{border-color:var(--cyan-border);box-shadow:0 0 20px 2px rgba(36,196,241,.12),0 16px 64px rgba(0,0,0,.5)}
+/* ── Confirm purchase modal ── */
+.confirm-info{margin-bottom:12px}
+.confirm-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:.86rem}
+.confirm-row .c-label{color:var(--text3)}
+.confirm-row .c-value{color:var(--text);font-weight:600}
+.confirm-note{font-size:.82rem;color:var(--text2);padding:10px 0 4px;border-top:1px solid var(--border-lite);margin-top:4px;line-height:1.4}
 /* ── Renew pay actions ── */
 .renew-pay-actions{display:flex;gap:8px;align-items:center;margin-top:14px}
 .pay-method-select{
