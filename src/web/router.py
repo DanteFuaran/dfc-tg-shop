@@ -282,16 +282,12 @@ async def web_dashboard_page(request: Request, access_token: Optional[str] = Coo
     if not uid:
         return RedirectResponse(url="/web/login", status_code=302)
 
-    data = await _build_user_data(request, uid)
-    if not data:
-        return RedirectResponse(url="/web/login", status_code=302)
-
     config: AppConfig = request.app.state.config
     domain = config.domain.get_secret_value()
 
     return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "data": data, "data_json": json.dumps(data, ensure_ascii=False, default=str), "domain": domain},
+        "miniapp.html",
+        {"request": request, "domain": domain},
     )
 
 

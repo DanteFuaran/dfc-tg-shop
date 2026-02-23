@@ -39,6 +39,9 @@
         <span class="header-badge" id="hdr-balance"><svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>0 ₽</span>
         <span class="header-badge header-badge-bonus" id="hdr-bonus" style="display:none"><svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>0 ₽</span>
     </div>
+    <button class="btn-icon" id="btn-logout" onclick="webLogout()" title="Выйти" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
 </header>
 
 <main class="app-content">
@@ -708,10 +711,18 @@ async function init(){
     try{tg.setHeaderColor('#080C14')}catch(e){}
     try{tg.setBackgroundColor('#080C14')}catch(e){}
     try{
-        const a=await fetch(API+'/api/auth/tg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})});
-        if(!a.ok) return showErr('Ошибка авторизации. Откройте из Telegram.');
+        // Try Telegram auth if initData available
+        if(tg.initData){
+            const a=await fetch(API+'/api/auth/tg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})});
+            if(!a.ok) return showErr('Ошибка авторизации. Откройте из Telegram.');
+        }
+        // Try to load user data (works with cookie from tg auth or web login)
         const dr=await fetch(API+'/api/user/data');
-        if(!dr.ok) return showErr('Пользователь не найден. Запустите бота.');
+        if(!dr.ok){
+            // No valid session — redirect to login for web, show error for miniapp
+            if(!tg.initData){window.location.href='/web/login';return}
+            return showErr('Пользователь не найден. Запустите бота.');
+        }
         D=await dr.json();
         try{const br=await fetch(API+'/api/settings/brand');if(br.ok)BRAND=await br.json()}catch(e){}
         try{const cfg=await fetch(API+'/api/config');if(cfg.ok){const c=await cfg.json();DOMAIN=c.domain||''}}catch(e){}
@@ -726,6 +737,8 @@ async function init(){
         $('loading-screen').style.display='none';
         $('main-app').style.display='flex';
         if(IS_ADMIN) document.querySelectorAll('.admin-nav').forEach(e=>e.style.display='');
+        // Show logout button for web users (not inside Telegram)
+        if(!tg.initData){const lb=$('btn-logout');if(lb)lb.style.display=''}
         initParticles();
         render();
         applyLocale();
@@ -1276,7 +1289,8 @@ async function closeTicket(resolved){
         }else{const j=await r.json();toast(j.detail||'Ошибка','error')}
     }catch(e){toast('Ошибка','error')}
 }
-function openLink(u){if(u)tg.openLink(u)}
+function openLink(u){if(u){if(tg.initData)tg.openLink(u);else window.open(u,'_blank')}}
+async function webLogout(){try{await fetch(API+'/api/auth/logout',{method:'POST'})}catch(e){}window.location.href='/web/login'}
 function copyUrl(){
     const s=D.subscription;
     if(s&&s.url)navigator.clipboard.writeText(s.url).then(()=>toast(t('copied'))).catch(()=>toast(t('error'),'error'));
@@ -1804,9 +1818,10 @@ async function loadAdmTickets(){
         const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
         const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
         return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'">'+
-            '<div class="ticket-top" onclick="openAdmTicket('+tk.id+')"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-top" onclick="openAdmTicket('+tk.id+')"><span class="ticket-subject">'+esc(tk.subject)+'</span></div>'+
             '<div class="ticket-preview" onclick="openAdmTicket('+tk.id+')"><b>ID '+tk.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
-            '<div class="ticket-bottom"><span class="ticket-date">'+tk.updated_at+'</span>'+
+            '<div class="ticket-bottom"><span class="ticket-date">'+tk.updated_at+'</span></div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><span class="ticket-status '+st+'">'+stLabel+'</span>'+
             '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">🗑</button></div></div>';
     }).join('')}catch(e){}
 }
@@ -1830,7 +1845,6 @@ async function openAdmTicket(id){
         if(tk.resolved===true) sHtml+='<div style="color:var(--green);font-size:.82rem;margin-bottom:8px">✅ Вопрос был решен</div>';
         else if(tk.resolved===false) sHtml+='<div style="color:var(--red);font-size:.82rem;margin-bottom:8px">❌ Вопрос не был решен</div>';
     }
-    sHtml+='<button class="btn btn-danger btn-sm" onclick="delAdmTicketFromDetail('+tk.id+')" style="margin-top:4px">🗑 Удалить тикет</button>';
     sb.innerHTML=sHtml;sb.style.display='block';
     }catch(e){}
 }

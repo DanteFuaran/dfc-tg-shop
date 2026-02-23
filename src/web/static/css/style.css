@@ -213,10 +213,10 @@ a{color:var(--cyan);text-decoration:none}
 .sub-devices b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
 /* ── Sub card grid layout ── */
-.sub-top-row{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-.sub-expire-info{font-size:.76rem;color:var(--text3);white-space:nowrap;text-align:left}
+.sub-top-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sub-expire-info{font-size:.76rem;color:var(--text3);white-space:nowrap;text-align:right}
 .sub-sep-line{height:0;border:none;border-bottom:1px solid var(--border-lite);margin:8px 0}
-.sub-2col{display:grid;grid-template-columns:1fr;gap:4px;padding:2px 0}
+.sub-2col{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding:2px 0}
 .sub-field{display:flex;align-items:baseline;gap:5px;padding:2px 0}
 .sub-lbl{font-size:.76rem;color:var(--text3);white-space:nowrap}
 .sub-val{font-size:.84rem;color:var(--text);font-weight:500}
@@ -531,6 +531,7 @@ a{color:var(--cyan);text-decoration:none}
     border:1px solid var(--border);border-radius:var(--r-sm);
     color:var(--text);font-size:.9rem;outline:none;
     transition:border-color var(--speed);font-family:var(--font);
+    user-select:text;-webkit-user-select:text;
 }
 .input-group input:focus,.form-input:focus{
     border-color:var(--cyan);box-shadow:0 0 0 3px rgba(36,196,241,.08);
