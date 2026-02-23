@@ -922,6 +922,7 @@ async def api_admin_settings(request: Request, access_token: Optional[str] = Coo
         return JSONResponse({
             "balance_enabled": features.balance_enabled,
             "community_enabled": features.community_enabled,
+            "community_url": features.community_url or "",
             "tos_enabled": features.tos_enabled,
             "referral_enabled": features.referral_enabled,
             "promocodes_enabled": features.promocodes_enabled,
@@ -932,6 +933,7 @@ async def api_admin_settings(request: Request, access_token: Optional[str] = Coo
             "default_currency": settings.default_currency.value if hasattr(settings.default_currency, "value") else str(settings.default_currency),
             "purchases_allowed": settings.purchases_allowed,
             "registration_allowed": settings.registration_allowed,
+            "bot_locale": settings.bot_locale.value if hasattr(settings.bot_locale, "value") else str(settings.bot_locale),
         })
 
 
@@ -950,6 +952,7 @@ async def api_admin_update_settings(request: Request, access_token: Optional[str
             "access_enabled", "language_enabled",
         }
         settings_fields = {"purchases_allowed", "registration_allowed"}
+        string_feature_fields = {"community_url"}
 
         for key, value in body.items():
             if key in feature_fields and isinstance(value, bool):
@@ -957,6 +960,10 @@ async def api_admin_update_settings(request: Request, access_token: Optional[str
             elif key in settings_fields and isinstance(value, bool):
                 settings = await settings_service.get()
                 setattr(settings, key, value)
+                await settings_service.update(settings)
+            elif key in string_feature_fields and isinstance(value, str):
+                settings = await settings_service.get()
+                setattr(settings.features, key, value)
                 await settings_service.update(settings)
 
         return JSONResponse({"ok": True})

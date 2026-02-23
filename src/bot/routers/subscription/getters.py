@@ -2806,11 +2806,10 @@ async def devices_getter(
         and is_extra_devices_enabled
     )
     
-    # Показываем кнопку добавления устройств
+    # Показываем кнопку добавления устройств (видна и для trial — handler покажет предупреждение)
     can_add_extra_device = (
         is_extra_devices_enabled 
         and subscription.is_active
-        and not is_trial_or_referral
         and not is_import_subscription
     )
 

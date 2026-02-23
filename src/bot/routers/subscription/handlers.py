@@ -1595,7 +1595,7 @@ async def on_add_device(
     
     # Проверяем, что это не пробная подписка
     if fresh_user.current_subscription.is_trial:
-        await callback.answer(i18n.get("alert-trial-subscription-not-allowed"), show_alert=True)
+        await callback.answer(i18n.get("alert-trial-subscription-not-allowed"), show_alert=False)
         return
     
     # Проверяем, что это не реферальная подписка (по имени плана)

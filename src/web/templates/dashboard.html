@@ -320,13 +320,27 @@ function initParticles(){
 function $(id){return document.getElementById(id)}
 
 /* ── NAV ── */
+let curPage='home';
 function go(p){
+    curPage=p;
     document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
     $('p-'+p).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans')renderPlans();
     if(p==='tickets')loadTickets();
+    updateFab();
+}
+function updateFab(){
+    const fab=$('ticket-fab');
+    if(curPage==='home' && D.has_open_tickets){
+        fab.style.display='flex';
+        if(D.ticket_unread>0){fab.classList.add('has-reply')}
+        else{fab.classList.remove('has-reply')}
+    } else {
+        fab.style.display='none';
+        fab.classList.remove('has-reply');
+    }
 }
 
 /* ── RENDER ── */
@@ -334,19 +348,16 @@ function render(){
     // Brand logo: URL → <img>, otherwise emoji text
     const logoEl=$('brand-logo');
     const logoVal=BRAND.logo||'🔐';
-    if(logoVal.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(logoVal)+'" alt="">'}
-    else{logoEl.textContent=logoVal}
+    if(logoVal.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(logoVal)+'" alt="">';logoEl.classList.add('has-img')}
+    else{logoEl.textContent=logoVal;logoEl.classList.remove('has-img')}
     $('brand-name').textContent=BRAND.name||'Личный кабинет';
     const sloganEl=$('brand-slogan');
     if(BRAND.slogan){sloganEl.textContent=BRAND.slogan;sloganEl.style.display=''}else{sloganEl.style.display='none'}
     renderSub();renderConnect();renderProfile();renderSupport();
     // Trial button
     if(D.trial_available) $('btn-trial').style.display='';
-    // Ticket FAB
-    const fab=$('ticket-fab');
-    if(D.ticket_unread>0){fab.style.display='flex';fab.classList.add('unread')}
-    else if(D.has_open_tickets){fab.style.display='flex';fab.classList.remove('unread')}
-    else{fab.style.display='none'}
+    // Ticket FAB — only on home page, only for open (non-closed/resolved) tickets
+    updateFab();
     // Ticket badge
     if(D.ticket_unread>0){$('ticket-badge').style.display='';$('ticket-badge').textContent=D.ticket_unread}
     // Expand devices button
@@ -361,6 +372,10 @@ function renderSub(){
     else if(s.status==='EXPIRED'){b.textContent='Истекла';b.className='sub-badge sub-badge-expired'}
     else{b.textContent=s.status;b.className='sub-badge sub-badge-none'}
     e.innerHTML=s.expire_at?'📅 до '+s.expire_at:'';
+    if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
+        const daysLeft=Math.ceil((new Date(s.expire_at)-new Date())/(1000*60*60*24));
+        if(daysLeft>=0) e.innerHTML+='<div style="font-size:.76rem;color:var(--text3);margin-top:2px">Осталось '+daysLeft+' '+ pluralDays(daysLeft)+'</div>';
+    }
     const tl=s.traffic_limit?s.traffic_limit+' GB':'∞';
     t.innerHTML='Трафик <b>0 B / '+tl+'</b>';
 }
@@ -388,7 +403,7 @@ function renderPlans(){
             if(basePpd && d.days>basePpd.days && pr>0){
                 const ppd=pr/d.days;
                 const pct=Math.round((1-ppd/basePpd.ppd)*100);
-                if(pct>0) savingsHtml='<span class="plan-savings">(экономия '+pct+'%)</span>';
+                if(pct>0) savingsHtml='<span class="plan-savings">(Выгода '+pct+'%)</span>';
             }
             return '<div class="plan-duration"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+' '+savingsHtml+'</span></div>';
         }).join('');
@@ -452,15 +467,29 @@ function renderSupport(){
 function selectPlan(id){
     const plan=D.plans.find(p=>p.id===id);if(!plan)return;
     const dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
-    const dursHtml=(plan.durations||[]).map((d,i)=>{
+    let basePpd=null;
+    (plan.durations||[]).forEach(d=>{
+        const pr=findPrice(d,dc);
+        if(pr!==null && d.days>0){
+            const ppd=pr/d.days;
+            if(basePpd===null||d.days<=(basePpd.days||9999)){basePpd={ppd,days:d.days}}
+        }
+    });
+    const dursHtml=(plan.durations||[]).map(d=>{
         const pr=findPrice(d,dc);if(pr===null)return '';
-        return '<button class="btn '+(i===0?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="confirmPurchase('+id+','+d.days+','+pr+')">'+fmtDays(d.days)+' — '+pr+' '+sym+'</button>';
+        let savBadge='';
+        if(basePpd && d.days>basePpd.days && pr>0){
+            const ppd=pr/d.days;
+            const pct=Math.round((1-ppd/basePpd.ppd)*100);
+            if(pct>0) savBadge='<span class="plan-savings" style="margin-left:auto">(Выгода '+pct+'%)</span>';
+        }
+        return '<div class="plan-duration" style="cursor:pointer;transition:all .2s" onclick="confirmPurchase('+id+','+d.days+','+pr+')" onmouseover="this.style.borderColor=\'var(--cyan-border)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span>'+savBadge+'</div>';
     }).join('');
     let purchaseNote='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
         purchaseNote='<p style="color:var(--gold);font-size:.8rem;margin-top:8px">⚠️ У вас есть активная подписка. Оплата будет списана с баланса.</p>';
     }
-    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem">Выберите период:</p>'+dursHtml+purchaseNote+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>');
+    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">Выберите период:</p><div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+purchaseNote+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>');
 }
 async function confirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -725,16 +754,80 @@ async function savePlan(){
 }
 
 /* Settings */
+let settingsCache={};
 async function loadSettings(){
-    try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;const s=await r.json();
-    $('settings-list').innerHTML='<div class="card">'+Object.entries(s).map(([k,v])=>{
-        const l=sLabel(k);
-        if(typeof v==='boolean')return '<div class="toggle-row"><label>'+l+'</label><button class="toggle-switch '+(v?'active':'')+'" onclick="toggleSet(\''+k+'\','+(!v)+',this)"></button></div>';
-        return '<div class="card-row"><span class="card-label">'+l+'</span><span class="card-value">'+esc(String(v))+'</span></div>';
-    }).join('')+'</div>'}catch(e){}
+    try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;settingsCache=await r.json();drawSettings()}catch(e){}
 }
-function sLabel(k){const m={balance_enabled:'Баланс',community_enabled:'Сообщество',tos_enabled:'Оферта',referral_enabled:'Рефералы',promocodes_enabled:'Промокоды',notifications_enabled:'Уведомления',access_enabled:'Доступ',language_enabled:'Мультиязычность',access_mode:'Режим доступа',default_currency:'Валюта',purchases_allowed:'Покупки',registration_allowed:'Регистрация'};return m[k]||k}
-async function toggleSet(k,v,btn){try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});if(r.ok){btn.classList.toggle('active',v);toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}}
+function drawSettings(){
+    const s=settingsCache;
+    const sections=[
+        {title:'Функции',items:[
+            {key:'balance_enabled',icon:'💰',label:'Баланс',desc:'Пополнение и использование баланса'},
+            {key:'community_enabled',icon:'💬',label:'Сообщество',desc:'Ссылка на Telegram-группу',extra:'community_url'},
+            {key:'tos_enabled',icon:'📜',label:'Оферта',desc:'Пользовательское соглашение'},
+            {key:'referral_enabled',icon:'🤝',label:'Рефералы',desc:'Реферальная программа'},
+            {key:'promocodes_enabled',icon:'🎁',label:'Промокоды',desc:'Активация промокодов'},
+            {key:'notifications_enabled',icon:'🔔',label:'Уведомления',desc:'Отправка уведомлений пользователям'},
+        ]},
+        {title:'Доступ',items:[
+            {key:'access_enabled',icon:'🔐',label:'Доступ',desc:'Глобальный доступ к боту'},
+            {key:'purchases_allowed',icon:'🛒',label:'Покупки',desc:'Разрешить покупку подписок'},
+            {key:'registration_allowed',icon:'📝',label:'Регистрация',desc:'Разрешить регистрацию новых пользователей'},
+        ]},
+        {title:'Управление ботом',items:[
+            {key:'language_enabled',icon:'🌐',label:'Мультиязычность',desc:'Выбор языка интерфейса бота'},
+            {key:'access_mode',icon:'🔑',label:'Режим доступа',desc:s.access_mode||'PUBLIC',type:'select',options:['PUBLIC','PRIVATE','WHITELIST']},
+            {key:'default_currency',icon:'💱',label:'Валюта',desc:s.default_currency||'RUB',type:'select',options:['RUB','USD','EUR','XTR']},
+            {key:'bot_locale',icon:'🗣',label:'Язык бота',desc:s.bot_locale||'RU',type:'select',options:['RU','EN','UK','DE']},
+        ]}
+    ];
+    let html='';
+    sections.forEach(sec=>{
+        html+='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding:0 4px">'+sec.title+'</div><div class="card" style="padding:0;overflow:hidden">';
+        sec.items.forEach(item=>{
+            const val=s[item.key];
+            if(item.type==='select'){
+                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="settings-chevron">'+esc(String(val))+' ›</span></div>';
+            } else if(typeof val==='boolean'){
+                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\','+!!item.extra+')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><button class="toggle-switch '+(val?'active':'')+'" onclick="event.stopPropagation();toggleSet(\''+item.key+'\','+(!val)+',this)"></button></div>';
+            } else {
+                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+esc(String(val))+'</div></div></div><span class="settings-chevron">›</span></div>';
+            }
+        });
+        html+='</div>';
+    });
+    $('settings-list').innerHTML=html;
+}
+function openSettingDetail(key,label,hasExtra){
+    const val=settingsCache[key];
+    let body='';
+    if(typeof val==='boolean'){
+        body='<div class="toggle-row"><label>'+label+'</label><button class="toggle-switch '+(val?'active':'')+'" onclick="toggleSetAndRefresh(\''+key+'\','+(!val)+',this)"></button></div>';
+        if(hasExtra && key==='community_enabled'){
+            body+='<div class="form-group" style="margin-top:12px"><label>URL сообщества</label><input class="form-input" id="set-community-url" value="'+esc(settingsCache.community_url||'')+'" placeholder="https://t.me/..."></div><button class="btn btn-primary btn-sm" onclick="saveSettingStr(\'community_url\',$(\'set-community-url\').value)">Сохранить URL</button>';
+        }
+    } else {
+        const opts=key==='access_mode'?['PUBLIC','PRIVATE','WHITELIST']:key==='default_currency'?['RUB','USD','EUR','XTR']:key==='bot_locale'?['RU','EN','UK','DE']:[];
+        if(opts.length){
+            body+=opts.map(o=>'<button class="btn '+(String(val)===o?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\''+key+'\',\''+o+'\')">'+o+'</button>').join('');
+        } else {
+            body+='<div class="form-group"><label>Значение</label><input class="form-input" id="set-val" value="'+esc(String(val))+'"></div><button class="btn btn-primary btn-sm" onclick="saveSettingStr(\''+key+'\',$(\'set-val\').value)">Сохранить</button>';
+        }
+    }
+    showModal('<h3>'+label+'</h3>'+body+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
+}
+async function toggleSetAndRefresh(k,v,btn){
+    try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
+    if(r.ok){settingsCache[k]=v;btn.classList.toggle('active',v);drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+async function saveSettingStr(k,v){
+    try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
+    if(r.ok){settingsCache[k]=v;closeModal();drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
+async function saveSettingVal(k,v){
+    try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
+    if(r.ok){settingsCache[k]=v;closeModal();drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+}
 
 /* Brand */
 function loadBrandForm(){$('br-name').value='';$('br-logo').value='';$('br-slogan').value='';
@@ -830,5 +923,6 @@ function toast(m,t){const e=$('toast');e.textContent=m;e.className='toast visibl
 function showModal(h){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+h+'</div></div>'}
 function closeModal(){$('modal-root').innerHTML=''}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function pluralDays(n){const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return 'дней';if(b>1&&b<5)return 'дня';if(b===1)return 'день';return 'дней'}
 </script>
 {% endblock %}
