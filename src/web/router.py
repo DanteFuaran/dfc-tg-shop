@@ -480,7 +480,18 @@ async def api_tickets_status(request: Request, access_token: Optional[str] = Coo
             t.status != "CLOSED" and (t.status.value != "CLOSED" if hasattr(t.status, 'value') else True)
             for t in user_tickets
         ) if user_tickets else False
-        return JSONResponse({"has_open": has_open, "unread": unread})
+        result = {"has_open": has_open, "unread": unread}
+        # If admin, also return admin unread count
+        try:
+            user_service: UserService = await req_container.get(UserService)
+            user = await user_service.get(telegram_id=uid)
+            if user and user.is_privileged:
+                uow2: UnitOfWork = await req_container.get(UnitOfWork)
+                admin_unread = await ticket_svc.count_unread_admin(uow2)
+                result["admin_unread"] = admin_unread
+        except Exception:
+            pass
+        return JSONResponse(result)
 
 
 @router.get("/api/user/data")

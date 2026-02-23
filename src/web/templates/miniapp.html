@@ -218,19 +218,21 @@
 </section>
 
 <!-- ═══ TICKET CHAT ═══ -->
-<section id="p-ticket" class="page">
+<section id="p-ticket" class="page ticket-page">
     <div class="page-header">
         <button class="btn-back" onclick="go('tickets');loadTickets()">‹</button>
         <h2 class="page-title" id="ticket-title">Тикет</h2>
     </div>
     <div id="ticket-chat" class="ticket-chat"></div>
-    <div id="ticket-reply" class="ticket-reply-box" style="display:none">
-        <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
-        <button class="ticket-send-btn" onclick="sendTicketReply()">→</button>
-    </div>
-    <div id="ticket-close-actions" class="ticket-close-actions" style="display:none">
-        <button class="ticket-close-btn resolved" onclick="closeTicket(true)">✅ Вопрос решён</button>
-        <button class="ticket-close-btn unresolved" onclick="closeTicket(false)">❌ Не решён</button>
+    <div class="ticket-bottom-bar">
+        <div id="ticket-reply" class="ticket-reply-box" style="display:none">
+            <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
+            <button class="ticket-send-btn" onclick="sendTicketReply()">→</button>
+        </div>
+        <div id="ticket-close-actions" class="ticket-close-actions" style="display:none">
+            <button class="ticket-close-btn resolved" onclick="closeTicket(true)">✅ Вопрос решён</button>
+            <button class="ticket-close-btn unresolved" onclick="closeTicket(false)">❌ Не решён</button>
+        </div>
     </div>
 </section>
 
@@ -345,16 +347,17 @@
 </section>
 
 <!-- ═══ ADMIN TICKET DETAIL ═══ -->
-<section id="p-aticket" class="page">
+<section id="p-aticket" class="page ticket-page">
     <div class="page-header">
         <button class="btn-back" onclick="admTab('tickets');go('admin')">‹</button>
         <h2 class="page-title" id="at-title">Тикет</h2>
     </div>
     <div id="at-chat" class="ticket-chat"></div>
-    <div id="at-status-bar" style="display:none;padding:10px 0"></div>
-    <div id="at-reply" class="ticket-reply-box">
-        <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
-        <button class="ticket-send-btn" onclick="sendAdmTicketReply()">→</button>
+    <div class="ticket-bottom-bar">
+        <div id="at-reply" class="ticket-reply-box">
+            <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
+            <button class="ticket-send-btn" onclick="sendAdmTicketReply()">→</button>
+        </div>
     </div>
 </section>
 
@@ -382,6 +385,7 @@
     <button class="nav-item admin-nav" data-p="admin" onclick="go('admin')" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         <span>Админ</span>
+        <span class="nav-badge" id="nav-admin-badge" style="display:none">0</span>
     </button>
 </nav>
 </div>
@@ -772,6 +776,9 @@ function updateFab(){
     // Nav support badge
     const nb=$('nav-support-badge');
     if(nb){if(D.ticket_unread>0){nb.style.display='flex';nb.textContent=D.ticket_unread}else{nb.style.display='none'}}
+    // Admin ticket badge
+    const ab=$('nav-admin-badge');
+    if(ab&&IS_ADMIN){if(D.admin_ticket_unread>0){ab.style.display='flex';ab.textContent=D.admin_ticket_unread}else{ab.style.display='none'}}
 }
 async function pollTicketStatus(){
     try{
@@ -780,6 +787,7 @@ async function pollTicketStatus(){
         const s=await r.json();
         D.has_open_tickets=s.has_open;
         D.ticket_unread=s.unread;
+        if(s.admin_unread!==undefined) D.admin_ticket_unread=s.admin_unread;
         updateFab();
     }catch(e){}
 }
@@ -1816,13 +1824,12 @@ async function loadAdmTickets(){
     el.innerHTML=admTicketsCache.map(tk=>{
         const st=tk.status.toLowerCase();
         const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
-        const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
-        return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'">'+
-            '<div class="ticket-top" onclick="openAdmTicket('+tk.id+')"><span class="ticket-subject">'+esc(tk.subject)+'</span></div>'+
-            '<div class="ticket-preview" onclick="openAdmTicket('+tk.id+')"><b>ID '+tk.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
+        return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'" onclick="openAdmTicket('+tk.id+')">'+
+            '<div class="ticket-top"><span class="ticket-id">ID '+tk.user_telegram_id+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-row2"><span class="ticket-subject">'+esc(tk.subject)+'</span>'+
+            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div>'+
             '<div class="ticket-bottom"><span class="ticket-date">'+tk.updated_at+'</span></div>'+
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><span class="ticket-status '+st+'">'+stLabel+'</span>'+
-            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">🗑</button></div></div>';
+            '</div>';
     }).join('')}catch(e){}
 }
 async function delAdmTicket(id){
@@ -1837,15 +1844,6 @@ async function openAdmTicket(id){
     try{const r=await fetch(API+'/api/admin/tickets/'+id);if(!r.ok)return;
     const tk=await r.json();$('at-title').textContent='#'+tk.id+' '+tk.subject;
     renderTicketChat($('at-chat'),tk.messages);
-    const sb=$('at-status-bar');
-    const st=tk.status.toLowerCase();
-    const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
-    let sHtml='<span class="ticket-status '+st+'" style="display:inline-block;margin-bottom:8px">'+stLabel+'</span>';
-    if(st==='closed'){
-        if(tk.resolved===true) sHtml+='<div style="color:var(--green);font-size:.82rem;margin-bottom:8px">✅ Вопрос был решен</div>';
-        else if(tk.resolved===false) sHtml+='<div style="color:var(--red);font-size:.82rem;margin-bottom:8px">❌ Вопрос не был решен</div>';
-    }
-    sb.innerHTML=sHtml;sb.style.display='block';
     }catch(e){}
 }
 async function delAdmTicketFromDetail(id){
