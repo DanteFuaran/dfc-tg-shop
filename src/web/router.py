@@ -138,6 +138,7 @@ async def _build_user_data(
             plans_data.append({
                 "id": plan.id,
                 "name": plan.name,
+                "description": plan.description or "" if hasattr(plan, 'description') else "",
                 "traffic_limit": plan.traffic_limit,
                 "device_limit": plan.device_limit,
                 "durations": durations,
@@ -221,6 +222,7 @@ async def _build_user_data(
                 "username": user.username or "",
                 "balance": user.balance,
                 "referral_balance": referral_balance_user,
+                "referral_code": user.referral_code if hasattr(user, 'referral_code') else "",
                 "role": user.role.value if hasattr(user.role, "value") else str(user.role),
                 "language": user.language.value if hasattr(user.language, "value") else str(user.language),
                 "is_blocked": user.is_blocked,

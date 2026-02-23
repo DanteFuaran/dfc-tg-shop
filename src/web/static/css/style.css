@@ -6,9 +6,9 @@
 /* ── Tokens ─────────────────────────────────── */
 :root {
     --bg:          #080C14;
-    --bg-card:     #111822;
-    --bg-raised:   #161F2A;
-    --bg-input:    #0D1219;
+    --bg-card:     rgba(17,24,34,.90);
+    --bg-raised:   rgba(22,31,42,.90);
+    --bg-input:    rgba(13,18,25,.90);
 
     --border:      #1A2332;
     --border-lite: #222D3A;
@@ -196,25 +196,19 @@ a{color:var(--cyan);text-decoration:none}
     position:relative;overflow:hidden;
     border-color:var(--border-lite);
 }
-.sub-card-top{
+.sub-row-top,.sub-row-bottom{
     display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:8px;gap:8px;
+    gap:8px;
 }
-.sub-badge{
-    display:inline-flex;align-items:center;gap:5px;
-    padding:4px 12px;border-radius:var(--r-pill);
-    font-size:.76rem;font-weight:600;
-}
-.sub-badge-active{background:rgba(25,195,125,.12);color:var(--green);border:1px solid rgba(25,195,125,.25)}
-.sub-badge-trial{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan-border)}
-.sub-badge-expired{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,79,95,.25)}
-.sub-badge-none{background:rgba(85,102,122,.12);color:var(--text3);border:1px solid rgba(85,102,122,.25)}
-.sub-plan-name{font-size:1rem;font-weight:700;color:var(--green);display:block;margin-bottom:4px}
-.sub-expire{font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:4px}
-.sub-traffic{font-size:.82rem;color:var(--text2);margin-top:2px}
+.sub-row-top{margin-bottom:6px}
+.sub-row-bottom{margin-top:2px}
+.sub-plan-name{font-size:1rem;font-weight:700;color:var(--green)}
+.sub-plan-name.sub-plan-nosub{color:var(--text3);font-size:.88rem;font-weight:500}
+.sub-plan-name.sub-plan-expired{color:var(--red)}
+.sub-expire{font-size:.78rem;color:var(--text2);text-align:right;white-space:nowrap}
+.sub-traffic{font-size:.82rem;color:var(--text2)}
 .sub-traffic b{color:var(--text);font-weight:600}
-.sub-remaining{margin-top:4px}
-.sub-remaining-text{font-size:.76rem;color:var(--text3);font-weight:500}
+.sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
 
 .card-row{
     display:flex;justify-content:space-between;align-items:center;
@@ -223,6 +217,8 @@ a{color:var(--cyan);text-decoration:none}
 .card-row:last-child{border-bottom:none}
 .card-label{font-size:.84rem;color:var(--text2)}
 .card-value{font-size:.84rem;font-weight:600;color:#fff}
+.card-value-copy{cursor:pointer;transition:color .2s,text-shadow .2s;border-radius:4px}
+.card-value-copy:hover{color:var(--cyan);text-shadow:0 0 8px rgba(36,196,241,.3)}
 
 .card-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:14px}
 
@@ -621,13 +617,13 @@ a{color:var(--cyan);text-decoration:none}
 /* ══════════════════════════════════════════════
    PROFILE (enhanced)
    ══════════════════════════════════════════════ */
-.profile-balance-grid{display:flex;gap:12px;margin-bottom:12px}
+.profile-balance-grid{display:flex;gap:10px;margin-bottom:10px}
 .profile-balance-item{
-    flex:1;padding:12px;background:rgba(0,0,0,.2);border-radius:var(--r-sm);
+    flex:1;padding:8px 6px;background:rgba(0,0,0,.15);border-radius:var(--r-sm);
     border:1px solid var(--border);text-align:center;
 }
-.profile-balance-label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.profile-balance-value{font-size:1.15rem;font-weight:700;color:var(--cyan)}
+.profile-balance-label{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.profile-balance-value{font-size:1.05rem;font-weight:700;color:var(--cyan)}
 .profile-balance-bonus{color:var(--gold)}
 .profile-balance-actions{display:flex;gap:8px}
 .profile-balance-actions .pill{flex:1;justify-content:center}

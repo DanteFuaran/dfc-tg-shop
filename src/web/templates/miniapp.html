@@ -47,13 +47,14 @@
 <section id="p-home" class="page active">
     <!-- Subscription card -->
     <div class="card sub-card">
-        <div class="sub-card-top">
-            <span class="sub-plan-name" id="sub-plan-name" style="display:none"></span>
-            <span class="sub-badge sub-badge-none" id="sub-badge">—</span>
+        <div class="sub-row-top">
+            <span class="sub-plan-name" id="sub-plan-name">—</span>
             <span class="sub-expire" id="sub-expire"></span>
         </div>
-        <div class="sub-traffic" id="sub-traffic"></div>
-        <div class="sub-remaining" id="sub-remaining"></div>
+        <div class="sub-row-bottom">
+            <span class="sub-traffic" id="sub-traffic"></span>
+            <span class="sub-remaining" id="sub-remaining"></span>
+        </div>
     </div>
 
     <!-- Actions -->
@@ -226,11 +227,9 @@
     <!-- Section: Your Profile -->
     <div class="card">
         <div class="card-title">👤 Ваш профиль</div>
-        <div class="card-row"><span class="card-label">ID</span><span class="card-value" id="pr-tid">—</span></div>
+        <div class="card-row"><span class="card-label">ID</span><span class="card-value card-value-copy" id="pr-tid" onclick="copyValue(this)">—</span></div>
         <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="pr-name">—</span></div>
-        <div class="card-row"><span class="card-label">Telegram</span><span class="card-value" id="pr-uname">—</span></div>
-        <div class="card-row"><span class="card-label">Роль</span><span class="card-value" id="pr-role">—</span></div>
-        <div class="card-row" id="pr-refcode-row" style="display:none"><span class="card-label">Реф. код</span><span class="card-value" id="pr-refcode">—</span></div>
+        <div class="card-row" id="pr-refcode-row" style="display:none"><span class="card-label">Реф. код</span><span class="card-value card-value-copy" id="pr-refcode" onclick="copyValue(this)">—</span></div>
     </div>
     <!-- Section: Balance -->
     <div class="card" id="balance-card" style="display:none">
@@ -246,8 +245,8 @@
             </div>
         </div>
         <div class="profile-balance-actions">
-            <button class="pill pill-gold pill-sm" onclick="topupBalance()">Пополнить</button>
-            <button class="pill pill-outline pill-sm" id="btn-get-bonus" onclick="showBonusInfo()" style="display:none">Получить</button>
+            <button class="pill pill-cyan pill-sm" onclick="topupBalance()">Пополнить</button>
+            <button class="pill pill-gold pill-sm" id="btn-get-bonus" onclick="showBonusInfo()" style="display:none">Получить</button>
         </div>
     </div>
     <!-- Section: Referral System -->
@@ -641,11 +640,9 @@ function applyLocale(){
     const pf=$('p-profile');
     if(pf){
         const labels=pf.querySelectorAll('.card-label');
-        // New profile layout: ID, Имя, Telegram, Роль, Реф.код
+        // Profile layout: ID, Имя, Реф.код
         if(labels[0])labels[0].textContent='ID';
         if(labels[1])labels[1].textContent=t('name');
-        if(labels[2])labels[2].textContent=t('telegram');
-        if(labels[3])labels[3].textContent=t('role');
         const cardTitles=pf.querySelectorAll('.card-title');
         cardTitles.forEach(ct=>{
             if(ct.textContent.includes('👤'))ct.textContent='👤 '+t('profile');
@@ -797,33 +794,31 @@ function render(){
 }
 
 function renderSub(){
-    const s=D.subscription, b=$('sub-badge'), e=$('sub-expire'), tr=$('sub-traffic'), pn=$('sub-plan-name'), rm=$('sub-remaining'), payBtn=$('btn-pay');
+    const s=D.subscription, e=$('sub-expire'), tr=$('sub-traffic'), pn=$('sub-plan-name'), rm=$('sub-remaining'), payBtn=$('btn-pay');
     if(!s||!s.status){
-        pn.style.display='none';
-        b.textContent=t('no_active_sub');b.className='sub-badge sub-badge-none';
+        pn.textContent=t('no_active_sub');pn.className='sub-plan-name sub-plan-nosub';
         e.textContent='';tr.innerHTML='';rm.innerHTML='';
-        // Change button to "Тарифы"
         if(payBtn){payBtn.innerHTML='📋&nbsp; '+t('plans');payBtn.onclick=()=>go('plans');payBtn.className='pill pill-cyan'}
         return;
     }
-    // Show plan name in green
-    if(s.plan && s.plan.name){pn.textContent=s.plan.name;pn.style.display=''}else{pn.style.display='none'}
-    if(s.is_trial){b.textContent=t('trial_period');b.className='sub-badge sub-badge-trial'}
-    else if(s.status==='ACTIVE'){b.textContent=t('active');b.className='sub-badge sub-badge-active'}
-    else if(s.status==='EXPIRED'){b.textContent=t('expired');b.className='sub-badge sub-badge-expired'}
-    else{b.textContent=s.status;b.className='sub-badge sub-badge-none'}
-    e.innerHTML=s.expire_at?'📅 '+t('to_date')+' '+s.expire_at:'';
-    // Remaining time with days + hours
+    // Plan name in green (use plan_name from subscription data)
+    const planLabel=s.is_trial?t('trial_period'):(s.plan_name||'—');
+    pn.textContent=planLabel;
+    pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
+    // Expire date on the right
+    e.innerHTML=s.expire_at?t('to_date')+': '+s.expire_at:'';
+    // Traffic row
+    const tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
+    tr.innerHTML=t('traffic')+': <b>0 из '+tl+'</b>';
+    // Remaining time on the right
     if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
         const diff=new Date(s.expire_at)-new Date();
         if(diff>0){
             const daysLeft=Math.floor(diff/(1000*60*60*24));
             const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-            rm.innerHTML='<span class="sub-remaining-text">'+t('remains')+' '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft)+'</span>';
+            rm.innerHTML=t('remains')+': '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft);
         } else {rm.innerHTML=''}
     } else {rm.innerHTML=''}
-    const tl=s.traffic_limit? s.traffic_limit+' GB':'∞';
-    tr.innerHTML=t('traffic')+' <b>0 B / '+tl+'</b>';
     // Restore pay button
     if(payBtn){payBtn.innerHTML='💳&nbsp; '+t('buy');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold'}
 }
@@ -949,17 +944,18 @@ function renderConnect(){
     $('dev-used').textContent='—';
 }
 
+function copyValue(el){
+    const v=el.textContent;
+    navigator.clipboard.writeText(v).then(()=>toast(t('copied'))).catch(()=>toast(t('error'),'error'));
+}
 function renderProfile(){
     const u=D.user, sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     $('pr-name').textContent=u.name||'—';
-    $('pr-uname').textContent=u.username?'@'+u.username:'—';
     $('pr-tid').textContent=u.telegram_id;
-    const rm={USER:t('user_role'),ADMIN:t('admin_role'),DEV:t('dev_role')};
-    $('pr-role').textContent=rm[u.role]||u.role;
-    // Referral code
-    if(D.features&&D.features.referral_enabled!==false){
+    // Referral code from database
+    if(D.features&&D.features.referral_enabled!==false && u.referral_code){
         $('pr-refcode-row').style.display='';
-        $('pr-refcode').textContent='ref_'+u.telegram_id;
+        $('pr-refcode').textContent=u.referral_code;
     }
     // Balance section
     $('pr-balance').textContent=u.balance+' '+sym;
