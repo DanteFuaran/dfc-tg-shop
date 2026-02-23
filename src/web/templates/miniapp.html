@@ -636,7 +636,23 @@ function applyLocale(){
    ═══════════════════════════════════════ */
 function initParticles(){
     if(typeof particlesJS==='undefined')return;
-    particlesJS('particles-js',{particles:{number:{value:18,density:{enable:true,value_area:900}},color:{value:'#24C4F1'},shape:{type:'circle'},opacity:{value:0.15,random:true,anim:{enable:true,speed:0.4,opacity_min:0.05,sync:false}},size:{value:2.5,random:true},line_linked:{enable:true,distance:120,color:'#24C4F1',opacity:0.07,width:1},move:{enable:true,speed:0.6,direction:'none',random:true,straight:false,out_mode:'out',bounce:false}},interactivity:{detect_on:'canvas',events:{onhover:{enable:false},onclick:{enable:false},resize:true}},retina_detect:true});
+    particlesJS('particles-js',{
+        particles:{
+            number:{value:60,density:{enable:true,value_area:800}},
+            color:{value:'#24C4F1'},
+            shape:{type:'circle'},
+            opacity:{value:0.25,random:true,anim:{enable:false}},
+            size:{value:2,random:true,anim:{enable:false}},
+            line_linked:{enable:true,distance:180,color:'#24C4F1',opacity:0.08,width:1},
+            move:{enable:true,speed:0.6,direction:'none',random:false,straight:false,out_mode:'out',bounce:false}
+        },
+        interactivity:{
+            detect_on:'window',
+            events:{onhover:{enable:true,mode:'grab'},onclick:{enable:true,mode:'push'},resize:true},
+            modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:1}}
+        },
+        retina_detect:true
+    });
 }
 async function init(){
     tg.ready(); tg.expand();
