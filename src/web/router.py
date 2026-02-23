@@ -17,13 +17,18 @@ from aiogram import Bot
 
 from src.core.config import AppConfig
 from src.core.constants import CONTAINER_KEY
-from src.core.enums import Currency, PlanAvailability, PlanType, UserRole
+from src.core.enums import Currency, PlanAvailability, PlanType, PurchaseType, UserRole
 from src.infrastructure.database import UnitOfWork
-from src.infrastructure.database.models.dto.plan import PlanDto, PlanDurationDto, PlanPriceDto
+from src.infrastructure.database.models.dto.plan import PlanDto, PlanDurationDto, PlanPriceDto, PlanSnapshotDto
+from src.infrastructure.database.models.dto.transaction import PriceDetailsDto
 from src.infrastructure.database.models.dto.web_credential import WebCredentialDto
 from src.infrastructure.database.models.sql.web_credential import WebCredential
+from src.services.payment_gateway import PaymentGatewayService
 from src.services.plan import PlanService
+from src.services.pricing import PricingService
 from src.services.promocode import PromocodeService
+from src.services.referral import ReferralService
+from src.services.remnawave import RemnawaveService
 from src.services.settings import SettingsService
 from src.services.subscription import SubscriptionService
 from src.services.ticket import TicketService
@@ -188,10 +193,13 @@ async def _build_user_data(
 
         # Ticket unread count
         ticket_unread = 0
+        has_open_tickets = False
         try:
             ticket_svc: TicketService = await req_container.get(TicketService)
             uow_t: UnitOfWork = await req_container.get(UnitOfWork)
             ticket_unread = await ticket_svc.count_unread_user(uow_t, telegram_id)
+            user_tickets = await ticket_svc.get_user_tickets(uow_t, telegram_id)
+            has_open_tickets = any(t.status != "CLOSED" and t.status.value != "CLOSED" if hasattr(t.status, 'value') else t.status != "CLOSED" for t in user_tickets) if user_tickets else False
         except Exception:
             pass
 
@@ -213,6 +221,7 @@ async def _build_user_data(
             "trial_available": trial_available,
             "default_currency": default_currency,
             "ticket_unread": ticket_unread,
+            "has_open_tickets": has_open_tickets,
         }
 
 
@@ -667,6 +676,28 @@ async def api_admin_set_balance(tid: int, request: Request, access_token: Option
         return JSONResponse({"ok": True, "new_balance": user.balance})
 
 
+@router.post("/api/admin/users/{tid}/bonus-balance")
+async def api_admin_set_bonus_balance(tid: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Admin: modify user bonus balance via referral rewards."""
+    await _require_admin(request, access_token)
+    body = await request.json()
+    amount = body.get("amount", 0)
+    if not isinstance(amount, (int, float)):
+        raise HTTPException(status_code=400, detail="Неверная сумма")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        user_service: UserService = await req_container.get(UserService)
+        user = await user_service.get(telegram_id=tid)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        # For bonus balance, we adjust the main balance as a separate operation with a note
+        # Since there's no separate bonus_balance field, we still modify main balance
+        user.balance = int(user.balance + amount)
+        await user_service.update(user)
+        return JSONResponse({"ok": True, "new_balance": user.balance})
+
+
 @router.post("/api/admin/users/{tid}/block")
 async def api_admin_toggle_block(tid: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
     await _require_admin(request, access_token)
@@ -929,6 +960,163 @@ async def api_admin_update_settings(request: Request, access_token: Optional[str
                 await settings_service.update(settings)
 
         return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════
+# PURCHASE & TRIAL
+# ══════════════════════════════════════════════════════════════════
+
+
+@router.post("/api/purchase")
+async def api_purchase(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: purchase a plan with balance."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    body = await request.json()
+    plan_id = body.get("plan_id")
+    duration_days = body.get("duration_days")
+    if not plan_id or not duration_days:
+        raise HTTPException(status_code=400, detail="Укажите plan_id и duration_days")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        user_service: UserService = await req_container.get(UserService)
+        plan_service: PlanService = await req_container.get(PlanService)
+        payment_gw: PaymentGatewayService = await req_container.get(PaymentGatewayService)
+        settings_service: SettingsService = await req_container.get(SettingsService)
+        pricing_service: PricingService = await req_container.get(PricingService)
+        referral_service: ReferralService = await req_container.get(ReferralService)
+        subscription_service: SubscriptionService = await req_container.get(SubscriptionService)
+
+        user = await user_service.get(telegram_id=uid)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        plan = await plan_service.get(plan_id)
+        if not plan or not plan.is_active:
+            raise HTTPException(status_code=404, detail="Тариф не найден")
+
+        duration = plan.get_duration(duration_days)
+        if not duration:
+            raise HTTPException(status_code=400, detail="Период не найден")
+
+        settings = await settings_service.get()
+        currency = settings.default_currency
+
+        price_obj = duration.get_price(currency)
+        if not price_obj:
+            raise HTTPException(status_code=400, detail="Цена не найдена")
+
+        from decimal import Decimal
+        base_price = Decimal(str(price_obj.price))
+
+        global_discount = settings.features.global_discount if hasattr(settings.features, 'global_discount') else None
+        price = pricing_service.calculate(user, base_price, currency, global_discount, context="subscription")
+
+        # Check balance (with combined mode support)
+        from src.core.enums import ReferralRewardType
+        is_combined = await settings_service.is_balance_combined()
+        referral_balance = await referral_service.get_pending_rewards_amount(
+            telegram_id=uid, reward_type=ReferralRewardType.MONEY,
+        )
+        available = user.balance + referral_balance if is_combined else user.balance
+
+        if available < price.final_amount:
+            raise HTTPException(status_code=400, detail="Недостаточно средств")
+
+        # Determine purchase type
+        current_sub = await subscription_service.get_current(telegram_id=uid)
+        if current_sub and current_sub.status in ["ACTIVE", "active"]:
+            purchase_type = PurchaseType.RENEW
+        else:
+            purchase_type = PurchaseType.NEW
+
+        plan_snapshot = PlanSnapshotDto.from_plan(plan, duration_days)
+
+        try:
+            result = await payment_gw.create_balance_payment(
+                user=user, plan=plan_snapshot, pricing=price, purchase_type=purchase_type,
+            )
+
+            from_main, from_bonus = await user_service.subtract_from_combined_balance(
+                user=user, amount=int(price.final_amount),
+                referral_balance=referral_balance, is_combined=is_combined,
+            )
+
+            if from_bonus > 0:
+                await referral_service.withdraw_pending_rewards(
+                    telegram_id=uid, reward_type=ReferralRewardType.MONEY, amount=from_bonus,
+                )
+
+            await payment_gw.handle_payment_succeeded(result.id, run_sync=True)
+            return JSONResponse({"ok": True})
+
+        except Exception as e:
+            logger.exception(f"Purchase failed for user {uid}: {e}")
+            raise HTTPException(status_code=500, detail="Ошибка обработки покупки")
+
+
+@router.post("/api/trial/activate")
+async def api_trial_activate(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: activate trial subscription."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        user_service: UserService = await req_container.get(UserService)
+        plan_service: PlanService = await req_container.get(PlanService)
+        subscription_service: SubscriptionService = await req_container.get(SubscriptionService)
+        remnawave_service: RemnawaveService = await req_container.get(RemnawaveService)
+
+        user = await user_service.get(telegram_id=uid)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        # Check if trial already used
+        has_used = await subscription_service.has_used_trial(uid)
+        if has_used:
+            raise HTTPException(status_code=400, detail="Пробная подписка уже использована")
+
+        # Get trial plan
+        trial_plan = await plan_service.get_trial_plan()
+        if not trial_plan or not trial_plan.is_active:
+            raise HTTPException(status_code=400, detail="Пробная подписка недоступна")
+
+        trial_snapshot = PlanSnapshotDto.from_plan(trial_plan, trial_plan.durations[0].days)
+
+        try:
+            from src.infrastructure.database.models.dto.subscription import SubscriptionDto
+
+            # Create user in Remnawave
+            created_remna_user = await remnawave_service.create_user(user, plan=trial_snapshot, force=True)
+
+            trial_subscription = SubscriptionDto(
+                user_remna_id=created_remna_user.uuid,
+                status=created_remna_user.status,
+                is_trial=True,
+                traffic_limit=trial_snapshot.traffic_limit,
+                device_limit=trial_snapshot.device_limit,
+                traffic_limit_strategy=trial_snapshot.traffic_limit_strategy,
+                tag=trial_snapshot.tag,
+                internal_squads=trial_snapshot.internal_squads,
+                external_squad=trial_snapshot.external_squad,
+                expire_at=created_remna_user.expire_at,
+                url=created_remna_user.subscription_url,
+                plan=trial_snapshot,
+            )
+
+            await subscription_service.create(user, trial_subscription)
+            await user_service.clear_user_cache(uid)
+
+            return JSONResponse({"ok": True})
+
+        except Exception as e:
+            logger.exception(f"Trial activation failed for user {uid}: {e}")
+            raise HTTPException(status_code=500, detail="Ошибка активации пробной подписки")
 
 
 # ══════════════════════════════════════════════════════════════════

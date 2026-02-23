@@ -49,9 +49,11 @@ body{
     min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
     overflow-x:hidden;user-select:none;-webkit-user-select:none;
 }
-::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(36,196,241,.2);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;opacity:.45}
+::-webkit-scrollbar-thumb:hover{opacity:1}
+*{scrollbar-width:thin;scrollbar-color:var(--cyan) transparent}
 a{color:var(--cyan);text-decoration:none}
 
 #app{min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1}
@@ -102,6 +104,9 @@ a{color:var(--cyan);text-decoration:none}
     box-shadow:0 2px 10px rgba(36,196,241,.25);
 }
 .brand-name{font-size:1.05rem;font-weight:700;color:#fff}
+.brand-slogan{font-size:.68rem;color:var(--text3);font-weight:400;margin-top:-2px}
+.brand-info{display:flex;flex-direction:column;gap:0}
+.brand-logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;flex-shrink:0}
 .header-badge{
     padding:5px 14px;border-radius:var(--r-pill);font-size:.78rem;font-weight:600;
     background:var(--cyan-dim);border:1px solid var(--cyan-border);color:var(--cyan);
@@ -300,10 +305,16 @@ a{color:var(--cyan);text-decoration:none}
 }
 .admin-tabs::-webkit-scrollbar{display:none}
 .admin-tab{
-    flex:1;padding:9px 10px;border:none;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;gap:0;
+    padding:9px 10px;border:none;border-radius:8px;
     background:transparent;color:var(--text3);font-size:.78rem;font-weight:500;
-    cursor:pointer;transition:all .3s;font-family:var(--font);white-space:nowrap;
+    cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);font-family:var(--font);white-space:nowrap;
+    min-width:36px;overflow:hidden;
 }
+.admin-tab .tab-icon{flex-shrink:0;font-size:1rem;line-height:1}
+.admin-tab .tab-label{max-width:0;overflow:hidden;opacity:0;transition:max-width .35s cubic-bezier(.4,0,.2,1),opacity .25s,margin .35s;margin-left:0}
+.admin-tab.active .tab-label,
+.admin-tab:hover .tab-label{max-width:120px;opacity:1;margin-left:6px}
 .admin-tab.active{
     background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff;
     font-weight:700;box-shadow:0 2px 10px rgba(36,196,241,.2);
@@ -581,6 +592,10 @@ a{color:var(--cyan);text-decoration:none}
     font-size:.68rem;font-weight:700;margin-left:6px;
     background:var(--green-dim);color:var(--green);border:1px solid rgba(25,195,125,.25);
 }
+.plan-savings{
+    display:inline;font-size:.72rem;font-weight:600;
+    color:var(--gold);margin-left:6px;
+}
 .plan-buy-btn{
     display:flex;align-items:center;justify-content:center;gap:6px;
     width:100%;padding:10px;margin-top:10px;border-radius:var(--r-pill);
@@ -622,6 +637,10 @@ a{color:var(--cyan);text-decoration:none}
 .dur-remove:hover{color:var(--red);background:var(--red-dim)}
 .form-row{display:flex;gap:8px}
 .form-row .form-group{flex:1}
+.form-input:disabled,.form-input.disabled{
+    opacity:.35;pointer-events:none;background:rgba(255,255,255,.03);
+    border-color:rgba(255,255,255,.05);color:var(--text3);
+}
 
 /* ── Tickets ── */
 .ticket-list{display:flex;flex-direction:column;gap:8px}
@@ -666,3 +685,33 @@ a{color:var(--cyan);text-decoration:none}
     background:var(--cyan);color:#000;font-size:.68rem;font-weight:700;
     padding:0 5px;margin-left:6px;
 }
+
+/* ── Floating ticket FAB ── */
+.ticket-fab{
+    position:fixed;bottom:80px;right:16px;z-index:90;
+    width:48px;height:48px;border-radius:50%;border:none;
+    background:var(--cyan);color:#000;font-size:1.3rem;
+    display:none;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 4px 20px rgba(36,196,241,.35);
+    transition:all .3s;
+}
+.ticket-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(36,196,241,.45)}
+.ticket-fab.has-unread{
+    animation:fabPulse 2s ease-in-out infinite;
+}
+@keyframes fabPulse{
+    0%,100%{box-shadow:0 4px 20px rgba(245,200,66,.2);background:var(--cyan)}
+    50%{box-shadow:0 4px 28px rgba(245,200,66,.55);background:var(--gold)}
+}
+
+/* ── Ticket close buttons ── */
+.ticket-close-actions{display:flex;gap:8px;margin-top:12px}
+.ticket-close-btn{
+    flex:1;padding:10px;border-radius:var(--r-sm);border:none;
+    font-size:.82rem;font-weight:600;cursor:pointer;
+    font-family:var(--font);transition:all .25s;
+}
+.ticket-close-btn.resolved{background:var(--green);color:#fff}
+.ticket-close-btn.resolved:hover{opacity:.85}
+.ticket-close-btn.unresolved{background:var(--bg-card);border:1px solid var(--border);color:var(--text2)}
+.ticket-close-btn.unresolved:hover{border-color:var(--red);color:var(--red)}

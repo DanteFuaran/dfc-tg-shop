@@ -30,7 +30,10 @@
 <header class="app-header">
     <div class="brand">
         <span class="brand-logo" id="brand-logo">🔐</span>
-        <span class="brand-name" id="brand-name">VPN Shop</span>
+        <div class="brand-info">
+            <span class="brand-name" id="brand-name">VPN Shop</span>
+            <span class="brand-slogan" id="brand-slogan"></span>
+        </div>
     </div>
     <span class="header-badge" id="hdr-balance" onclick="go('profile')">0 ₽</span>
 </header>
@@ -50,8 +53,8 @@
 
     <!-- Actions -->
     <div class="action-pills">
-        <button class="pill pill-gold" onclick="buySubscription()">🛒&nbsp; Купить</button>
         <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
+        <button class="pill pill-gold" onclick="buySubscription()">🛒&nbsp; Купить</button>
         <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Установить и настроить</button>
         <div class="pill-row">
             <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
@@ -110,7 +113,9 @@
         <div class="card-row"><span class="card-label">Лимит</span><span class="card-value" id="dev-limit">—</span></div>
         <div class="card-row"><span class="card-label">Занято</span><span class="card-value" id="dev-used">—</span></div>
     </div>
-    <p style="font-size:.82rem;color:var(--text3);margin-top:8px">Управление устройствами доступно в боте.</p>
+    <div class="action-pills" style="margin-top:10px">
+        <button class="pill pill-outline" id="btn-expand-devices" onclick="expandDevices()" style="display:none">➕ Расширить слоты устройств</button>
+    </div>
 </section>
 
 <!-- ═══ PROMO ═══ -->
@@ -174,6 +179,10 @@
         <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
         <button class="ticket-send-btn" onclick="sendTicketReply()">→</button>
     </div>
+    <div id="ticket-close-actions" class="ticket-close-actions" style="display:none">
+        <button class="ticket-close-btn resolved" onclick="closeTicket(true)">✅ Вопрос решён</button>
+        <button class="ticket-close-btn unresolved" onclick="closeTicket(false)">❌ Не решён</button>
+    </div>
 </section>
 
 <!-- ═══ PROFILE ═══ -->
@@ -213,12 +222,12 @@
         <h2 class="page-title">Панель управления</h2>
     </div>
     <div class="admin-tabs" id="adm-tabs">
-        <button class="admin-tab active" onclick="admTab('stats')">Статистика</button>
-        <button class="admin-tab" onclick="admTab('users')">Польз.</button>
-        <button class="admin-tab" onclick="admTab('plans')">Тарифы</button>
-        <button class="admin-tab" onclick="admTab('settings')">Настройки</button>
-        <button class="admin-tab" onclick="admTab('tickets')">Тикеты</button>
-        <button class="admin-tab" onclick="admTab('brand')">Бренд</button>
+        <button class="admin-tab active" onclick="admTab('stats')"><span class="tab-icon">📊</span><span class="tab-label">Статистика</span></button>
+        <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon">👥</span><span class="tab-label">Пользователи</span></button>
+        <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon">📋</span><span class="tab-label">Тарифы</span></button>
+        <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span></button>
+        <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span></button>
+        <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon">🎨</span><span class="tab-label">Бренд</span></button>
     </div>
 
     <!-- Stats -->
@@ -257,7 +266,7 @@
         <div class="card">
             <div class="card-title">Настройки бренда</div>
             <div class="form-group"><label>Название</label><input class="form-input" id="br-name" placeholder="VPN Shop"></div>
-            <div class="form-group"><label>Логотип (эмодзи)</label><input class="form-input" id="br-logo" placeholder="🔐"></div>
+            <div class="form-group"><label>Логотип (эмодзи или URL картинки)</label><input class="form-input" id="br-logo" placeholder="🔐 или https://..."></div>
             <div class="form-group"><label>Слоган</label><input class="form-input" id="br-slogan" placeholder=""></div>
             <button class="btn btn-primary btn-full" onclick="saveBrand()">Сохранить</button>
         </div>
@@ -309,6 +318,7 @@
 </nav>
 </div>
 
+<button class="ticket-fab" id="ticket-fab" onclick="go('tickets')" title="Обращения">💬</button>
 <div id="modal-root"></div>
 <div id="toast" class="toast"></div>
 </div>
@@ -391,14 +401,27 @@ function goHome(){go('home')}
    RENDER
    ═══════════════════════════════════════ */
 function render(){
-    $('brand-logo').textContent=BRAND.logo||'🔐';
+    // Brand logo: URL → <img>, otherwise emoji text
+    const logoEl=$('brand-logo');
+    const logoVal=BRAND.logo||'🔐';
+    if(logoVal.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(logoVal)+'" alt="">';}
+    else{logoEl.textContent=logoVal;}
     $('brand-name').textContent=BRAND.name||'VPN Shop';
+    const sloganEl=$('brand-slogan');
+    if(BRAND.slogan){sloganEl.textContent=BRAND.slogan;sloganEl.style.display=''}else{sloganEl.style.display='none'}
     $('hdr-balance').textContent=D.user.balance+' '+(CURRENCY_SYMBOLS[D.default_currency]||'₽');
     renderSub(); renderConnect(); renderProfile(); renderSupport();
     // Trial button
     if(D.trial_available) $('btn-trial').style.display='';
+    // Ticket FAB
+    const fab=$('ticket-fab');
+    if(D.ticket_unread>0){fab.style.display='flex';fab.classList.add('unread')}
+    else if(D.has_open_tickets){fab.style.display='flex';fab.classList.remove('unread')}
+    else{fab.style.display='none'}
     // Ticket badge
     if(D.ticket_unread>0){$('ticket-badge').style.display='';$('ticket-badge').textContent=D.ticket_unread}
+    // Expand devices button
+    if(D.subscription&&D.subscription.status==='ACTIVE') $('btn-expand-devices').style.display='';
 }
 
 function renderSub(){
@@ -435,13 +458,13 @@ function renderPlans(){
         const durs=(p.durations||[]).map(d=>{
             const pr=findPrice(d,dc);
             if(pr===null) return '';
-            let discountHtml='';
+            let savingsHtml='';
             if(basePpd && d.days>basePpd.days && pr>0){
                 const ppd=pr/d.days;
                 const pct=Math.round((1-ppd/basePpd.ppd)*100);
-                if(pct>0) discountHtml='<span class="plan-discount-badge">-'+pct+'%</span>';
+                if(pct>0) savingsHtml='<span class="plan-savings">(экономия '+pct+'%)</span>';
             }
-            return '<div class="plan-duration"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+discountHtml+'</span></div>';
+            return '<div class="plan-duration"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+' '+savingsHtml+'</span></div>';
         }).join('');
         return '<div class="card plan-card" onclick="selectPlan('+p.id+')"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>📦 '+(p.traffic_limit||'∞')+' GB</span><span>📱 '+(p.device_limit||'∞')+' устр.</span></div><div class="plan-durations">'+durs+'</div><button class="plan-buy-btn" onclick="event.stopPropagation();selectPlan('+p.id+')">Выбрать тариф</button></div>';
     }).join('');
@@ -516,8 +539,72 @@ function buySubscription(){
     if(D.plans&&D.plans.length) go('plans');
     else toast('Нет доступных тарифов','error');
 }
-function selectPlan(id){toast('Покупка доступна через бота')}
-function startTrial(){toast('Пробная подписка доступна через бота')}
+function selectPlan(id){
+    const plan=D.plans.find(p=>p.id===id);if(!plan)return;
+    const dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
+    const dursHtml=(plan.durations||[]).map((d,i)=>{
+        const pr=findPrice(d,dc);if(pr===null)return '';
+        return '<button class="btn '+(i===0?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="confirmPurchase('+id+','+d.days+','+pr+')">'+fmtDays(d.days)+' — '+pr+' '+sym+'</button>';
+    }).join('');
+    // Determine purchase type
+    let purchaseNote='';
+    if(D.subscription&&D.subscription.status==='ACTIVE'){
+        purchaseNote='<p style="color:var(--gold);font-size:.8rem;margin-top:8px">⚠️ У вас есть активная подписка. Оплата будет списана с баланса.</p>';
+    }
+    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem">Выберите период:</p>'+dursHtml+purchaseNote+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>');
+}
+async function confirmPurchase(planId,days,price){
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    if(D.user.balance<price){
+        closeModal();
+        return toast('Недостаточно средств. Баланс: '+D.user.balance+' '+sym,'error');
+    }
+    closeModal();
+    showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">Обработка покупки…</p></div>');
+    try{
+        const r=await fetch(API+'/api/purchase',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan_id:planId,duration_days:days})});
+        closeModal();
+        if(r.ok){
+            toast('Подписка оформлена! ✅');
+            const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
+        } else {
+            const j=await r.json();toast(j.detail||'Ошибка покупки','error');
+        }
+    }catch(e){closeModal();toast('Ошибка сети','error')}
+}
+async function startTrial(){
+    showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">Активация пробной подписки…</p></div>');
+    try{
+        const r=await fetch(API+'/api/trial/activate',{method:'POST'});
+        closeModal();
+        if(r.ok){
+            toast('Пробная подписка активирована! ✅','success');
+            // Show green success notification
+            showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">✅</div><h3 style="margin-top:12px;color:var(--green)">Пробная подписка активирована!</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">Перейдите в раздел «Подключение» для настройки.</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();go(\'connect\')">Настроить</button><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div></div>');
+            const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
+        } else {
+            const j=await r.json();toast(j.detail||'Ошибка активации','error');
+        }
+    }catch(e){closeModal();toast('Ошибка сети','error')}
+}
+function expandDevices(){
+    if(D.subscription&&D.subscription.is_trial){
+        showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">⚠️</div><h3 style="margin-top:12px;color:var(--gold)">Недоступно</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">Расширение слотов устройств недоступно в пробной подписке. Приобретите полный тариф.</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();buySubscription()">Купить тариф</button><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div></div>');
+        return;
+    }
+    toast('Расширение устройств доступно через бота');
+}
+async function closeTicket(resolved){
+    if(!curTicketId)return;
+    try{
+        const r=await fetch(API+'/api/tickets/'+curTicketId+'/close',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resolved})});
+        if(r.ok){
+            toast(resolved?'Тикет закрыт как решённый':'Тикет закрыт как нерешённый');
+            $('ticket-reply').style.display='none';
+            $('ticket-close-actions').style.display='none';
+        }else{const j=await r.json();toast(j.detail||'Ошибка','error')}
+    }catch(e){toast('Ошибка','error')}
+}
 function openLink(u){if(u)tg.openLink(u)}
 function copyUrl(){
     const s=D.subscription;
@@ -528,7 +615,7 @@ function copyRef(){
     const t=$('ref-link').textContent;
     navigator.clipboard.writeText(t).then(()=>toast('Ссылка скопирована!')).catch(()=>toast('Ошибка','error'));
 }
-function topupBalance(){toast('Пополнение доступно через бота')}
+function topupBalance(){toast('Пополнение баланса доступно через бота')}
 async function activatePromo(){
     const code=$('promo-input').value.trim();if(!code)return;
     const r=$('promo-result');
@@ -598,10 +685,22 @@ function changeRole(tid,cur){
     showModal('<h3>Изменить роль</h3>'+roles.map((r,i)=>'<button class="btn '+(r===cur?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="setRole('+tid+',\''+r+'\')">'+names[i]+'</button>').join('')+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>');
 }
 async function setRole(tid,role){closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/role',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role})});if(r.ok){toast('Роль изменена');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+let balType='basic';
 function changeBal(tid,cur){
-    showModal('<h3>Изменить баланс</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:10px">Текущий: '+cur+' ₽</p><div class="form-group"><label>Сумма (+/-)</label><input class="form-input" id="bal-amt" type="number" placeholder="100"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="setBal('+tid+')">Применить</button></div>');
+    balType='basic';
+    showModal('<h3>Изменить баланс</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:10px">Текущий: '+cur+' ₽</p>'+
+        '<div class="form-group"><label>Тип баланса</label><div style="display:flex;gap:6px;margin-top:4px"><button class="btn btn-primary btn-sm" id="bal-type-basic" onclick="switchBalType(\'basic\')">Основной</button><button class="btn btn-secondary btn-sm" id="bal-type-bonus" onclick="switchBalType(\'bonus\')">Бонусный</button></div></div>'+
+        '<div class="form-group"><label>Сумма (+/-)</label><input class="form-input" id="bal-amt" type="number" placeholder="100"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="setBal('+tid+')">Применить</button></div>');
 }
-async function setBal(tid){const a=parseFloat($('bal-amt').value);if(isNaN(a))return toast('Введите число','error');closeModal();try{const r=await fetch(API+'/api/admin/users/'+tid+'/balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:a})});if(r.ok){toast('Баланс изменён');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+function switchBalType(t){
+    balType=t;
+    const bb=$('bal-type-basic'),bn=$('bal-type-bonus');
+    if(t==='basic'){bb.className='btn btn-primary btn-sm';bn.className='btn btn-secondary btn-sm'}
+    else{bb.className='btn btn-secondary btn-sm';bn.className='btn btn-primary btn-sm'}
+}
+async function setBal(tid){const a=parseFloat($('bal-amt').value);if(isNaN(a))return toast('Введите число','error');closeModal();
+    const endpoint=balType==='bonus'?'/bonus-balance':'/balance';
+    try{const r=await fetch(API+'/api/admin/users/'+tid+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:a})});if(r.ok){toast((balType==='bonus'?'Бонусный б':'Б')+'аланс изменён');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
 async function toggleBlock(tid,blocked){try{const r=await fetch(API+'/api/admin/users/'+tid+'/block',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({block:!blocked})});if(r.ok){toast(blocked?'Разблокирован':'Заблокирован');openUser(tid)}else{const d=await r.json();toast(d.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
 
 /* ── Admin Plans (enhanced) ── */
@@ -667,13 +766,26 @@ function showPlanModal(p,title){
         '<div class="form-group"><label>Название</label><input class="form-input" id="np-name" value="'+esc(p.name)+'" placeholder="Базовый"></div>'+
         '<div class="form-group"><label>Описание</label><input class="form-input" id="np-desc" value="'+esc(p.description||'')+'" placeholder="Описание тарифа"></div>'+
         '<div class="form-row"><div class="form-group"><label>Тег</label><input class="form-input" id="np-tag" value="'+esc(p.tag||'')+'" placeholder="base"></div><div class="form-group"><label>Доступность</label><select class="form-input" id="np-avail">'+availOpts+'</select></div></div>'+
-        '<div class="form-row"><div class="form-group"><label>Тип</label><select class="form-input" id="np-type">'+typeOpts+'</select></div><div class="form-group"><label>Трафик (GB)</label><input class="form-input" id="np-traffic" type="number" value="'+p.traffic_limit+'"></div></div>'+
+        '<div class="form-row"><div class="form-group"><label>Тип</label><select class="form-input" id="np-type" onchange="onPlanTypeChange()">'+typeOpts+'</select></div><div class="form-group"><label>Трафик (GB)</label><input class="form-input" id="np-traffic" type="number" value="'+p.traffic_limit+'"></div></div>'+
         '<div class="form-group"><label>Устройств</label><input class="form-input" id="np-dev" type="number" value="'+p.device_limit+'"></div>'+
         '<div style="margin-bottom:8px"><label style="font-size:.8rem;color:var(--text3);font-weight:500">Периоды и цены ('+(CURRENCY_SYMBOLS[dc]||dc)+')</label></div>'+
         '<div id="dur-list">'+durs+'</div>'+
         '<button class="btn btn-secondary btn-sm" onclick="addDurEntry()" style="margin-bottom:10px">+ Период</button>'+
         '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="savePlan()">Сохранить</button></div>'
     );
+    // Apply conditional fields after modal renders
+    setTimeout(()=>onPlanTypeChange(),0);
+}
+function onPlanTypeChange(){
+    const t=$('np-type');if(!t)return;
+    const v=t.value;
+    const trEl=$('np-traffic'), devEl=$('np-dev');
+    if(!trEl||!devEl)return;
+    // TRAFFIC → disable devices; DEVICES → disable traffic
+    if(v==='TRAFFIC'){trEl.disabled=false;devEl.disabled=true;devEl.value='0'}
+    else if(v==='DEVICES'){trEl.disabled=true;trEl.value='0';devEl.disabled=false}
+    else if(v==='UNLIMITED'){trEl.disabled=true;trEl.value='0';devEl.disabled=true;devEl.value='0'}
+    else{trEl.disabled=false;devEl.disabled=false}
 }
 function durEntryHtml(i,days,amount){
     return '<div class="duration-entry" data-idx="'+i+'"><div class="duration-entry-header"><span style="font-size:.8rem;color:var(--text2);font-weight:600">Период #'+(i+1)+'</span><button class="dur-remove" onclick="this.closest(\'.duration-entry\').remove()">✕</button></div><div class="form-row"><div class="form-group"><label>Дней</label><input class="form-input dur-days" type="number" value="'+days+'" min="1"></div><div class="form-group"><label>Цена</label><input class="form-input dur-price" type="number" value="'+amount+'" min="0" step="0.01"></div></div></div>';
@@ -744,8 +856,14 @@ async function openTicket(id){
     try{const r=await fetch(API+'/api/tickets/'+id);if(!r.ok)return;
     const t=await r.json();$('ticket-title').textContent=t.subject;
     renderTicketChat($('ticket-chat'),t.messages);
-    if(t.status!=='CLOSED'){$('ticket-reply').style.display='flex'}
-    else{$('ticket-reply').style.display='none'}
+    const hasAdminReply=(t.messages||[]).some(m=>m.is_admin);
+    if(t.status!=='CLOSED'){
+        $('ticket-reply').style.display='flex';
+        $('ticket-close-actions').style.display=hasAdminReply?'flex':'none';
+    } else {
+        $('ticket-reply').style.display='none';
+        $('ticket-close-actions').style.display='none';
+    }
     }catch(e){}
 }
 function renderTicketChat(el,msgs){
@@ -803,7 +921,16 @@ function loadBrandForm(){$('br-name').value=BRAND.name||'';$('br-logo').value=BR
 async function saveBrand(){
     const d={name:$('br-name').value.trim()||'VPN Shop',logo:$('br-logo').value.trim()||'🔐',slogan:$('br-slogan').value.trim()};
     try{const r=await fetch(API+'/api/settings/brand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-    if(r.ok){BRAND=d;$('brand-logo').textContent=BRAND.logo;$('brand-name').textContent=BRAND.name;toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){
+        BRAND=d;
+        const logoEl=$('brand-logo');
+        if(BRAND.logo.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(BRAND.logo)+'" alt="">'}
+        else{logoEl.textContent=BRAND.logo}
+        $('brand-name').textContent=BRAND.name;
+        const sl=$('brand-slogan');
+        if(BRAND.slogan){sl.textContent=BRAND.slogan;sl.style.display=''}else{sl.style.display='none'}
+        toast('Сохранено')
+    }else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 
 /* ═══════════════════════════════════════
