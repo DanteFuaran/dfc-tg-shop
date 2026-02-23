@@ -389,7 +389,7 @@ const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
 const I18N={
     RU:{
         home:'Главная',support:'Поддержка',profile:'Профиль',admin:'Админ',
-        buy:'Оплатить',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить',change_plan:'Смена тарифа',
+        buy:'Оплатить',trial:'Попробовать бесплатно',connect:'Подключиться',renew:'Продлить подписку',change_plan:'Сменить подписку',manage_sub:'Управление подпиской',
         promo:'Промокоды',devices:'Устройства',plans:'Тарифные планы',
         connect_title:'Подключение',devices_title:'Мои устройства',
         sub_link:'Ссылка подписки',copy:'Копировать',download:'Скачать приложение',
@@ -428,7 +428,7 @@ const I18N={
     },
     EN:{
         home:'Home',support:'Support',profile:'Profile',admin:'Admin',
-        buy:'Pay',trial:'Try for free',connect:'Connect',renew:'Renew',change_plan:'Change plan',
+        buy:'Pay',trial:'Try for free',connect:'Connect',renew:'Renew subscription',change_plan:'Change plan',manage_sub:'Manage subscription',
         promo:'Promo codes',devices:'Devices',plans:'Plans',
         connect_title:'Connection',devices_title:'My Devices',
         sub_link:'Subscription Link',copy:'Copy',download:'Download App',
@@ -812,15 +812,26 @@ function renderSub(){
     tr.innerHTML=t('traffic')+': <b>0 из '+tl+'</b>';
     // Remaining time on the right
     if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
-        const diff=new Date(s.expire_at)-new Date();
-        if(diff>0){
-            const daysLeft=Math.floor(diff/(1000*60*60*24));
-            const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-            rm.innerHTML=t('remains')+': '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft);
+        // Parse DD.MM.YYYY HH:MM format correctly
+        const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
+        if(parts){
+            const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
+            const diff=expireDate-new Date();
+            if(diff>0){
+                const daysLeft=Math.floor(diff/(1000*60*60*24));
+                const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+                rm.innerHTML=t('remains')+': '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft);
+            } else {rm.innerHTML=''}
         } else {rm.innerHTML=''}
     } else {rm.innerHTML=''}
-    // Restore pay button
-    if(payBtn){payBtn.innerHTML='💳&nbsp; '+t('buy');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold'}
+    // Pay/manage button
+    if(payBtn){
+        if(s.status==='ACTIVE' && !s.is_trial){
+            payBtn.innerHTML='⚙️&nbsp; '+t('manage_sub');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold';
+        } else {
+            payBtn.innerHTML='💳&nbsp; '+t('buy');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold';
+        }
+    }
 }
 
 function renderPlans(){
@@ -863,18 +874,15 @@ function renderPlans(){
 
         return '<div class="card plan-card-new" onclick="togglePlanCard(this)">'+
             '<div class="plan-card-header">'+
-                '<div class="plan-card-left">'+
-                    '<div class="plan-card-name">'+esc(p.name)+'</div>'+
-                    '<div class="plan-card-price">'+priceText+'</div>'+
-                '</div>'+
-                '<div class="plan-card-indicator">▼</div>'+
+                '<div class="plan-card-name">'+esc(p.name)+'</div>'+
+                '<div class="plan-card-price">'+priceText+'</div>'+
             '</div>'+
             (desc?'<div class="plan-card-desc">'+esc(desc)+'</div>':'')+
             '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
             '<div class="plan-card-body">'+
                 '<div class="plan-card-durations">'+dursHtml+'</div>'+
             '</div>'+
-            '<div class="plan-card-collapse" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▲</div>'+
+            '<div class="plan-card-toggle" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▼</div>'+
         '</div>';
     }).join('');
 }
@@ -883,6 +891,10 @@ function togglePlanCard(card){
     // Close all other cards
     document.querySelectorAll('.plan-card-new.open').forEach(c=>{if(c!==card)c.classList.remove('open')});
     card.classList.toggle('open',!isOpen);
+    // Update toggle arrows
+    document.querySelectorAll('.plan-card-new .plan-card-toggle').forEach(el=>{
+        el.textContent=el.parentElement.classList.contains('open')?'▲':'▼';
+    });
 }
 function showPaymentMethodPopup(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -1026,7 +1038,7 @@ function openPayment(){
     const s=D.subscription;
     // Active non-trial subscription: offer Renew or Change plan
     if(s && s.status==='ACTIVE' && !s.is_trial){
-        showModal('<h3>'+t('buy')+'</h3>'+
+        showModal('<h3>'+t('manage_sub')+'</h3>'+
             '<div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:12px">'+
             '<button class="btn btn-primary btn-full" onclick="closeModal();renewCurrentPlan()">'+t('renew')+'</button>'+
             '<button class="btn btn-secondary btn-full" onclick="closeModal();go(\'plans\')">'+t('change_plan')+'</button>'+

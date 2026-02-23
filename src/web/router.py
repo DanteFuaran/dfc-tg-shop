@@ -17,7 +17,7 @@ from aiogram import Bot
 
 from src.core.config import AppConfig
 from src.core.constants import CONTAINER_KEY
-from src.core.enums import Currency, PlanAvailability, PlanType, PurchaseType, UserRole
+from src.core.enums import Currency, PlanAvailability, PlanType, PurchaseType, ReferralRewardType, UserRole
 from src.infrastructure.database import UnitOfWork
 from src.infrastructure.database.models.dto.plan import PlanDto, PlanDurationDto, PlanPriceDto, PlanSnapshotDto
 from src.infrastructure.database.models.dto.transaction import PriceDetailsDto
@@ -181,7 +181,7 @@ async def _build_user_data(
         referral_balance_user = 0
         try:
             ref_svc: ReferralService = await req_container.get(ReferralService)
-            referral_balance_user = await ref_svc.get_pending_rewards_amount(telegram_id=telegram_id)
+            referral_balance_user = await ref_svc.get_pending_rewards_amount(telegram_id=telegram_id, reward_type=ReferralRewardType.MONEY)
         except Exception:
             pass
         try:
@@ -663,7 +663,7 @@ async def api_admin_user_detail(tid: int, request: Request, access_token: Option
         referral_balance = 0
         try:
             referral_service: ReferralService = await req_container.get(ReferralService)
-            referral_balance = await referral_service.get_pending_rewards_amount(telegram_id=tid)
+            referral_balance = await referral_service.get_pending_rewards_amount(telegram_id=tid, reward_type=ReferralRewardType.MONEY)
         except Exception:
             pass
 
@@ -731,14 +731,21 @@ async def api_admin_set_bonus_balance(tid: int, request: Request, access_token: 
     container: AsyncContainer = request.app.state.dishka_container
     async with container(scope=Scope.REQUEST) as req_container:
         user_service: UserService = await req_container.get(UserService)
+        referral_service: ReferralService = await req_container.get(ReferralService)
         user = await user_service.get(telegram_id=tid)
         if not user:
             raise HTTPException(status_code=404, detail="Пользователь не найден")
-        # For bonus balance, we adjust the main balance as a separate operation with a note
-        # Since there's no separate bonus_balance field, we still modify main balance
-        user.balance = int(user.balance + amount)
-        await user_service.update(user)
-        return JSONResponse({"ok": True, "new_balance": user.balance})
+        # Create a direct reward in the bonus (referral) balance, not main balance
+        await referral_service.create_direct_reward(
+            user_telegram_id=tid,
+            amount=int(amount),
+            reward_type=ReferralRewardType.MONEY,
+        )
+        # Return updated bonus balance
+        new_bonus = await referral_service.get_pending_rewards_amount(
+            telegram_id=tid, reward_type=ReferralRewardType.MONEY,
+        )
+        return JSONResponse({"ok": True, "new_balance": new_bonus})
 
 
 @router.post("/api/admin/users/{tid}/block")
@@ -1317,7 +1324,6 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
         price = pricing_service.calculate(user, base_price, currency, global_discount, context="subscription")
 
         # Check balance (with combined mode support)
-        from src.core.enums import ReferralRewardType
         is_combined = await settings_service.is_balance_combined()
         referral_balance = await referral_service.get_pending_rewards_amount(
             telegram_id=uid, reward_type=ReferralRewardType.MONEY,
