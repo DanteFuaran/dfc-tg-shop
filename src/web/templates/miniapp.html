@@ -939,7 +939,7 @@ function copyRef(){
     const rl=$('ref-link').textContent;
     navigator.clipboard.writeText(rl).then(()=>toast(t('link_copied'))).catch(()=>toast(t('error'),'error'));
 }
-function topupBalance(){toast(t('topup_via_bot'))}}
+function topupBalance(){toast(t('topup_via_bot'))}
 async function activatePromo(){
     const code=$('promo-input').value.trim();if(!code)return;
     const r=$('promo-result');

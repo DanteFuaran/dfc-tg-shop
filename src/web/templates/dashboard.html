@@ -1171,7 +1171,7 @@ let curTicketId=null;
 async function loadTickets(){
     try{const r=await fetch(API+'/api/tickets');if(!r.ok)return;const tks=await r.json();
     const el=$('tickets-list');
-    if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}}
+    if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}
     el.innerHTML=tks.map(t=>{
         const st=t.status.toLowerCase();
         const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
