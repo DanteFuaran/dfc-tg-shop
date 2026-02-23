@@ -1157,7 +1157,7 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
             raise HTTPException(status_code=400, detail="Цена не найдена")
 
         from decimal import Decimal
-        base_price = Decimal(str(price_obj.price))
+        base_price = Decimal(str(price_obj))
 
         global_discount = settings.features.global_discount if hasattr(settings.features, 'global_discount') else None
         price = pricing_service.calculate(user, base_price, currency, global_discount, context="subscription")
