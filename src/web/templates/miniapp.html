@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Mini App</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <link rel="stylesheet" href="/web/static/css/style.css">
 </head>
 <body>
 <div class="bg-glow"></div>
+<div id="particles-js"></div>
 <div id="app">
 
 <!-- Loading -->
@@ -33,7 +35,10 @@
             <span class="brand-slogan" id="brand-slogan"></span>
         </div>
     </div>
-    <span class="header-badge" id="hdr-balance" onclick="go('profile')">0 ₽</span>
+    <div class="header-balances" onclick="go('profile')">
+        <span class="header-badge" id="hdr-balance"><svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>0 ₽</span>
+        <span class="header-badge header-badge-bonus" id="hdr-bonus" style="display:none"><svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>0 ₽</span>
+    </div>
 </header>
 
 <main class="app-content">
@@ -252,7 +257,6 @@
         <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon">👥</span><span class="tab-label">Пользователи</span></button>
         <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon">📋</span><span class="tab-label">Тарифы</span></button>
         <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span></button>
-        <button class="admin-tab" onclick="admTab('gateways')"><span class="tab-icon">💳</span><span class="tab-label">Платежи</span></button>
         <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span></button>
         <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon">🎨</span><span class="tab-label">Бренд</span></button>
     </div>
@@ -284,8 +288,6 @@
     </div>
     <!-- Settings -->
     <div id="adm-settings" class="admin-content"><div id="settings-list"></div></div>
-    <!-- Gateways -->
-    <div id="adm-gateways" class="admin-content"><div id="gateways-list"></div></div>
     <!-- Admin Tickets -->
     <div id="adm-tickets" class="admin-content">
         <div id="adm-tickets-list" class="ticket-list"></div>
@@ -632,6 +634,10 @@ function applyLocale(){
 /* ═══════════════════════════════════════
    INIT
    ═══════════════════════════════════════ */
+function initParticles(){
+    if(typeof particlesJS==='undefined')return;
+    particlesJS('particles-js',{particles:{number:{value:18,density:{enable:true,value_area:900}},color:{value:'#24C4F1'},shape:{type:'circle'},opacity:{value:0.15,random:true,anim:{enable:true,speed:0.4,opacity_min:0.05,sync:false}},size:{value:2.5,random:true},line_linked:{enable:true,distance:120,color:'#24C4F1',opacity:0.07,width:1},move:{enable:true,speed:0.6,direction:'none',random:true,straight:false,out_mode:'out',bounce:false}},interactivity:{detect_on:'canvas',events:{onhover:{enable:false},onclick:{enable:false},resize:true}},retina_detect:true});
+}
 async function init(){
     tg.ready(); tg.expand();
     try{tg.setHeaderColor('#080C14')}catch(e){}
@@ -655,6 +661,7 @@ async function init(){
         $('loading-screen').style.display='none';
         $('main-app').style.display='flex';
         if(IS_ADMIN) document.querySelectorAll('.admin-nav').forEach(e=>e.style.display='');
+        initParticles();
         render();
         applyLocale();
         // Start polling ticket status every 15 seconds
@@ -726,7 +733,11 @@ function render(){
     $('brand-name').textContent=BRAND.name||'VPN Shop';
     const sloganEl=$('brand-slogan');
     if(BRAND.slogan){sloganEl.textContent=BRAND.slogan;sloganEl.style.display=''}else{sloganEl.style.display='none'}
-    $('hdr-balance').textContent=D.user.balance+' '+(CURRENCY_SYMBOLS[D.default_currency]||'₽');
+    const _cs=CURRENCY_SYMBOLS[D.default_currency]||'\u20bd';
+    $('hdr-balance').innerHTML='<svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>'+D.user.balance+' '+_cs;
+    const _bm=D.features&&D.features.balance_mode;
+    const _rb=D.user.referral_balance||0;
+    if(_bm==='SEPARATE'){$('hdr-bonus').style.display='';$('hdr-bonus').innerHTML='<svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>'+_rb+' '+_cs}else{$('hdr-bonus').style.display='none'}
     renderSub(); renderConnect(); renderProfile(); renderSupport();
     // Trial button
     if(D.trial_available) $('btn-trial').style.display='';
@@ -990,7 +1001,7 @@ async function activatePromo(){
    ═══════════════════════════════════════ */
 function admTab(t){
     curAdmTab=t;
-    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','gateways','tickets','brand'][i]===t));
+    document.querySelectorAll('#adm-tabs .admin-tab').forEach((b,i)=>b.classList.toggle('active',['stats','users','plans','settings','tickets','brand'][i]===t));
     document.querySelectorAll('.admin-content').forEach(c=>c.classList.remove('active'));
     const el=$('adm-'+t);if(el)el.classList.add('active');
     loadAdm(t);
@@ -1000,7 +1011,6 @@ async function loadAdm(t){
     if(t==='users')await loadUsers();
     if(t==='plans')await loadAdmPlans();
     if(t==='settings')await loadSettings();
-    if(t==='gateways')await loadGateways();
     if(t==='tickets')await loadAdmTickets();
     if(t==='brand')loadBrandForm();
 }
@@ -1186,54 +1196,69 @@ async function savePlan(){
 /* ── Admin Settings ── */
 let settingsCache={};
 async function loadSettings(){
-    try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;settingsCache=await r.json();drawSettings()}catch(e){}
+    try{const r=await fetch(API+'/api/admin/settings');if(!r.ok)return;settingsCache=await r.json();
+    try{const gr=await fetch(API+'/api/admin/gateways');if(gr.ok)gatewaysCache=await gr.json()}catch(e){}
+    drawSettings()}catch(e){}
 }
 function drawSettings(){
     const s=settingsCache;
-    const sections=[
-        {title:'Функции',items:[
-            {key:'balance_enabled',icon:'💰',label:'Баланс',desc:'Пополнение и использование баланса',detail:'balance'},
-            {key:'community_enabled',icon:'💬',label:'Сообщество',desc:'Ссылка на Telegram-группу',detail:'community'},
-            {key:'tos_enabled',icon:'�',label:'Соглашение',desc:'Пользовательское соглашение',detail:'tos'},
-            {key:'referral_enabled',icon:'🤝',label:'Рефералы',desc:'Реферальная программа',detail:'referral'},
-            {key:'promocodes_enabled',icon:'🎁',label:'Промокоды',desc:'Активация промокодов'},
-            {key:'notifications_enabled',icon:'🔔',label:'Уведомления',desc:'Отправка уведомлений пользователям',detail:'notifications'},
-            {key:'extra_devices_enabled',icon:'📱',label:'Доп. устройства',desc:'Расширение лимита устройств',detail:'extra_devices'},
-            {key:'transfers_enabled',icon:'💸',label:'Переводы',desc:'Переводы баланса между пользователями',detail:'transfers'},
-            {key:'global_discount_enabled',icon:'🏷',label:'Глобальная скидка',desc:'Скидка на все тарифы',detail:'global_discount'},
-        ]},
-        {title:'Доступ',items:[
-            {key:'access_enabled',icon:'🔐',label:'Доступ',desc:'Глобальный доступ к боту'},
-            {key:'purchases_allowed',icon:'🛒',label:'Покупки',desc:'Разрешить покупку подписок'},
-            {key:'registration_allowed',icon:'📝',label:'Регистрация',desc:'Разрешить регистрацию новых пользователей'},
-            {key:'rules_required',icon:'📜',label:'Принятие правил',desc:'Требовать принятие условий при входе'},
-        ]},
-        {title:'Управление ботом',items:[
-            {key:'language_enabled',icon:'🌐',label:'Мультиязычность',desc:'Выбор языка интерфейса бота'},
-            {key:'access_mode',icon:'🔑',label:'Режим доступа',desc:s.access_mode||'PUBLIC',type:'select',options:['PUBLIC','PRIVATE','WHITELIST']},
-            {key:'default_currency',icon:'💱',label:'Валюта',desc:s.default_currency||'RUB',type:'select',options:['RUB','USD','EUR','XTR'],detail:'currency_rates'},
-            {key:'bot_locale',icon:'🗣',label:'Язык бота',desc:s.bot_locale||'RU',type:'select',options:['RU','EN','UK','DE']},
-        ]}
+    const mkToggle=(key,val,stopProp)=>{
+        const cls='toggle-switch'+(val?' active':'');
+        const sp=stopProp?'event.stopPropagation();':'';
+        return '<button class="'+cls+'" onclick="'+sp+'toggleSet(\''+key+'\','+(!val)+');this.classList.toggle(\'active\')"></button>';
+    };
+    const mkRow=(item)=>{
+        const val=s[item.key];
+        if(item.type==='select'){
+            return '<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="settings-chevron">'+esc(String(val))+' &#8250;</span></div>';
+        } else if(typeof val==='boolean'){
+            if(item.detail){
+                return '<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+item.detail+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div>'+mkToggle(item.key,val,true)+'</div>';
+            } else {
+                return '<div class="settings-row"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div>'+mkToggle(item.key,val,false)+'</div>';
+            }
+        } else {
+            return '<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+esc(String(val||'—'))+'</div></div></div><span class="settings-chevron">&#8250;</span></div>';
+        }
+    };
+    const funcItems=[
+        {key:'balance_enabled',icon:'💰',label:'Баланс',desc:'Пополнение и использование баланса',detail:'balance'},
+        {key:'referral_enabled',icon:'🤝',label:'Реф.система',desc:'Реферальная программа',detail:'referral'},
+        {key:'promocodes_enabled',icon:'🎁',label:'Промокоды',desc:'Активация промокодов'},
+        {key:'notifications_enabled',icon:'🔔',label:'Уведомления',desc:'Уведомления пользователей',detail:'notifications'},
+        {key:'extra_devices_enabled',icon:'📱',label:'Доп. устройства',desc:'Расширение лимита устройств',detail:'extra_devices'},
+        {key:'transfers_enabled',icon:'💸',label:'Переводы',desc:'Переводы баланса между пользователями',detail:'transfers'},
+        {key:'global_discount_enabled',icon:'🏷',label:'Глобальная скидка',desc:'Скидка на все тарифы',detail:'global_discount'},
+        {key:'community_enabled',icon:'💬',label:'Сообщество',desc:'Ссылка на Telegram-группу',detail:'community'},
+        {key:'tos_enabled',icon:'📄',label:'Соглашение',desc:'Пользовательское соглашение',detail:'tos'},
+        {key:'language_enabled',icon:'🌐',label:'Мультиязычность',desc:'Выбор языка интерфейса'},
+    ];
+    let gwRows='';
+    gatewaysCache.forEach(gw=>{
+        const label=GW_LABELS[gw.type]||gw.type;
+        const icon=GW_ICONS[gw.type]||'💳';
+        gwRows+='<div class="settings-row" onclick="openGatewayDetail('+gw.id+')"><div class="settings-row-left"><span class="settings-icon">'+icon+'</span><div><div class="settings-label">'+label+'</div><div class="settings-desc">'+gw.currency+' • '+(gw.is_active?'Активна':'Неактивна')+'</div></div></div><button class="toggle-switch '+(gw.is_active?'active':'')+'" onclick="event.stopPropagation();toggleGw('+gw.id+','+(!gw.is_active)+',this)"></button></div>';
+    });
+    if(!gatewaysCache.length) gwRows='<div class="settings-row"><div class="settings-row-left"><span class="settings-icon">💳</span><div><div class="settings-label">Нет платёжных систем</div><div class="settings-desc">Настройте в панели Remnawave</div></div></div></div>';
+    const botItems=[
+        {key:'access_mode',icon:'🔑',label:'Режим доступа',desc:s.access_mode||'PUBLIC',type:'select',detail:'access_mode'},
+        {key:'channel_required',icon:'📢',label:'Подписка на канал',desc:s.channel_link?'Канал: '+s.channel_link:'Не настроено',detail:'channel'},
+        {key:'rules_required',icon:'📜',label:'Принятие правил',desc:'Требовать принятие условий при входе',detail:'tos'},
+        {key:'purchases_allowed',icon:'🛒',label:'Разрешить покупки',desc:'Разрешить покупку подписок'},
+        {key:'registration_allowed',icon:'📝',label:'Разрешить регистрацию',desc:'Регистрация новых пользователей'},
+        {key:'default_currency',icon:'💱',label:'Валюта',desc:s.default_currency||'RUB',type:'select',detail:'currency_rates'},
+        {key:'bot_locale',icon:'🗣',label:'Язык бота',desc:s.bot_locale||'RU',type:'select',detail:'bot_locale'},
     ];
     let html='';
-    sections.forEach(sec=>{
-        html+='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding:0 4px">'+sec.title+'</div><div class="card" style="padding:0;overflow:hidden">';
-        sec.items.forEach(item=>{
-            const val=s[item.key];
-            if(item.type==='select'){
-                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="settings-chevron">'+esc(String(val))+' ›</span></div>';
-            } else if(typeof val==='boolean'){
-                if(item.detail){
-                    html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+item.detail+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="status-dot '+(val?'on':'off')+'" id="dot-'+item.key+'"></span></div>';
-                } else {
-                    html+='<div class="settings-row" onclick="toggleSet(\''+item.key+'\','+(!val)+',\'dot-'+item.key+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+item.desc+'</div></div></div><span class="status-dot '+(val?'on':'off')+'" id="dot-'+item.key+'"></span></div>';
-                }
-            } else {
-                html+='<div class="settings-row" onclick="openSettingDetail(\''+item.key+'\',\''+item.label+'\',\''+(item.detail||'')+'\')"><div class="settings-row-left"><span class="settings-icon">'+item.icon+'</span><div><div class="settings-label">'+item.label+'</div><div class="settings-desc">'+esc(String(val))+'</div></div></div><span class="settings-chevron">›</span></div>';
-            }
-        });
-        html+='</div>';
-    });
+    html+='<details class="spoiler-card settings-spoiler" open><summary><span class="spoiler-title">⚙️ Функционал</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    funcItems.forEach(item=>{html+=mkRow(item)});
+    html+='</div></details>';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">💳 Платёжные системы</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+=gwRows;
+    html+='</div></details>';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">🤖 Управление ботом</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    botItems.forEach(item=>{html+=mkRow(item)});
+    html+='</div></details>';
     $('settings-list').innerHTML=html;
 }
 let curDetailCtx=null;
@@ -1241,8 +1266,6 @@ function openSettingDetail(key,label,detail){
     curDetailCtx={key,label,detail};
     const s=settingsCache, val=s[key];
     let body='';
-
-    // Build detail sub-settings based on detail type
     if(detail==='balance'){
         const modes={SEPARATE:'Раздельно',COMBINED:'Объединённый'};
         body+='<div class="form-group"><label>Режим баланса</label><div style="display:flex;gap:6px;margin-top:4px">'+
@@ -1254,15 +1277,33 @@ function openSettingDetail(key,label,detail){
         body+='<div class="form-group"><label>URL сообщества</label><input class="form-input" id="sd-comm-url" value="'+esc(s.community_url||'')+'" placeholder="https://t.me/..."></div>'+
             '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({community_url:$(\'sd-comm-url\').value})">Сохранить</button>';
     } else if(detail==='referral'){
+        const lvlLabels={'1':'1-й уровень','2':'2-й уровень'};
+        const acLabels={'ON_EACH_PAYMENT':'За каждую оплату','ON_FIRST_PAYMENT':'За первую оплату'};
+        const rtLabels={'MONEY':'Деньги','EXTRA_DAYS':'Доп. дни'};
+        const rsLabels={'AMOUNT':'Фиксированная','PERCENT':'Процент'};
         body+='<div class="form-group"><label>Уровень</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            ['FIRST','SECOND','THIRD'].map(l=>'<button class="btn '+((s.referral_level||'FIRST')===l?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_level\',\''+l+'\')">'+l+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Стратегия начисления</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            ['ON_EACH_PAYMENT','ON_FIRST_PAYMENT'].map(v=>'<button class="btn btn-sm '+((s.referral_accrual_strategy||'ON_EACH_PAYMENT')===v?'btn-primary':'btn-secondary')+'" style="font-size:.7rem" onclick="saveSubSetting(\'referral_accrual_strategy\',\''+v+'\')">'+v.replace(/_/g,' ')+'</button>').join('')+'</div></div>';
+            Object.entries(lvlLabels).map(([k,v])=>'<button class="btn '+((String(s.referral_level)==k)?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_level\','+k+')">'+v+'</button>').join('')+'</div></div>'+
+            '<div class="form-group"><label>Тип награды</label><div style="display:flex;gap:6px;margin-top:4px">'+
+            Object.entries(rtLabels).map(([k,v])=>'<button class="btn '+((s.referral_reward_type||'MONEY')===k?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_reward_type\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
+            '<div class="form-group"><label>Условия начисления</label><div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">'+
+            Object.entries(acLabels).map(([k,v])=>'<button class="btn '+((s.referral_accrual_strategy||'ON_EACH_PAYMENT')===k?'btn-primary':'btn-secondary')+' btn-sm" style="font-size:.74rem" onclick="saveSubSetting(\'referral_accrual_strategy\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
+            '<div class="form-group"><label>Форма начисления</label><div style="display:flex;gap:6px;margin-top:4px">'+
+            Object.entries(rsLabels).map(([k,v])=>'<button class="btn '+((s.referral_reward_strategy||'AMOUNT')===k?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_reward_strategy\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
+            '<div class="form-group"><label>Награда ('+(s.referral_reward_strategy==='PERCENT'?'%':(CURRENCY_SYMBOLS[s.default_currency]||'₽'))+')</label><input class="form-input" id="sd-ref-val" type="number" value="'+(s.referral_reward_value||10)+'"></div>'+
+            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSubSetting(\'referral_reward_value\',parseInt($(\'sd-ref-val\').value))">Сохранить награду</button>'+
+            '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px"><div class="form-group"><label>Текст приглашения</label><textarea class="form-input" id="sd-ref-msg" rows="3" style="resize:vertical">'+esc(s.referral_invite_message||'')+'</textarea></div>'+
+            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSubSetting(\'referral_invite_message\',$(\'sd-ref-msg\').value)">Сохранить текст</button></div>';
     } else if(detail==='notifications'){
-        body+='<div class="form-group"><label>Неактивные пользователи</label></div>'+
-            '<div class="toggle-row" style="margin-bottom:8px"><label>Уведомлять</label><button class="toggle-switch '+(s.inactive_notif_enabled?'active':'')+'" onclick="saveSubSetting(\'inactive_notif_enabled\','+(!s.inactive_notif_enabled)+');this.classList.toggle(\'active\')"></button></div>'+
-            '<div class="form-group"><label>Порог (часов)</label><input class="form-input" id="sd-inact-hrs" type="number" value="'+(s.inactive_notif_hours||24)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({inactive_notif_hours:parseInt($(\'sd-inact-hrs\').value)})">Сохранить</button>';
+        const unLabels={un_expires_3d:'Истекает через 3 дня',un_expires_2d:'Истекает через 2 дня',un_expires_1d:'Истекает через 1 день',un_expired:'Подписка истекла',un_limited:'Трафик исчерпан',un_expired_1d_ago:'Истекла 1 день назад',un_referral_attached:'Реферал присоединён',un_referral_reward:'Реферальная награда'};
+        const snLabels={sn_bot_lifetime:'Время работы бота',sn_bot_update:'Обновление бота',sn_user_registered:'Регистрация пользователя',sn_subscription:'Подписка',sn_extra_devices:'Доп. устройства',sn_promocode:'Промокод активирован',sn_trial:'Пробный период',sn_node_status:'Статус ноды',sn_user_connected:'Первое подключение',sn_user_hwid:'HWID пользователя',sn_billing:'Биллинг',sn_balance_transfer:'Перевод баланса'};
+        body+='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Пользовательские</div>';
+        Object.entries(unLabels).forEach(([k,v])=>{
+            body+='<div class="toggle-row"><label>'+v+'</label><button class="toggle-switch '+(s[k]?'active':'')+'" onclick="saveSubSetting(\''+k+'\','+(!s[k])+');this.classList.toggle(\'active\')"></button></div>';
+        });
+        body+='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px">Системные</div>';
+        Object.entries(snLabels).forEach(([k,v])=>{
+            body+='<div class="toggle-row"><label>'+v+'</label><button class="toggle-switch '+(s[k]?'active':'')+'" onclick="saveSubSetting(\''+k+'\','+(!s[k])+');this.classList.toggle(\'active\')"></button></div>';
+        });
     } else if(detail==='extra_devices'){
         body+='<div class="form-group"><label>Цена за устройство</label><input class="form-input" id="sd-ed-price" type="number" value="'+(s.extra_devices_price||100)+'"></div>'+
             '<div class="toggle-row" style="margin-bottom:8px"><label>Единоразовая оплата</label><button class="toggle-switch '+(s.extra_devices_one_time?'active':'')+'" onclick="saveSubSetting(\'extra_devices_one_time\','+(!s.extra_devices_one_time)+');this.classList.toggle(\'active\')"></button></div>'+
@@ -1280,9 +1321,12 @@ function openSettingDetail(key,label,detail){
             ['percent','fixed'].map(t=>'<button class="btn '+((s.global_discount_type||'percent')===t?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'global_discount_type\',\''+t+'\')">'+({percent:'Процент',fixed:'Фиксированная'}[t])+'</button>').join('')+'</div></div>'+
             '<div class="form-group"><label>Значение скидки</label><input class="form-input" id="sd-gd-val" type="number" value="'+(s.global_discount_value||0)+'"></div>'+
             '<div class="toggle-row" style="margin-bottom:8px"><label>Складывать скидки</label><button class="toggle-switch '+(s.global_discount_stack?'active':'')+'" onclick="saveSubSetting(\'global_discount_stack\','+(!s.global_discount_stack)+');this.classList.toggle(\'active\')"></button></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({global_discount_value:parseInt($(\'sd-gd-val\').value)})">Сохранить</button>';
+            '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Применять к</div>'+
+            '<div class="toggle-row"><label>Подписки</label><button class="toggle-switch '+(s.global_discount_apply_sub?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_sub\','+(!s.global_discount_apply_sub)+');this.classList.toggle(\'active\')"></button></div>'+
+            '<div class="toggle-row"><label>Доп. устройства</label><button class="toggle-switch '+(s.global_discount_apply_devices?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_devices\','+(!s.global_discount_apply_devices)+');this.classList.toggle(\'active\')"></button></div>'+
+            '<div class="toggle-row"><label>Комиссия переводов</label><button class="toggle-switch '+(s.global_discount_apply_transfer?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_transfer\','+(!s.global_discount_apply_transfer)+');this.classList.toggle(\'active\')"></button></div></div>'+
+            '<button class="btn btn-primary btn-sm btn-full" style="margin-top:10px" onclick="saveMultiSub({global_discount_value:parseInt($(\'sd-gd-val\').value)})">Сохранить</button>';
     } else if(detail==='currency_rates'){
-        // Show select for currency AND currency rates sub-settings
         const opts=['RUB','USD','EUR','XTR'];
         body+=opts.map(o=>'<button class="btn '+(String(val)===o?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\''+key+'\',\''+o+'\')">'+o+'</button>').join('');
         body+='<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px"><div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Курсы валют</div></div>'+
@@ -1294,17 +1338,21 @@ function openSettingDetail(key,label,detail){
     } else if(detail==='tos'){
         body+='<div class="form-group"><label>URL соглашения</label><input class="form-input" id="sd-tos-url" value="'+esc(s.tos_url||'')+'" placeholder="https://..."></div>'+
             '<button class="btn btn-primary btn-sm btn-full" onclick="saveSettingStr(\'tos_url\',$(\'sd-tos-url\').value)">Сохранить</button>';
+    } else if(detail==='access_mode'){
+        const amLabels={PUBLIC:'Публичный',INVITED:'По приглашению',RESTRICTED:'Ограниченный'};
+        body+=Object.entries(amLabels).map(([k,v])=>'<button class="btn '+(String(val)===k?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\'access_mode\',\''+k+'\')">'+v+'</button>').join('');
+    } else if(detail==='channel'){
+        body+='<div class="toggle-row" style="margin-bottom:12px"><label>Обязательная подписка</label><button class="toggle-switch '+(s.channel_required?'active':'')+'" onclick="saveSubSetting(\'channel_required\','+(!s.channel_required)+');this.classList.toggle(\'active\')"></button></div>'+
+            '<div class="form-group"><label>Ссылка на канал</label><input class="form-input" id="sd-ch-link" value="'+esc(s.channel_link||'')+'" placeholder="https://t.me/..."></div>'+
+            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSettingStr(\'channel_link\',$(\'sd-ch-link\').value)">Сохранить</button>';
+    } else if(detail==='bot_locale'){
+        const locLabels={RU:'Русский',EN:'English',UK:'Українська',DE:'Deutsch'};
+        body+=Object.entries(locLabels).map(([k,v])=>'<button class="btn '+(String(val)===k?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\'bot_locale\',\''+k+'\')">'+v+'</button>').join('');
     } else if(typeof val==='boolean'){
-        // Simple boolean without sub-settings — nothing extra
     } else {
-        const opts=key==='access_mode'?['PUBLIC','PRIVATE','WHITELIST']:key==='default_currency'?['RUB','USD','EUR','XTR']:key==='bot_locale'?['RU','EN','UK','DE']:[];
-        if(opts.length){
-            body+=opts.map(o=>'<button class="btn '+(String(val)===o?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\''+key+'\',\''+o+'\')">'+o+'</button>').join('');
-        } else {
-            body+='<div class="form-group"><label>Значение</label><input class="form-input" id="set-val" value="'+esc(String(val))+'"></div><button class="btn btn-primary btn-sm" onclick="saveSettingStr(\''+key+'\',$(\'set-val\').value)">Сохранить</button>';
-        }
+        body+='<div class="form-group"><label>Значение</label><input class="form-input" id="set-val" value="'+esc(String(val||''))+'"></div><button class="btn btn-primary btn-sm" onclick="saveSettingStr(\''+key+'\',$(\'set-val\').value)">Сохранить</button>';
     }
-    if(!body)return; // No detail panel needed (e.g. simple toggles like tos, promocodes)
+    if(!body)return;
     showModal('<h3>'+label+'</h3>'+body+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
 }
 async function saveSubSetting(k,v){
@@ -1339,18 +1387,7 @@ async function loadGateways(){
     try{const r=await fetch(API+'/api/admin/gateways');if(!r.ok)return;gatewaysCache=await r.json();drawGateways()}catch(e){}
 }
 function drawGateways(){
-    let html='<div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding:0 4px">Платёжные системы</div>';
-    html+='<div class="card" style="padding:0;overflow:hidden">';
-    gatewaysCache.forEach(gw=>{
-        const label=GW_LABELS[gw.type]||gw.type;
-        const icon=GW_ICONS[gw.type]||'💳';
-        html+='<div class="settings-row" onclick="openGatewayDetail('+gw.id+')">';
-        html+='<div class="settings-row-left"><span class="settings-icon">'+icon+'</span><div><div class="settings-label">'+label+'</div><div class="settings-desc">'+gw.currency+' • '+(gw.is_active?'Активна':'Неактивна')+'</div></div></div>';
-        html+='<button class="toggle-switch '+(gw.is_active?'active':'')+'" onclick="event.stopPropagation();toggleGw('+gw.id+','+(!gw.is_active)+',this)"></button>';
-        html+='</div>';
-    });
-    html+='</div>';
-    $('gateways-list').innerHTML=html;
+    drawSettings();
 }
 async function toggleGw(id,v,btn){
     try{const r=await fetch(API+'/api/admin/gateways/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_active:v})});
@@ -1453,6 +1490,7 @@ async function createTicket(){
 }
 
 /* ── Tickets (Admin) ── */
+const TICKET_STATUS_LABELS={OPEN:'Открыт',ANSWERED:'Отвечен',CLOSED:'Закрыт',open:'Открыт',answered:'Отвечен',closed:'Закрыт'};
 let admTicketsCache=[];
 async function loadAdmTickets(){
     try{const r=await fetch(API+'/api/admin/tickets');if(!r.ok)return;admTicketsCache=await r.json();
@@ -1460,12 +1498,19 @@ async function loadAdmTickets(){
     if(!admTicketsCache.length){el.innerHTML='<div class="empty-state">Нет тикетов</div>';return}
     el.innerHTML=admTicketsCache.map(t=>{
         const st=t.status.toLowerCase();
+        const stLabel=TICKET_STATUS_LABELS[t.status]||t.status;
         const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
-        return '<div class="ticket-item'+(t.is_read_by_admin?'':' unread')+'" onclick="openAdmTicket('+t.id+')">'+
-            '<div class="ticket-top"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+st+'</span></div>'+
-            '<div class="ticket-preview"><b>ID '+t.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
-            '<div class="ticket-date">'+t.updated_at+'</div></div>';
+        return '<div class="ticket-item'+(t.is_read_by_admin?'':' unread')+'">'+
+            '<div class="ticket-top" onclick="openAdmTicket('+t.id+')"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-preview" onclick="openAdmTicket('+t.id+')"><b>ID '+t.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
+            '<div class="ticket-bottom"><span class="ticket-date">'+t.updated_at+'</span>'+
+            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+t.id+')" title="Удалить тикет">🗑</button></div></div>';
     }).join('')}catch(e){}
+}
+async function delAdmTicket(id){
+    if(!confirm('Удалить тикет #'+id+'?'))return;
+    try{const r=await fetch(API+'/api/admin/tickets/'+id,{method:'DELETE'});
+    if(r.ok){toast('Тикет удалён');loadAdmTickets()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}
 }
 let admCurTicketId=null;
 async function openAdmTicket(id){
