@@ -48,16 +48,18 @@
     <!-- Subscription card -->
     <div class="card sub-card">
         <div class="sub-card-top">
+            <span class="sub-plan-name" id="sub-plan-name" style="display:none"></span>
             <span class="sub-badge sub-badge-none" id="sub-badge">—</span>
             <span class="sub-expire" id="sub-expire"></span>
         </div>
         <div class="sub-traffic" id="sub-traffic"></div>
+        <div class="sub-remaining" id="sub-remaining"></div>
     </div>
 
     <!-- Actions -->
     <div class="action-pills">
         <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
-        <button class="pill pill-gold" onclick="openPayment()">💳&nbsp; Оплатить</button>
+        <button class="pill pill-gold" id="btn-pay" onclick="openPayment()">💳&nbsp; Оплатить</button>
         <button class="pill pill-cyan" onclick="go('connect')">⊙&nbsp; Подключиться</button>
         <div class="pill-row">
             <button class="pill pill-outline" onclick="go('promo')">🎁 Промокоды</button>
@@ -221,28 +223,42 @@
         <button class="btn-back" onclick="go('home')">‹</button>
         <h2 class="page-title">Профиль</h2>
     </div>
+    <!-- Section: Your Profile -->
     <div class="card">
+        <div class="card-title">👤 Ваш профиль</div>
+        <div class="card-row"><span class="card-label">ID</span><span class="card-value" id="pr-tid">—</span></div>
         <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="pr-name">—</span></div>
         <div class="card-row"><span class="card-label">Telegram</span><span class="card-value" id="pr-uname">—</span></div>
-        <div class="card-row"><span class="card-label">ID</span><span class="card-value" id="pr-tid">—</span></div>
-        <div class="card-row"><span class="card-label"><svg class="bal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>Баланс</span><span class="card-value" id="pr-balance">—</span></div>
-        <div class="card-row" id="pr-bonus-row" style="display:none"><span class="card-label"><svg class="bal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>Бонусный</span><span class="card-value" id="pr-bonus">—</span></div>
         <div class="card-row"><span class="card-label">Роль</span><span class="card-value" id="pr-role">—</span></div>
+        <div class="card-row" id="pr-refcode-row" style="display:none"><span class="card-label">Реф. код</span><span class="card-value" id="pr-refcode">—</span></div>
     </div>
-    <!-- Balance -->
+    <!-- Section: Balance -->
     <div class="card" id="balance-card" style="display:none">
         <div class="card-title">💰 Баланс</div>
-        <div class="action-pills">
-            <button class="pill pill-gold" onclick="topupBalance()">Пополнить</button>
+        <div class="profile-balance-grid">
+            <div class="profile-balance-item">
+                <div class="profile-balance-label">Основной</div>
+                <div class="profile-balance-value" id="pr-balance">0 ₽</div>
+            </div>
+            <div class="profile-balance-item" id="pr-bonus-item" style="display:none">
+                <div class="profile-balance-label">Бонусный</div>
+                <div class="profile-balance-value profile-balance-bonus" id="pr-bonus">0 ₽</div>
+            </div>
+        </div>
+        <div class="profile-balance-actions">
+            <button class="pill pill-gold pill-sm" onclick="topupBalance()">Пополнить</button>
+            <button class="pill pill-outline pill-sm" id="btn-get-bonus" onclick="showBonusInfo()" style="display:none">Получить</button>
         </div>
     </div>
-    <!-- Referral -->
+    <!-- Section: Referral System -->
     <div class="card" id="ref-card" style="display:none">
-        <div class="card-title">🤝 Пригласить друга</div>
+        <div class="card-title">🤝 Реферальная система</div>
+        <div class="ref-stats-grid" id="ref-stats"></div>
         <div class="ref-box">
             <code id="ref-link">—</code>
             <button class="btn btn-primary btn-sm btn-full" onclick="copyRef()" style="margin-top:4px">Скопировать ссылку</button>
         </div>
+        <button class="pill pill-cyan btn-full" id="btn-invite" onclick="inviteFriend()" style="margin-top:10px;justify-content:center">🔗 Пригласить друга</button>
     </div>
 </section>
 
@@ -544,10 +560,16 @@ function applyLocale(){
     const hp=$('p-home');
     if(hp){
         const trial=$('btn-trial');if(trial)trial.innerHTML='🎁&nbsp; '+t('trial');
+        const payBtn=$('btn-pay');
+        if(payBtn){
+            // Dynamic: if no sub, show "plans"; if sub, show "buy"
+            const hasSub=D&&D.subscription&&D.subscription.status;
+            if(!hasSub){payBtn.innerHTML='📋&nbsp; '+t('plans')}
+            else{payBtn.innerHTML='💳&nbsp; '+t('buy')}
+        }
         const pills=hp.querySelectorAll('.pill');
         pills.forEach(p=>{
             const oc=p.getAttribute('onclick')||'';
-            if(oc.includes('openPayment')) p.innerHTML='💳&nbsp; '+t('buy');
             if(oc.includes("go('connect')")) p.innerHTML='⊙&nbsp; '+t('connect');
             if(oc.includes("go('promo')")) p.innerHTML='🎁 '+t('promo');
             if(oc.includes("go('devices')")) p.innerHTML='📱 '+t('devices');
@@ -619,13 +641,14 @@ function applyLocale(){
     const pf=$('p-profile');
     if(pf){
         const labels=pf.querySelectorAll('.card-label');
-        if(labels[0])labels[0].textContent=t('name');
-        if(labels[1])labels[1].textContent=t('telegram');
-        if(labels[2])labels[2].textContent='ID';
-        if(labels[3])labels[3].textContent=t('balance');
-        if(labels[4])labels[4].textContent=t('role');
+        // New profile layout: ID, Имя, Telegram, Роль, Реф.код
+        if(labels[0])labels[0].textContent='ID';
+        if(labels[1])labels[1].textContent=t('name');
+        if(labels[2])labels[2].textContent=t('telegram');
+        if(labels[3])labels[3].textContent=t('role');
         const cardTitles=pf.querySelectorAll('.card-title');
         cardTitles.forEach(ct=>{
+            if(ct.textContent.includes('👤'))ct.textContent='👤 '+t('profile');
             if(ct.textContent.includes('💰'))ct.textContent='💰 '+t('balance');
             if(ct.textContent.includes('🤝'))ct.textContent='🤝 '+t('invite_friend');
         });
@@ -633,6 +656,7 @@ function applyLocale(){
         pfPills.forEach(p=>{
             if((p.getAttribute('onclick')||'').includes('topupBalance'))p.textContent=t('topup');
             if((p.getAttribute('onclick')||'').includes('copyRef'))p.textContent=t('copy_link');
+            if((p.getAttribute('onclick')||'').includes('inviteFriend'))p.textContent='🔗 '+t('invite_friend');
         });
     }
 }
@@ -773,30 +797,55 @@ function render(){
 }
 
 function renderSub(){
-    const s=D.subscription, b=$('sub-badge'), e=$('sub-expire'), tr=$('sub-traffic');
+    const s=D.subscription, b=$('sub-badge'), e=$('sub-expire'), tr=$('sub-traffic'), pn=$('sub-plan-name'), rm=$('sub-remaining'), payBtn=$('btn-pay');
     if(!s||!s.status){
-        b.textContent=t('no_sub');b.className='sub-badge sub-badge-none';
-        e.textContent='';tr.innerHTML='';return;
+        pn.style.display='none';
+        b.textContent=t('no_active_sub');b.className='sub-badge sub-badge-none';
+        e.textContent='';tr.innerHTML='';rm.innerHTML='';
+        // Change button to "Тарифы"
+        if(payBtn){payBtn.innerHTML='📋&nbsp; '+t('plans');payBtn.onclick=()=>go('plans');payBtn.className='pill pill-cyan'}
+        return;
     }
+    // Show plan name in green
+    if(s.plan && s.plan.name){pn.textContent=s.plan.name;pn.style.display=''}else{pn.style.display='none'}
     if(s.is_trial){b.textContent=t('trial_period');b.className='sub-badge sub-badge-trial'}
     else if(s.status==='ACTIVE'){b.textContent=t('active');b.className='sub-badge sub-badge-active'}
     else if(s.status==='EXPIRED'){b.textContent=t('expired');b.className='sub-badge sub-badge-expired'}
     else{b.textContent=s.status;b.className='sub-badge sub-badge-none'}
     e.innerHTML=s.expire_at?'📅 '+t('to_date')+' '+s.expire_at:'';
+    // Remaining time with days + hours
     if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
-        const daysLeft=Math.ceil((new Date(s.expire_at)-new Date())/(1000*60*60*24));
-        if(daysLeft>=0) e.innerHTML+='<div style="font-size:.76rem;color:var(--text3);margin-top:2px">'+t('remains')+' '+daysLeft+' '+ pluralDays(daysLeft)+'</div>';
-    }
+        const diff=new Date(s.expire_at)-new Date();
+        if(diff>0){
+            const daysLeft=Math.floor(diff/(1000*60*60*24));
+            const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+            rm.innerHTML='<span class="sub-remaining-text">'+t('remains')+' '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft)+'</span>';
+        } else {rm.innerHTML=''}
+    } else {rm.innerHTML=''}
     const tl=s.traffic_limit? s.traffic_limit+' GB':'∞';
     tr.innerHTML=t('traffic')+' <b>0 B / '+tl+'</b>';
+    // Restore pay button
+    if(payBtn){payBtn.innerHTML='💳&nbsp; '+t('buy');payBtn.onclick=()=>openPayment();payBtn.className='pill pill-gold'}
 }
 
 function renderPlans(){
     const el=$('plans-list'), dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
     if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>'+t('no_plans')+'</h3></div>';return}
-    // Find base price-per-day for discount calc
-    let basePpd=null;
-    D.plans.forEach(p=>{
+
+    el.innerHTML=D.plans.map((p,idx)=>{
+        // Find min price for "от X Р" display
+        let minPrice=null;
+        (p.durations||[]).forEach(d=>{
+            const pr=findPrice(d,dc);
+            if(pr!==null&&(minPrice===null||pr<minPrice))minPrice=pr;
+        });
+        const priceText=minPrice!==null?('от '+minPrice+' '+sym):'';
+        const desc=p.description||'';
+        const trafficText=(p.traffic_limit||'∞')+' GB';
+        const devicesText=(p.device_limit||'∞')+' '+t('dev_short');
+
+        // Find base ppd for savings
+        let basePpd=null;
         (p.durations||[]).forEach(d=>{
             const pr=findPrice(d,dc);
             if(pr!==null && d.days>0){
@@ -804,22 +853,73 @@ function renderPlans(){
                 if(basePpd===null||d.days<=(basePpd.days||9999)){basePpd={ppd,days:d.days}}
             }
         });
-    });
 
-    el.innerHTML=D.plans.map(p=>{
-        const durs=(p.durations||[]).map(d=>{
+        const dursHtml=(p.durations||[]).map(d=>{
             const pr=findPrice(d,dc);
             if(pr===null) return '';
             let savingsHtml='';
             if(basePpd && d.days>basePpd.days && pr>0){
                 const ppd=pr/d.days;
                 const pct=Math.round((1-ppd/basePpd.ppd)*100);
-                if(pct>0) savingsHtml='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
+                if(pct>0) savingsHtml='<span class="plan-savings-badge">-'+pct+'%</span>';
             }
-            return '<div class="plan-duration"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+' '+savingsHtml+'</span></div>';
+            return '<div class="plan-dur-item" onclick="event.stopPropagation();showPaymentMethodPopup('+p.id+','+d.days+','+pr+')"><span class="plan-dur-period">'+fmtDays(d.days)+'</span><span class="plan-dur-price">'+pr+' '+sym+'</span>'+savingsHtml+'</div>';
         }).join('');
-        return '<div class="card plan-card" onclick="selectPlan('+p.id+')"><h3 class="plan-name">'+esc(p.name)+'</h3><div class="plan-info"><span>📦 '+(p.traffic_limit||'∞')+' GB</span><span>📱 '+(p.device_limit||'∞')+' '+t('dev_short')+'</span></div><div class="plan-durations">'+durs+'</div><button class="plan-buy-btn" onclick="event.stopPropagation();selectPlan('+p.id+')">'+t('select_plan')+'</button></div>';
+
+        return '<div class="card plan-card-new" onclick="togglePlanCard(this)">'+
+            '<div class="plan-card-header">'+
+                '<div class="plan-card-left">'+
+                    '<div class="plan-card-name">'+esc(p.name)+'</div>'+
+                    '<div class="plan-card-price">'+priceText+'</div>'+
+                '</div>'+
+                '<div class="plan-card-indicator">▼</div>'+
+            '</div>'+
+            (desc?'<div class="plan-card-desc">'+esc(desc)+'</div>':'')+
+            '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
+            '<div class="plan-card-body">'+
+                '<div class="plan-card-durations">'+dursHtml+'</div>'+
+            '</div>'+
+            '<div class="plan-card-collapse" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▲</div>'+
+        '</div>';
     }).join('');
+}
+function togglePlanCard(card){
+    const isOpen=card.classList.contains('open');
+    // Close all other cards
+    document.querySelectorAll('.plan-card-new.open').forEach(c=>{if(c!==card)c.classList.remove('open')});
+    card.classList.toggle('open',!isOpen);
+}
+function showPaymentMethodPopup(planId,days,price){
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const gateways=D.available_gateways||[];
+    let note='';
+    if(D.subscription&&D.subscription.status==='ACTIVE'){
+        note='<p style="color:var(--gold);font-size:.8rem;margin-bottom:12px">⚠️ '+t('active_sub_note')+'</p>';
+    }
+    // Balance option always available
+    let methods='<div class="pay-method" onclick="closeModal();confirmPurchase('+planId+','+days+','+price+')"><span class="pay-method-icon">💰</span><span class="pay-method-name">'+t('balance')+'</span><span class="pay-method-amount">'+D.user.balance+' '+sym+'</span></div>';
+    // Other gateways
+    gateways.forEach(gw=>{
+        const label=GW_LABELS[gw.type]||gw.type;
+        const icon=GW_ICONS[gw.type]||'💳';
+        methods+='<div class="pay-method" onclick="closeModal();payViaGateway('+planId+','+days+',\''+gw.type+'\')"><span class="pay-method-icon">'+icon+'</span><span class="pay-method-name">'+label+'</span></div>';
+    });
+    showModal('<h3>'+t('select_plan')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:4px">'+fmtDays(days)+' — <b>'+price+' '+sym+'</b></p>'+note+'<div class="pay-methods-list">'+methods+'</div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button></div>');
+}
+async function payViaGateway(planId,days,gwType){
+    showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">'+t('processing')+'</p></div>');
+    try{
+        const r=await fetch(API+'/api/purchase',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan_id:planId,duration_days:days,gateway:gwType})});
+        closeModal();
+        if(r.ok){
+            const j=await r.json();
+            if(j.payment_url)openLink(j.payment_url);
+            else{toast(t('sub_done')+' ✅');const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}}
+        } else {
+            try{const j=await r.json();toast(j.detail||t('purchase_error'),'error')}
+            catch(e2){toast(t('purchase_error')+' ('+r.status+')','error')}
+        }
+    }catch(e){closeModal();toast(e.message||t('net_error'),'error')}
 }
 
 function findPrice(dur,currency){
@@ -854,19 +954,55 @@ function renderProfile(){
     $('pr-name').textContent=u.name||'—';
     $('pr-uname').textContent=u.username?'@'+u.username:'—';
     $('pr-tid').textContent=u.telegram_id;
+    const rm={USER:t('user_role'),ADMIN:t('admin_role'),DEV:t('dev_role')};
+    $('pr-role').textContent=rm[u.role]||u.role;
+    // Referral code
+    if(D.features&&D.features.referral_enabled!==false){
+        $('pr-refcode-row').style.display='';
+        $('pr-refcode').textContent='ref_'+u.telegram_id;
+    }
+    // Balance section
     $('pr-balance').textContent=u.balance+' '+sym;
     const bm=D.features&&D.features.balance_mode;
     const rb=u.referral_balance||0;
-    if(bm==='SEPARATE'&&rb>0){$('pr-bonus-row').style.display='';$('pr-bonus').textContent=rb+' '+sym;}
-    else{$('pr-bonus-row').style.display='none';}
-    const rm={USER:t('user_role'),ADMIN:t('admin_role'),DEV:t('dev_role')};
-    $('pr-role').textContent=rm[u.role]||u.role;
+    if(bm==='SEPARATE'){
+        $('pr-bonus-item').style.display='';
+        $('pr-bonus').textContent=rb+' '+sym;
+        $('btn-get-bonus').style.display='';
+    } else {
+        $('pr-bonus-item').style.display='none';
+        $('btn-get-bonus').style.display='none';
+    }
     if(D.features&&D.features.balance_enabled!==false) $('balance-card').style.display='';
+    // Referral section
     if(D.features&&D.features.referral_enabled!==false){
         $('ref-card').style.display='';
         const bot=D.bot_username||'bot';
         $('ref-link').textContent='https://t.me/'+bot+'?start=ref_'+u.telegram_id;
+        // Referral stats
+        const rs=D.referral_stats||{};
+        const statsEl=$('ref-stats');
+        statsEl.innerHTML=
+            '<div class="ref-stat-item"><div class="ref-stat-value">'+(rs.invited_count||0)+'</div><div class="ref-stat-label">Приглашено</div></div>'+
+            '<div class="ref-stat-item"><div class="ref-stat-value">'+(rs.payments_count||0)+'</div><div class="ref-stat-label">Оплат</div></div>'+
+            '<div class="ref-stat-item"><div class="ref-stat-value">'+(rs.total_bonus||0)+' '+sym+'</div><div class="ref-stat-label">Начислено</div></div>';
     }
+}
+function showBonusInfo(){
+    const bot=D.bot_username||'bot';
+    const refLink='https://t.me/'+bot+'?start=ref_'+D.user.telegram_id;
+    showModal('<h3>Бонусный баланс</h3>'+
+        '<p style="color:var(--text2);font-size:.84rem;margin-bottom:12px">Бонусный баланс начисляется за приглашение друзей через реферальную ссылку.</p>'+
+        '<div class="ref-box" style="margin-bottom:12px"><code>'+esc(refLink)+'</code></div>'+
+        '<div class="modal-actions" style="flex-direction:column;gap:8px">'+
+        '<button class="btn btn-primary btn-full" onclick="closeModal();inviteFriend()">🔗 Пригласить друга</button>'+
+        '<button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div>');
+}
+function inviteFriend(){
+    const bot=D.bot_username||'bot';
+    const refLink='https://t.me/'+bot+'?start=ref_'+D.user.telegram_id;
+    const text=encodeURIComponent('Попробуй этот VPN! '+refLink);
+    tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+text);
 }
 
 function renderSupport(){
@@ -971,7 +1107,7 @@ async function startTrial(){
         closeModal();
         if(r.ok){
             toast(t('trial_done')+' ✅','success');
-            showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">✅</div><h3 style="margin-top:12px;color:var(--green)">'+t('trial_done')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('trial_go_connect')+'</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();go(\'connect\')">'+t('setup')+'</button><button class="btn btn-secondary" onclick="closeModal()">'+t('close')+'</button></div></div>');
+            showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">✅</div><h3 style="margin-top:12px;color:var(--green)">'+t('trial_done')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('trial_go_connect')+'</p><div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:14px"><button class="btn btn-primary btn-full" onclick="closeModal();openLink(getDownloadUrl())">📥 '+t('download')+'</button><button class="btn btn-primary btn-full" style="background:linear-gradient(135deg,var(--cyan),#1AA3CC)" onclick="closeModal();go(\'connect\')">⊙ '+t('connect')+'</button><button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div></div>');
             const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
         } else {
             const j=await r.json();toast(j.detail||t('error'),'error');
@@ -1577,6 +1713,28 @@ function pluralDays(n){
     if(CUR_LOCALE==='DE')return n===1?'Tag':'Tage';
     if(CUR_LOCALE==='UK'){const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return 'днів';if(b>1&&b<5)return 'дні';if(b===1)return 'день';return 'днів'}
     const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return 'дней';if(b>1&&b<5)return 'дня';if(b===1)return 'день';return 'дней'
+}
+function pluralHours(n){
+    if(CUR_LOCALE==='EN')return n===1?'hour':'hours';
+    if(CUR_LOCALE==='DE')return n===1?'Stunde':'Stunden';
+    if(CUR_LOCALE==='UK'){const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return 'годин';if(b>1&&b<5)return 'години';if(b===1)return 'годину';return 'годин'}
+    const a=Math.abs(n)%100,b=a%10;if(a>10&&a<20)return 'часов';if(b>1&&b<5)return 'часа';if(b===1)return 'час';return 'часов'
+}
+function detectOS(){
+    const ua=navigator.userAgent||'',p=navigator.platform||'';
+    if(/Win/i.test(p))return 'windows';
+    if(/Mac/i.test(p)&&!/iPhone|iPad/.test(ua))return 'macos';
+    if(/Android/i.test(ua))return 'android';
+    if(/iPhone|iPad|iPod/i.test(ua))return 'ios';
+    return 'unknown';
+}
+function getDownloadUrl(){
+    const os=detectOS();
+    if(os==='windows')return 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe';
+    if(os==='macos')return 'https://github.com/Happ-proxy/happ-desktop/releases/';
+    if(os==='android')return 'https://play.google.com/store/apps/details?id=com.happproxy';
+    if(os==='ios')return 'https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973';
+    return 'https://github.com/Happ-proxy/happ-desktop/releases/';
 }
 
 init();

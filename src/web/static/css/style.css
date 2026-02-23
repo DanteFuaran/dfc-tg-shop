@@ -209,9 +209,12 @@ a{color:var(--cyan);text-decoration:none}
 .sub-badge-trial{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan-border)}
 .sub-badge-expired{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,79,95,.25)}
 .sub-badge-none{background:rgba(85,102,122,.12);color:var(--text3);border:1px solid rgba(85,102,122,.25)}
+.sub-plan-name{font-size:1rem;font-weight:700;color:var(--green);display:block;margin-bottom:4px}
 .sub-expire{font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:4px}
 .sub-traffic{font-size:.82rem;color:var(--text2);margin-top:2px}
 .sub-traffic b{color:var(--text);font-weight:600}
+.sub-remaining{margin-top:4px}
+.sub-remaining-text{font-size:.76rem;color:var(--text3);font-weight:500}
 
 .card-row{
     display:flex;justify-content:space-between;align-items:center;
@@ -229,9 +232,59 @@ a{color:var(--cyan);text-decoration:none}
 .action-pills{display:flex;flex-direction:column;gap:10px;margin-top:14px}
 
 /* ══════════════════════════════════════════════
-   PLANS
+   PLANS (NEW ACCORDION CARDS)
    ══════════════════════════════════════════════ */
 .plans-list{display:flex;flex-direction:column;gap:12px}
+.plan-card-new{
+    position:relative;overflow:hidden;cursor:pointer;
+    background:linear-gradient(135deg,rgba(245,200,66,.03),rgba(245,200,66,.01));
+    border-color:rgba(245,200,66,.1);
+    transition:border-color .3s,box-shadow .3s;
+}
+.plan-card-new:hover{border-color:rgba(245,200,66,.25);box-shadow:0 0 20px rgba(245,200,66,.06)}
+.plan-card-header{display:flex;justify-content:space-between;align-items:center}
+.plan-card-left{flex:1;min-width:0}
+.plan-card-name{font-size:1.05rem;font-weight:700;color:var(--gold);margin-bottom:2px}
+.plan-card-price{font-size:.88rem;font-weight:600;color:var(--green)}
+.plan-card-indicator{
+    color:var(--gold);font-size:.7rem;opacity:.6;
+    transition:transform .3s,opacity .3s;flex-shrink:0;
+}
+.plan-card-new.open .plan-card-indicator{transform:rotate(180deg);opacity:0}
+.plan-card-desc{font-size:.78rem;color:var(--text3);margin-top:6px;line-height:1.4}
+.plan-card-meta{display:flex;gap:16px;margin-top:8px;font-size:.78rem;color:var(--text2)}
+.plan-card-body{
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s,margin .3s;
+    margin-top:0;
+}
+.plan-card-new.open .plan-card-body{max-height:500px;opacity:1;margin-top:12px}
+.plan-card-durations{display:flex;flex-direction:column;gap:6px}
+.plan-dur-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;background:rgba(0,0,0,.2);border-radius:8px;
+    border:1px solid var(--border);cursor:pointer;
+    transition:all .2s;
+}
+.plan-dur-item:hover{border-color:var(--cyan-border);background:rgba(36,196,241,.04)}
+.plan-dur-item:active{transform:scale(.98)}
+.plan-dur-period{color:var(--text2);min-width:55px;font-weight:500;font-size:.84rem}
+.plan-dur-price{font-weight:700;color:var(--cyan);font-size:.84rem;flex:1}
+.plan-savings-badge{
+    padding:2px 8px;border-radius:50px;
+    font-size:.68rem;font-weight:700;
+    background:var(--green-dim);color:var(--green);border:1px solid rgba(25,195,125,.25);
+    flex-shrink:0;
+}
+.plan-card-collapse{
+    text-align:center;color:var(--text3);font-size:.7rem;
+    padding-top:8px;opacity:0;max-height:0;overflow:hidden;
+    transition:opacity .2s,max-height .3s;cursor:pointer;
+}
+.plan-card-new.open .plan-card-collapse{opacity:.5;max-height:30px}
+.plan-card-collapse:hover{opacity:1!important}
+
+/* ── Old plan-card (keep for admin) ── */
 .plan-card{
     position:relative;overflow:hidden;
     background:linear-gradient(135deg,rgba(36,196,241,.04),rgba(26,163,204,.015));
@@ -564,6 +617,44 @@ a{color:var(--cyan);text-decoration:none}
     position:relative;z-index:1;
 }
 .loading-screen p{color:var(--text3);font-size:.86rem}
+
+/* ══════════════════════════════════════════════
+   PROFILE (enhanced)
+   ══════════════════════════════════════════════ */
+.profile-balance-grid{display:flex;gap:12px;margin-bottom:12px}
+.profile-balance-item{
+    flex:1;padding:12px;background:rgba(0,0,0,.2);border-radius:var(--r-sm);
+    border:1px solid var(--border);text-align:center;
+}
+.profile-balance-label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.profile-balance-value{font-size:1.15rem;font-weight:700;color:var(--cyan)}
+.profile-balance-bonus{color:var(--gold)}
+.profile-balance-actions{display:flex;gap:8px}
+.profile-balance-actions .pill{flex:1;justify-content:center}
+
+/* ── Referral stats ── */
+.ref-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ref-stat-item{
+    padding:10px 6px;background:rgba(0,0,0,.2);border-radius:var(--r-sm);
+    border:1px solid var(--border);text-align:center;
+}
+.ref-stat-value{font-size:1rem;font-weight:700;color:var(--cyan);line-height:1.2}
+.ref-stat-label{font-size:.66rem;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
+
+/* ══════════════════════════════════════════════
+   PAYMENT METHOD POPUP
+   ══════════════════════════════════════════════ */
+.pay-methods-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pay-method{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px;background:rgba(0,0,0,.2);border-radius:var(--r-sm);
+    border:1px solid var(--border);cursor:pointer;transition:all .2s;
+}
+.pay-method:hover{border-color:var(--cyan-border);background:rgba(36,196,241,.04)}
+.pay-method:active{transform:scale(.98)}
+.pay-method-icon{font-size:1.2rem;flex-shrink:0}
+.pay-method-name{font-size:.88rem;font-weight:600;color:var(--text);flex:1}
+.pay-method-amount{font-size:.82rem;color:var(--text2);font-weight:500}
 
 /* ══════════════════════════════════════════════
    ANIMATIONS
