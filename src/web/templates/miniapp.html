@@ -49,17 +49,31 @@
     <div class="card sub-card" id="sub-card">
         <!-- Active sub layout -->
         <div id="sub-active-layout" style="display:none">
-            <div class="sub-row-top">
+            <div class="sub-uid-row">
+                <span class="sub-info-label">ID пользователя</span>
+                <span class="sub-val-copy" id="sub-uid" onclick="copySubInfo(this)">—</span>
+            </div>
+            <div class="sub-uid-row" id="sub-ref-row" style="display:none">
+                <span class="sub-info-label">Реферальный код</span>
+                <span class="sub-val-copy" id="sub-refcode2" onclick="copySubInfo(this)">—</span>
+            </div>
+            <div class="sub-sep-line"></div>
+            <div class="sub-plan-hdr">
+                <span class="sub-label-sm">Тариф</span>
                 <span class="sub-plan-name" id="sub-plan-name">—</span>
-                <span class="sub-traffic" id="sub-traffic"></span>
             </div>
-            <div class="sub-row-meta">
-                <span class="sub-devices" id="sub-devices"></span>
+            <div class="sub-sep-line"></div>
+            <div class="sub-2col">
+                <div>
+                    <div class="sub-field"><span class="sub-lbl">До</span><span class="sub-val" id="sub-expire">—</span></div>
+                    <div class="sub-field"><span class="sub-lbl">Ост</span><span class="sub-val" id="sub-remaining">—</span></div>
+                </div>
+                <div>
+                    <div class="sub-field"><span class="sub-lbl">Трафик</span><span class="sub-val" id="sub-traffic">—</span></div>
+                    <div class="sub-field"><span class="sub-lbl">Устройства</span><span class="sub-val" id="sub-devices">—</span></div>
+                </div>
             </div>
-            <div class="sub-row-bottom">
-                <span class="sub-expire" id="sub-expire"></span>
-                <span class="sub-remaining" id="sub-remaining"></span>
-            </div>
+            <div class="sub-sep-line"></div>
             <div class="sub-actions-row">
                 <button class="sub-action-btn sub-action-renew" id="btn-renew" onclick="renewCurrentPlan()">Продлить</button>
                 <button class="sub-action-btn sub-action-change" id="btn-change" onclick="go('plans')">Сменить</button>
@@ -81,7 +95,6 @@
             <button class="pill pill-outline" onclick="go('devices')">📱 Мои устройства</button>
         </div>
         <button class="pill pill-outline" id="btn-invite-home" onclick="inviteFriend()" style="display:none">🔗 Пригласить друга</button>
-        <button class="pill pill-outline" id="btn-community-home" onclick="" style="display:none">💬 Сообщество</button>
     </div>
 </section>
 
@@ -817,21 +830,29 @@ function render(){
 function renderSub(){
     const s=D.subscription;
     const activeLayout=$('sub-active-layout'), emptyLayout=$('sub-empty-layout');
-    const pn=$('sub-plan-name'), tr=$('sub-traffic'), e=$('sub-expire'), rm=$('sub-remaining');
 
     if(!s||!s.status||s.status==='EXPIRED'){
-        // No subscription or expired
         activeLayout.style.display='none';
         emptyLayout.style.display='';
         $('sub-nosub-text').textContent=t('no_active_sub');
         return;
     }
 
-    // Active subscription
     activeLayout.style.display='';
     emptyLayout.style.display='none';
 
+    // User ID
+    const uidEl=$('sub-uid');
+    if(uidEl) uidEl.textContent=D.user.telegram_id;
+    // Referral code
+    const rcRow=$('sub-ref-row'), rcEl=$('sub-refcode2');
+    if(rcEl&&rcRow&&D.user&&D.user.referral_code){
+        rcRow.style.display='';
+        rcEl.textContent=D.user.referral_code;
+    } else if(rcRow) rcRow.style.display='none';
+
     // Plan name
+    const pn=$('sub-plan-name');
     const planLabel=s.is_trial?t('trial_period'):(s.plan_name||'—');
     pn.textContent=planLabel;
     pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
@@ -845,36 +866,37 @@ function renderSub(){
     } else {
         tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
     }
-    tr.innerHTML=t('traffic')+': <b>'+tl+'</b>';
+    const tr=$('sub-traffic');
+    if(tr) tr.textContent=tl;
 
     // Devices
     const dl=$('sub-devices');
     if(dl){
         const devLimit=s.device_limit||'∞';
         const devActive=(typeof s.active_devices_count==='number')?s.active_devices_count:null;
-        if(devActive!==null){
-            dl.innerHTML='📱 '+t('dev_short')+': <b>'+devActive+'</b> / '+devLimit;
-        } else {
-            dl.innerHTML='📱 '+t('dev_short')+': <b>'+devLimit+'</b>';
-        }
+        dl.textContent=(devActive!==null)?(devActive+' из '+devLimit):devLimit;
     }
 
-    // Expire date
-    e.innerHTML=s.expire_at?t('to_date')+' '+s.expire_at:'';
+    // Expire date — just date part (DD.MM.YYYY)
+    const e=$('sub-expire');
+    if(e) e.textContent=s.expire_at?s.expire_at.split(' ')[0]:'—';
 
     // Remaining time
-    if(s.expire_at && (s.status==='ACTIVE' || s.is_trial)){
-        const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
-        if(parts){
-            const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
-            const diff=expireDate-new Date();
-            if(diff>0){
-                const daysLeft=Math.floor(diff/(1000*60*60*24));
-                const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-                rm.innerHTML=t('remains')+': '+daysLeft+' '+pluralDays(daysLeft)+' '+hoursLeft+' '+pluralHours(hoursLeft);
-            } else {rm.innerHTML=''}
-        } else {rm.innerHTML=''}
-    } else {rm.innerHTML=''}
+    const rm=$('sub-remaining');
+    if(rm){
+        if(s.expire_at&&(s.status==='ACTIVE'||s.is_trial)){
+            const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
+            if(parts){
+                const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
+                const diff=expireDate-new Date();
+                if(diff>0){
+                    const daysLeft=Math.floor(diff/(1000*60*60*24));
+                    const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+                    rm.textContent=daysLeft+'д. '+hoursLeft+'ч.';
+                } else {rm.textContent='—'}
+            } else {rm.textContent='—'}
+        } else {rm.textContent='—'}
+    }
 
     // Show/hide renew (only for paid subs)
     if(s.is_trial){
@@ -887,26 +909,18 @@ function renderSub(){
 }
 
 function renderHomeExtras(){
-    // Community button on home + nav Группа button
+    // nav Группа button (community)
     const navComm=$('nav-community');
     if(D.features&&D.features.community_enabled&&D.features.community_url){
         const url=D.features.community_url;
-        const cb=$('btn-community-home');
-        cb.style.display='';
-        cb.onclick=()=>openLink(url);
-        if(navComm){
-            navComm.style.display='';
-            navComm.onclick=()=>openLink(url);
-        }
+        if(navComm){navComm.style.display='';navComm.onclick=()=>openLink(url);}
     } else {
         if(navComm) navComm.style.display='none';
     }
     // Invite button
     const ib=$('btn-invite-home');
-    if(D.features&&D.features.referral_enabled){
-        ib.style.display='';
-    } else {
-        ib.style.display='none';
+    if(ib){
+        ib.style.display=(D.features&&D.features.referral_enabled)?'':'none';
     }
 }
 
@@ -977,17 +991,31 @@ function showPaymentMethodPopup(planId,days,price){
     const gateways=D.available_gateways||[];
     let note='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
-        note='<p style="color:var(--gold);font-size:.8rem;margin-bottom:12px">⚠️ '+t('active_sub_note')+'</p>';
+        note='<p style="color:var(--gold);font-size:.8rem;margin:8px 0">⚠️ '+t('active_sub_note')+'</p>';
     }
-    // Balance option always available
-    let methods='<div class="pay-method" onclick="closeModal();confirmPurchase('+planId+','+days+','+price+')"><span class="pay-method-icon">💰</span><span class="pay-method-name">'+t('balance')+'</span><span class="pay-method-amount">'+D.user.balance+' '+sym+'</span></div>';
-    // Other gateways
+    let options='<option value="balance">💰 '+t('balance')+' ('+D.user.balance+' '+sym+')</option>';
     gateways.forEach(gw=>{
         const label=GW_LABELS[gw.type]||gw.type;
         const icon=GW_ICONS[gw.type]||'💳';
-        methods+='<div class="pay-method" onclick="closeModal();payViaGateway('+planId+','+days+',\''+gw.type+'\')"><span class="pay-method-icon">'+icon+'</span><span class="pay-method-name">'+label+'</span></div>';
+        options+='<option value="'+gw.type+'">'+icon+' '+label+'</option>';
     });
-    showModal('<h3>'+t('select_plan')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-bottom:4px">'+fmtDays(days)+' — <b>'+price+' '+sym+'</b></p>'+note+'<div class="pay-methods-list">'+methods+'</div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button></div>');
+    showModal(
+        '<h3>'+t('renew')+'</h3>'+
+        '<p style="color:var(--text2);font-size:.88rem;margin-bottom:4px">'+fmtDays(days)+' — <b style="color:var(--cyan)">'+price+' '+sym+'</b></p>'+
+        note+
+        '<div class="renew-pay-actions">'+
+            '<select class="pay-method-select" id="pm-sel">'+options+'</select>'+
+            '<button class="btn btn-primary" onclick="doPayment('+planId+','+days+','+price+')">'+t('buy')+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
+        '</div>',
+        'modal-renew'
+    );
+}
+function doPayment(planId,days,price){
+    const sel=$('pm-sel');
+    const method=sel?sel.value:'balance';
+    if(method==='balance') return confirmPurchase(planId,days,price);
+    payViaGateway(planId,days,method);
 }
 async function payViaGateway(planId,days,gwType){
     showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">'+t('processing')+'</p></div>');
@@ -1035,6 +1063,15 @@ function renderConnect(){
 function copyValue(el){
     const v=el.textContent;
     navigator.clipboard.writeText(v).then(()=>toast(t('copied'))).catch(()=>toast(t('error'),'error'));
+}
+function copySubInfo(el){
+    const v=(el.textContent||'').trim();
+    if(!v||v==='—') return;
+    navigator.clipboard.writeText(v).then(()=>{
+        const t2=$('toast');t2.textContent=t('copied');
+        t2.className='toast toast-center visible';
+        clearTimeout(t2._t);t2._t=setTimeout(()=>{t2.className='toast';},2500);
+    }).catch(()=>{});
 }
 function renderProfile(){
     const u=D.user, sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -1137,9 +1174,9 @@ function renewCurrentPlan(){
         if(basePpd && d.days>basePpd.days && pr>0){
             const ppd=pr/d.days;
             const pct=Math.round((1-ppd/basePpd.ppd)*100);
-            if(pct>0) savBadge='<span class="plan-savings" style="margin-left:auto">('+t('savings')+' '+pct+'%)</span>';
+            if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
         }
-        return '<div class="plan-duration" style="cursor:pointer;transition:all .2s" onclick="confirmPurchase('+plan.id+','+d.days+','+pr+')" onmouseover="this.style.borderColor=\'var(--cyan-border)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span>'+savBadge+'</div>';
+        return '<div class="plan-duration" onclick="showPaymentMethodPopup('+plan.id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
     }).join('');
     let trafficText;
     if(plan.type==='DEVICES') trafficText='Безлимитный';
@@ -1155,7 +1192,8 @@ function renewCurrentPlan(){
         '</div>'+
         '<p style="color:var(--text3);font-size:.82rem;margin:0 0 8px">'+t('select_period')+'</p>'+
         '<div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+
-        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button></div>'
+        '<div class="modal-actions"><button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button></div>',
+        'modal-renew'
     );
 }
 function selectPlan(id){
@@ -1176,16 +1214,16 @@ function selectPlan(id){
         if(basePpd && d.days>basePpd.days && pr>0){
             const ppd=pr/d.days;
             const pct=Math.round((1-ppd/basePpd.ppd)*100);
-            if(pct>0) savBadge='<span class="plan-savings" style="margin-left:auto">('+t('savings')+' '+pct+'%)</span>';
+            if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
         }
-        return '<div class="plan-duration" style="cursor:pointer;transition:all .2s" onclick="confirmPurchase('+id+','+d.days+','+pr+')" onmouseover="this.style.borderColor=\'var(--cyan-border)\'" onmouseout="this.style.borderColor=\'var(--border)\'"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span>'+savBadge+'</div>';
+        return '<div class="plan-duration" onclick="showPaymentMethodPopup('+id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
     }).join('');
     // Determine purchase note
     let purchaseNote='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
         purchaseNote='<p style="color:var(--gold);font-size:.8rem;margin-top:8px">⚠️ '+t('active_sub_note')+'</p>';
     }
-    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">'+t('select_period')+'</p><div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+purchaseNote+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button></div>');
+    showModal('<h3>'+esc(plan.name)+'</h3><p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">'+t('select_period')+'</p><div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+purchaseNote+'<div class="modal-actions"><button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button></div>','modal-renew');
 }
 async function confirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -1812,7 +1850,7 @@ async function saveBrand(){
    UTILS
    ═══════════════════════════════════════ */
 function toast(m,t){const e=$('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
-function showModal(h){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card">'+h+'</div></div>'}
+function showModal(h,cls){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card'+(cls?' '+cls:'')+'">'+(h)+'</div></div>'}
 function closeModal(){$('modal-root').innerHTML=''}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function pluralDays(n){
