@@ -348,6 +348,7 @@
         <h2 class="page-title" id="at-title">Тикет</h2>
     </div>
     <div id="at-chat" class="ticket-chat"></div>
+    <div id="at-status-bar" style="display:none;padding:10px 0"></div>
     <div id="at-reply" class="ticket-reply-box">
         <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
         <button class="ticket-send-btn" onclick="sendAdmTicketReply()">→</button>
@@ -382,7 +383,6 @@
 </nav>
 </div>
 
-<button class="ticket-fab" id="ticket-fab" onclick="go('tickets')" title="Обращения">💬<span class="fab-badge" id="fab-badge"></span></button>
 <div id="modal-root"></div>
 <div id="toast" class="toast"></div>
 </div>
@@ -756,24 +756,6 @@ function go(p){
 }
 function goHome(){go('home')}
 function updateFab(){
-    const fab=$('ticket-fab'), badge=$('fab-badge');
-    // Show only on home page and only when there are open tickets (not closed/resolved)
-    if(curPage==='home' && D.has_open_tickets){
-        fab.style.display='flex';
-        // Gold pulse if admin replied (unread)
-        if(D.ticket_unread>0){
-            fab.classList.add('has-reply');
-            badge.textContent=D.ticket_unread;
-            badge.style.display='flex';
-        } else {
-            fab.classList.remove('has-reply');
-            badge.style.display='none';
-        }
-    } else {
-        fab.style.display='none';
-        fab.classList.remove('has-reply');
-        badge.style.display='none';
-    }
     // Nav support badge
     const nb=$('nav-support-badge');
     if(nb){if(D.ticket_unread>0){nb.style.display='flex';nb.textContent=D.ticket_unread}else{nb.style.display='none'}}
@@ -851,9 +833,9 @@ function renderSub(){
                 const diff=expireDate-new Date();
                 if(diff>0){
                     const daysLeft=Math.floor(diff/(1000*60*60*24));
-                    ei.textContent=t('to_date')+' '+datePart+' ('+daysLeft+' '+t('days_left')+')';
-                } else {ei.textContent=t('to_date')+' '+datePart}
-            } else {ei.textContent=s.expire_at?t('to_date')+' '+s.expire_at.split(' ')[0]:'—'}
+                    ei.innerHTML=t('to_date')+' <span style="color:#fff">'+datePart+' ('+daysLeft+' '+t('days_left')+')</span>';
+                } else {ei.innerHTML=t('to_date')+' <span style="color:#fff">'+datePart+'</span>'}
+            } else {ei.innerHTML=s.expire_at?t('to_date')+' <span style="color:#fff">'+s.expire_at.split(' ')[0]+'</span>':'—'}
         } else {ei.textContent='—'}
     }
 
@@ -980,7 +962,6 @@ function showConfirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const plan=D.plans.find(p=>p.id===planId);
     const planName=plan?esc(plan.name):'—';
-    // Capture payment method from duration modal if available
     const pmSel=$('pm-sel-renew');
     const payMethod=pmSel?pmSel.value:null;
     let note='';
@@ -989,26 +970,29 @@ function showConfirmPurchase(planId,days,price){
     }
     let payActions='';
     if(payMethod){
-        payActions='<button class="btn-confirm-pay" onclick="doPayment('+planId+','+days+','+price+',\''+payMethod+'\')">'+'Оплатить'+'</button>'+
-            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>';
+        payActions='<button class="btn-confirm-pay" onclick="closeModal();doPayment('+planId+','+days+','+price+',\''+payMethod+'\')">'+'Оплатить'+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeConfirmOverlay()">'+t('cancel')+'</button>';
     } else {
         const gwOpts=_buildPayOpts();
-        payActions='<select class="pay-method-select" id="pm-sel">'+gwOpts+'</select>'+
-            '<button class="btn-confirm-pay" onclick="doPayment('+planId+','+days+','+price+')">'+'Оплатить'+'</button>'+
-            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>';
+        payActions='<select class="pay-method-select" id="pm-sel-confirm">'+gwOpts+'</select>'+
+            '<button class="btn-confirm-pay" onclick="doPaymentFromConfirm('+planId+','+days+','+price+')">'+'Оплатить'+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeConfirmOverlay()">'+t('cancel')+'</button>';
     }
-    showModal(
-        '<h3>Подтверждение</h3>'+
+    const h='<h3>Подтверждение</h3>'+
         '<div class="confirm-info">'+
             '<div class="confirm-row"><span class="c-label">Тариф:</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
             '<div class="confirm-row"><span class="c-label">Период:</span><span class="c-value">'+fmtDaysFull(days)+'</span></div>'+
             '<div class="confirm-row"><span class="c-label">Стоимость:</span><span class="c-value" style="color:var(--cyan)">'+price+' '+sym+'</span></div>'+
         '</div>'+
         note+
-        '<div class="renew-pay-actions">'+payActions+'</div>',
-        'modal-renew'
+        '<div class="renew-pay-actions">'+payActions+'</div>';
+    $('modal-root').insertAdjacentHTML('beforeend',
+        '<div class="modal-overlay confirm-overlay" onclick="if(event.target===this)closeConfirmOverlay()" style="z-index:510">'+
+        '<div class="modal-card modal-renew">'+h+'</div></div>'
     );
 }
+function closeConfirmOverlay(){const o=$('modal-root').querySelector('.confirm-overlay');if(o)o.remove()}
+function doPaymentFromConfirm(planId,days,price){const sel=$('pm-sel-confirm');const method=sel?sel.value:'balance';closeModal();doPayment(planId,days,price,method)}
 function doPayment(planId,days,price,method){
     if(!method){const sel=$('pm-sel');method=sel?sel.value:'balance';}
     if(method==='balance') return confirmPurchase(planId,days,price);
@@ -1834,10 +1818,26 @@ async function delAdmTicket(id){
 let admCurTicketId=null;
 async function openAdmTicket(id){
     admCurTicketId=id;go('aticket');$('at-title').textContent='Загрузка…';$('at-chat').innerHTML='';
+    $('at-status-bar').style.display='none';
     try{const r=await fetch(API+'/api/admin/tickets/'+id);if(!r.ok)return;
-    const t=await r.json();$('at-title').textContent='#'+t.id+' '+t.subject;
-    renderTicketChat($('at-chat'),t.messages);
+    const tk=await r.json();$('at-title').textContent='#'+tk.id+' '+tk.subject;
+    renderTicketChat($('at-chat'),tk.messages);
+    const sb=$('at-status-bar');
+    const st=tk.status.toLowerCase();
+    const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
+    let sHtml='<span class="ticket-status '+st+'" style="display:inline-block;margin-bottom:8px">'+stLabel+'</span>';
+    if(st==='closed'){
+        if(tk.resolved===true) sHtml+='<div style="color:var(--green);font-size:.82rem;margin-bottom:8px">✅ Вопрос был решен</div>';
+        else if(tk.resolved===false) sHtml+='<div style="color:var(--red);font-size:.82rem;margin-bottom:8px">❌ Вопрос не был решен</div>';
+    }
+    sHtml+='<button class="btn btn-danger btn-sm" onclick="delAdmTicketFromDetail('+tk.id+')" style="margin-top:4px">🗑 Удалить тикет</button>';
+    sb.innerHTML=sHtml;sb.style.display='block';
     }catch(e){}
+}
+async function delAdmTicketFromDetail(id){
+    if(!confirm('Удалить тикет #'+id+'?'))return;
+    try{const r=await fetch(API+'/api/admin/tickets/'+id,{method:'DELETE'});
+    if(r.ok){toast('Тикет удалён');admTab('tickets');go('admin')}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}
 }
 async function sendAdmTicketReply(){
     const text=$('at-text').value.trim();if(!text||!admCurTicketId)return;
@@ -1866,7 +1866,7 @@ async function saveBrand(){
    UTILS
    ═══════════════════════════════════════ */
 function toast(m,t){const e=$('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
-function showModal(h,cls){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card'+(cls?' '+cls:'')+'">'+(h)+'</div></div>'}
+function showModal(h,cls){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card modal-renew'+(cls&&cls!=='modal-renew'?' '+cls:'')+'">'+(h)+'</div></div>'}
 function closeModal(){$('modal-root').innerHTML=''}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function pluralDays(n){

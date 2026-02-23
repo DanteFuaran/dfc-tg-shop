@@ -114,7 +114,7 @@ a{color:var(--cyan);text-decoration:none}
     cursor:pointer;transition:all var(--speed);
 }
 .header-badge:hover{background:rgba(36,196,241,.18)}
-.header-balances{display:flex;gap:6px;align-items:center}
+.header-balances{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
 .hdr-wallet-icon{width:12px;height:12px;vertical-align:middle;margin-right:3px;flex-shrink:0;display:inline-block}
 .header-badge-bonus{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
 .header-badge-bonus:hover{background:rgba(245,200,66,.18)}
@@ -213,10 +213,10 @@ a{color:var(--cyan);text-decoration:none}
 .sub-devices b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
 /* ── Sub card grid layout ── */
-.sub-top-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.sub-expire-info{font-size:.76rem;color:var(--text3);white-space:nowrap;text-align:right}
+.sub-top-row{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.sub-expire-info{font-size:.76rem;color:var(--text3);white-space:nowrap;text-align:left}
 .sub-sep-line{height:0;border:none;border-bottom:1px solid var(--border-lite);margin:8px 0}
-.sub-2col{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding:2px 0}
+.sub-2col{display:grid;grid-template-columns:1fr;gap:4px;padding:2px 0}
 .sub-field{display:flex;align-items:baseline;gap:5px;padding:2px 0}
 .sub-lbl{font-size:.76rem;color:var(--text3);white-space:nowrap}
 .sub-val{font-size:.84rem;color:var(--text);font-weight:500}
@@ -603,7 +603,7 @@ a{color:var(--cyan);text-decoration:none}
 .confirm-row .c-value{color:var(--text);font-weight:600}
 .confirm-note{font-size:.82rem;color:var(--text2);padding:10px 0 4px;border-top:1px solid var(--border-lite);margin-top:4px;line-height:1.4}
 /* ── Renew pay actions ── */
-.renew-pay-actions{display:flex;gap:8px;align-items:center;margin-top:14px}
+.renew-pay-actions{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:14px}
 .pay-method-select{
     flex:1;min-width:0;
     background:var(--bg-input);border:1px solid var(--border);
@@ -900,38 +900,7 @@ a{color:var(--cyan);text-decoration:none}
     padding:0 5px;margin-left:6px;
 }
 
-/* ── Floating ticket FAB ── */
-.ticket-fab{
-    position:fixed;bottom:80px;right:16px;z-index:90;
-    width:48px;height:48px;border-radius:50%;
-    border:1.5px solid var(--cyan-border);
-    background:transparent;color:var(--cyan);font-size:1.3rem;
-    display:none;align-items:center;justify-content:center;
-    cursor:pointer;box-shadow:none;
-    transition:all .3s;
-}
-.ticket-fab:hover{
-    background:var(--cyan-dim);border-color:var(--cyan);
-    transform:scale(1.08);
-}
-.ticket-fab.has-reply{
-    border-color:var(--gold-border);color:var(--gold);
-    animation:fabReplyPulse 2s ease-in-out infinite;
-}
-.ticket-fab.has-reply:hover{
-    background:var(--gold-dim);border-color:var(--gold);
-}
-.fab-badge{
-    position:absolute;top:-4px;right:-4px;
-    min-width:18px;height:18px;border-radius:9px;
-    background:var(--red);color:#fff;font-size:.65rem;font-weight:700;
-    display:none;align-items:center;justify-content:center;
-    padding:0 4px;line-height:18px;box-shadow:0 0 6px rgba(224,79,95,.4);
-}
-@keyframes fabReplyPulse{
-    0%,100%{border-color:var(--gold-border);color:var(--gold);box-shadow:0 0 0 0 rgba(245,200,66,.15)}
-    50%{border-color:var(--gold);color:var(--gold);box-shadow:0 0 18px 0 rgba(245,200,66,.25)}
-}
+
 
 /* ── Ticket close buttons ── */
 .ticket-close-actions{display:flex;gap:8px;margin-top:12px}
