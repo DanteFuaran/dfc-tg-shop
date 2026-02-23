@@ -51,9 +51,9 @@ body{
 }
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;opacity:.45}
-::-webkit-scrollbar-thumb:hover{opacity:1}
-*{scrollbar-width:thin;scrollbar-color:var(--cyan) transparent}
+::-webkit-scrollbar-thumb{background:rgba(100,120,140,.3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(100,120,140,.5)}
+*{scrollbar-width:thin;scrollbar-color:rgba(100,120,140,.3) transparent}
 a{color:var(--cyan);text-decoration:none}
 
 #app{min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1}
@@ -109,13 +109,13 @@ a{color:var(--cyan);text-decoration:none}
 .brand-logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;flex-shrink:0}
 .brand-logo.has-img{background:none;box-shadow:none}
 .header-badge{
-    padding:5px 14px;border-radius:var(--r-pill);font-size:.78rem;font-weight:600;
+    padding:4px 12px;border-radius:var(--r-pill);font-size:.66rem;font-weight:600;
     background:var(--cyan-dim);border:1px solid var(--cyan-border);color:var(--cyan);
     cursor:pointer;transition:all var(--speed);
 }
 .header-badge:hover{background:rgba(36,196,241,.18)}
 .header-balances{display:flex;gap:6px;align-items:center}
-.hdr-wallet-icon{width:14px;height:14px;vertical-align:middle;margin-right:3px;flex-shrink:0;display:inline-block}
+.hdr-wallet-icon{width:12px;height:12px;vertical-align:middle;margin-right:3px;flex-shrink:0;display:inline-block}
 .header-badge-bonus{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
 .header-badge-bonus:hover{background:rgba(245,200,66,.18)}
 
@@ -213,17 +213,13 @@ a{color:var(--cyan);text-decoration:none}
 .sub-devices b{color:var(--text);font-weight:600}
 .sub-remaining{font-size:.78rem;color:var(--text3);text-align:right;white-space:nowrap}
 /* ── Sub card grid layout ── */
-.sub-uid-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:8px}
-.sub-info-label{font-size:.74rem;color:var(--text3);white-space:nowrap;flex-shrink:0}
-.sub-val-copy{font-size:.78rem;color:var(--text2);cursor:pointer;font-family:var(--mono);text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
-.sub-val-copy:hover{color:var(--cyan)}
+.sub-top-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sub-expire-info{font-size:.76rem;color:var(--text3);white-space:nowrap;text-align:right}
 .sub-sep-line{height:0;border:none;border-bottom:1px solid var(--border-lite);margin:8px 0}
-.sub-plan-hdr{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0}
-.sub-label-sm{font-size:.74rem;color:var(--text3)}
 .sub-2col{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding:2px 0}
 .sub-field{display:flex;align-items:baseline;gap:5px;padding:2px 0}
-.sub-lbl{font-size:.74rem;color:var(--text3);white-space:nowrap}
-.sub-val{font-size:.82rem;color:var(--text);font-weight:500}
+.sub-lbl{font-size:.76rem;color:var(--text3);white-space:nowrap}
+.sub-val{font-size:.84rem;color:var(--text);font-weight:500}
 .sub-nosub-text{font-size:.9rem;color:var(--text3);text-align:center;padding:6px 0 14px;border-bottom:1px solid var(--border-lite)}
 .sub-actions-row{display:flex;gap:10px;margin-top:12px}
 .sub-action-btn{
@@ -488,9 +484,17 @@ a{color:var(--cyan);text-decoration:none}
     padding:7px 4px;background:none;border:none;
     color:var(--text3);font-size:.64rem;font-weight:500;
     cursor:pointer;transition:color var(--speed);font-family:var(--font);
+    position:relative;
 }
 .nav-item.active{color:var(--cyan)}
 .nav-item:hover{color:var(--text2)}
+.nav-badge{
+    position:absolute;top:0;right:50%;transform:translateX(20px);
+    min-width:16px;height:16px;border-radius:8px;
+    background:var(--red);color:#fff;font-size:.58rem;font-weight:700;
+    display:none;align-items:center;justify-content:center;
+    padding:0 4px;line-height:16px;box-shadow:0 0 4px rgba(224,79,95,.4);
+}
 
 /* ══════════════════════════════════════════════
    AUTH PAGES  (Login / Register)
@@ -616,6 +620,14 @@ a{color:var(--cyan);text-decoration:none}
     transition:all .2s;
 }
 .btn-cancel:hover{background:rgba(224,79,95,.08);border-color:var(--red)}
+.btn-confirm-pay{
+    background:transparent;border:1.5px solid rgba(25,195,125,.35);
+    color:var(--green);border-radius:var(--r-pill);
+    padding:8px 16px;font-size:.84rem;font-weight:600;
+    cursor:pointer;font-family:var(--font);white-space:nowrap;
+    transition:all .2s;
+}
+.btn-confirm-pay:hover{background:var(--green-dim);border-color:var(--green)}
 .form-group{margin-bottom:12px}
 .form-group label{display:block;font-size:.8rem;color:var(--text3);margin-bottom:5px;font-weight:500}
 
@@ -769,7 +781,7 @@ a{color:var(--cyan);text-decoration:none}
 .btn-toggle-plan.active::after{transform:translateX(16px)}
 .btn-trash{
     background:none;border:none;color:var(--text3);cursor:pointer;
-    padding:4px;border-radius:6px;transition:all .2s;font-size:1rem;line-height:1;
+    padding:5px;border-radius:6px;transition:all .2s;font-size:1.25rem;line-height:1;
 }
 .btn-trash:hover{color:var(--red);background:var(--red-dim)}
 

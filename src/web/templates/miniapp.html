@@ -49,31 +49,15 @@
     <div class="card sub-card" id="sub-card">
         <!-- Active sub layout -->
         <div id="sub-active-layout" style="display:none">
-            <div class="sub-uid-row">
-                <span class="sub-info-label">ID пользователя</span>
-                <span class="sub-val-copy" id="sub-uid" onclick="copySubInfo(this)">—</span>
-            </div>
-            <div class="sub-uid-row" id="sub-ref-row" style="display:none">
-                <span class="sub-info-label">Реферальный код</span>
-                <span class="sub-val-copy" id="sub-refcode2" onclick="copySubInfo(this)">—</span>
-            </div>
-            <div class="sub-sep-line"></div>
-            <div class="sub-plan-hdr">
-                <span class="sub-label-sm">Тариф</span>
+            <div class="sub-top-row">
                 <span class="sub-plan-name" id="sub-plan-name">—</span>
+                <span class="sub-expire-info" id="sub-expire-info">—</span>
             </div>
             <div class="sub-sep-line"></div>
             <div class="sub-2col">
-                <div>
-                    <div class="sub-field"><span class="sub-lbl">До</span><span class="sub-val" id="sub-expire">—</span></div>
-                    <div class="sub-field"><span class="sub-lbl">Ост</span><span class="sub-val" id="sub-remaining">—</span></div>
-                </div>
-                <div>
-                    <div class="sub-field"><span class="sub-lbl">Трафик</span><span class="sub-val" id="sub-traffic">—</span></div>
-                    <div class="sub-field"><span class="sub-lbl">Устройства</span><span class="sub-val" id="sub-devices">—</span></div>
-                </div>
+                <div class="sub-field"><span class="sub-lbl">Трафик:</span><span class="sub-val" id="sub-traffic">—</span></div>
+                <div class="sub-field"><span class="sub-lbl">Устройства:</span><span class="sub-val" id="sub-devices">—</span></div>
             </div>
-            <div class="sub-sep-line"></div>
             <div class="sub-actions-row">
                 <button class="sub-action-btn sub-action-renew" id="btn-renew" onclick="renewCurrentPlan()">Продлить</button>
                 <button class="sub-action-btn sub-action-change" id="btn-change" onclick="go('plans')">Сменить</button>
@@ -223,7 +207,7 @@
 <!-- ═══ TICKET LIST ═══ -->
 <section id="p-tickets" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('support')">‹</button>
+        <button class="btn-back" onclick="go('home')">‹</button>
         <h2 class="page-title">Мои тикеты</h2>
         <button class="btn btn-primary btn-sm" onclick="showNewTicket()" style="margin-left:auto">+ Новый</button>
     </div>
@@ -386,9 +370,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span>Профиль</span>
     </button>
-    <button class="nav-item" data-p="support" onclick="go('support')">
+    <button class="nav-item" data-p="support" onclick="go('tickets')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         <span>Поддержка</span>
+        <span class="nav-badge" id="nav-support-badge" style="display:none">0</span>
     </button>
     <button class="nav-item admin-nav" data-p="admin" onclick="go('admin')" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -449,6 +434,7 @@ const I18N={
         fill_all:'Заполните все поля',ticket_created:'Тикет создан',
         resolved:'Вопрос решён',unresolved:'Не решён',
         ticket_closed_resolved:'Тикет закрыт как решённый',ticket_closed_unresolved:'Тикет закрыт как нерешённый',
+        ticket_open:'Открыт',ticket_answered:'Отвечен',ticket_closed:'Закрыт',
         copied:'Скопировано!',link_copied:'Ссылка скопирована!',no_sub_err:'Нет подписки',
         user_role:'Пользователь',admin_role:'Администратор',dev_role:'Разработчик',
         agreement:'Соглашение',no_tickets:'Нет тикетов',create_first:'Создайте первый тикет',
@@ -488,6 +474,7 @@ const I18N={
         fill_all:'Fill in all fields',ticket_created:'Ticket created',
         resolved:'Resolved',unresolved:'Not resolved',
         ticket_closed_resolved:'Ticket closed as resolved',ticket_closed_unresolved:'Ticket closed as unresolved',
+        ticket_open:'Open',ticket_answered:'Answered',ticket_closed:'Closed',
         copied:'Copied!',link_copied:'Link copied!',no_sub_err:'No subscription',
         user_role:'User',admin_role:'Administrator',dev_role:'Developer',
         agreement:'Terms',no_tickets:'No tickets',create_first:'Create your first ticket',
@@ -527,6 +514,7 @@ const I18N={
         fill_all:'Заповніть всі поля',ticket_created:'Тікет створено',
         resolved:'Питання вирішено',unresolved:'Не вирішено',
         ticket_closed_resolved:'Тікет закрито як вирішений',ticket_closed_unresolved:'Тікет закрито як невирішений',
+        ticket_open:'Відкритий',ticket_answered:'Відповідь',ticket_closed:'Закритий',
         copied:'Скопійовано!',link_copied:'Посилання скопійовано!',no_sub_err:'Немає підписки',
         user_role:'Користувач',admin_role:'Адміністратор',dev_role:'Розробник',
         agreement:'Угода',no_tickets:'Немає тікетів',create_first:'Створіть перший тікет',
@@ -566,6 +554,7 @@ const I18N={
         fill_all:'Alle Felder ausfüllen',ticket_created:'Ticket erstellt',
         resolved:'Gelöst',unresolved:'Nicht gelöst',
         ticket_closed_resolved:'Ticket als gelöst geschlossen',ticket_closed_unresolved:'Ticket als ungelöst geschlossen',
+        ticket_open:'Offen',ticket_answered:'Beantwortet',ticket_closed:'Geschlossen',
         copied:'Kopiert!',link_copied:'Link kopiert!',no_sub_err:'Kein Abo',
         user_role:'Benutzer',admin_role:'Administrator',dev_role:'Entwickler',
         agreement:'AGB',no_tickets:'Keine Tickets',create_first:'Erstellen Sie Ihr erstes Ticket',
@@ -757,7 +746,8 @@ function go(p){
     curPage=p;
     document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
     $('p-'+p).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
+    const navP=({tickets:'support',ticket:'support'})[p]||p;
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===navP));
     if(p==='home'){tg.BackButton.hide()}else{tg.BackButton.show();tg.BackButton.offClick(goHome);tg.BackButton.onClick(goHome)}
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans')renderPlans();
@@ -784,6 +774,9 @@ function updateFab(){
         fab.classList.remove('has-reply');
         badge.style.display='none';
     }
+    // Nav support badge
+    const nb=$('nav-support-badge');
+    if(nb){if(D.ticket_unread>0){nb.style.display='flex';nb.textContent=D.ticket_unread}else{nb.style.display='none'}}
 }
 async function pollTicketStatus(){
     try{
@@ -841,21 +834,28 @@ function renderSub(){
     activeLayout.style.display='';
     emptyLayout.style.display='none';
 
-    // User ID
-    const uidEl=$('sub-uid');
-    if(uidEl) uidEl.textContent=D.user.telegram_id;
-    // Referral code
-    const rcRow=$('sub-ref-row'), rcEl=$('sub-refcode2');
-    if(rcEl&&rcRow&&D.user&&D.user.referral_code){
-        rcRow.style.display='';
-        rcEl.textContent=D.user.referral_code;
-    } else if(rcRow) rcRow.style.display='none';
-
     // Plan name
     const pn=$('sub-plan-name');
     const planLabel=s.is_trial?t('trial_period'):(s.plan_name||'—');
     pn.textContent=planLabel;
     pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
+
+    // Expire info: "до DD.MM.YYYY (N дн.)"
+    const ei=$('sub-expire-info');
+    if(ei){
+        if(s.expire_at&&(s.status==='ACTIVE'||s.is_trial)){
+            const datePart=s.expire_at.split(' ')[0];
+            const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
+            if(parts){
+                const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
+                const diff=expireDate-new Date();
+                if(diff>0){
+                    const daysLeft=Math.floor(diff/(1000*60*60*24));
+                    ei.textContent=t('to_date')+' '+datePart+' ('+daysLeft+' '+t('days_left')+')';
+                } else {ei.textContent=t('to_date')+' '+datePart}
+            } else {ei.textContent=s.expire_at?t('to_date')+' '+s.expire_at.split(' ')[0]:'—'}
+        } else {ei.textContent='—'}
+    }
 
     // Traffic — use current plan type to decide display
     const currentPlan=D.plans&&s.plan_id?D.plans.find(p=>p.id===s.plan_id):null;
@@ -874,28 +874,7 @@ function renderSub(){
     if(dl){
         const devLimit=s.device_limit||'∞';
         const devActive=(typeof s.active_devices_count==='number')?s.active_devices_count:null;
-        dl.textContent=(devActive!==null)?(devActive+' из '+devLimit):devLimit;
-    }
-
-    // Expire date — just date part (DD.MM.YYYY)
-    const e=$('sub-expire');
-    if(e) e.textContent=s.expire_at?s.expire_at.split(' ')[0]:'—';
-
-    // Remaining time
-    const rm=$('sub-remaining');
-    if(rm){
-        if(s.expire_at&&(s.status==='ACTIVE'||s.is_trial)){
-            const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
-            if(parts){
-                const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
-                const diff=expireDate-new Date();
-                if(diff>0){
-                    const daysLeft=Math.floor(diff/(1000*60*60*24));
-                    const hoursLeft=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-                    rm.textContent=daysLeft+'д. '+hoursLeft+'ч.';
-                } else {rm.textContent='—'}
-            } else {rm.textContent='—'}
-        } else {rm.textContent='—'}
+        dl.textContent=(devActive!==null)?(devActive+' / '+devLimit):devLimit;
     }
 
     // Show/hide renew (only for paid subs)
@@ -1001,36 +980,37 @@ function showConfirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const plan=D.plans.find(p=>p.id===planId);
     const planName=plan?esc(plan.name):'—';
-    // Restore previously selected payment method if exists
-    const prevSel=$('pm-sel-renew')||$('pm-sel');
-    const prevMethod=prevSel?prevSel.value:'balance';
-    const gwOpts=_buildPayOpts();
+    // Capture payment method from duration modal if available
+    const pmSel=$('pm-sel-renew');
+    const payMethod=pmSel?pmSel.value:null;
     let note='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
-        note='<div class="confirm-note">Ваша активная подписка будет продлена на выбранный срок.</div>';
+        note='<div class="confirm-note">⚠️ Ваша подписка будет продлена</div>';
+    }
+    let payActions='';
+    if(payMethod){
+        payActions='<button class="btn-confirm-pay" onclick="doPayment('+planId+','+days+','+price+',\''+payMethod+'\')">'+'Оплатить'+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>';
+    } else {
+        const gwOpts=_buildPayOpts();
+        payActions='<select class="pay-method-select" id="pm-sel">'+gwOpts+'</select>'+
+            '<button class="btn-confirm-pay" onclick="doPayment('+planId+','+days+','+price+')">'+'Оплатить'+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>';
     }
     showModal(
         '<h3>Подтверждение</h3>'+
         '<div class="confirm-info">'+
-            '<div class="confirm-row"><span class="c-label">Тариф:</span><span class="c-value">'+planName+'</span></div>'+
-            '<div class="confirm-row"><span class="c-label">Период:</span><span class="c-value">'+fmtDays(days)+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">Тариф:</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">Период:</span><span class="c-value">'+fmtDaysFull(days)+'</span></div>'+
             '<div class="confirm-row"><span class="c-label">Стоимость:</span><span class="c-value" style="color:var(--cyan)">'+price+' '+sym+'</span></div>'+
         '</div>'+
         note+
-        '<div class="renew-pay-actions">'+
-            '<select class="pay-method-select" id="pm-sel">'+gwOpts+'</select>'+
-            '<button class="btn btn-primary" onclick="doPayment('+planId+','+days+','+price+')">'+t('buy')+'</button>'+
-            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
-        '</div>',
+        '<div class="renew-pay-actions">'+payActions+'</div>',
         'modal-renew'
     );
-    // Restore previous selection
-    const newSel=$('pm-sel');
-    if(newSel){newSel.value=prevMethod;}
 }
-function doPayment(planId,days,price){
-    const sel=$('pm-sel');
-    const method=sel?sel.value:'balance';
+function doPayment(planId,days,price,method){
+    if(!method){const sel=$('pm-sel');method=sel?sel.value:'balance';}
     if(method==='balance') return confirmPurchase(planId,days,price);
     payViaGateway(planId,days,method);
 }
@@ -1061,6 +1041,14 @@ function fmtDays(d){
     if(l==='UK'){if(d===1)return '1 день';if(d===7)return '7 днів';if(d===30)return '1 міс.';if(d===60)return '2 міс.';if(d===90)return '3 міс.';if(d===180)return '6 міс.';if(d===365)return '1 рік';return d+' дн.'}
     if(l==='DE'){if(d===1)return '1 Tag';if(d===7)return '7 Tage';if(d===30)return '1 Mon.';if(d===60)return '2 Mon.';if(d===90)return '3 Mon.';if(d===180)return '6 Mon.';if(d===365)return '1 Jahr';return d+' T.'}
     if(d===1)return '1 день';if(d===7)return '7 дней';if(d===30)return '1 мес.';if(d===60)return '2 мес.';if(d===90)return '3 мес.';if(d===180)return '6 мес.';if(d===365)return '1 год';return d+' дн.';
+}
+function fmtDaysFull(d){
+    if(d<=0)return '∞';
+    const l=CUR_LOCALE;
+    if(l==='EN'){if(d===1)return '1 day';if(d===7)return '7 days';if(d===30)return '1 month';if(d===60)return '2 months';if(d===90)return '3 months';if(d===180)return '6 months';if(d===365)return '1 year';return d+' days'}
+    if(l==='UK'){if(d===1)return '1 день';if(d===7)return '7 днів';if(d===30)return '1 місяць';if(d===60)return '2 місяці';if(d===90)return '3 місяці';if(d===180)return '6 місяців';if(d===365)return '1 рік';return d+' днів'}
+    if(l==='DE'){if(d===1)return '1 Tag';if(d===7)return '7 Tage';if(d===30)return '1 Monat';if(d===60)return '2 Monate';if(d===90)return '3 Monate';if(d===180)return '6 Monate';if(d===365)return '1 Jahr';return d+' Tage'}
+    if(d===1)return '1 день';if(d===7)return '7 дней';if(d===30)return '1 месяц';if(d===60)return '2 месяца';if(d===90)return '3 месяца';if(d===180)return '6 месяцев';if(d===365)return '1 год';return d+' '+pluralDays(d);
 }
 
 function renderConnect(){
@@ -1774,13 +1762,14 @@ async function loadTickets(){
     try{const r=await fetch(API+'/api/tickets');if(!r.ok)return;const tks=await r.json();
     const el=$('tickets-list');
     if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}
-    el.innerHTML=tks.map(t=>{
-        const st=t.status.toLowerCase();
-        const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
-        return '<div class="ticket-item'+(t.is_read_by_user?'':' unread')+'" onclick="openTicket('+t.id+')">'+
-            '<div class="ticket-top"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+st+'</span></div>'+
+    el.innerHTML=tks.map(tk=>{
+        const st=tk.status.toLowerCase();
+        const stLabel=t('ticket_'+st)||st;
+        const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
+        return '<div class="ticket-item'+(tk.is_read_by_user?'':' unread')+'" onclick="openTicket('+tk.id+')">'+
+            '<div class="ticket-top"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
             '<div class="ticket-preview">'+esc(last.substring(0,80))+'</div>'+
-            '<div class="ticket-date">'+t.updated_at+'</div></div>';
+            '<div class="ticket-date">'+tk.updated_at+'</div></div>';
     }).join('')}catch(e){}
 }
 async function openTicket(id){
@@ -1826,15 +1815,15 @@ async function loadAdmTickets(){
     try{const r=await fetch(API+'/api/admin/tickets');if(!r.ok)return;admTicketsCache=await r.json();
     const el=$('adm-tickets-list');
     if(!admTicketsCache.length){el.innerHTML='<div class="empty-state">Нет тикетов</div>';return}
-    el.innerHTML=admTicketsCache.map(t=>{
-        const st=t.status.toLowerCase();
-        const stLabel=TICKET_STATUS_LABELS[t.status]||t.status;
-        const last=t.messages&&t.messages.length?t.messages[t.messages.length-1].text:'';
-        return '<div class="ticket-item'+(t.is_read_by_admin?'':' unread')+'">'+
-            '<div class="ticket-top" onclick="openAdmTicket('+t.id+')"><span class="ticket-subject">'+esc(t.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
-            '<div class="ticket-preview" onclick="openAdmTicket('+t.id+')"><b>ID '+t.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
-            '<div class="ticket-bottom"><span class="ticket-date">'+t.updated_at+'</span>'+
-            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+t.id+')" title="Удалить тикет">🗑</button></div></div>';
+    el.innerHTML=admTicketsCache.map(tk=>{
+        const st=tk.status.toLowerCase();
+        const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
+        const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
+        return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'">'+
+            '<div class="ticket-top" onclick="openAdmTicket('+tk.id+')"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-preview" onclick="openAdmTicket('+tk.id+')"><b>ID '+tk.user_telegram_id+'</b> — '+esc(last.substring(0,60))+'</div>'+
+            '<div class="ticket-bottom"><span class="ticket-date">'+tk.updated_at+'</span>'+
+            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">🗑</button></div></div>';
     }).join('')}catch(e){}
 }
 async function delAdmTicket(id){
