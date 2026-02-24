@@ -841,7 +841,7 @@ async function init(){
         if(!dr.ok){
             // No valid session — redirect to login for web, show error for miniapp
             if(!tg.initData){window.location.href='/web/login';return}
-            return showErr('Пользователь не найден. Запустите бота.');
+            return showErr('Ошибка загрузки профиля. Попробуйте перезапустить.');
         }
         D=await dr.json();
         try{const br=await fetch(API+'/api/settings/brand');if(br.ok)BRAND=await br.json()}catch(e){}

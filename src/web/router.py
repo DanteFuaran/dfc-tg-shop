@@ -14,6 +14,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from aiogram import Bot
+from aiogram.types import User as AiogramUser
 
 from src.core.config import AppConfig
 from src.core.constants import CONTAINER_KEY
@@ -328,7 +329,7 @@ async def miniapp_page(request: Request):
 
 @router.post("/api/auth/tg")
 async def auth_telegram(request: Request):
-    """Authenticate via Telegram Mini App initData."""
+    """Authenticate via Telegram Mini App initData. Auto-registers new users."""
     body = await request.json()
     init_data = body.get("initData", "")
     bot_token = _get_bot_token(request)
@@ -349,6 +350,28 @@ async def auth_telegram(request: Request):
     telegram_id = user_obj.get("id")
     if not telegram_id:
         raise HTTPException(status_code=401, detail="No user id")
+
+    # Auto-register user if they've never started the bot
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        user_service: UserService = await req_container.get(UserService)
+        existing = await user_service.get(telegram_id=telegram_id)
+        if existing is None:
+            try:
+                settings_service: SettingsService = await req_container.get(SettingsService)
+                settings = await settings_service.get()
+                aiogram_user = AiogramUser(
+                    id=telegram_id,
+                    is_bot=False,
+                    first_name=user_obj.get("first_name") or "User",
+                    last_name=user_obj.get("last_name"),
+                    username=user_obj.get("username"),
+                    language_code=user_obj.get("language_code"),
+                )
+                await user_service.create(aiogram_user, settings=settings)
+                logger.info(f"Auto-registered user {telegram_id} via Mini App initData")
+            except Exception as exc:
+                logger.warning(f"Auto-register failed for user {telegram_id}: {exc}")
 
     token = create_access_token(
         {"telegram_id": telegram_id, "source": "miniapp"},
