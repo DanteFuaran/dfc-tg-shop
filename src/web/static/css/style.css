@@ -1046,12 +1046,18 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-page.active{display:flex;animation:fadeUp .22s ease}
 .ticket-chat{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;padding:4px 0}
 .ticket-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:.88rem;line-height:1.4;word-break:break-word}
-.ticket-msg.user{align-self:flex-end;background:rgba(36,196,241,.3);color:var(--text1);border-bottom-right-radius:4px}
-.ticket-msg.admin{align-self:flex-start;background:rgba(255,255,255,.3);border:1px solid var(--border);color:var(--text1);border-bottom-left-radius:4px}
+/* User view: own messages LEFT, admin replies RIGHT */
+.ticket-msg.user{align-self:flex-start;background:rgba(36,196,241,.3);color:var(--text1);border-bottom-left-radius:4px}
+.ticket-msg.admin{align-self:flex-end;background:rgba(255,255,255,.3);border:1px solid var(--border);color:var(--text1);border-bottom-right-radius:4px;margin-right:6px}
 .ticket-msg-time{font-size:.68rem;color:var(--text3);margin-top:3px}
-.ticket-msg.user .ticket-msg-time{text-align:right}
+.ticket-msg.admin .ticket-msg-time{text-align:right}
+/* Admin view: admin messages LEFT (own), user messages RIGHT (incoming) */
+#at-chat .ticket-msg.admin{align-self:flex-start;background:rgba(36,196,241,.3);border:none;border-radius:14px;border-bottom-left-radius:4px;margin-right:0}
+#at-chat .ticket-msg.user{align-self:flex-end;background:rgba(255,255,255,.3);border:1px solid var(--border);border-radius:14px;border-bottom-right-radius:4px;margin-right:6px}
+#at-chat .ticket-msg.admin .ticket-msg-time{text-align:left}
+#at-chat .ticket-msg.user .ticket-msg-time{text-align:right}
 .ticket-reply-box{display:flex;gap:8px;margin-top:8px}
-.ticket-bottom-bar{flex-shrink:0;padding:4px 0 8px}
+.ticket-bottom-bar{flex-shrink:0;padding:28px 0 8px}
 .ticket-reply-box textarea{
     flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(36,196,241,.3);border-radius:10px;
     color:var(--text1);padding:10px 12px;font-size:.88rem;resize:none;min-height:44px;max-height:120px;

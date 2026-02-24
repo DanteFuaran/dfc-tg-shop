@@ -1597,22 +1597,22 @@ function inviteFriend(){
         msg=template.replace(/\{space\}/g,'\n').replace(/\{url\}/g,refLink).replace(/\{name\}/g,BRAND.name||DEFAULT_NAME);
         if(msg.startsWith('\n'))msg=msg.substring(1);
     }
-    if(!msg) msg=refLink;
-    // Use switchInlineQuery for contact picker (like the bot's SwitchInlineQueryChosenChatButton)
-    try{
-        if(tg.initData&&typeof tg.switchInlineQuery==='function'){
-            tg.switchInlineQuery(msg,['users','groups','channels']);
-            return;
-        }
-    }catch(e){}
-    // Fallback: share URL
+    // Build share URL for Telegram's built-in share dialog
     let shareUrl;
-    if(msg.indexOf(refLink)!==-1){
+    if(msg&&msg.indexOf(refLink)!==-1){
         shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-    } else {
+    } else if(msg){
         shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(msg);
+    } else {
+        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(BRAND.name||DEFAULT_NAME);
     }
-    try{window.open(shareUrl,'_blank')}catch(e2){}
+    try{
+        if(tg.initData&&typeof tg.openTelegramLink==='function'){
+            tg.openTelegramLink(shareUrl);
+        } else {
+            window.open(shareUrl,'_blank');
+        }
+    }catch(e){window.open(shareUrl,'_blank')}
 }
 
 function renderSupport(){
@@ -2277,7 +2277,9 @@ function renderTicketChat(el,msgs){
     el.innerHTML=(msgs||[]).map(m=>{
         const cls=m.is_admin?'admin':'user';
         return '<div class="ticket-msg '+cls+'">'+esc(m.text)+'<div class="ticket-msg-time">'+m.created_at+'</div></div>';
-    }).join('');el.scrollTop=el.scrollHeight;
+    }).join('');
+    // Use requestAnimationFrame to ensure DOM is rendered before scrolling
+    requestAnimationFrame(()=>{el.scrollTop=el.scrollHeight});
 }
 async function sendTicketReply(){
     const text=$('ticket-text').value.trim();if(!text||!curTicketId)return;
