@@ -61,22 +61,23 @@ export default function HomePage() {
 
     if (tg) {
       // На мобильных: switchInlineQuery открывает нативный чат-пикер
-      // На ПК: switchInlineQuery просто переходит в inline mode (не открывает диалог пересылки).
-      // Поэтому для ПК используем openLink + t.me/share/url который открывает диалог пересылки в Telegram.
-      const mobileClients = ['android', 'ios', 'android_x'];
-      const isMobile = mobileClients.includes(tg.platform ?? '');
+      // На ПК: может быть баг, используем openLink как fallback
+      const platform = tg.platform ?? 'unknown';
+      const isDesktop = ['desktop', 'macos', 'webk', 'weba'].includes(platform);
 
-      console.log('📱 isMobile:', isMobile);
+      console.log('🖥️ isDesktop:', isDesktop);
 
-      if (isMobile) {
-        console.log('📱 Using switchInlineQuery (mobile native chat picker)');
-        tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
-      } else {
-        // На ПК используем openLink с share URL — это открывает диалог пересылки в Telegram Desktop/Web
+      if (isDesktop) {
+        // На ПК сначала пробуем openLink
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
-        console.log('🖥️ Using openLink (desktop - share dialog)');
+        console.log('🖥️ Using openLink (desktop - trying share dialog)');
         console.log('🔗 shareUrl:', shareUrl);
         tg.openLink(shareUrl);
+      } else {
+        // На мобильных: switchInlineQuery с chat_types открывает выбор чатов
+        // ВАЖНО: параметр chat_types обязателен! Без него может вставить в текущий чат или баг с ботом
+        console.log('📱 Using switchInlineQuery (mobile - native chat picker)');
+        tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
       }
     } else {
       // Fallback: открываем share URL в браузере
