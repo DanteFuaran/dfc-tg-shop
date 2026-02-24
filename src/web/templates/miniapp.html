@@ -1587,10 +1587,10 @@ function inviteFriend(){
     if(!msg)msg=(BRAND.name||DEFAULT_NAME)+'\n'+refLink;
     // Truncate to 256 chars for inline query limit
     if(msg.length>256)msg=msg.substring(0,256);
-    // Use switchInlineQuery(['users']) to open contacts-only picker
+    // switchInlineQuery opens Telegram's chat-list picker; selected chat receives the inline result
     try{
         if(tg.initData&&typeof tg.switchInlineQuery==='function'){
-            tg.switchInlineQuery(msg,['users']);
+            tg.switchInlineQuery(msg,['users','bots','groups','channels']);
         } else {
             // Fallback: standard share dialog
             const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
@@ -2263,6 +2263,8 @@ async function openTicket(id){
     } else {
         $('ticket-reply').style.display='none';
     }
+    // API marks ticket as read on GET — refresh badge count immediately
+    pollTicketStatus();
     }catch(e){}
 }
 function _fmtTicketTime(dateStr){
