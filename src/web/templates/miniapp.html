@@ -77,13 +77,13 @@
 
     <!-- Actions -->
     <div class="action-pills">
-        <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none">🎁&nbsp; Попробовать бесплатно</button>
-        <button class="pill pill-cyan" onclick="go('connect')">⊙ Подключиться</button>
+        <button class="pill trial-pill" id="btn-trial" onclick="startTrial()" style="display:none"><svg class="ico" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>&nbsp; Попробовать бесплатно</button>
+        <button class="pill pill-cyan" onclick="go('connect')"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Подключиться</button>
         <div class="pill-row">
-            <button class="pill pill-outline" onclick="go('promo')">🎁 Промокод</button>
-            <button class="pill pill-outline" onclick="go('devices')">📱 Мои устройства</button>
+            <button class="pill pill-outline" onclick="go('promo')"><svg class="ico" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Промокод</button>
+            <button class="pill pill-outline" onclick="go('devices')"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Мои устройства</button>
         </div>
-        <button class="pill pill-outline" id="btn-invite-home" onclick="inviteFriend()" style="display:none">🔗 Пригласить друга</button>
+        <button class="pill pill-outline" id="btn-invite-home" onclick="inviteFriend()" style="display:none"><svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Пригласить друга</button>
     </div>
 </section>
 
@@ -119,7 +119,7 @@
     </div>
     <!-- Block 1: Подключение -->
     <div class="card" id="con-actions" style="display:none">
-        <div class="card-title">⚡ Подключение</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Подключение</div>
         <div class="action-pills" style="flex-direction:column;gap:8px">
             <button class="pill pill-cyan btn-full" id="btn-download-auto" onclick="openLink(getDownloadUrl())" style="justify-content:center">
                 <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -133,7 +133,7 @@
     </div>
     <!-- Block 2: Подписка -->
     <div class="card" id="con-sub-block">
-        <div class="card-title" id="con-link-title">🔗 Подписка</div>
+        <div class="card-title" id="con-link-title"><svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Подписка</div>
         <div class="action-pills" style="flex-direction:column;gap:8px">
             <button class="pill pill-outline btn-full" id="btn-subpage" onclick="" style="display:none;justify-content:center">
                 <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -144,7 +144,7 @@
                 &nbsp;Показать QR код
             </button>
             <button class="pill pill-outline btn-full" id="btn-show-sub" onclick="toggleSubLink()" style="display:none;justify-content:center">
-                🔑&nbsp;Показать подписку
+                <svg class="ico" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zM15.5 7.5l3-3"/></svg>&nbsp;Показать подписку
             </button>
         </div>
         <div id="con-sub-detail" style="display:none;margin-top:12px">
@@ -166,7 +166,7 @@
         <div class="card-row"><span class="card-label">Занято</span><span class="card-value" id="dev-used">—</span></div>
     </div>
     <div class="action-pills" style="margin-top:10px">
-        <button class="pill pill-outline" id="btn-expand-devices" onclick="expandDevices()" style="display:none">➕ Расширить слоты устройств</button>
+        <button class="pill pill-outline" id="btn-expand-devices" onclick="expandDevices()" style="display:none"><svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Расширить слоты устройств</button>
     </div>
 </section>
 
@@ -193,19 +193,19 @@
         <h2 class="page-title">Поддержка</h2>
     </div>
     <div class="card card-compact" style="cursor:pointer" onclick="go('tickets')">
-        <div class="card-title">🎫 Тикеты <span id="ticket-badge" class="ticket-badge" style="display:none">0</span></div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5v2M15 11v2M15 17v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg> Тикеты <span id="ticket-badge" class="ticket-badge" style="display:none">0</span></div>
         <span class="pill pill-cyan pill-sm">Открыть</span>
     </div>
     <div class="card card-compact" id="support-community" style="display:none">
-        <div class="card-title">💬 Сообщество</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Сообщество</div>
         <button class="pill pill-cyan pill-sm" id="btn-community" onclick="">Открыть</button>
     </div>
     <div class="card card-compact" id="support-help" style="display:none">
-        <div class="card-title">🛟 Помощь</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg> Помощь</div>
         <button class="pill pill-outline pill-sm" id="btn-support" onclick="">Написать</button>
     </div>
     <div class="card card-compact" id="support-tos" style="display:none">
-        <div class="card-title">📄 Соглашение</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Соглашение</div>
         <button class="pill pill-outline pill-sm" id="btn-tos" onclick="">Открыть</button>
     </div>
 </section>
@@ -234,7 +234,7 @@
                 <button class="ticket-quote-close" onclick="_clearTicketReply()">✕</button>
             </div>
             <div id="ticket-edit-bar" class="ticket-edit-bar">
-                <span class="ticket-edit-bar-text">✏️ Редактирование сообщения</span>
+                <span class="ticket-edit-bar-text"><svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Редактирование сообщения</span>
                 <button class="ticket-quote-close" onclick="_clearTicketEdit()">✕</button>
             </div>
             <div class="ticket-reply-row">
@@ -257,14 +257,14 @@
     </div>
     <!-- Section: Your Profile -->
     <div class="card">
-        <div class="card-title">👤 Ваш профиль</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Ваш профиль</div>
         <div class="card-row"><span class="card-label">ID</span><span class="card-value card-value-copy" id="pr-tid" onclick="copyValue(this)">—</span></div>
         <div class="card-row"><span class="card-label">Имя</span><span class="card-value" id="pr-name">—</span></div>
         <div class="card-row" id="pr-refcode-row" style="display:none"><span class="card-label">Реф. код</span><span class="card-value card-value-copy" id="pr-refcode" onclick="copyValue(this)">—</span></div>
     </div>
     <!-- Section: Balance -->
     <div class="card" id="balance-card" style="display:none">
-        <div class="card-title">💰 Баланс</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14h.01"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg> Баланс</div>
         <div class="profile-balance-grid">
             <div class="profile-balance-item">
                 <div class="profile-balance-label">Основной</div>
@@ -282,16 +282,16 @@
     </div>
     <!-- Section: Referral System -->
     <div class="card" id="ref-card" style="display:none">
-        <div class="card-title">🤝 Реферальная система</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M11 17a1 1 0 001 1h3l4-4a1 1 0 000-1.42l-4-4a1 1 0 00-1.42 0L11 11"/><path d="M13 7a1 1 0 00-1-1H9l-4 4a1 1 0 000 1.42l4 4a1 1 0 001.42 0L13 13"/></svg> Реферальная система</div>
         <div class="ref-stats-grid" id="ref-stats"></div>
         <div class="ref-box">
             <code id="ref-link" style="cursor:pointer" onclick="copyRef()" title="Нажмите чтобы скопировать">—</code>
         </div>
-        <button class="pill pill-cyan btn-full" id="btn-invite" onclick="inviteFriend()" style="margin-top:10px;justify-content:center">🔗 Пригласить друга</button>
+        <button class="pill pill-cyan btn-full" id="btn-invite" onclick="inviteFriend()" style="margin-top:10px;justify-content:center"><svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Пригласить друга</button>
     </div>
     <!-- Section: Web Credentials (below invite) -->
     <div class="card" id="web-cred-card">
-        <div class="card-title">🔑 Веб-доступ</div>
+        <div class="card-title"><svg class="ico" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zM15.5 7.5l3-3"/></svg> Веб-доступ</div>
         <div id="web-cred-status"></div>
         <div id="web-cred-setup" style="display:none">
             <div class="form-group"><label>Логин</label><input class="form-input" id="wc-username" placeholder="Мин. 3 символа" autocomplete="off"></div>
@@ -331,12 +331,12 @@
         <h2 class="page-title">Панель управления</h2>
     </div>
     <div class="admin-tabs" id="adm-tabs">
-        <button class="admin-tab active" onclick="admTab('stats')"><span class="tab-icon">📊</span><span class="tab-label">Статистика</span></button>
-        <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon">👥</span><span class="tab-label">Пользователи</span></button>
-        <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon">📋</span><span class="tab-label">Тарифы</span></button>
-        <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span></button>
-        <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span><span class="admin-tab-badge" id="adm-tickets-badge" style="display:none">0</span></button>
-        <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon">🎨</span><span class="tab-label">Бренд</span></button>
+        <button class="admin-tab active" onclick="admTab('stats')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="tab-label">Статистика</span></button>
+        <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span><span class="tab-label">Пользователи</span></button>
+        <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="tab-label">Тарифы</span></button>
+        <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span class="tab-label">Настройки</span></button>
+        <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5v2M15 11v2M15 17v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg></span><span class="tab-label">Тикеты</span><span class="admin-tab-badge" id="adm-tickets-badge" style="display:none">0</span></button>
+        <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon"><svg class="ico" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></span><span class="tab-label">Бренд</span></button>
     </div>
 
     <!-- Stats -->
@@ -405,7 +405,7 @@
                 <button class="ticket-quote-close" onclick="_clearAdmReply()">✕</button>
             </div>
             <div id="at-edit-bar" class="ticket-edit-bar">
-                <span class="ticket-edit-bar-text">✏️ Редактирование сообщения</span>
+                <span class="ticket-edit-bar-text"><svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Редактирование сообщения</span>
                 <button class="ticket-quote-close" onclick="_clearAdmEdit()">✕</button>
             </div>
             <div class="ticket-reply-row">
@@ -424,9 +424,9 @@
 
 <!-- Ticket message context menu -->
 <div id="msg-ctx-menu" class="msg-ctx-menu" style="display:none">
-    <button onclick="_ctxReply()">↩ Ответить</button>
-    <div id="ctx-edit-wrap"><hr><button onclick="_ctxEdit()">✏️ Изменить</button></div>
-    <div id="ctx-del-wrap"><button class="danger" onclick="_ctxDelete()">🗑 Удалить</button></div>
+    <button onclick="_ctxReply()"><svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg> Ответить</button>
+    <div id="ctx-edit-wrap"><hr><button onclick="_ctxEdit()"><svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Изменить</button></div>
+    <div id="ctx-del-wrap"><button class="danger" onclick="_ctxDelete()"><svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Удалить</button></div>
 </div>
 
 <!-- Bottom Navigation -->
@@ -479,6 +479,53 @@ let usersCache=[], curAdmTab='stats', DOMAIN='';
 const AVAIL_LABELS={ALL:'Все',NEW:'Новые',EXISTING:'Действующие',INVITED:'Приглашённые',ALLOWED:'Разрешённые',TRIAL:'Пробный'};
 const TYPE_LABELS={TRAFFIC:'Трафик',DEVICES:'Устройства',BOTH:'Трафик+Устр.',UNLIMITED:'Безлимит'};
 const CURRENCY_SYMBOLS={USD:'$',EUR:'€',XTR:'★',RUB:'₽'};
+
+/* ── SVG Icons (replace emoji) ── */
+const IC={
+gift:'<svg class="ico" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>',
+connect:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+promo:'<svg class="ico" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+phone:'<svg class="ico" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+link:'<svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
+key:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zM15.5 7.5l3-3"/></svg>',
+plus:'<svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+ticket:'<svg class="ico" viewBox="0 0 24 24"><path d="M15 5v2M15 11v2M15 17v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg>',
+chat:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+lifebuoy:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>',
+file:'<svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+user:'<svg class="ico" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+wallet:'<svg class="ico" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14h.01"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>',
+handshake:'<svg class="ico" viewBox="0 0 24 24"><path d="M11 17a1 1 0 001 1h3l4-4a1 1 0 000-1.42l-4-4a1 1 0 00-1.42 0L11 11"/><path d="M13 7a1 1 0 00-1-1H9l-4 4a1 1 0 000 1.42l4 4a1 1 0 001.42 0L13 13"/></svg>',
+chart:'<svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+users:'<svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',
+list:'<svg class="ico" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+settings:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+palette:'<svg class="ico" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
+trash:'<svg class="ico" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+edit:'<svg class="ico" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+reply:'<svg class="ico" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>',
+bolt:'<svg class="ico" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+pkg:'<svg class="ico" viewBox="0 0 24 24"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+download:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+star:'<svg class="ico ico-f" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+coin:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6M9 15h6"/></svg>',
+gem:'<svg class="ico" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 22 22 7 12 2"/><polyline points="2 7 12 12 22 7"/></svg>',
+bot:'<svg class="ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg>',
+bell:'<svg class="ico" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>',
+transfer:'<svg class="ico" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>',
+tag:'<svg class="ico" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+globe:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>',
+card:'<svg class="ico" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+megaphone:'<svg class="ico" viewBox="0 0 24 24"><path d="M21 15V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10"/><polyline points="3 15 12 20 21 15"/></svg>',
+scroll:'<svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+cart:'<svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>',
+pencil:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+lang:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 8l6 10M15 4l-4 12"/><path d="M2 12h20"/><path d="M18 8a9 9 0 01-9 14"/></svg>',
+currency:'<svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+check:'<svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+x:'<svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+warn:'<svg class="ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+};
 
 /* ── i18n ── */
 const I18N={
@@ -733,7 +780,7 @@ function applyLocale(){
     // Home page buttons
     const hp=$('p-home');
     if(hp){
-        const trial=$('btn-trial');if(trial)trial.innerHTML='🎁&nbsp; '+t('trial');
+        const trial=$('btn-trial');if(trial)trial.innerHTML=IC.gift+'&nbsp; '+t('trial');
         // Sub card buttons
         $('sub-nosub-text').textContent=t('no_active_sub');
         $('btn-buy-sub').textContent=t('buy_sub');
@@ -741,13 +788,13 @@ function applyLocale(){
         const pills=hp.querySelectorAll('.pill');
         pills.forEach(p=>{
             const oc=p.getAttribute('onclick')||'';
-            if(oc.includes("go('connect')")) p.innerHTML='⊙ '+t('connect');
-            if(oc.includes("go('promo')")) p.innerHTML='🎁 '+t('promo');
-            if(oc.includes("go('devices')")) p.innerHTML='📱 '+t('devices');
-            if(oc.includes("inviteFriend()")) p.innerHTML='🔗 '+t('invite_friend');
+            if(oc.includes("go('connect')")) p.innerHTML=IC.connect+' '+t('connect');
+            if(oc.includes("go('promo')")) p.innerHTML=IC.promo+' '+t('promo');
+            if(oc.includes("go('devices')")) p.innerHTML=IC.phone+' '+t('devices');
+            if(oc.includes("inviteFriend()")) p.innerHTML=IC.link+' '+t('invite_friend');
         });
-        const commB=$('btn-community-home');if(commB&&commB.style.display!=='none')commB.innerHTML='💬 '+t('community');
-        const helpB=$('btn-help-home');if(helpB)helpB.innerHTML='🛟 '+t('help');
+        const commB=$('btn-community-home');if(commB&&commB.style.display!=='none')commB.innerHTML=IC.chat+' '+t('community');
+        const helpB=$('btn-help-home');if(helpB)helpB.innerHTML=IC.lifebuoy+' '+t('help');
     }
     // Page titles
     const pts={'p-plans':'plans','p-connect':'connect_title','p-devices':'devices_title','p-promo':'promo','p-support':'support','p-tickets':'my_tickets','p-profile':'profile'};
@@ -756,8 +803,8 @@ function applyLocale(){
     const cp=$('p-connect');
     if(cp){
         const cardTitles=cp.querySelectorAll('.card-title');
-        if(cardTitles[0])cardTitles[0].textContent='⚡ '+t('connection');
-        if(cardTitles[1])cardTitles[1].textContent='🔗 '+t('subscription');
+        if(cardTitles[0])cardTitles[0].innerHTML=IC.bolt+' '+t('connection');
+        if(cardTitles[1])cardTitles[1].innerHTML=IC.link+' '+t('subscription');
         // Download button
         const dlBtn=$('btn-download-label');
         if(dlBtn) dlBtn.textContent=t('download_app');
@@ -767,7 +814,7 @@ function applyLocale(){
             if(id==='btn-oneclick'){const txt=p.childNodes[p.childNodes.length-1];if(txt)txt.textContent=' '+t('one_click')}
             if(id==='btn-subpage'){const txt=p.childNodes[p.childNodes.length-1];if(txt)txt.textContent=' '+t('sub_page')}
             if(id==='btn-qr') p.innerHTML='<svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3M20 14v3h-3M14 20h7v-3"/></svg>&nbsp;'+t('show_qr');
-            if(id==='btn-show-sub'){const det=$('con-sub-detail');p.innerHTML='🔑&nbsp;'+(det&&det.style.display!=='none'?t('hide_sub'):t('show_sub'))}
+            if(id==='btn-show-sub'){const det=$('con-sub-detail');p.innerHTML=IC.key+'&nbsp;'+(det&&det.style.display!=='none'?t('hide_sub'):t('show_sub'))}
         });
     }
     // Devices page
@@ -776,7 +823,7 @@ function applyLocale(){
         const labels=dp.querySelectorAll('.card-label');
         if(labels[0])labels[0].textContent=t('limit');
         if(labels[1])labels[1].textContent=t('used');
-        const eb=$('btn-expand-devices');if(eb)eb.innerHTML='➕ '+t('expand_devices');
+        const eb=$('btn-expand-devices');if(eb)eb.innerHTML=IC.plus+' '+t('expand_devices');
     }
     // Promo page
     const pp=$('p-promo');
@@ -790,10 +837,11 @@ function applyLocale(){
         const cards=sp.querySelectorAll('.card');
         cards.forEach(c=>{
             const ct=c.querySelector('.card-title');if(!ct)return;
-            if(ct.textContent.includes('🎫')||ct.querySelector('#ticket-badge')){ct.childNodes[0].textContent='🎫 '+t('tickets')+' '}
-            if(ct.textContent.includes('💬')) ct.textContent='💬 '+t('community');
-            if(ct.textContent.includes('🛟')) ct.textContent='🛟 '+t('help');
-            if(ct.textContent.includes('📄')) ct.textContent='📄 '+t('agreement');
+            if(ct.querySelector('#ticket-badge')||ct.querySelector('.ico')){const svg=ct.querySelector('svg');if(svg&&ct.querySelector('#ticket-badge')){const tn=document.createTextNode(' '+t('tickets')+' ');if(ct.childNodes[1])ct.replaceChild(tn,ct.childNodes[1]);else ct.insertBefore(tn,ct.querySelector('#ticket-badge'))}}
+            const cid=c.id||'';
+            if(cid==='support-community'){ct.innerHTML=IC.chat+' '+t('community')}
+            if(cid==='support-help'){ct.innerHTML=IC.lifebuoy+' '+t('help')}
+            if(cid==='support-tos'){ct.innerHTML=IC.file+' '+t('agreement')}
         });
         sp.querySelectorAll('.pill').forEach(p=>{
             const oc=p.getAttribute('onclick')||'',id=p.id||'';
@@ -811,8 +859,8 @@ function applyLocale(){
     const cbtns=$('ticket-close-actions');
     if(cbtns){
         const btns=cbtns.querySelectorAll('.ticket-close-btn');
-        if(btns[0])btns[0].innerHTML='✅ '+t('resolved');
-        if(btns[1])btns[1].innerHTML='❌ '+t('unresolved');
+        if(btns[0])btns[0].innerHTML=IC.check+' '+t('resolved');
+        if(btns[1])btns[1].innerHTML=IC.x+' '+t('unresolved');
     }
     // Profile page
     const pf=$('p-profile');
@@ -822,16 +870,16 @@ function applyLocale(){
         if(labels[0])labels[0].textContent='ID';
         if(labels[1])labels[1].textContent=t('name');
         const cardTitles=pf.querySelectorAll('.card-title');
-        cardTitles.forEach(ct=>{
-            if(ct.textContent.includes('👤'))ct.textContent='👤 '+t('profile');
-            if(ct.textContent.includes('💰'))ct.textContent='💰 '+t('balance');
-            if(ct.textContent.includes('🤝'))ct.textContent='🤝 '+t('invite_friend');
+        cardTitles.forEach((ct,i)=>{
+            if(i===0)ct.innerHTML=IC.user+' '+t('profile');
+            if(i===1)ct.innerHTML=IC.wallet+' '+t('balance');
+            if(i===2)ct.innerHTML=IC.handshake+' '+t('invite_friend');
         });
         const pfPills=pf.querySelectorAll('.pill');
         pfPills.forEach(p=>{
             if((p.getAttribute('onclick')||'').includes('topupBalance'))p.textContent=t('topup');
             if((p.getAttribute('onclick')||'').includes('copyRef'))p.textContent=t('copy_link');
-            if((p.getAttribute('onclick')||'').includes('inviteFriend'))p.textContent='🔗 '+t('invite_friend');
+            if((p.getAttribute('onclick')||'').includes('inviteFriend'))p.innerHTML=IC.link+' '+t('invite_friend');
         });
     }
     // Admin - save brand button
@@ -1083,9 +1131,9 @@ function _getPayMethods(){
     const gateways=D.available_gateways||[];
     let methods=[];
     gateways.forEach(gw=>{
-        methods.push({type:gw.type,name:GW_LABELS[gw.type]||gw.type,icon:GW_ICONS[gw.type]||'💳',desc:GW_DESCS[gw.type]||''});
+        methods.push({type:gw.type,name:GW_LABELS[gw.type]||gw.type,icon:GW_ICONS[gw.type]||IC.card,desc:GW_DESCS[gw.type]||''});
     });
-    methods.push({type:'balance',name:t('balance'),icon:'💰',desc:D.user.balance+' '+sym});
+    methods.push({type:'balance',name:t('balance'),icon:IC.wallet,desc:D.user.balance+' '+sym});
     return methods;
 }
 function _getDefaultMethod(){
@@ -1149,10 +1197,10 @@ function _renderPayBtn(planId){
 
 function renderPlans(){
     const el=$('plans-list'),dc=D.default_currency||'RUB',sym=CURRENCY_SYMBOLS[dc]||'₽';
-    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>'+t('no_plans')+'</h3></div>';return}
+    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">'+IC.list+'</span><h3>'+t('no_plans')+'</h3></div>';return}
     const activePlanId=D.subscription&&D.subscription.status==='ACTIVE'?(D.subscription.plan_id||(D.subscription.plan&&D.subscription.plan.id)):null;
     const visiblePlans=activePlanId?D.plans.filter(p=>p.id!==activePlanId):D.plans;
-    if(!visiblePlans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">✅</span><h3>Нет доступных планов</h3><p style="color:var(--text3);font-size:.84rem">Ваш текущий план — единственный</p></div>';return}
+    if(!visiblePlans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">'+IC.check+'</span><h3>Нет доступных планов</h3><p style="color:var(--text3);font-size:.84rem">Ваш текущий план — единственный</p></div>';return}
     const singlePlan=visiblePlans.length===1;
     el.innerHTML=visiblePlans.map(p=>{
         const desc=p.description||'';
@@ -1170,7 +1218,7 @@ function renderPlans(){
                 (singlePlan?'':'<div class="plan-card-price">'+priceText+'</div>')+
             '</div>'+
             (desc?'<div class="plan-card-desc">'+esc(desc)+'</div>':'')+
-            '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
+            '<div class="plan-card-meta"><span>'+IC.pkg+' '+trafficText+'</span><span>'+IC.phone+' '+devicesText+'</span></div>'+
             '<div class="plan-card-body"'+(singlePlan?' style="max-height:none;opacity:1;margin-top:12px"':'')+'>'+
                 '<div class="plan-dur-grid">'+gridHtml+'</div>'+
             '</div>'+
@@ -1300,10 +1348,10 @@ function applyPlanPromo(e,planId){
 function _buildPayOpts(){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const gateways=D.available_gateways||[];
-    let options='<option value="balance">💰 '+t('balance')+' ('+D.user.balance+' '+sym+')</option>';
+    let options='<option value="balance">'+IC.wallet+' '+t('balance')+' ('+D.user.balance+' '+sym+')</option>';
     gateways.forEach(gw=>{
         const label=GW_LABELS[gw.type]||gw.type;
-        const icon=GW_ICONS[gw.type]||'💳';
+        const icon=GW_ICONS[gw.type]||IC.card;
         options+='<option value="'+gw.type+'">'+icon+' '+label+'</option>';
     });
     return options;
@@ -1314,16 +1362,16 @@ function showConfirmPurchase(planId,days,price,payMethod){
     const plan=D.plans.find(p=>p.id===planId);
     const planName=plan?esc(plan.name):'—';
     const gateways=D.available_gateways||[];
-    let pmLabel='💰 '+t('balance');
-    if(payMethod==='balance'){pmLabel='💰 '+t('balance')}
-    else{const gw=gateways.find(g=>g.type===payMethod);pmLabel=(GW_ICONS[payMethod]||'💳')+' '+(gw?(GW_LABELS[gw.type]||gw.type):payMethod)}
+    let pmLabel=IC.wallet+' '+t('balance');
+    if(payMethod==='balance'){pmLabel=IC.wallet+' '+t('balance')}
+    else{const gw=gateways.find(g=>g.type===payMethod);pmLabel=(GW_ICONS[payMethod]||IC.card)+' '+(gw?(GW_LABELS[gw.type]||gw.type):payMethod)}
     let note='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
         const curPlanId=D.subscription.plan_id||(D.subscription.plan&&D.subscription.plan.id);
         if(curPlanId && curPlanId!==planId){
-            note='<div class="confirm-note">⚠️ '+t('sub_change_note')+'</div>';
+            note='<div class="confirm-note">'+IC.warn+' '+t('sub_change_note')+'</div>';
         } else {
-            note='<div class="confirm-note">⚠️ '+t('sub_renew_note')+'</div>';
+            note='<div class="confirm-note">'+IC.warn+' '+t('sub_renew_note')+'</div>';
         }
     }
     const h='<h3>'+t('confirm')+'</h3>'+
@@ -1362,7 +1410,7 @@ async function payViaGateway(planId,days,gwType){
                 openLink(j.payment_url);
                 _showPayWaiting(planId,days,gwType,j.payment_url);
             } else {
-                toast(t('sub_done')+' ✅');
+                toast(t('sub_done'),'success');
                 const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
             }
         } else {
@@ -1377,7 +1425,7 @@ function _showPayWaiting(planId,days,gwType,payUrl){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const sel=planSel[planId];
     const amount=sel?_fmtPr(sel.price):'—';
-    const gwLabel=(GW_ICONS[gwType]||'💳')+' '+(GW_LABELS[gwType]||gwType);
+    const gwLabel=(GW_ICONS[gwType]||IC.card)+' '+(GW_LABELS[gwType]||gwType);
     showModal(
         '<div style="text-align:center;padding:16px 0">'+
             '<div class="spinner" style="margin:0 auto"></div>'+
@@ -1423,7 +1471,7 @@ function _cancelPayWaiting(){
 function _showPaySuccess(planName,period,cost,method){
     showModal(
         '<div style="text-align:center;padding:16px 0">'+
-            '<div style="font-size:3.5rem">✅</div>'+
+            '<div style="font-size:3.5rem">'+IC.check+'</div>'+
             '<h3 style="margin-top:12px;color:var(--green)">'+t('pay_success')+'</h3>'+
             '<div class="confirm-info" style="margin-top:16px;text-align:left">'+
                 '<div class="confirm-row"><span class="c-label">'+t('tariff')+':</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
@@ -1485,10 +1533,10 @@ function toggleSubLink(){
     const btn=$('btn-show-sub');
     if(det.style.display==='none'){
         det.style.display='';
-        btn.innerHTML='🔑&nbsp;'+t('hide_sub');
+        btn.innerHTML=IC.key+'&nbsp;'+t('hide_sub');
     } else {
         det.style.display='none';
-        btn.innerHTML='🔑&nbsp;'+t('show_sub');
+        btn.innerHTML=IC.key+'&nbsp;'+t('show_sub');
     }
 }
 
@@ -1606,13 +1654,12 @@ function showBonusInfo(){
         '<p style="color:var(--text2);font-size:.84rem;margin-bottom:12px">Бонусный баланс начисляется за приглашение друзей через реферальную ссылку.</p>'+
         '<div class="ref-box" style="margin-bottom:12px"><code>'+esc(refLink)+'</code></div>'+
         '<div class="modal-actions" style="flex-direction:column;gap:8px">'+
-        '<button class="btn btn-primary btn-full" onclick="closeModal();inviteFriend()">🔗 Пригласить друга</button>'+
+        '<button class="btn btn-primary btn-full" onclick="closeModal();inviteFriend()">'+IC.link+' Пригласить друга</button>'+
         '<button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div>');
 }
 function inviteFriend(){
     const refLink=D.ref_link;
     if(!refLink){toast(t('error'),'error');return}
-    // Prefer settingsCache (admin may have updated), fall back to D.features
     let template=(settingsCache&&settingsCache.referral_invite_message!=null)?settingsCache.referral_invite_message:((D.features&&D.features.referral_invite_message)||'');
     let msg='';
     if(template){
@@ -1620,21 +1667,12 @@ function inviteFriend(){
         if(msg.startsWith('\n'))msg=msg.substring(1);
     }
     if(!msg)msg=(BRAND.name||DEFAULT_NAME)+'\n'+refLink;
-    // Truncate to 256 chars for inline query limit
-    if(msg.length>256)msg=msg.substring(0,256);
-    // switchInlineQuery opens Telegram's chat-list picker; selected chat receives the inline result
+    const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
     try{
-        if(tg.initData&&typeof tg.switchInlineQuery==='function'){
-            tg.switchInlineQuery(msg,['users','bots','groups','channels']);
-        } else {
-            // Fallback: standard share dialog
-            const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-            if(typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);
-            else window.open(shareUrl,'_blank');
-        }
+        if(typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);
+        else window.open(shareUrl,'_blank');
     }catch(e){
-        const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-        try{tg.openTelegramLink(shareUrl)}catch(e2){window.open(shareUrl,'_blank')}
+        window.open(shareUrl,'_blank');
     }
 }
 
@@ -1684,7 +1722,7 @@ function renderRenewPage(plan){
             '<div class="plan-card-header">'+
                 '<div class="plan-card-name">'+esc(plan.name)+'</div>'+
             '</div>'+
-            '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
+            '<div class="plan-card-meta"><span>'+IC.pkg+' '+trafficText+'</span><span>'+IC.phone+' '+devicesText+'</span></div>'+
             '<div class="plan-card-body" style="max-height:none;opacity:1;margin-top:12px">'+
                 '<div class="plan-dur-grid">'+gridHtml+'</div>'+
             '</div>'+
@@ -1727,7 +1765,7 @@ async function confirmPurchase(planId,days,price){
         const r=await fetch(API+'/api/purchase',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan_id:planId,duration_days:days})});
         closeModal();
         if(r.ok){
-            toast(t('sub_done')+' ✅');
+            toast(t('sub_done'),'success');
             const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
         } else {
             try{const j=await r.json();toast(j.detail||t('purchase_error'),'error')}
@@ -1741,8 +1779,8 @@ async function startTrial(){
         const r=await fetch(API+'/api/trial/activate',{method:'POST'});
         closeModal();
         if(r.ok){
-            toast(t('trial_done')+' ✅','success');
-            showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">✅</div><h3 style="margin-top:12px;color:var(--green)">'+t('trial_done')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('trial_go_connect')+'</p><div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:14px"><button class="btn btn-primary btn-full" onclick="closeModal();openLink(getDownloadUrl())">📥 '+t('download')+'</button><button class="btn btn-primary btn-full" style="background:linear-gradient(135deg,var(--cyan),#1AA3CC)" onclick="closeModal();go(\'connect\')">⊙ '+t('connect')+'</button><button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div></div>');
+            toast(t('trial_done'),'success');
+            showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">'+IC.check+'</div><h3 style="margin-top:12px;color:var(--green)">'+t('trial_done')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('trial_go_connect')+'</p><div class="modal-actions" style="flex-direction:column;gap:8px;margin-top:14px"><button class="btn btn-primary btn-full" onclick="closeModal();openLink(getDownloadUrl())">'+IC.download+' '+t('download')+'</button><button class="btn btn-primary btn-full" style="background:linear-gradient(135deg,var(--cyan),#1AA3CC)" onclick="closeModal();go(\'connect\')">'+IC.connect+' '+t('connect')+'</button><button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div></div>');
             const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
         } else {
             const j=await r.json();toast(j.detail||t('error'),'error');
@@ -1751,7 +1789,7 @@ async function startTrial(){
 }
 function expandDevices(){
     if(D.subscription&&D.subscription.is_trial){
-        showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">⚠️</div><h3 style="margin-top:12px;color:var(--gold)">'+t('expand_unavail')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('expand_trial_msg')+'</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();buySubscription()">'+t('buy_plan')+'</button><button class="btn btn-secondary" onclick="closeModal()">'+t('close')+'</button></div></div>');
+        showModal('<div style="text-align:center;padding:30px"><div style="font-size:3rem">'+IC.warn+'</div><h3 style="margin-top:12px;color:var(--gold)">'+t('expand_unavail')+'</h3><p style="color:var(--text2);font-size:.84rem;margin-top:8px">'+t('expand_trial_msg')+'</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal();buySubscription()">'+t('buy_plan')+'</button><button class="btn btn-secondary" onclick="closeModal()">'+t('close')+'</button></div></div>');
         return;
     }
     toast(t('expand_via_bot'));
@@ -1773,7 +1811,7 @@ function topupBalance(){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     let gwOpts=gateways.map(gw=>{
         const label=GW_LABELS[gw.type]||gw.type;
-        const icon=GW_ICONS[gw.type]||'💳';
+        const icon=GW_ICONS[gw.type]||IC.card;
         return '<option value="'+gw.type+'">'+icon+' '+label+'</option>';
     }).join('');
     showModal('<h3>'+t('topup')+'</h3>'+
@@ -1796,7 +1834,7 @@ async function doTopup(){
         if(r.ok){
             const j=await r.json();
             if(j.payment_url)openLink(j.payment_url);
-            else toast(t('pay_created')+' ✅');
+            else toast(t('pay_created'),'success');
         } else {
             const j=await r.json();toast(j.detail||t('error'),'error');
         }
@@ -1909,12 +1947,12 @@ function drawAdmPlans(){
                 '<span class="avail-badge'+(isTrial?' trial':'')+'">'+avl+'</span>'+
                 '<div class="plan-admin-actions" onclick="event.stopPropagation()">'+
                     '<button class="btn-toggle-plan'+(p.is_active?' active':'')+'" onclick="togglePlan('+p.id+',this)" title="'+(p.is_active?'Выключить':'Включить')+'"></button>'+
-                    '<button class="btn-trash" onclick="delPlan('+p.id+')" title="Удалить">🗑</button>'+
+                    '<button class="btn-trash" onclick="delPlan('+p.id+')" title="Удалить">'+IC.trash+'</button>'+
                 '</div>'+
             '</div>'+
             '<div class="plan-admin-meta">'+
-                '<span>📦 '+(p.traffic_limit||'∞')+' GB</span>'+
-                '<span>📱 '+(p.device_limit||'∞')+' устр.</span>'+
+                '<span>'+IC.pkg+' '+(p.traffic_limit||'∞')+' GB</span>'+
+                '<span>'+IC.phone+' '+(p.device_limit||'∞')+' устр.</span>'+
                 '<span>⏱ '+(p.durations||[]).length+' период(ов)</span>'+
             '</div>'+
         '</div>';
@@ -2039,41 +2077,41 @@ function drawSettings(){
         }
     };
     const funcItems=[
-        {key:'balance_enabled',icon:'💰',label:'Баланс',desc:'Пополнение и использование баланса',detail:'balance'},
-        {key:'referral_enabled',icon:'🤝',label:'Реф.система',desc:'Реферальная программа',detail:'referral'},
-        {key:'promocodes_enabled',icon:'🎁',label:'Промокоды',desc:'Активация промокодов'},
-        {key:'notifications_enabled',icon:'🔔',label:'Уведомления',desc:'Уведомления пользователей',detail:'notifications'},
-        {key:'extra_devices_enabled',icon:'📱',label:'Доп. устройства',desc:'Расширение лимита устройств',detail:'extra_devices'},
-        {key:'transfers_enabled',icon:'💸',label:'Переводы',desc:'Переводы баланса между пользователями',detail:'transfers'},
-        {key:'global_discount_enabled',icon:'🏷',label:'Глобальная скидка',desc:'Скидка на все тарифы',detail:'global_discount'},
-        {key:'community_enabled',icon:'💬',label:'Сообщество',desc:'Ссылка на Telegram-группу',detail:'community'},
-        {key:'tos_enabled',icon:'📄',label:'Соглашение',desc:'Пользовательское соглашение',detail:'tos'},
-        {key:'language_enabled',icon:'🌐',label:'Мультиязычность',desc:'Выбор языка интерфейса'},
+        {key:'balance_enabled',icon:IC.wallet,label:'Баланс',desc:'Пополнение и использование баланса',detail:'balance'},
+        {key:'referral_enabled',icon:IC.handshake,label:'Реф.система',desc:'Реферальная программа',detail:'referral'},
+        {key:'promocodes_enabled',icon:IC.gift,label:'Промокоды',desc:'Активация промокодов'},
+        {key:'notifications_enabled',icon:IC.bell,label:'Уведомления',desc:'Уведомления пользователей',detail:'notifications'},
+        {key:'extra_devices_enabled',icon:IC.phone,label:'Доп. устройства',desc:'Расширение лимита устройств',detail:'extra_devices'},
+        {key:'transfers_enabled',icon:IC.transfer,label:'Переводы',desc:'Переводы баланса между пользователями',detail:'transfers'},
+        {key:'global_discount_enabled',icon:IC.tag,label:'Глобальная скидка',desc:'Скидка на все тарифы',detail:'global_discount'},
+        {key:'community_enabled',icon:IC.chat,label:'Сообщество',desc:'Ссылка на Telegram-группу',detail:'community'},
+        {key:'tos_enabled',icon:IC.file,label:'Соглашение',desc:'Пользовательское соглашение',detail:'tos'},
+        {key:'language_enabled',icon:IC.globe,label:'Мультиязычность',desc:'Выбор языка интерфейса'},
     ];
     let gwRows='';
     gatewaysCache.forEach(gw=>{
         const label=GW_LABELS[gw.type]||gw.type;
-        const icon=GW_ICONS[gw.type]||'💳';
+        const icon=GW_ICONS[gw.type]||IC.card;
         gwRows+='<div class="settings-row" onclick="openGatewayDetail('+gw.id+')"><div class="settings-row-left"><span class="settings-icon">'+icon+'</span><div><div class="settings-label">'+label+'</div><div class="settings-desc">'+gw.currency+' • '+(gw.is_active?'Активна':'Неактивна')+'</div></div></div><button class="toggle-switch '+(gw.is_active?'active':'')+'" onclick="event.stopPropagation();toggleGw('+gw.id+','+(!gw.is_active)+',this)"></button></div>';
     });
-    if(!gatewaysCache.length) gwRows='<div class="settings-row"><div class="settings-row-left"><span class="settings-icon">💳</span><div><div class="settings-label">Нет платёжных систем</div><div class="settings-desc">Настройте в панели Remnawave</div></div></div></div>';
+    if(!gatewaysCache.length) gwRows='<div class="settings-row"><div class="settings-row-left"><span class="settings-icon">'+IC.card+'</span><div><div class="settings-label">Нет платёжных систем</div><div class="settings-desc">Настройте в панели Remnawave</div></div></div></div>';
     const botItems=[
-        {key:'access_mode',icon:'🔑',label:'Режим доступа',desc:s.access_mode||'PUBLIC',type:'select',detail:'access_mode'},
-        {key:'channel_required',icon:'📢',label:'Подписка на канал',desc:s.channel_link?'Канал: '+s.channel_link:'Не настроено',detail:'channel'},
-        {key:'rules_required',icon:'📜',label:'Принятие правил',desc:'Требовать принятие условий при входе',detail:'tos'},
-        {key:'purchases_allowed',icon:'🛒',label:'Разрешить покупки',desc:'Разрешить покупку подписок'},
-        {key:'registration_allowed',icon:'📝',label:'Разрешить регистрацию',desc:'Регистрация новых пользователей'},
-        {key:'default_currency',icon:'💱',label:'Валюта',desc:s.default_currency||'RUB',type:'select',detail:'currency_rates'},
-        {key:'bot_locale',icon:'🗣',label:'Язык бота',desc:s.bot_locale||'RU',type:'select',detail:'bot_locale'},
+        {key:'access_mode',icon:IC.key,label:'Режим доступа',desc:s.access_mode||'PUBLIC',type:'select',detail:'access_mode'},
+        {key:'channel_required',icon:IC.megaphone,label:'Подписка на канал',desc:s.channel_link?'Канал: '+s.channel_link:'Не настроено',detail:'channel'},
+        {key:'rules_required',icon:IC.scroll,label:'Принятие правил',desc:'Требовать принятие условий при входе',detail:'tos'},
+        {key:'purchases_allowed',icon:IC.cart,label:'Разрешить покупки',desc:'Разрешить покупку подписок'},
+        {key:'registration_allowed',icon:IC.pencil,label:'Разрешить регистрацию',desc:'Регистрация новых пользователей'},
+        {key:'default_currency',icon:IC.currency,label:'Валюта',desc:s.default_currency||'RUB',type:'select',detail:'currency_rates'},
+        {key:'bot_locale',icon:IC.lang,label:'Язык бота',desc:s.bot_locale||'RU',type:'select',detail:'bot_locale'},
     ];
     let html='';
-    html+='<details class="spoiler-card settings-spoiler" open><summary><span class="spoiler-title">⚙️ Функционал</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler" open><summary><span class="spoiler-title">'+IC.settings+' Функционал</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     funcItems.forEach(item=>{html+=mkRow(item)});
     html+='</div></details>';
-    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">💳 Платёжные системы</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">'+IC.card+' Платёжные системы</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     html+=gwRows;
     html+='</div></details>';
-    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">🤖 Управление ботом</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">'+IC.bot+' Управление ботом</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     botItems.forEach(item=>{html+=mkRow(item)});
     html+='</div></details>';
     $('settings-list').innerHTML=html;
@@ -2206,7 +2244,7 @@ async function toggleSet(k,v,dotId){
 /* ═══ PAYMENT GATEWAYS ═══ */
 let gatewaysCache=[];
 const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'ЮMoney',CRYPTOMUS:'Cryptomus',HELEKET:'Криптовалюта',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
-const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'<svg viewBox="0 0 24 24" width="27" height="27" style="vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#8B3FFD"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Arial">Ю</text></svg>',CRYPTOMUS:'🪙',HELEKET:'₿',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
+const GW_ICONS={TELEGRAM_STARS:IC.star,YOOKASSA:'<svg viewBox="0 0 24 24" width="27" height="27" style="vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#8B3FFD"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Arial">Ю</text></svg>',YOOMONEY:'<svg viewBox="0 0 24 24" width="27" height="27" style="vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#8B3FFD"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Arial">Ю</text></svg>',CRYPTOMUS:IC.coin,HELEKET:'₿',CRYPTOPAY:IC.gem,ROBOKASSA:IC.bot,BALANCE:IC.wallet};
 const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Банковская карта',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'BTC, USDT и другие',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
 const GW_SECRET_FIELDS=['api_key','secret_key'];
 async function loadGateways(){
@@ -2269,7 +2307,7 @@ let curTicketId=null;
 async function loadTickets(){
     try{const r=await fetch(API+'/api/tickets');if(!r.ok)return;const tks=await r.json();
     const el=$('tickets-list');
-    if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}
+    if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">'+IC.ticket+'</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}
     // Sort by updated_at descending (newest first)
     tks.sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''));
     el.innerHTML=tks.map(tk=>{
@@ -2508,20 +2546,26 @@ function _showPasteModal(dataUrl){
     showModal(
         '<h3 style="margin:0 0 12px">Отправить изображение</h3>'+
         '<img class="paste-preview-img" src="'+dataUrl.replace(/"/g,'&quot;')+'" alt="">'+
-        '<label class="paste-compress-row"><input type="checkbox" id="paste-compress" checked><span>Сжать изображение</span></label>'+
-        '<div style="font-size:.78rem;color:var(--text3);margin-bottom:8px">Подпись</div>'+
+        '<div style="font-size:.78rem;color:var(--text3);margin-bottom:6px">Подпись</div>'+
         '<textarea id="paste-caption" class="form-input" placeholder="Тут можно ввести сообщение" rows="2" style="resize:none;width:100%;box-sizing:border-box"></textarea>'+
-        '<div class="modal-actions" style="margin-top:14px">'+
+        '<div class="modal-actions" style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px">'+
         '<button class="btn btn-secondary" onclick="closeModal();_pendingPaste=null">Отмена</button>'+
         '<button class="btn btn-primary" onclick="_pasteModalSend()">Отправить</button>'+
         '</div>'
     );
-    setTimeout(()=>{const c=$('paste-caption');if(c)c.focus()},100);
+    setTimeout(()=>{
+        const c=$('paste-caption');
+        if(c){
+            c.focus();
+            c.addEventListener('keydown',function(e){
+                if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();_pasteModalSend()}
+            });
+        }
+    },100);
 }
 async function _pasteModalSend(){
     if(!_pendingPaste){closeModal();return}
     const caption=$('paste-caption')?$('paste-caption').value.trim():'';
-    const compress=$('paste-compress')?$('paste-compress').checked:true;
     let dataUrl=_pendingPaste.dataUrl;
     const sendFn=async(du)=>{
         const imgTag='[IMG:'+du+']';
@@ -2530,7 +2574,7 @@ async function _pasteModalSend(){
         _pendingPaste=null;closeModal();
         if(mode==='adm')await _sendAdmMsg(text);else await _sendUsrMsg(text);
     };
-    if(compress&&dataUrl.startsWith('data:image/')){
+    if(dataUrl.startsWith('data:image/')){
         try{
             const img=new Image();
             img.onload=function(){
@@ -2546,7 +2590,7 @@ async function _pasteModalSend(){
     } else {sendFn(dataUrl)}
 }
 function showNewTicket(){
-    showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..."></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
+    showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..." autocomplete="off"></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical" autocomplete="off"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
 }
 async function createTicket(){
     const subject=$('nt-subj').value.trim(), text=$('nt-text').value.trim();
@@ -2580,7 +2624,7 @@ async function loadAdmTickets(){
             '<div class="ticket-top"><span class="ticket-id">#'+tk.id+' · ID '+tk.user_telegram_id+'</span><span class="ticket-status '+stClass+'">'+stLabel+'</span></div>'+
             '<div class="ticket-row2"><span class="ticket-subject">'+esc(tk.subject)+'</span></div>'+
             (lastMsg?'<div class="ticket-preview">'+esc(lastMsg.substring(0,80))+'</div>':'')+
-            '<div class="ticket-bottom-row"><span class="ticket-date">'+tk.updated_at+'</span><button class="btn-trash" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">🗑</button></div>'+
+            '<div class="ticket-bottom-row"><span class="ticket-date">'+tk.updated_at+'</span><button class="btn-trash" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">'+IC.trash+'</button></div>'+
             '</div>';
     }).join('')}catch(e){}
 }

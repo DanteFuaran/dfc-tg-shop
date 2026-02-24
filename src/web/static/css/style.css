@@ -122,6 +122,9 @@ a{color:var(--cyan);text-decoration:none}
 
 /* ── Content area ───────────────────────────── */
 .app-content{flex:1;padding:16px;padding-bottom:82px;overflow-y:auto}
+/* Inline SVG icons */
+.ico{display:inline-block;width:1em;height:1em;vertical-align:-.125em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.ico-f{fill:currentColor;stroke:none}
 
 /* ── Page transition ────────────────────────── */
 .page{display:none}
@@ -1045,10 +1048,11 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-page{
     display:none;flex-direction:column;
     position:fixed;top:0;left:0;right:0;bottom:74px;
-    z-index:50;background:var(--bg);overflow:hidden;
-    max-width:480px;margin:0 auto;
+    z-index:50;background:transparent;overflow:hidden;
+    max-width:480px;margin:0 auto;padding:0 16px;
 }
 .ticket-page.active{display:flex;animation:fadeUp .22s ease}
+.ticket-page .page-header{flex-shrink:0}
 .ticket-chat{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 4px;scrollbar-width:thin;scrollbar-color:rgba(36,196,241,.3) transparent}
 .ticket-chat::-webkit-scrollbar{width:4px}
 .ticket-chat::-webkit-scrollbar-track{background:transparent}
@@ -1100,7 +1104,7 @@ a{color:var(--cyan);text-decoration:none}
 }
 .ticket-attach-btn:hover{color:var(--cyan)}
 .ticket-reply-box{display:flex;flex-direction:column;gap:4px;margin-top:0}
-.ticket-reply-row{display:flex;align-items:flex-end;gap:8px}
+.ticket-reply-row{display:flex;align-items:center;gap:8px}
 .ticket-bottom-bar{flex-shrink:0;padding:8px 0 4px}
 .ticket-reply-box textarea{
     flex:1;background:rgba(255,255,255,.15);border:1.5px solid rgba(36,196,241,.3);border-radius:10px;
@@ -1110,14 +1114,12 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-reply-box textarea:focus{border-color:var(--cyan);outline:none}
 .ticket-send-btn{
     background:none;color:var(--cyan);border:none;border-radius:10px;
-    padding:0 8px;cursor:pointer;
+    padding:0 8px;cursor:pointer;height:44px;width:44px;flex-shrink:0;
     transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;
 }
 .ticket-send-btn:hover{opacity:.7}
 /* Paste image preview modal */
 .paste-preview-img{max-width:100%;max-height:200px;border-radius:8px;display:block;margin:0 auto 14px;object-fit:contain}
-.paste-compress-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.88rem;color:var(--text2)}
-.paste-compress-row input[type=checkbox]{accent-color:var(--cyan);width:16px;height:16px}
 .ticket-badge{
     display:inline-flex;align-items:center;justify-content:center;
     min-width:18px;height:18px;border-radius:9px;
