@@ -49,11 +49,22 @@ export default function HomePage() {
 
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      // Точный аналог SwitchInlineQueryChosenChatButton бота:
-      // allow_user_chats=True, allow_group_chats=True, allow_channel_chats=True
-      tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
+      // switchInlineQuery работает только на мобильных клиентах Telegram.
+      // На десктопе (tdesktop, macos, webk, weba) чат-пикер не открывается —
+      // используем openTelegramLink с t.me/share/url (открывает окно пересылки).
+      const mobileClients = ['android', 'ios', 'android_x'];
+      const isMobile = mobileClients.includes(tg.platform ?? '');
+
+      if (isMobile) {
+        tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
+      } else {
+        // Десктоп / веб-версия Telegram: открываем стандартный share-диалог
+        tg.openTelegramLink(
+          `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`,
+        );
+      }
     } else {
-      // Fallback для браузера
+      // Fallback: открываем share URL в браузере
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
       window.open(shareUrl, '_blank');
     }

@@ -44,6 +44,8 @@ interface TelegramWebApp {
   };
   openLink: (url: string) => void;
   openTelegramLink: (url: string) => void;
+  /** Платформа клиента: 'android' | 'ios' | 'android_x' | 'tdesktop' | 'macos' | 'webk' | 'weba' | 'web' | 'unknown' */
+  platform: string;
   /** Открывает нативный пикер чатов (аналог SwitchInlineQueryChosenChatButton в боте) */
   switchInlineQuery: (
     query: string,
