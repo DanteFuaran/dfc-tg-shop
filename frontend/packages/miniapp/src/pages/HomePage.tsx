@@ -51,17 +51,17 @@ export default function HomePage() {
     if (tg) {
       // switchInlineQuery работает только на мобильных клиентах Telegram.
       // На десктопе (tdesktop, macos, webk, weba) чат-пикер не открывается —
-      // используем openTelegramLink с t.me/share/url (открывает окно пересылки).
+      // используем openLink с t.me/share/url (открывает нативный диалог пересылки).
       const mobileClients = ['android', 'ios', 'android_x'];
       const isMobile = mobileClients.includes(tg.platform ?? '');
+
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
 
       if (isMobile) {
         tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
       } else {
-        // Десктоп / веб-версия Telegram: открываем стандартный share-диалог
-        tg.openTelegramLink(
-          `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`,
-        );
+        // Десктоп / веб-версия Telegram: открываем через openLink (нативный диалог)
+        tg.openLink(shareUrl);
       }
     } else {
       // Fallback: открываем share URL в браузере
