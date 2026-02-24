@@ -37,6 +37,15 @@ class TicketRepository(BaseRepository):
     async def add_message(self, message: TicketMessage) -> TicketMessage:
         return await self.create_instance(message)
 
+    async def get_message_by_id(self, msg_id: int) -> Optional[TicketMessage]:
+        return await self._get_one(TicketMessage, TicketMessage.id == msg_id)
+
+    async def update_message(self, msg_id: int, **kwargs) -> Optional[TicketMessage]:
+        return await self._update(TicketMessage, TicketMessage.id == msg_id, **kwargs)
+
+    async def delete_message_by_id(self, msg_id: int) -> int:
+        return await self._delete(TicketMessage, TicketMessage.id == msg_id)
+
     async def count_unread_for_user(self, telegram_id: int) -> int:
         return await self._count(
             Ticket,

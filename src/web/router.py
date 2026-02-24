@@ -1822,6 +1822,48 @@ async def api_close_ticket(ticket_id: int, request: Request, access_token: Optio
         return JSONResponse(_ticket_to_dict(closed))
 
 
+@router.patch("/api/tickets/{ticket_id}/messages/{msg_id}")
+async def api_edit_ticket_message(ticket_id: int, msg_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: edit own message in own ticket."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Текст не может быть пустым")
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket or ticket.user_telegram_id != uid:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        msg = await ticket_svc.edit_message(uow, msg_id, text, uid, is_admin=False)
+        if not msg:
+            raise HTTPException(status_code=403, detail="Нет доступа")
+        return JSONResponse({"ok": True, "id": msg.id, "text": msg.text})
+
+
+@router.delete("/api/tickets/{ticket_id}/messages/{msg_id}")
+async def api_delete_ticket_message(ticket_id: int, msg_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: delete own message in own ticket."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        ticket = await ticket_svc.get_ticket(uow, ticket_id)
+        if not ticket or ticket.user_telegram_id != uid:
+            raise HTTPException(status_code=404, detail="Тикет не найден")
+        ok = await ticket_svc.delete_message(uow, msg_id, uid, is_admin=False)
+        if not ok:
+            raise HTTPException(status_code=403, detail="Нет доступа")
+        return JSONResponse({"ok": True})
+
+
 # ── Admin Tickets ─────────────────────────────────────────────
 
 
@@ -1897,4 +1939,39 @@ async def api_admin_delete_ticket(ticket_id: int, request: Request, access_token
         deleted = await ticket_svc.delete_ticket(uow, ticket_id)
         if not deleted:
             raise HTTPException(status_code=404, detail="Тикет не найден")
+        return JSONResponse({"ok": True})
+
+
+@router.patch("/api/admin/tickets/{ticket_id}/messages/{msg_id}")
+async def api_admin_edit_ticket_message(ticket_id: int, msg_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Admin: edit own (admin) message in any ticket."""
+    uid = await _require_admin(request, access_token)
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Текст не может быть пустым")
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        msg = await ticket_svc.edit_message(uow, msg_id, text, uid, is_admin=True)
+        if not msg:
+            raise HTTPException(status_code=403, detail="Нет доступа")
+        return JSONResponse({"ok": True, "id": msg.id, "text": msg.text})
+
+
+@router.delete("/api/admin/tickets/{ticket_id}/messages/{msg_id}")
+async def api_admin_delete_ticket_message(ticket_id: int, msg_id: int, request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Admin: delete any message in any ticket."""
+    uid = await _require_admin(request, access_token)
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        ticket_svc: TicketService = await req_container.get(TicketService)
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        # Admin can delete any message
+        msg = await uow.repository.tickets.get_message_by_id(msg_id)
+        if not msg:
+            raise HTTPException(status_code=404, detail="Сообщение не найдено")
+        await uow.repository.tickets.delete_message_by_id(msg_id)
+        await uow.commit()
         return JSONResponse({"ok": True})

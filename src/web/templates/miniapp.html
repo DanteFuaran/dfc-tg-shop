@@ -229,8 +229,22 @@
     <div id="ticket-chat" class="ticket-chat"></div>
     <div class="ticket-bottom-bar">
         <div id="ticket-reply" class="ticket-reply-box" style="display:none">
-            <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
-            <button class="ticket-send-btn" onclick="sendTicketReply()"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--cyan)" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            <div id="ticket-quote-bar" class="ticket-quote-bar">
+                <span class="ticket-quote-bar-text" id="ticket-quote-text"></span>
+                <button class="ticket-quote-close" onclick="_clearTicketReply()">✕</button>
+            </div>
+            <div id="ticket-edit-bar" class="ticket-edit-bar">
+                <span class="ticket-edit-bar-text">✏️ Редактирование сообщения</span>
+                <button class="ticket-quote-close" onclick="_clearTicketEdit()">✕</button>
+            </div>
+            <div class="ticket-reply-row">
+                <button class="ticket-attach-btn" onclick="$('ticket-file').click()" title="Прикрепить файл">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <input type="file" id="ticket-file" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="_ticketAttachFile(this,'ticket')">
+                <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
+                <button class="ticket-send-btn" onclick="sendTicketReply()"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--cyan)" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
         </div>
     </div>
 </section>
@@ -386,13 +400,34 @@
     <div id="at-chat" class="ticket-chat"></div>
     <div class="ticket-bottom-bar">
         <div id="at-reply" class="ticket-reply-box">
-            <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
-            <button class="ticket-send-btn" onclick="sendAdmTicketReply()"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--cyan)" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            <div id="at-quote-bar" class="ticket-quote-bar">
+                <span class="ticket-quote-bar-text" id="at-quote-text"></span>
+                <button class="ticket-quote-close" onclick="_clearAdmReply()">✕</button>
+            </div>
+            <div id="at-edit-bar" class="ticket-edit-bar">
+                <span class="ticket-edit-bar-text">✏️ Редактирование сообщения</span>
+                <button class="ticket-quote-close" onclick="_clearAdmEdit()">✕</button>
+            </div>
+            <div class="ticket-reply-row">
+                <button class="ticket-attach-btn" onclick="$('at-file').click()" title="Прикрепить файл">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <input type="file" id="at-file" accept="image/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="_ticketAttachFile(this,'adm')">
+                <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
+                <button class="ticket-send-btn" onclick="sendAdmTicketReply()"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--cyan)" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
         </div>
     </div>
 </section>
 
 </main>
+
+<!-- Ticket message context menu -->
+<div id="msg-ctx-menu" class="msg-ctx-menu" style="display:none">
+    <button onclick="_ctxReply()">↩ Ответить</button>
+    <div id="ctx-edit-wrap"><hr><button onclick="_ctxEdit()">✏️ Изменить</button></div>
+    <div id="ctx-del-wrap"><button class="danger" onclick="_ctxDelete()">🗑 Удалить</button></div>
+</div>
 
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
@@ -2257,7 +2292,7 @@ async function openTicket(id){
     curTicketId=id; go('ticket');$('ticket-title').textContent=t('loading');$('ticket-chat').innerHTML='';$('ticket-reply').style.display='none';
     try{const r=await fetch(API+'/api/tickets/'+id);if(!r.ok)return;
     const t2=await r.json();$('ticket-title').textContent=t2.subject;
-    renderTicketChat($('ticket-chat'),t2.messages);
+    renderTicketChat($('ticket-chat'),t2.messages,false);
     if(t2.status!=='CLOSED'){
         $('ticket-reply').style.display='flex';
     } else {
@@ -2289,22 +2324,184 @@ function _fmtTicketTime(dateStr){
 function renderTicketChat(el,msgs){
     el.innerHTML=(msgs||[]).map(m=>{
         const cls=m.is_admin?'admin':'user';
-        return '<div class="ticket-msg '+cls+'">'+esc(m.text)+'<div class="ticket-msg-time">'+_fmtTicketTime(m.created_at)+'</div></div>';
+        const canEdit=isAdm?m.is_admin:!m.is_admin;
+        const canDel=isAdm||!m.is_admin;
+        return '<div class="ticket-msg '+cls+'" data-mid="'+m.id+'" data-is-admin="'+m.is_admin+'" data-sender="'+m.sender_telegram_id+'" oncontextmenu="_msgCtx(event,this,'+JSON.stringify(canEdit)+','+JSON.stringify(canDel)+','+JSON.stringify(!!isAdm)+')">'+
+            _renderMsgContent(m.text)+
+            '<div class="ticket-msg-time">'+_fmtTicketTime(m.created_at)+'</div></div>';
     }).join('');
-    // Use requestAnimationFrame to ensure DOM is rendered before scrolling
     requestAnimationFrame(()=>{el.scrollTop=el.scrollHeight});
 }
+function _renderMsgContent(text){
+    if(!text)return '';
+    // Image
+    if(text.startsWith('[IMG:')){
+        const src=text.slice(5,-1);
+        return '<img class="ticket-msg-img" src="'+src.replace(/"/g,'&quot;')+'" onclick="(()=>{const w=window.open();w.document.write(\'<img src="'+src.replace(/"/g,'&quot;').replace(/'/g,"\\'")+'" style="max-width:100%">\')})()">';
+    }
+    // Quote lines at top
+    const lines=text.split('\n');
+    const qLines=[],tLines=[];let q=true;
+    for(const l of lines){if(q&&l.startsWith('> ')){qLines.push(l.slice(2))}else{q=false;tLines.push(l)}}
+    if(qLines.length){
+        return '<div class="ticket-quote">'+esc(qLines.join('\n'))+'</div>'+esc(tLines.join('\n')).replace(/\n/g,'<br>');
+    }
+    return esc(text).replace(/\n/g,'<br>');
+}
+// ── Context menu ──
+let _ctxTarget=null,_ctxTicketId=null,_ctxIsAdm=false,_ctxCanEdit=false,_ctxCanDel=false;
+function _msgCtx(e,el,canEdit,canDel,isAdm){
+    e.preventDefault();e.stopPropagation();
+    _ctxTarget=el;_ctxIsAdm=isAdm;_ctxCanEdit=canEdit;_ctxCanDel=canDel;
+    _ctxTicketId=isAdm?admCurTicketId:curTicketId;
+    const m=$('msg-ctx-menu');
+    const ew=$('ctx-edit-wrap');const dw=$('ctx-del-wrap');
+    if(ew)ew.style.display=canEdit?'':'none';
+    if(dw)dw.style.display=canDel?'':'none';
+    m.style.display='block';
+    const x=Math.min(e.clientX,window.innerWidth-180);
+    const y=Math.min(e.clientY,window.innerHeight-140);
+    m.style.left=x+'px';m.style.top=y+'px';
+    document.addEventListener('click',_closeCtx,{once:true});
+}
+function _closeCtx(){const m=$('msg-ctx-menu');if(m)m.style.display='none'}
+function _ctxReply(){
+    _closeCtx();if(!_ctxTarget)return;
+    const txt=_ctxTarget.querySelector('.ticket-msg-img')?'[Изображение]':(_ctxTarget.textContent||'').split('\n')[0].trim().substring(0,80);
+    if(_ctxIsAdm){
+        const qb=$('at-quote-bar');const qt=$('at-quote-text');
+        if(qb&&qt){qt.textContent=txt;qb.classList.add('visible')}
+        _clearAdmEdit();$('at-text')&&$('at-text').focus();
+    } else {
+        const qb=$('ticket-quote-bar');const qt=$('ticket-quote-text');
+        if(qb&&qt){qt.textContent=txt;qb.classList.add('visible')}
+        _clearTicketEdit();$('ticket-text')&&$('ticket-text').focus();
+    }
+}
+function _ctxEdit(){
+    _closeCtx();if(!_ctxTarget||!_ctxCanEdit)return;
+    const mid=_ctxTarget.dataset.mid;
+    const rawText=_ctxTarget.dataset.rawText||((_ctxTarget.querySelector('.ticket-msg-img'))?'[IMG:'+_ctxTarget.querySelector('.ticket-msg-img').src+']':
+        ((_ctxTarget.querySelector('.ticket-quote'))?'> '+_ctxTarget.querySelector('.ticket-quote').textContent+'\n'+(_ctxTarget.childNodes[1]||{textContent:''}).textContent:
+        (_ctxTarget.textContent||'').replace(/\s+$/,'').split('\n').slice(0,-1).join('\n')));
+    if(_ctxIsAdm){
+        const eb=$('at-edit-bar');if(eb)eb.classList.add('visible');
+        _clearAdmReply();
+        const ta=$('at-text');if(ta){ta.value=rawText||'';ta.focus();ta.dataset.editMid=mid}
+    } else {
+        const eb=$('ticket-edit-bar');if(eb)eb.classList.add('visible');
+        _clearTicketReply();
+        const ta=$('ticket-text');if(ta){ta.value=rawText||'';ta.focus();ta.dataset.editMid=mid}
+    }
+}
+async function _ctxDelete(){
+    _closeCtx();if(!_ctxTarget||!_ctxCanDel)return;
+    const mid=_ctxTarget.dataset.mid;
+    const base=_ctxIsAdm?API+'/api/admin/tickets/'+_ctxTicketId+'/messages/'+mid:API+'/api/tickets/'+_ctxTicketId+'/messages/'+mid;
+    try{const r=await fetch(base,{method:'DELETE'});
+    if(r.ok){_ctxTarget.remove()}else{const j=await r.json();toast(j.detail||t('error'),'error')}}
+    catch(e){toast(t('error'),'error')}
+}
+function _clearTicketReply(){const b=$('ticket-quote-bar');if(b)b.classList.remove('visible')}
+function _clearTicketEdit(){const b=$('ticket-edit-bar');if(b)b.classList.remove('visible');const ta=$('ticket-text');if(ta)delete ta.dataset.editMid}
+function _clearAdmReply(){const b=$('at-quote-bar');if(b)b.classList.remove('visible')}
+function _clearAdmEdit(){const b=$('at-edit-bar');if(b)b.classList.remove('visible');const ta=$('at-text');if(ta)delete ta.dataset.editMid}
+async function _ticketAttachFile(input,mode){
+    const file=input.files&&input.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=async function(ev){
+        if(file.type.startsWith('image/')){
+            const b64=ev.target.result;
+            const text='[IMG:'+b64+']';
+            if(mode==='adm'){await _sendAdmMsg(text)}else{await _sendUsrMsg(text)}
+        } else {
+            toast('Поддерживаются только изображения','error');
+        }
+        input.value='';
+    };
+    reader.readAsDataURL(file);
+}
 async function sendTicketReply(){
-    const text=$('ticket-text').value.trim();if(!text||!curTicketId)return;
-    try{const r=await fetch(API+'/api/tickets/'+curTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(r.ok){$('ticket-text').value='';const t=await r.json();renderTicketChat($('ticket-chat'),t.messages);pollTicketStatus()}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    const ta=$('ticket-text');const raw=(ta.value||'').trim();if(!raw||!curTicketId)return;
+    const editMid=ta.dataset&&ta.dataset.editMid;
+    const qb=$('ticket-quote-bar');
+    let text=raw;
+    if(!editMid&&qb&&qb.classList.contains('visible')){
+        const qt=$('ticket-quote-text');
+        text='> '+(qt?qt.textContent:'')+'\n\n'+raw;
+    }
+    await _sendUsrMsg(text,editMid||null);
+}
+async function _sendUsrMsg(text,editMid){
+    const ta=$('ticket-text');
+    try{
+        let r;
+        if(editMid){
+            r=await fetch(API+'/api/tickets/'+curTicketId+'/messages/'+editMid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+            if(r.ok){const msgs=await fetch(API+'/api/tickets/'+curTicketId).then(x=>x.json());renderTicketChat($('ticket-chat'),msgs.messages,false);}
+        } else {
+            r=await fetch(API+'/api/tickets/'+curTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+            if(r.ok){const t2=await r.json();renderTicketChat($('ticket-chat'),t2.messages,false);pollTicketStatus();}
+        }
+        if(!r.ok){const j=await r.json();toast(j.detail||'Ошибка','error');return}
+        if(ta)ta.value='';_clearTicketReply();_clearTicketEdit();
+    }catch(e){toast('Ошибка','error')}
+}
+async function sendAdmTicketReply(){
+    const ta=$('at-text');const raw=(ta.value||'').trim();if(!raw||!admCurTicketId)return;
+    const editMid=ta.dataset&&ta.dataset.editMid;
+    const qb=$('at-quote-bar');
+    let text=raw;
+    if(!editMid&&qb&&qb.classList.contains('visible')){
+        const qt=$('at-quote-text');
+        text='> '+(qt?qt.textContent:'')+'\n\n'+raw;
+    }
+    await _sendAdmMsg(text,editMid||null);
+}
+async function _sendAdmMsg(text,editMid){
+    const ta=$('at-text');
+    try{
+        let r;
+        if(editMid){
+            r=await fetch(API+'/api/admin/tickets/'+admCurTicketId+'/messages/'+editMid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+            if(r.ok){const msgs=await fetch(API+'/api/admin/tickets/'+admCurTicketId).then(x=>x.json());renderTicketChat($('at-chat'),msgs.messages,true);}
+        } else {
+            r=await fetch(API+'/api/admin/tickets/'+admCurTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+            if(r.ok){const t2=await r.json();renderTicketChat($('at-chat'),t2.messages,true);pollTicketStatus();}
+        }
+        if(!r.ok){const j=await r.json();toast(j.detail||t('error'),'error');return}
+        if(ta)ta.value='';_clearAdmReply();_clearAdmEdit();
+    }catch(e){toast(t('error'),'error')}
 }
 // Enter to send, Shift+Enter for newline on ticket textareas
 function _setupTicketKeys(){
     const tt=$('ticket-text');
-    if(tt)tt.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTicketReply()}});
+    if(tt){
+        tt.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTicketReply()}});
+        tt.addEventListener('paste',function(e){_handleTicketPaste(e,'ticket')});
+    }
     const at=$('at-text');
-    if(at)at.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAdmTicketReply()}});
+    if(at){
+        at.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAdmTicketReply()}});
+        at.addEventListener('paste',function(e){_handleTicketPaste(e,'adm')});
+    }
+}
+function _handleTicketPaste(e,mode){
+    const items=e.clipboardData&&e.clipboardData.items;
+    if(!items)return;
+    for(const item of items){
+        if(item.type.startsWith('image/')){
+            e.preventDefault();
+            const file=item.getAsFile();if(!file)return;
+            const reader=new FileReader();
+            reader.onload=async function(ev){
+                const text='[IMG:'+ev.target.result+']';
+                if(mode==='adm')await _sendAdmMsg(text);else await _sendUsrMsg(text);
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+    }
 }
 function showNewTicket(){
     showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..."></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
@@ -2353,20 +2550,18 @@ async function delAdmTicket(id){
 let admCurTicketId=null;
 async function openAdmTicket(id){
     admCurTicketId=id;go('aticket');$('at-title').textContent=t('loading');$('at-chat').innerHTML='';
+    _clearAdmReply();_clearAdmEdit();
     try{const r=await fetch(API+'/api/admin/tickets/'+id);if(!r.ok)return;
     const tk=await r.json();$('at-title').textContent='#'+tk.id+' '+tk.subject;
-    renderTicketChat($('at-chat'),tk.messages);
+    renderTicketChat($('at-chat'),tk.messages,true);
+    // Clear admin badge immediately
+    pollTicketStatus();
     }catch(e){}
 }
 async function delAdmTicketFromDetail(id){
     if(!confirm(t('delete_ticket_q')+' #'+id+'?'))return;
     try{const r=await fetch(API+'/api/admin/tickets/'+id,{method:'DELETE'});
     if(r.ok){toast(t('deleted'));admTab('tickets');go('admin')}else{const j=await r.json();toast(j.detail||t('error'),'error')}}catch(e){toast(t('error'),'error')}
-}
-async function sendAdmTicketReply(){
-    const text=$('at-text').value.trim();if(!text||!admCurTicketId)return;
-    try{const r=await fetch(API+'/api/admin/tickets/'+admCurTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(r.ok){$('at-text').value='';const t2=await r.json();renderTicketChat($('at-chat'),t2.messages);pollTicketStatus()}else toast(t('error'),'error')}catch(e){toast(t('error'),'error')}
 }
 
 /* ── Admin Brand ── */

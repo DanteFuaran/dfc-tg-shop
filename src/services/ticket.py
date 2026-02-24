@@ -111,6 +111,44 @@ class TicketService:
     async def mark_read_by_admin(self, uow: UnitOfWork, ticket_id: int) -> None:
         await uow.repository.tickets.update(ticket_id, is_read_by_admin=True)
 
+    # ── Message edit / delete ─────────────────────────────────────
+
+    async def edit_message(
+        self,
+        uow: UnitOfWork,
+        msg_id: int,
+        new_text: str,
+        sender_telegram_id: int,
+        is_admin: bool = False,
+    ) -> Optional[TicketMessageDto]:
+        msg = await uow.repository.tickets.get_message_by_id(msg_id)
+        if not msg:
+            return None
+        # Only own messages can be edited (admin can edit all admin messages)
+        if not is_admin and msg.sender_telegram_id != sender_telegram_id:
+            return None
+        if is_admin and not msg.is_admin:
+            return None
+        updated = await uow.repository.tickets.update_message(msg_id, text=new_text)
+        await uow.commit()
+        return TicketMessageDto.from_model(updated) if updated else None
+
+    async def delete_message(
+        self,
+        uow: UnitOfWork,
+        msg_id: int,
+        sender_telegram_id: int,
+        is_admin: bool = False,
+    ) -> bool:
+        msg = await uow.repository.tickets.get_message_by_id(msg_id)
+        if not msg:
+            return False
+        if not is_admin and msg.sender_telegram_id != sender_telegram_id:
+            return False
+        await uow.repository.tickets.delete_message_by_id(msg_id)
+        await uow.commit()
+        return True
+
     # ── Close / Delete ───────────────────────────────────────────
 
     async def close_ticket(self, uow: UnitOfWork, ticket_id: int) -> Optional[TicketDto]:
