@@ -1468,7 +1468,7 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
                     user=user, plan=plan_snapshot, pricing=price,
                     purchase_type=purchase_type, gateway_type=gw_type,
                 )
-                payment_url = result.payment_url if hasattr(result, 'payment_url') else None
+                payment_url = result.url if hasattr(result, 'url') else None
                 if payment_url:
                     return JSONResponse({"ok": True, "payment_url": payment_url})
                 return JSONResponse({"ok": True})
