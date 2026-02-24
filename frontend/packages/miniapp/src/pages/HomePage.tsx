@@ -18,21 +18,44 @@ export default function HomePage() {
   const handleInvite = () => {
     if (!refLink) return;
 
-    // Формируем текст приглашения: шаблон из настроек с подстановкой ссылки
+    // Повторяем логику invite_getter из бота (getters.py):
+    // 1. Если шаблон содержит {url} — Python-style format: {url},{name},{space}
+    // 2. Если {url} нет — legacy $url/$name
+    // 3. Fallback — стандартное сообщение со ссылкой
     const rawTemplate = features?.referral_invite_message ?? '';
-    const inviteText = rawTemplate
-      ? rawTemplate.replace(/\{url\}/g, refLink).replace(/\$url/g, refLink)
-      : refLink;
+    let inviteText: string;
+
+    if (rawTemplate) {
+      if (rawTemplate.includes('{url}')) {
+        // Python .format(url=ref_link, name="VPN", space="\n")
+        inviteText = rawTemplate
+          .replace(/\{url\}/g, refLink)
+          .replace(/\{name\}/g, 'VPN')
+          .replace(/\{space\}/g, '\n');
+      } else {
+        // legacy $url / $name
+        inviteText = rawTemplate
+          .replace(/\$url/g, refLink)
+          .replace(/\$name/g, 'VPN');
+      }
+      // Бот обрезает ведущий перенос строки
+      if (inviteText.startsWith('\n')) {
+        inviteText = inviteText.slice(1);
+      }
+    } else {
+      // Fallback как в боте: приглашение со ссылкой
+      inviteText = `Join us!\n\n${refLink}`;
+    }
 
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      // Точный аналог SwitchInlineQueryChosenChatButton бота —
-      // открывает нативный "Выберите чат..." пикер Telegram
+      // Точный аналог SwitchInlineQueryChosenChatButton бота:
+      // allow_user_chats=True, allow_group_chats=True, allow_channel_chats=True
       tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
     } else {
       // Fallback для браузера
-      const url = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText !== refLink ? inviteText : '')}`;
-      window.open(url.replace(/&text=$/, ''), '_blank');
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+      window.open(shareUrl, '_blank');
     }
   };
 
