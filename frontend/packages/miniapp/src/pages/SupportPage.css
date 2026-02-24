@@ -1,0 +1,17 @@
+.support-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.support-page .page-title {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.card-clickable {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

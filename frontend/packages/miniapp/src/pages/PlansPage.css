@@ -1,0 +1,246 @@
+.plans-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--cyan);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  align-self: flex-start;
+  margin-bottom: -4px;
+}
+
+.step-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text2);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+/* Plan card */
+.plan-card {
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.plan-card:active {
+  border-color: var(--cyan);
+}
+
+.plan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.plan-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.plan-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--cyan);
+  background: rgba(0, 188, 212, .12);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.plan-desc {
+  color: var(--text2);
+  font-size: 12px;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.plan-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.plan-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.plan-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.plan-price-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.plan-price-more {
+  color: var(--text2);
+}
+
+.plan-action {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: var(--text2);
+}
+
+/* Duration grid */
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.duration-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 10px;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+  position: relative;
+}
+
+.duration-card:active {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(0, 188, 212, .15);
+}
+
+.duration-days {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.duration-price {
+  font-size: 14px;
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: #ffb300;
+  background: rgba(255, 179, 0, .12);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 2px;
+}
+
+/* Summary card */
+.summary-card {
+  padding: 14px 16px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.summary-row + .summary-row {
+  border-top: 1px solid var(--border);
+}
+
+.summary-val {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.summary-total {
+  font-size: 15px;
+}
+
+.summary-total .summary-val {
+  color: var(--cyan);
+  font-size: 16px;
+}
+
+/* Gateway list */
+.gateways-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gateway-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color .2s;
+  text-align: left;
+}
+
+.gateway-card:active,
+.gateway-active {
+  border-color: var(--cyan);
+}
+
+.gateway-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gateway-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.gateway-desc {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.gateway-check {
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+
+/* Buy button */
+.buy-btn {
+  margin-top: 8px;
+  font-size: 16px;
+  padding: 14px;
+}

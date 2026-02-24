@@ -1,0 +1,15 @@
+{
+  "name": "dfc-tg-shop-frontend",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:miniapp": "npm -w @dfc/miniapp run dev",
+    "dev:website": "npm -w @dfc/website run dev",
+    "build:miniapp": "npm -w @dfc/miniapp run build",
+    "build:website": "npm -w @dfc/website run build",
+    "build": "npm -w @dfc/miniapp run build && npm -w @dfc/website run build",
+    "lint": "npm -w @dfc/miniapp run lint && npm -w @dfc/website run lint"
+  }
+}

@@ -1,0 +1,15 @@
+.app-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.app-content {
+  flex: 1;
+  padding: 16px 16px calc(var(--nav-h) + 16px + var(--safe-bottom));
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
+}

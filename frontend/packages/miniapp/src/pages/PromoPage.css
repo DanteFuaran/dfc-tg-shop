@@ -1,0 +1,56 @@
+.promo-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.promo-hint {
+  color: var(--text2);
+  font-size: 13px;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.promo-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.promo-input {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1.5px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.promo-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.promo-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.promo-success-icon {
+  color: var(--cyan);
+}
+
+.promo-success-text {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
