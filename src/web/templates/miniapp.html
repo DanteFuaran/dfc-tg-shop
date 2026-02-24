@@ -96,7 +96,6 @@
     <div id="plans-list" class="plans-list"></div>
     <div id="plans-bottom-bar" class="plans-bottom-bar" style="display:none">
         <div id="plans-pm-bar-wrap"></div>
-        <button class="plan-pay-btn" id="plans-pay-btn" onclick="planPayClickGlobal()"></button>
     </div>
 </section>
 
@@ -107,6 +106,9 @@
         <h2 class="page-title">Продлить подписку</h2>
     </div>
     <div id="renew-plan-view" class="plans-list"></div>
+    <div id="renew-bottom-bar" class="plans-bottom-bar" style="display:none">
+        <div id="renew-pm-bar-wrap"></div>
+    </div>
 </section>
 
 <!-- ═══ CONNECT ═══ -->
@@ -863,6 +865,8 @@ async function init(){
         _setupTicketKeys();
         // Start polling ticket status every 15 seconds
         setInterval(pollTicketStatus, 15000);
+        // Start polling features every 20 seconds for real-time toggles
+        setInterval(pollFeatures, 20000);
     }catch(e){showErr(t('error')+': '+e.message)}
 }
 
@@ -885,6 +889,7 @@ function go(p){
     if(p==='home'){tg.BackButton.hide();navHistory=[]}else{tg.BackButton.show();tg.BackButton.offClick(goBack);tg.BackButton.onClick(goBack)}
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans'){renderPlans()}else{const pb=$('plans-bottom-bar');if(pb)pb.style.display='none'}
+    if(p==='renew'){}else{const rb=$('renew-bottom-bar');if(rb)rb.style.display='none'}
     if(p==='tickets')loadTickets();
     updateFab();
 }
@@ -919,6 +924,26 @@ async function pollTicketStatus(){
         D.ticket_unread=s.unread;
         if(s.admin_unread!==undefined) D.admin_ticket_unread=s.admin_unread;
         updateFab();
+    }catch(e){}
+}
+async function pollFeatures(){
+    try{
+        const r=await fetch(API+'/api/user/data');
+        if(!r.ok)return;
+        const newD=await r.json();
+        let changed=false;
+        if(newD.features){
+            const keys=['community_enabled','community_url','referral_enabled','tos_enabled','tos_url'];
+            keys.forEach(k=>{
+                if(JSON.stringify(D.features&&D.features[k])!==JSON.stringify(newD.features[k]))changed=true;
+            });
+            if(changed){
+                D.features=newD.features;
+                D.available_gateways=newD.available_gateways;
+                D.user=newD.user;
+                renderHomeExtras();
+            }
+        }
     }catch(e){}
 }
 
@@ -1086,18 +1111,21 @@ function _renderDurGrid(plan,planId){
         return h;
     }).join('');
 }
-function _renderPmBar(planId){
+function _renderPmBar(planId,opts){
     const methods=_getPayMethods();
     const sel=planSel[planId];
     const method=methods.find(m=>m.type===sel.method)||methods[0];
     const canChange=methods.length>1;
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const showPayBtn=opts&&opts.showPay;
     return '<div class="plan-pm-bar" '+(canChange?'onclick="showPayMethodPicker(event,'+planId+')"':'')+'>'+
         '<div class="plan-pm-icon">'+method.icon+'</div>'+
         '<div class="plan-pm-info">'+
             '<div class="plan-pm-name">'+esc(method.name)+'</div>'+
             '<div class="plan-pm-desc">'+esc(method.desc)+'</div>'+
         '</div>'+
-        (canChange?'<div class="plan-pm-change">'+t('change_method')+' ›</div>':'')+
+        (showPayBtn?'<button class="plan-pm-pay-btn" onclick="event.stopPropagation();planPayClick(event,'+planId+')">'+t('pay_btn')+' '+_fmtPr(sel.price)+' '+sym+'</button>'
+        :(canChange?'<div class="plan-pm-change">'+t('change_method')+' ›</div>':''))+
     '</div>';
 }
 function _renderPayBtn(planId){
@@ -1146,13 +1174,7 @@ function _updateStickyBar(){
     if(!selectedPlanId||!planSel[selectedPlanId]){if(bar)bar.style.display='none';return}
     if(bar)bar.style.display='';
     const wrap=$('plans-pm-bar-wrap');
-    if(wrap)wrap.innerHTML=_renderPmBar(selectedPlanId);
-    const btn=$('plans-pay-btn');
-    if(btn){
-        const sel=planSel[selectedPlanId];
-        const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
-        btn.textContent=t('pay_btn')+' '+_fmtPr(sel.price)+' '+sym;
-    }
+    if(wrap)wrap.innerHTML=_renderPmBar(selectedPlanId,{showPay:true});
 }
 function planPayClickGlobal(){
     if(!selectedPlanId)return;
@@ -1189,6 +1211,7 @@ function selectDur(e,planId,days,price){
     }
     selectedPlanId=planId;
     _updateStickyBar();
+    if(renewPlanId===planId)_updateRenewBar();
 }
 function _updatePayBtn(planId){
     const sel=planSel[planId];if(!sel)return;
@@ -1212,12 +1235,8 @@ function showPayMethodPicker(e,planId){
         '</div>';
     }).join('');
     showModal(
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-            '<div style="display:flex;align-items:center;gap:10px">'+
-                '<span style="font-size:1.1rem">💳</span>'+
-                '<h3 style="margin:0">'+t('change_pay_method')+'</h3>'+
-            '</div>'+
-            '<button onclick="closeModal()" style="background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;padding:4px">✕</button>'+
+        '<div style="margin-bottom:14px">'+
+            '<h3 style="margin:0;font-size:.88rem;color:var(--text2);font-weight:600">Способы оплаты</h3>'+
         '</div>'+
         '<div class="pm-picker-list">'+itemsHtml+'</div>',
         'modal-renew'
@@ -1230,6 +1249,7 @@ function changePayMethod(planId,method){
         bar.outerHTML=_renderPmBar(planId);
     });
     _updateStickyBar();
+    if(renewPlanId===planId)_updateRenewBar();
 }
 function planPayClick(e,planId){
     e.stopPropagation();
@@ -1577,24 +1597,22 @@ function inviteFriend(){
         msg=template.replace(/\{space\}/g,'\n').replace(/\{url\}/g,refLink).replace(/\{name\}/g,BRAND.name||DEFAULT_NAME);
         if(msg.startsWith('\n'))msg=msg.substring(1);
     }
-    let shareUrl;
-    if(msg&&msg.indexOf(refLink)!==-1){
-        // Message already contains the link — use text-only mode  
-        shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-    } else if(msg){
-        // Message without link — put refLink as url param for link preview
-        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(msg);
-    } else {
-        // No custom message — share link with brand name
-        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(BRAND.name||DEFAULT_NAME);
-    }
+    if(!msg) msg=refLink;
+    // Use switchInlineQuery for contact picker (like the bot's SwitchInlineQueryChosenChatButton)
     try{
-        if(tg.initData&&typeof tg.openTelegramLink==='function'){
-            tg.openTelegramLink(shareUrl);
-        } else {
-            window.open(shareUrl,'_blank');
+        if(tg.initData&&typeof tg.switchInlineQuery==='function'){
+            tg.switchInlineQuery(msg,['users','groups','channels']);
+            return;
         }
-    }catch(e){window.open(shareUrl,'_blank')}
+    }catch(e){}
+    // Fallback: share URL
+    let shareUrl;
+    if(msg.indexOf(refLink)!==-1){
+        shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
+    } else {
+        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(msg);
+    }
+    try{window.open(shareUrl,'_blank')}catch(e2){}
 }
 
 function renderSupport(){
@@ -1638,8 +1656,6 @@ function renderRenewPage(plan){
     else trafficText=(plan.traffic_limit||'∞')+' GB';
     const devicesText=(plan.device_limit||'∞')+' '+t('dev_short');
     const gridHtml=_renderDurGrid(plan,plan.id);
-    const pmBar=_renderPmBar(plan.id);
-    const payBtn=_renderPayBtn(plan.id);
     $('renew-plan-view').innerHTML=
         '<div class="card plan-card-new open" data-plan-id="'+plan.id+'">'+
             '<div class="plan-card-header">'+
@@ -1648,9 +1664,29 @@ function renderRenewPage(plan){
             '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
             '<div class="plan-card-body" style="max-height:none;opacity:1;margin-top:12px">'+
                 '<div class="plan-dur-grid">'+gridHtml+'</div>'+
-                pmBar+payBtn+
             '</div>'+
         '</div>';
+    // Populate sticky bar
+    renewPlanId=plan.id;
+    _updateRenewBar();
+}
+let renewPlanId=null;
+function _updateRenewBar(){
+    const bar=$('renew-bottom-bar');
+    if(!renewPlanId||!planSel[renewPlanId]){if(bar)bar.style.display='none';return}
+    if(bar)bar.style.display='';
+    const wrap=$('renew-pm-bar-wrap');
+    if(wrap)wrap.innerHTML=_renderPmBar(renewPlanId,{showPay:true});
+}
+function renewPayClickGlobal(){
+    if(!renewPlanId)return;
+    const sel=planSel[renewPlanId];
+    if(!sel||!sel.days||!sel.price)return;
+    if(sel.method==='balance'){
+        showConfirmPurchase(renewPlanId,sel.days,sel.price,'balance');
+    } else {
+        doPayment(renewPlanId,sel.days,sel.price,sel.method);
+    }
 }
 function selectPlan(id){
     /* Legacy — now handled by renderPlans grid inline */
@@ -2147,8 +2183,8 @@ async function toggleSet(k,v,dotId){
 /* ═══ PAYMENT GATEWAYS ═══ */
 let gatewaysCache=[];
 const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'ЮMoney',CRYPTOMUS:'Cryptomus',HELEKET:'Криптовалюта',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
-const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'<svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#8B3FFD"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Arial">Ю</text></svg>',CRYPTOMUS:'🪙',HELEKET:'₿',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
-const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Электронный кошелёк',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'BTC, USDT и другие',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
+const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'<svg viewBox="0 0 24 24" width="27" height="27" style="vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#8B3FFD"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Arial">Ю</text></svg>',CRYPTOMUS:'🪙',HELEKET:'₿',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
+const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Банковская карта',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'BTC, USDT и другие',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
 const GW_SECRET_FIELDS=['api_key','secret_key'];
 async function loadGateways(){
     try{const r=await fetch(API+'/api/admin/gateways');if(!r.ok)return;gatewaysCache=await r.json();drawGateways()}catch(e){}
@@ -2215,15 +2251,11 @@ async function loadTickets(){
     tks.sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''));
     el.innerHTML=tks.map(tk=>{
         const st=tk.status.toLowerCase();
-        // Determine display status: unread→"Новое"(red), open→"На рассмотрении", answered→"Ответ получен"
+        // User statuses: OPEN→"На рассмотрении", ANSWERED→"Ответ получен"
         let stClass=st, stLabel;
-        if(!tk.is_read_by_user && st!=='closed'){
-            stClass='new'; stLabel=t('ticket_new');
-        } else {
-            stLabel=t('ticket_'+st)||st;
-        }
+        stLabel=t('ticket_'+st)||st;
         const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
-        return '<div class="ticket-item'+(tk.is_read_by_user?'':' unread')+'" onclick="openTicket('+tk.id+')">'+
+        return '<div class="ticket-item" onclick="openTicket('+tk.id+')">'+
             '<div class="ticket-top"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+stClass+'">'+stLabel+'</span></div>'+
             '<div class="ticket-preview">'+esc(last.substring(0,80))+'</div>'+
             '<div class="ticket-date">'+tk.updated_at+'</div></div>';
@@ -2290,7 +2322,7 @@ async function loadAdmTickets(){
             stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
         }
         const lastMsg=(tk.messages&&tk.messages.length)?tk.messages[tk.messages.length-1].text:'';
-        return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'" onclick="openAdmTicket('+tk.id+')">'+
+        return '<div class="ticket-item" onclick="openAdmTicket('+tk.id+')">'+
             '<div class="ticket-top"><span class="ticket-id">#'+tk.id+' · ID '+tk.user_telegram_id+'</span><span class="ticket-status '+stClass+'">'+stLabel+'</span></div>'+
             '<div class="ticket-row2"><span class="ticket-subject">'+esc(tk.subject)+'</span></div>'+
             (lastMsg?'<div class="ticket-preview">'+esc(lastMsg.substring(0,80))+'</div>':'')+
