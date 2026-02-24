@@ -1042,10 +1042,17 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-preview{font-size:.82rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;cursor:pointer}
 
 /* Chat */
-.ticket-page{display:none;flex-direction:column;height:calc(100vh - 100px);overflow:hidden}
+.ticket-page{
+    display:none;flex-direction:column;
+    position:fixed;top:0;left:0;right:0;bottom:74px;
+    z-index:50;background:var(--bg);overflow:hidden;
+    max-width:480px;margin:0 auto;
+}
 .ticket-page.active{display:flex;animation:fadeUp .22s ease}
-.ticket-chat{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 0;scrollbar-width:none}
-.ticket-chat::-webkit-scrollbar{display:none}
+.ticket-chat{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 4px;scrollbar-width:thin;scrollbar-color:rgba(36,196,241,.3) transparent}
+.ticket-chat::-webkit-scrollbar{width:4px}
+.ticket-chat::-webkit-scrollbar-track{background:transparent}
+.ticket-chat::-webkit-scrollbar-thumb{background:rgba(36,196,241,.35);border-radius:4px}
 .ticket-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:.88rem;line-height:1.4;word-break:break-word;position:relative;cursor:default}
 /* User view: own messages LEFT, admin replies RIGHT — same bg */
 .ticket-msg.user{align-self:flex-start;background:rgba(36,196,241,.18);color:var(--text1);border-bottom-left-radius:4px}
@@ -1101,17 +1108,16 @@ a{color:var(--cyan);text-decoration:none}
     font-family:inherit;
 }
 .ticket-reply-box textarea:focus{border-color:var(--cyan);outline:none}
-    flex:1;background:rgba(255,255,255,.15);border:1.5px solid rgba(36,196,241,.3);border-radius:10px;
-    color:var(--text1);padding:10px 12px;font-size:.88rem;resize:none;min-height:44px;max-height:120px;
-    font-family:inherit;
-}
-.ticket-reply-box textarea:focus{border-color:var(--cyan);outline:none}
 .ticket-send-btn{
     background:none;color:var(--cyan);border:none;border-radius:10px;
     padding:0 8px;cursor:pointer;
     transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;
 }
 .ticket-send-btn:hover{opacity:.7}
+/* Paste image preview modal */
+.paste-preview-img{max-width:100%;max-height:200px;border-radius:8px;display:block;margin:0 auto 14px;object-fit:contain}
+.paste-compress-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.88rem;color:var(--text2)}
+.paste-compress-row input[type=checkbox]{accent-color:var(--cyan);width:16px;height:16px}
 .ticket-badge{
     display:inline-flex;align-items:center;justify-content:center;
     min-width:18px;height:18px;border-radius:9px;

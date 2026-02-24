@@ -2486,6 +2486,7 @@ function _setupTicketKeys(){
         at.addEventListener('paste',function(e){_handleTicketPaste(e,'adm')});
     }
 }
+let _pendingPaste=null;
 function _handleTicketPaste(e,mode){
     const items=e.clipboardData&&e.clipboardData.items;
     if(!items)return;
@@ -2494,14 +2495,55 @@ function _handleTicketPaste(e,mode){
             e.preventDefault();
             const file=item.getAsFile();if(!file)return;
             const reader=new FileReader();
-            reader.onload=async function(ev){
-                const text='[IMG:'+ev.target.result+']';
-                if(mode==='adm')await _sendAdmMsg(text);else await _sendUsrMsg(text);
+            reader.onload=function(ev){
+                _pendingPaste={dataUrl:ev.target.result,mode};
+                _showPasteModal(ev.target.result);
             };
             reader.readAsDataURL(file);
             return;
         }
     }
+}
+function _showPasteModal(dataUrl){
+    showModal(
+        '<h3 style="margin:0 0 12px">Отправить изображение</h3>'+
+        '<img class="paste-preview-img" src="'+dataUrl.replace(/"/g,'&quot;')+'" alt="">'+
+        '<label class="paste-compress-row"><input type="checkbox" id="paste-compress" checked><span>Сжать изображение</span></label>'+
+        '<div style="font-size:.78rem;color:var(--text3);margin-bottom:8px">Подпись</div>'+
+        '<textarea id="paste-caption" class="form-input" placeholder="Тут можно ввести сообщение" rows="2" style="resize:none;width:100%;box-sizing:border-box"></textarea>'+
+        '<div class="modal-actions" style="margin-top:14px">'+
+        '<button class="btn btn-secondary" onclick="closeModal();_pendingPaste=null">Отмена</button>'+
+        '<button class="btn btn-primary" onclick="_pasteModalSend()">Отправить</button>'+
+        '</div>'
+    );
+    setTimeout(()=>{const c=$('paste-caption');if(c)c.focus()},100);
+}
+async function _pasteModalSend(){
+    if(!_pendingPaste){closeModal();return}
+    const caption=$('paste-caption')?$('paste-caption').value.trim():'';
+    const compress=$('paste-compress')?$('paste-compress').checked:true;
+    let dataUrl=_pendingPaste.dataUrl;
+    const sendFn=async(du)=>{
+        const imgTag='[IMG:'+du+']';
+        const text=caption?imgTag+'\n'+caption:imgTag;
+        const mode=_pendingPaste.mode;
+        _pendingPaste=null;closeModal();
+        if(mode==='adm')await _sendAdmMsg(text);else await _sendUsrMsg(text);
+    };
+    if(compress&&dataUrl.startsWith('data:image/')){
+        try{
+            const img=new Image();
+            img.onload=function(){
+                const maxW=1200,maxH=1200;
+                let w=img.width,h=img.height;
+                if(w>maxW||h>maxH){const r=Math.min(maxW/w,maxH/h);w=Math.round(w*r);h=Math.round(h*r)}
+                const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+                cv.getContext('2d').drawImage(img,0,0,w,h);
+                sendFn(cv.toDataURL('image/jpeg',0.82));
+            };
+            img.src=dataUrl;
+        }catch(ex){sendFn(dataUrl)}
+    } else {sendFn(dataUrl)}
 }
 function showNewTicket(){
     showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..."></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
