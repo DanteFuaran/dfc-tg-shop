@@ -10,19 +10,29 @@ export default function HomePage() {
   const navigate = useNavigate();
   const {
     user, subscription, trialAvailable, defaultCurrency,
-    features, botUsername,
+    features, botUsername, refLink,
   } = useUserStore();
 
   const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
 
   const handleInvite = () => {
-    const refLink = useUserStore.getState().refLink;
     if (!refLink) return;
-    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(refLink)}`;
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(shareUrl);
+
+    // Формируем текст приглашения: шаблон из настроек с подстановкой ссылки
+    const rawTemplate = features?.referral_invite_message ?? '';
+    const inviteText = rawTemplate
+      ? rawTemplate.replace(/\{url\}/g, refLink).replace(/\$url/g, refLink)
+      : refLink;
+
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      // Точный аналог SwitchInlineQueryChosenChatButton бота —
+      // открывает нативный "Выберите чат..." пикер Telegram
+      tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
     } else {
-      window.open(shareUrl, '_blank');
+      // Fallback для браузера
+      const url = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText !== refLink ? inviteText : '')}`;
+      window.open(url.replace(/&text=$/, ''), '_blank');
     }
   };
 

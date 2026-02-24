@@ -44,6 +44,11 @@ interface TelegramWebApp {
   };
   openLink: (url: string) => void;
   openTelegramLink: (url: string) => void;
+  /** Открывает нативный пикер чатов (аналог SwitchInlineQueryChosenChatButton в боте) */
+  switchInlineQuery: (
+    query: string,
+    choose_chat_types?: Array<'users' | 'bots' | 'groups' | 'channels'>,
+  ) => void;
   showPopup: (params: { title?: string; message: string; buttons?: Array<{ type: string; text: string; id: string }> }) => void;
   showConfirm: (message: string, callback: (ok: boolean) => void) => void;
 }
