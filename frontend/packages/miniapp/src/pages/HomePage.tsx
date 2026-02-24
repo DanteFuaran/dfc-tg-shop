@@ -57,28 +57,14 @@ export default function HomePage() {
 
     const tg = window.Telegram?.WebApp;
     console.log('📱 Telegram.WebApp:', tg);
-    console.log('🖥️ platform:', tg?.platform);
 
     if (tg) {
-      // switchInlineQuery работает только на мобильных клиентах Telegram.
-      // На десктопе (tdesktop, macos, webk, weba) чат-пикер не открывается —
-      // используем openLink с t.me/share/url (открывает нативный диалог пересылки).
-      const mobileClients = ['android', 'ios', 'android_x'];
-      const isMobile = mobileClients.includes(tg.platform ?? '');
-
-      console.log('📱 isMobile:', isMobile);
-
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
-      console.log('🔗 shareUrl:', shareUrl);
-
-      if (isMobile) {
-        console.log('📱 Using switchInlineQuery (mobile)');
-        tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
-      } else {
-        // Десктоп / веб-версия Telegram: открываем через openLink (нативный диалог)
-        console.log('🖥️ Using openLink (desktop)');
-        tg.openLink(shareUrl);
-      }
+      // switchInlineQuery — единственный правильный способ для Web Apps.
+      // На мобильных открывает нативный чат-пикер.
+      // На ПК открывает inline query mode где пользователь может выбрать контакт.
+      // (Ограничение Telegram: простые URL t.me/share/ не открывают диалог на ПК)
+      console.log('🔗 Using switchInlineQuery (Web App API)');
+      tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
     } else {
       // Fallback: открываем share URL в браузере
       console.log('🌐 No Telegram.WebApp, using browser fallback');
