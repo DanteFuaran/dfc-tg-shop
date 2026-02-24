@@ -182,16 +182,20 @@ async def _build_user_data(
                 "tos_enabled": features.tos_enabled,
                 "tos_url": features.tos_url if hasattr(features, "tos_url") else "",
                 "referral_enabled": features.referral_enabled,
+                "referral_invite_message": settings.referral.invite_message or "" if hasattr(settings, "referral") else "",
                 "promocodes_enabled": features.promocodes_enabled,
             }
         except Exception:
             pass
 
-        # Referral balance for profile display
+        # Referral balance + ref link for profile display
         referral_balance_user = 0
+        ref_link = ""
         try:
             ref_svc: ReferralService = await req_container.get(ReferralService)
             referral_balance_user = await ref_svc.get_pending_rewards_amount(telegram_id=telegram_id, reward_type=ReferralRewardType.MONEY)
+            user_ref_code = user.referral_code if hasattr(user, 'referral_code') and user.referral_code else str(telegram_id)
+            ref_link = await ref_svc.get_ref_link(user_ref_code)
         except Exception:
             pass
         try:
@@ -230,6 +234,22 @@ async def _build_user_data(
         except Exception:
             pass
 
+        # Available payment gateways (active, excluding BALANCE type)
+        available_gateways = []
+        try:
+            payment_gw: PaymentGatewayService = await req_container.get(PaymentGatewayService)
+            gw_active = await payment_gw.filter_active()
+            for gw in gw_active:
+                gw_type = gw.type.value if hasattr(gw.type, "value") else str(gw.type)
+                if gw_type == "BALANCE":
+                    continue
+                available_gateways.append({
+                    "type": gw_type,
+                    "currency": gw.currency.value if hasattr(gw.currency, "value") else str(gw.currency),
+                })
+        except Exception:
+            pass
+
         return {
             "user": {
                 "telegram_id": user.telegram_id,
@@ -245,6 +265,7 @@ async def _build_user_data(
             "subscription": sub_data,
             "plans": plans_data,
             "bot_username": bot_username,
+            "ref_link": ref_link,
             "features": features_data,
             "support_url": support_url,
             "trial_available": trial_available,
@@ -252,6 +273,7 @@ async def _build_user_data(
             "bot_locale": bot_locale,
             "ticket_unread": ticket_unread,
             "has_open_tickets": has_open_tickets,
+            "available_gateways": available_gateways,
         }
 
 
@@ -353,6 +375,7 @@ async def auth_check_telegram_id(request: Request, body: LoginRequest):
         return JSONResponse({
             "has_credentials": cred is not None,
             "name": user.name,
+            "web_username": cred.web_username if cred else None,
         })
 
 
@@ -492,6 +515,68 @@ async def api_tickets_status(request: Request, access_token: Optional[str] = Coo
         except Exception:
             pass
         return JSONResponse(result)
+
+
+@router.post("/api/user/credentials")
+async def api_user_set_credentials(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Set or update web login credentials for the current user."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+    body = await request.json()
+    web_username = body.get("web_username", "").strip()
+    password = body.get("password", "")
+    if len(web_username) < 3:
+        raise HTTPException(status_code=400, detail="Логин должен быть не менее 3 символов")
+    if len(password) < 6:
+        raise HTTPException(status_code=400, detail="Пароль должен быть не менее 6 символов")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        existing = await uow.repository.web_credentials.get_by_telegram_id(uid)
+        username_taken = await uow.repository.web_credentials.get_by_username(web_username)
+        if username_taken and (not existing or username_taken.telegram_id != uid):
+            raise HTTPException(status_code=409, detail="Этот логин уже занят")
+        password_hash = hash_password(password)
+        if existing:
+            await uow.repository.web_credentials.delete(uid)
+        credential = WebCredential(telegram_id=uid, web_username=web_username, password_hash=password_hash)
+        await uow.repository.web_credentials.create(credential)
+        try:
+            await uow.commit()
+        except Exception:
+            raise HTTPException(status_code=500, detail="Ошибка при сохранении")
+    return JSONResponse({"ok": True})
+
+
+@router.post("/api/user/credentials/password")
+async def api_user_change_password(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """Change web login password (requires old password verification)."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+    body = await request.json()
+    old_password = body.get("old_password", "")
+    new_password = body.get("new_password", "")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Новый пароль должен быть не менее 6 символов")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        uow: UnitOfWork = await req_container.get(UnitOfWork)
+        cred = await uow.repository.web_credentials.get_by_telegram_id(uid)
+        if not cred:
+            raise HTTPException(status_code=404, detail="Учётные данные не найдены")
+        if not verify_password(old_password, cred.password_hash):
+            raise HTTPException(status_code=403, detail="Неверный текущий пароль")
+        new_hash = hash_password(new_password)
+        await uow.repository.web_credentials.update_password(uid, new_hash)
+        try:
+            await uow.commit()
+        except Exception:
+            raise HTTPException(status_code=500, detail="Ошибка при сохранении")
+    return JSONResponse({"ok": True})
 
 
 @router.get("/api/user/data")
@@ -1308,6 +1393,7 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
     body = await request.json()
     plan_id = body.get("plan_id")
     duration_days = body.get("duration_days")
+    gateway = body.get("gateway")
     if not plan_id or not duration_days:
         raise HTTPException(status_code=400, detail="Укажите plan_id и duration_days")
 
@@ -1353,9 +1439,6 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
         )
         available = user.balance + referral_balance if is_combined else user.balance
 
-        if available < price.final_amount:
-            raise HTTPException(status_code=400, detail="Недостаточно средств")
-
         # Determine purchase type
         current_sub = await subscription_service.get_current(telegram_id=uid)
         if current_sub and current_sub.status in ["ACTIVE", "active"]:
@@ -1365,11 +1448,37 @@ async def api_purchase(request: Request, access_token: Optional[str] = Cookie(de
             )):
                 purchase_type = PurchaseType.NEW
             else:
-                purchase_type = PurchaseType.RENEW
+                # Check if user is changing to a different plan (replace duration) vs renewing same plan (extend)
+                current_plan_id = current_sub.plan_id if hasattr(current_sub, 'plan_id') else (current_sub.plan.id if current_sub.plan else None)
+                if current_plan_id and current_plan_id != plan_id:
+                    purchase_type = PurchaseType.CHANGE
+                else:
+                    purchase_type = PurchaseType.RENEW
         else:
             purchase_type = PurchaseType.NEW
 
         plan_snapshot = PlanSnapshotDto.from_plan(plan, duration_days)
+
+        # Gateway payment (non-balance)
+        if gateway and gateway != "balance":
+            try:
+                from src.core.enums import PaymentGatewayType
+                gw_type = PaymentGatewayType(gateway)
+                result = await payment_gw.create_payment(
+                    user=user, plan=plan_snapshot, pricing=price,
+                    purchase_type=purchase_type, gateway_type=gw_type,
+                )
+                payment_url = result.payment_url if hasattr(result, 'payment_url') else None
+                if payment_url:
+                    return JSONResponse({"ok": True, "payment_url": payment_url})
+                return JSONResponse({"ok": True})
+            except Exception as e:
+                logger.exception(f"Gateway purchase failed for user {uid}: {e}")
+                raise HTTPException(status_code=500, detail="Ошибка обработки покупки через платёжную систему")
+
+        # Balance payment
+        if available < price.final_amount:
+            raise HTTPException(status_code=400, detail="Недостаточно средств")
 
         try:
             result = await payment_gw.create_balance_payment(
@@ -1453,6 +1562,56 @@ async def api_trial_activate(request: Request, access_token: Optional[str] = Coo
         except Exception as e:
             logger.exception(f"Trial activation failed for user {uid}: {e}")
             raise HTTPException(status_code=500, detail="Ошибка активации пробной подписки")
+
+
+@router.post("/api/topup")
+async def api_topup(request: Request, access_token: Optional[str] = Cookie(default=None)):
+    """User: top up balance via payment gateway."""
+    uid = await _get_current_user_id(request, access_token)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Не авторизован")
+
+    body = await request.json()
+    amount = body.get("amount")
+    gateway_type = body.get("gateway")
+    if not amount or not gateway_type:
+        raise HTTPException(status_code=400, detail="Укажите amount и gateway")
+
+    amount = int(amount)
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Сумма должна быть больше 0")
+
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        user_service: UserService = await req_container.get(UserService)
+        payment_gw: PaymentGatewayService = await req_container.get(PaymentGatewayService)
+        settings_service: SettingsService = await req_container.get(SettingsService)
+
+        user = await user_service.get(telegram_id=uid)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        settings = await settings_service.get()
+        min_amt = settings.balance_min_amount if hasattr(settings, 'balance_min_amount') else 10
+        max_amt = settings.balance_max_amount if hasattr(settings, 'balance_max_amount') else 100000
+        if amount < min_amt:
+            raise HTTPException(status_code=400, detail=f"Минимальная сумма: {min_amt}")
+        if amount > max_amt:
+            raise HTTPException(status_code=400, detail=f"Максимальная сумма: {max_amt}")
+
+        try:
+            from src.core.enums import PaymentGatewayType
+            gw_type = PaymentGatewayType(gateway_type)
+            result = await payment_gw.create_topup_payment(
+                user=user, amount=amount, gateway_type=gw_type,
+            )
+            payment_url = result.payment_url if hasattr(result, 'payment_url') else None
+            if payment_url:
+                return JSONResponse({"ok": True, "payment_url": payment_url})
+            return JSONResponse({"ok": True})
+        except Exception as e:
+            logger.exception(f"Topup failed for user {uid}: {e}")
+            raise HTTPException(status_code=500, detail="Ошибка создания платежа")
 
 
 # ══════════════════════════════════════════════════════════════════

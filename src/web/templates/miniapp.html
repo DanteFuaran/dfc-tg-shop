@@ -53,13 +53,15 @@
         <!-- Active sub layout -->
         <div id="sub-active-layout" style="display:none">
             <div class="sub-top-row">
+                <span class="sub-lbl">Тариф:</span>
                 <span class="sub-plan-name" id="sub-plan-name">—</span>
-                <span class="sub-expire-info" id="sub-expire-info">—</span>
             </div>
             <div class="sub-sep-line"></div>
             <div class="sub-2col">
+                <div class="sub-field"><span class="sub-lbl">Истекает:</span><span class="sub-val" id="sub-expire-date">—</span></div>
                 <div class="sub-field"><span class="sub-lbl">Трафик:</span><span class="sub-val" id="sub-traffic">—</span></div>
-                <div class="sub-field"><span class="sub-lbl">Устройства:</span><span class="sub-val" id="sub-devices">—</span></div>
+                <div class="sub-field"><span class="sub-lbl">Осталось:</span><span class="sub-val" id="sub-remaining">—</span></div>
+                <div class="sub-field"><span class="sub-lbl">Устройств:</span><span class="sub-val" id="sub-devices">—</span></div>
             </div>
             <div class="sub-actions-row">
                 <button class="sub-action-btn sub-action-renew" id="btn-renew" onclick="renewCurrentPlan()">Продлить</button>
@@ -88,74 +90,69 @@
 <!-- ═══ PLANS ═══ -->
 <section id="p-plans" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Тарифные планы</h2>
     </div>
     <div id="plans-list" class="plans-list"></div>
 </section>
 
+<!-- ═══ RENEW ═══ -->
+<section id="p-renew" class="page">
+    <div class="page-header">
+        <button class="btn-back" onclick="goBack()">‹</button>
+        <h2 class="page-title">Продлить подписку</h2>
+    </div>
+    <div id="renew-plan-view" class="plans-list"></div>
+</section>
+
 <!-- ═══ CONNECT ═══ -->
 <section id="p-connect" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Подключение</h2>
     </div>
-    <!-- Download (spoiler, at top) -->
-    <details class="card spoiler-card" id="con-download">
-        <summary>
-            <span class="spoiler-title" id="con-download-title">Скачать приложение</span>
-            <span class="spoiler-chevron">›</span>
-        </summary>
-        <div class="apps-icons" style="margin-top:12px">
-            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe')">
-                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5L10.5 5.4V12H3V6.5zm8.5-1.2L21 4V12h-9.5V5.3zm-8.5 7.7h7.5v6.5L3 18.5V13zm8.5 0H21v6.7l-9.5-1.2V13z"/></svg>
-                Windows
-            </a>
-            <a class="app-link" onclick="openLink('https://github.com/Happ-proxy/happ-desktop/releases/')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                macOS
-            </a>
-            <a class="app-link" onclick="openLink('https://play.google.com/store/apps/details?id=com.happproxy')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 2.5L5 8m12-5.5L19.5 8M5 8a7 7 0 0014 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2V8z"/><circle cx="9" cy="14" r="1" fill="currentColor"/><circle cx="15" cy="14" r="1" fill="currentColor"/></svg>
-                Android
-            </a>
-            <a class="app-link" onclick="openLink('https://apps.apple.com/app/happ-proxy-utility-plus/id6746188973')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 3C14 4.2 12.8 4 12 3.5M12 3.5C10.8 4 9.5 3 9.5 3M12 3.5C12 6 10 7 8 7c0 3.5 3 6 4 8s4-4.5 4-8c-2 0-4-1-4-3.5"/><path d="M7.5 8.5C5.5 10 5 13 6 15.5c.8 2 2 4 3 4 .6 0 1-.3 1.5-.5M16.5 8.5C18.5 10 19 13 18 15.5c-.8 2-2 4-3 4-.6 0-1-.3-1.5-.5"/></svg>
-                iOS
-            </a>
-        </div>
-    </details>
-    <!-- Quick connect actions -->
+    <!-- Block 1: Подключение -->
     <div class="card" id="con-actions" style="display:none">
+        <div class="card-title">⚡ Подключение</div>
         <div class="action-pills" style="flex-direction:column;gap:8px">
-            <button class="pill pill-cyan btn-full" id="btn-oneclick" onclick="" style="justify-content:center">
+            <button class="pill pill-cyan btn-full" id="btn-download-auto" onclick="openLink(getDownloadUrl())" style="justify-content:center">
+                <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                &nbsp;<span id="btn-download-label">Скачать приложение</span>
+            </button>
+            <button class="pill pill-outline btn-full" id="btn-oneclick" onclick="" style="justify-content:center">
                 <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                 &nbsp;Подключиться
             </button>
-            <button class="pill pill-outline btn-full" id="btn-subpage" onclick="" style="justify-content:center">
+        </div>
+    </div>
+    <!-- Block 2: Подписка -->
+    <div class="card" id="con-sub-block">
+        <div class="card-title" id="con-link-title">🔗 Подписка</div>
+        <div class="action-pills" style="flex-direction:column;gap:8px">
+            <button class="pill pill-outline btn-full" id="btn-subpage" onclick="" style="display:none;justify-content:center">
                 <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 &nbsp;Страница подписки
             </button>
+            <button class="pill pill-outline btn-full" id="btn-qr" onclick="showQR()" style="display:none;justify-content:center">
+                <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3M20 14v3h-3M14 20h7v-3"/></svg>
+                &nbsp;Показать QR код
+            </button>
+            <button class="pill pill-outline btn-full" id="btn-show-sub" onclick="toggleSubLink()" style="display:none;justify-content:center">
+                🔑&nbsp;Показать подписку
+            </button>
         </div>
-    </div>
-    <!-- Subscription link + QR -->
-    <div class="card">
-        <div class="card-title" id="con-link-title">Ссылка подписки</div>
-        <div class="connect-box">
-            <code id="con-url">—</code>
-            <button onclick="copyUrl()" id="btn-copy-url">Копировать</button>
+        <div id="con-sub-detail" style="display:none;margin-top:12px">
+            <div class="connect-box connect-box-clickable" onclick="copyUrl()" title="Нажмите чтобы скопировать">
+                <code id="con-url">—</code>
+            </div>
         </div>
-        <button class="pill pill-outline" id="btn-qr" onclick="showQR()" style="display:none;margin-top:8px;width:100%;justify-content:center">
-            <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3M20 14v3h-3M14 20h7v-3"/></svg>
-            &nbsp;QR-код
-        </button>
     </div>
 </section>
 
 <!-- ═══ DEVICES ═══ -->
 <section id="p-devices" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Мои устройства</h2>
     </div>
     <div id="devices-info" class="card">
@@ -170,7 +167,7 @@
 <!-- ═══ PROMO ═══ -->
 <section id="p-promo" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Промокоды</h2>
     </div>
     <div class="card">
@@ -186,7 +183,7 @@
 <!-- ═══ SUPPORT ═══ -->
 <section id="p-support" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Поддержка</h2>
     </div>
     <div class="card card-compact" style="cursor:pointer" onclick="go('tickets')">
@@ -210,7 +207,7 @@
 <!-- ═══ TICKET LIST ═══ -->
 <section id="p-tickets" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Мои тикеты</h2>
         <button class="btn btn-primary btn-sm" onclick="showNewTicket()" style="margin-left:auto">+ Новый</button>
     </div>
@@ -220,14 +217,14 @@
 <!-- ═══ TICKET CHAT ═══ -->
 <section id="p-ticket" class="page ticket-page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('tickets');loadTickets()">‹</button>
+        <button class="btn-back" onclick="goBack();loadTickets()">‹</button>
         <h2 class="page-title" id="ticket-title">Тикет</h2>
     </div>
     <div id="ticket-chat" class="ticket-chat"></div>
     <div class="ticket-bottom-bar">
         <div id="ticket-reply" class="ticket-reply-box" style="display:none">
             <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
-            <button class="ticket-send-btn" onclick="sendTicketReply()">→</button>
+            <button class="ticket-send-btn" onclick="sendTicketReply()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
         <div id="ticket-close-actions" class="ticket-close-actions" style="display:none">
             <button class="ticket-close-btn resolved" onclick="closeTicket(true)">✅ Вопрос решён</button>
@@ -239,7 +236,7 @@
 <!-- ═══ PROFILE ═══ -->
 <section id="p-profile" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Профиль</h2>
     </div>
     <!-- Section: Your Profile -->
@@ -272,17 +269,49 @@
         <div class="card-title">🤝 Реферальная система</div>
         <div class="ref-stats-grid" id="ref-stats"></div>
         <div class="ref-box">
-            <code id="ref-link">—</code>
-            <button class="btn btn-primary btn-sm btn-full" onclick="copyRef()" style="margin-top:4px">Скопировать ссылку</button>
+            <code id="ref-link" style="cursor:pointer" onclick="copyRef()" title="Нажмите чтобы скопировать">—</code>
         </div>
         <button class="pill pill-cyan btn-full" id="btn-invite" onclick="inviteFriend()" style="margin-top:10px;justify-content:center">🔗 Пригласить друга</button>
+    </div>
+    <!-- Section: Web Credentials (below invite) -->
+    <div class="card" id="web-cred-card">
+        <div class="card-title">🔑 Веб-доступ</div>
+        <div id="web-cred-status"></div>
+        <div id="web-cred-setup" style="display:none">
+            <div class="form-group"><label>Логин</label><input class="form-input" id="wc-username" placeholder="Мин. 3 символа" autocomplete="off"></div>
+            <div class="form-group"><label>Пароль</label><input class="form-input" id="wc-password" type="password" placeholder="Мин. 6 символов"></div>
+            <div class="form-group"><label>Подтвердите пароль</label><input class="form-input" id="wc-password2" type="password" placeholder="Повторите пароль"></div>
+            <div style="display:flex;gap:8px">
+                <button class="sub-action-btn sub-action-renew" style="flex:1" onclick="saveWebCredentials()">Применить</button>
+                <button class="sub-action-btn sub-action-change" style="flex:1;border-color:rgba(224,79,95,.35);color:var(--red)" onclick="$('web-cred-setup').style.display='none'">Отмена</button>
+            </div>
+        </div>
+        <div id="web-cred-detail" style="display:none">
+            <details class="spoiler-card" id="wc-spoiler">
+                <summary><span class="spoiler-title">Данные доступа</span><span class="spoiler-chevron">▼</span></summary>
+                <div style="margin-top:10px">
+                    <div class="card-row"><span class="card-label">Логин</span><span class="card-value" id="wc-disp-login">—</span></div>
+                    <div class="card-row"><span class="card-label">Пароль</span><span class="card-value">••••••</span></div>
+                    <div id="wc-change-section" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                        <div class="form-group"><label>Старый пароль</label><input class="form-input" id="wc-old-pass" type="password" placeholder="Текущий пароль"></div>
+                        <div class="form-group"><label>Новый пароль</label><input class="form-input" id="wc-new-pass" type="password" placeholder="Мин. 6 символов"></div>
+                        <div class="form-group"><label>Подтвердите новый пароль</label><input class="form-input" id="wc-new-pass2" type="password" placeholder="Повторите пароль"></div>
+                    </div>
+                    <button class="pill pill-outline pill-sm" style="margin-top:8px;width:100%;justify-content:center" onclick="showChangePass()">Изменить пароль</button>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <button class="sub-action-btn sub-action-renew" style="flex:1;border-color:rgba(25,195,125,.35);color:var(--green)" id="wc-apply-btn" onclick="applyWebCredChange()">Применить</button>
+                        <button class="sub-action-btn sub-action-change" style="flex:1;border-color:rgba(224,79,95,.35);color:var(--red)" onclick="cancelWebCredChange()">Отмена</button>
+                    </div>
+                </div>
+            </details>
+        </div>
     </div>
 </section>
 
 <!-- ═══ ADMIN ═══ -->
 <section id="p-admin" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="go('home')">‹</button>
+        <button class="btn-back" onclick="goBack()">‹</button>
         <h2 class="page-title">Панель управления</h2>
     </div>
     <div class="admin-tabs" id="adm-tabs">
@@ -290,7 +319,7 @@
         <button class="admin-tab" onclick="admTab('users')"><span class="tab-icon">👥</span><span class="tab-label">Пользователи</span></button>
         <button class="admin-tab" onclick="admTab('plans')"><span class="tab-icon">📋</span><span class="tab-label">Тарифы</span></button>
         <button class="admin-tab" onclick="admTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span></button>
-        <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span></button>
+        <button class="admin-tab" onclick="admTab('tickets')"><span class="tab-icon">🎫</span><span class="tab-label">Тикеты</span><span class="admin-tab-badge" id="adm-tickets-badge" style="display:none">0</span></button>
         <button class="admin-tab" onclick="admTab('brand')"><span class="tab-icon">🎨</span><span class="tab-label">Бренд</span></button>
     </div>
 
@@ -329,10 +358,10 @@
     <div id="adm-brand" class="admin-content">
         <div class="card">
             <div class="card-title">Настройки бренда</div>
-            <div class="form-group"><label>Название</label><input class="form-input" id="br-name" placeholder="VPN Shop"></div>
+            <div class="form-group"><label>Название</label><input class="form-input" id="br-name" placeholder="Введите название"></div>
             <div class="form-group"><label>Логотип (эмодзи или URL картинки)</label><input class="form-input" id="br-logo" placeholder="Укажите эмодзи или url для логотипа"></div>
-            <div class="form-group"><label>Слоган</label><input class="form-input" id="br-slogan" placeholder=""></div>
-            <button class="btn btn-primary btn-full" onclick="saveBrand()">Сохранить</button>
+            <div class="form-group"><label>Слоган</label><input class="form-input" id="br-slogan" placeholder="Введите слоган"></div>
+            <button class="btn btn-primary btn-full" id="btn-save-brand" onclick="saveBrand()">Сохранить</button>
         </div>
     </div>
 </section>
@@ -340,7 +369,7 @@
 <!-- ═══ ADMIN USER DETAIL ═══ -->
 <section id="p-auser" class="page">
     <div class="page-header">
-        <button class="btn-back" onclick="admTab('users');go('admin')">‹</button>
+        <button class="btn-back" onclick="admTab('users');goBack()">‹</button>
         <h2 class="page-title" id="aud-title">Пользователь</h2>
     </div>
     <div id="aud-body"></div>
@@ -349,14 +378,14 @@
 <!-- ═══ ADMIN TICKET DETAIL ═══ -->
 <section id="p-aticket" class="page ticket-page">
     <div class="page-header">
-        <button class="btn-back" onclick="admTab('tickets');go('admin')">‹</button>
+        <button class="btn-back" onclick="admTab('tickets');goBack()">‹</button>
         <h2 class="page-title" id="at-title">Тикет</h2>
     </div>
     <div id="at-chat" class="ticket-chat"></div>
     <div class="ticket-bottom-bar">
         <div id="at-reply" class="ticket-reply-box">
             <textarea id="at-text" placeholder="Ответ администратора…" rows="1"></textarea>
-            <button class="ticket-send-btn" onclick="sendAdmTicketReply()">→</button>
+            <button class="ticket-send-btn" onclick="sendAdmTicketReply()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
     </div>
 </section>
@@ -369,13 +398,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Главная</span>
     </button>
-    <button class="nav-item" id="nav-community" onclick="" style="display:none">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.783-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <span>Группа</span>
-    </button>
     <button class="nav-item" data-p="profile" onclick="go('profile')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span>Профиль</span>
+    </button>
+    <button class="nav-item" id="nav-community" onclick="" style="display:none">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.783-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        <span>Группа</span>
     </button>
     <button class="nav-item" data-p="support" onclick="go('tickets')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -404,7 +433,11 @@ try { tg = window.Telegram.WebApp; } catch(e) {
           openTelegramLink:u=>window.open(u,'_blank'),openLink:u=>window.open(u,'_blank'),
           BackButton:{show:()=>{},hide:()=>{},offClick:()=>{},onClick:()=>{}}};
 }
-let D=null, BRAND={name:'VPN Shop',logo:'🔐',slogan:''}, IS_ADMIN=false;
+let D=null, BRAND={name:'',logo:'',slogan:''}, IS_ADMIN=false;
+let planSel={};
+const DEFAULT_LOGO='https://i.ibb.co/fdp0nVLN/small-logo.png';
+const DEFAULT_NAME='DFC Online';
+const DEFAULT_SLOGAN='Работает из упаковки';
 let usersCache=[], curAdmTab='stats', DOMAIN='';
 const AVAIL_LABELS={ALL:'Все',NEW:'Новые',EXISTING:'Действующие',INVITED:'Приглашённые',ALLOWED:'Разрешённые',TRIAL:'Пробный'};
 const TYPE_LABELS={TRAFFIC:'Трафик',DEVICES:'Устройства',BOTH:'Трафик+Устр.',UNLIMITED:'Безлимит'};
@@ -448,9 +481,26 @@ const I18N={
         write_msg:'Напишите сообщение…',
         traffic:'Трафик',dev_short:'устр.',select_plan:'Выбрать тариф',to_date:'до',topup:'Пополнить',
         topup_via_bot:'Пополнение баланса доступно через бота',expand_via_bot:'Расширение устройств доступно через бота',
-        promo_activated:'Промокод активирован!',quick_connect:'Быстрое подключение',one_click:'Подключиться в один клик',
+        promo_activated:'Промокод активирован!',quick_connect:'Быстрое подключение',one_click:'Подключиться',
         sub_page:'Страница подписки',no_active_sub:'Нет активной подписки',saved:'Сохранено',
         auth_error:'Ошибка авторизации. Откройте из Telegram.',user_not_found:'Пользователь не найден. Запустите бота.',
+        show_qr:'Показать QR код',show_sub:'Показать подписку',hide_sub:'Скрыть подписку',
+        done:'Готово',confirm:'Подтвердить',connection:'Подключение',subscription:'Подписка',
+        tariff:'Тариф',period:'Период',cost:'Стоимость',
+        sub_change_note:'Подписка будет изменена без перерасчёта средств',sub_renew_note:'Ваша подписка будет продлена',
+        download_for:'Скачать для',download_app:'Скачать приложение',topup_amount:'Сумма',payment_method:'Способ оплаты',
+        pay_created:'Платёж создан',enter_amount:'Введите сумму',level:'Уровневость',
+        reward_l1:'Награда (ур. 1)',reward_l2:'Награда (ур. 2)',reward_type:'Тип награды',
+        accrual_cond:'Условия начисления',accrual_form:'Форма начисления',
+        invite_text:'Текст приглашения',ref_system:'Реферальная система',
+        per_month:'в месяц',best_deal:'выгодно',change_method:'Изменить',
+        change_pay_method:'Изменить способ оплаты',pay_btn:'Оплатить',
+        apply_code:'Применить',promo_placeholder:'Промокод...',
+        admin_panel:'Панель управления',statistics:'Статистика',users:'Пользователи',
+        tariffs:'Тарифы',settings:'Настройки',branding:'Бренд',
+        web_access:'Веб-доступ',your_profile:'Ваш профиль',referral_sys:'Реферальная система',
+        invited:'Приглашено',payments:'Оплат',earned:'Начислено',
+        save:'Сохранить',deleted:'Удалён',delete_plan_q:'Удалить тариф?',delete_ticket_q:'Удалить тикет?',
     },
     EN:{
         home:'Home',support:'Support',profile:'Profile',admin:'Admin',
@@ -488,9 +538,26 @@ const I18N={
         write_msg:'Write a message…',
         traffic:'Traffic',dev_short:'dev.',select_plan:'Select plan',to_date:'until',topup:'Top up',
         topup_via_bot:'Top up balance via bot',expand_via_bot:'Device expansion available via bot',
-        promo_activated:'Promo code activated!',quick_connect:'Quick connect',one_click:'One-click connect',
+        promo_activated:'Promo code activated!',quick_connect:'Quick connect',one_click:'Connect',
         sub_page:'Subscription page',no_active_sub:'No active subscription',saved:'Saved',
         auth_error:'Auth error. Open from Telegram.',user_not_found:'User not found. Start the bot.',
+        show_qr:'Show QR code',show_sub:'Show subscription',hide_sub:'Hide subscription',
+        done:'Done',confirm:'Confirm',connection:'Connection',subscription:'Subscription',
+        tariff:'Tariff',period:'Period',cost:'Cost',
+        sub_change_note:'Subscription will be changed without refund',sub_renew_note:'Your subscription will be renewed',
+        download_for:'Download for',download_app:'Download app',topup_amount:'Amount',payment_method:'Payment method',
+        pay_created:'Payment created',enter_amount:'Enter amount',level:'Levels',
+        reward_l1:'Reward (lvl 1)',reward_l2:'Reward (lvl 2)',reward_type:'Reward type',
+        accrual_cond:'Accrual conditions',accrual_form:'Accrual form',
+        invite_text:'Invite text',ref_system:'Referral system',
+        per_month:'per month',best_deal:'best deal',change_method:'Change',
+        change_pay_method:'Change payment method',pay_btn:'Pay',
+        apply_code:'Apply',promo_placeholder:'Promo code...',
+        admin_panel:'Control panel',statistics:'Statistics',users:'Users',
+        tariffs:'Plans',settings:'Settings',branding:'Brand',
+        web_access:'Web access',your_profile:'Your profile',referral_sys:'Referral system',
+        invited:'Invited',payments:'Payments',earned:'Earned',
+        save:'Save',deleted:'Deleted',delete_plan_q:'Delete tariff?',delete_ticket_q:'Delete ticket?',
     },
     UK:{
         home:'Головна',support:'Підтримка',profile:'Профіль',admin:'Адмін',
@@ -528,9 +595,26 @@ const I18N={
         write_msg:'Напишіть повідомлення…',
         traffic:'Трафік',dev_short:'пристр.',select_plan:'Обрати тариф',to_date:'до',topup:'Поповнити',
         topup_via_bot:'Поповнення балансу доступне через бота',expand_via_bot:'Розширення пристроїв доступне через бота',
-        promo_activated:'Промокод активовано!',quick_connect:'Швидке підключення',one_click:'Підключитися в один клік',
+        promo_activated:'Промокод активовано!',quick_connect:'Швидке підключення',one_click:'Підключитися',
         sub_page:'Сторінка підписки',no_active_sub:'Немає активної підписки',saved:'Збережено',
         auth_error:'Помилка авторизації. Відкрийте з Telegram.',user_not_found:'Користувача не знайдено. Запустіть бота.',
+        show_qr:'Показати QR код',show_sub:'Показати підписку',hide_sub:'Сховати підписку',
+        done:'Готово',confirm:'Підтвердити',connection:'Підключення',subscription:'Підписка',
+        tariff:'Тариф',period:'Період',cost:'Вартість',
+        sub_change_note:'Підписку буде змінено без перерахунку коштів',sub_renew_note:'Вашу підписку буде продовжено',
+        download_for:'Завантажити для',download_app:'Завантажити додаток',topup_amount:'Сума',payment_method:'Спосіб оплати',
+        pay_created:'Платіж створено',enter_amount:'Введіть суму',level:'Рівневість',
+        reward_l1:'Нагорода (рів. 1)',reward_l2:'Нагорода (рів. 2)',reward_type:'Тип нагороди',
+        accrual_cond:'Умови нарахування',accrual_form:'Форма нарахування',
+        invite_text:'Текст запрошення',ref_system:'Реферальна система',
+        per_month:'на місяць',best_deal:'вигідно',change_method:'Змінити',
+        change_pay_method:'Змінити спосіб оплати',pay_btn:'Оплатити',
+        apply_code:'Застосувати',promo_placeholder:'Промокод...',
+        admin_panel:'Панель управління',statistics:'Статистика',users:'Користувачі',
+        tariffs:'Тарифи',settings:'Налаштування',branding:'Бренд',
+        web_access:'Веб-доступ',your_profile:'Ваш профіль',referral_sys:'Реферальна система',
+        invited:'Запрошено',payments:'Оплат',earned:'Нараховано',
+        save:'Зберегти',deleted:'Видалено',delete_plan_q:'Видалити тариф?',delete_ticket_q:'Видалити тикет?',
     },
     DE:{
         home:'Startseite',support:'Support',profile:'Profil',admin:'Admin',
@@ -568,9 +652,26 @@ const I18N={
         write_msg:'Nachricht schreiben…',
         traffic:'Traffic',dev_short:'Ger.',select_plan:'Tarif wählen',to_date:'bis',topup:'Aufladen',
         topup_via_bot:'Guthaben über Bot aufladen',expand_via_bot:'Geräteerweiterung über Bot verfügbar',
-        promo_activated:'Promocode aktiviert!',quick_connect:'Schnellverbindung',one_click:'Ein-Klick-Verbindung',
+        promo_activated:'Promocode aktiviert!',quick_connect:'Schnellverbindung',one_click:'Verbinden',
         sub_page:'Abo-Seite',no_active_sub:'Kein aktives Abo',saved:'Gespeichert',
         auth_error:'Auth-Fehler. Aus Telegram öffnen.',user_not_found:'Benutzer nicht gefunden. Bot starten.',
+        show_qr:'QR-Code anzeigen',show_sub:'Abo anzeigen',hide_sub:'Abo verbergen',
+        done:'Fertig',confirm:'Bestätigen',connection:'Verbindung',subscription:'Abonnement',
+        tariff:'Tarif',period:'Zeitraum',cost:'Kosten',
+        sub_change_note:'Abo wird ohne Rückerstattung geändert',sub_renew_note:'Ihr Abo wird verlängert',
+        download_for:'Herunterladen für',download_app:'App herunterladen',topup_amount:'Betrag',payment_method:'Zahlungsmethode',
+        pay_created:'Zahlung erstellt',enter_amount:'Betrag eingeben',level:'Stufen',
+        reward_l1:'Belohnung (St. 1)',reward_l2:'Belohnung (St. 2)',reward_type:'Belohnungstyp',
+        accrual_cond:'Gutschriftbedingungen',accrual_form:'Gutschriftform',
+        invite_text:'Einladungstext',ref_system:'Empfehlungssystem',
+        per_month:'pro Monat',best_deal:'günstig',change_method:'Ändern',
+        change_pay_method:'Zahlungsmethode ändern',pay_btn:'Bezahlen',
+        apply_code:'Anwenden',promo_placeholder:'Promocode...',
+        admin_panel:'Verwaltung',statistics:'Statistik',users:'Benutzer',
+        tariffs:'Tarife',settings:'Einstellungen',branding:'Marke',
+        web_access:'Web-Zugang',your_profile:'Ihr Profil',referral_sys:'Empfehlungssystem',
+        invited:'Eingeladen',payments:'Zahlungen',earned:'Verdient',
+        save:'Speichern',deleted:'Gelöscht',delete_plan_q:'Tarif löschen?',delete_ticket_q:'Ticket löschen?',
     }
 };
 let CUR_LOCALE='RU';
@@ -609,16 +710,19 @@ function applyLocale(){
     // Connect page
     const cp=$('p-connect');
     if(cp){
-        const titles=cp.querySelectorAll('.card-title');
-        if(titles[0])titles[0].textContent=t('sub_link');
-        if(titles[1])titles[1].textContent=t('quick_connect');
-        if(titles[2])titles[2].textContent=t('download');
-        const copyBtn=cp.querySelector('.connect-box button');if(copyBtn)copyBtn.textContent=t('copy');
+        const cardTitles=cp.querySelectorAll('.card-title');
+        if(cardTitles[0])cardTitles[0].textContent='⚡ '+t('connection');
+        if(cardTitles[1])cardTitles[1].textContent='🔗 '+t('subscription');
+        // Download button
+        const dlBtn=$('btn-download-label');
+        if(dlBtn) dlBtn.textContent=t('download_app');
         const cpills=cp.querySelectorAll('.pill');
         cpills.forEach(p=>{
-            const oc=p.getAttribute('onclick')||'',id=p.id||'';
-            if(id==='btn-oneclick') p.innerHTML='⚡ '+t('one_click');
-            if(id==='btn-subpage') p.innerHTML='📄 '+t('sub_page');
+            const id=p.id||'';
+            if(id==='btn-oneclick'){const txt=p.childNodes[p.childNodes.length-1];if(txt)txt.textContent=' '+t('one_click')}
+            if(id==='btn-subpage'){const txt=p.childNodes[p.childNodes.length-1];if(txt)txt.textContent=' '+t('sub_page')}
+            if(id==='btn-qr') p.innerHTML='<svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><path d="M14 14h3v3M20 14v3h-3M14 20h7v-3"/></svg>&nbsp;'+t('show_qr');
+            if(id==='btn-show-sub'){const det=$('con-sub-detail');p.innerHTML='🔑&nbsp;'+(det&&det.style.display!=='none'?t('hide_sub'):t('show_sub'))}
         });
     }
     // Devices page
@@ -685,6 +789,8 @@ function applyLocale(){
             if((p.getAttribute('onclick')||'').includes('inviteFriend'))p.textContent='🔗 '+t('invite_friend');
         });
     }
+    // Admin - save brand button
+    const sbBtn=$('btn-save-brand');if(sbBtn)sbBtn.textContent=t('save');
 }
 
 /* ═══════════════════════════════════════
@@ -694,7 +800,7 @@ function initParticles(){
     if(typeof particlesJS==='undefined')return;
     particlesJS('particles-js',{
         particles:{
-            number:{value:60,density:{enable:true,value_area:800}},
+            number:{value:50,density:{enable:true,value_area:800}},
             color:{value:'#24C4F1'},
             shape:{type:'circle'},
             opacity:{value:0.25,random:true,anim:{enable:false}},
@@ -705,7 +811,7 @@ function initParticles(){
         interactivity:{
             detect_on:'window',
             events:{onhover:{enable:true,mode:'grab'},onclick:{enable:true,mode:'push'},resize:true},
-            modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:1}}
+            modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:0}}
         },
         retina_detect:true
     });
@@ -718,7 +824,7 @@ async function init(){
         // Try Telegram auth if initData available
         if(tg.initData){
             const a=await fetch(API+'/api/auth/tg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})});
-            if(!a.ok) return showErr('Ошибка авторизации. Откройте из Telegram.');
+            if(!a.ok) return showErr(t('auth_error'));
         }
         // Try to load user data (works with cookie from tg auth or web login)
         const dr=await fetch(API+'/api/user/data');
@@ -759,17 +865,29 @@ function $(id){return document.getElementById(id)}
    ═══════════════════════════════════════ */
 const mainPages=['home','support','profile','admin'];
 let curPage='home';
+let navHistory=[];
 function go(p){
+    if(curPage!==p) navHistory.push(curPage);
     curPage=p;
     document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
     $('p-'+p).classList.add('active');
-    const navP=({tickets:'support',ticket:'support'})[p]||p;
+    const navP=({tickets:'support',ticket:'support',aticket:'admin',auser:'admin'})[p]||p;
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.p===navP));
-    if(p==='home'){tg.BackButton.hide()}else{tg.BackButton.show();tg.BackButton.offClick(goHome);tg.BackButton.onClick(goHome)}
+    if(p==='home'){tg.BackButton.hide();navHistory=[]}else{tg.BackButton.show();tg.BackButton.offClick(goBack);tg.BackButton.onClick(goBack)}
     if(p==='admin')loadAdm(curAdmTab);
     if(p==='plans')renderPlans();
     if(p==='tickets')loadTickets();
     updateFab();
+}
+function goBack(){
+    // First close any open modal/overlay
+    const mr=$('modal-root');
+    if(mr&&mr.innerHTML.trim()){
+        const co=mr.querySelector('.confirm-overlay');
+        if(co){co.remove();return}
+        closeModal();return;
+    }
+    if(navHistory.length>0){const prev=navHistory.pop();go(prev);if(prev==='home')navHistory=[]}else{go('home')}
 }
 function goHome(){go('home')}
 function updateFab(){
@@ -779,6 +897,9 @@ function updateFab(){
     // Admin ticket badge
     const ab=$('nav-admin-badge');
     if(ab&&IS_ADMIN){if(D.admin_ticket_unread>0){ab.style.display='flex';ab.textContent=D.admin_ticket_unread}else{ab.style.display='none'}}
+    // Admin tickets tab badge
+    const atb=$('adm-tickets-badge');
+    if(atb&&IS_ADMIN){if(D.admin_ticket_unread>0){atb.style.display='inline-flex';atb.textContent=D.admin_ticket_unread}else{atb.style.display='none'}}
 }
 async function pollTicketStatus(){
     try{
@@ -796,15 +917,17 @@ async function pollTicketStatus(){
    RENDER
    ═══════════════════════════════════════ */
 function render(){
-    // Brand logo: URL → <img>, emoji → text, empty → placeholder
+    // Brand logo: URL → <img>, emoji → text, empty → default logo
     const logoEl=$('brand-logo');
     const logoVal=BRAND.logo||'';
-    if(logoVal.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(logoVal)+'" alt="">';logoEl.classList.add('has-img')}
-    else if(logoVal){logoEl.textContent=logoVal;logoEl.classList.remove('has-img')}
+    const effectiveLogo=logoVal||DEFAULT_LOGO;
+    if(effectiveLogo.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(effectiveLogo)+'" alt="">';logoEl.classList.add('has-img')}
+    else if(effectiveLogo){logoEl.textContent=effectiveLogo;logoEl.classList.remove('has-img')}
     else{logoEl.textContent='';logoEl.classList.remove('has-img')}
-    $('brand-name').textContent=BRAND.name||'VPN Shop';
+    $('brand-name').textContent=BRAND.name||DEFAULT_NAME;
     const sloganEl=$('brand-slogan');
-    if(BRAND.slogan){sloganEl.textContent=BRAND.slogan;sloganEl.style.display=''}else{sloganEl.style.display='none'}
+    const effectiveSlogan=BRAND.slogan||DEFAULT_SLOGAN;
+    sloganEl.textContent=effectiveSlogan;sloganEl.style.display=''
     const _cs=CURRENCY_SYMBOLS[D.default_currency]||'\u20bd';
     $('hdr-balance').innerHTML='<svg class="hdr-wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 14a1 1 0 100 2 1 1 0 000-2z" fill="currentColor" stroke="none"/><path d="M22 7V6a2 2 0 00-2-2H4a2 2 0 00-2 2v1"/></svg>'+D.user.balance+' '+_cs;
     const _bm=D.features&&D.features.balance_mode;
@@ -843,28 +966,30 @@ function renderSub(){
     pn.textContent=planLabel;
     pn.className='sub-plan-name'+(s.status==='EXPIRED'?' sub-plan-expired':'');
 
-    // Expire info: "до DD.MM.YYYY (N дн.)"
-    const ei=$('sub-expire-info');
-    if(ei){
+    // Expire info: date + remaining days
+    const eid=$('sub-expire-date');
+    const eir=$('sub-remaining');
+    if(eid){
         if(s.expire_at&&(s.status==='ACTIVE'||s.is_trial)){
             const datePart=s.expire_at.split(' ')[0];
+            eid.textContent=datePart;
             const parts=s.expire_at.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
             if(parts){
                 const expireDate=new Date(parseInt(parts[3]),parseInt(parts[2])-1,parseInt(parts[1]),parseInt(parts[4]),parseInt(parts[5]));
                 const diff=expireDate-new Date();
                 if(diff>0){
                     const daysLeft=Math.floor(diff/(1000*60*60*24));
-                    ei.innerHTML=t('to_date')+' <span style="color:#fff">'+datePart+' ('+daysLeft+' '+t('days_left')+')</span>';
-                } else {ei.innerHTML=t('to_date')+' <span style="color:#fff">'+datePart+'</span>'}
-            } else {ei.innerHTML=s.expire_at?t('to_date')+' <span style="color:#fff">'+s.expire_at.split(' ')[0]+'</span>':'—'}
-        } else {ei.textContent='—'}
+                    if(eir) eir.textContent=daysLeft+' '+pluralDays(daysLeft);
+                } else {if(eir) eir.textContent='0 '+pluralDays(0)}
+            } else {if(eir) eir.textContent='—'}
+        } else {eid.textContent='—';if(eir) eir.textContent='—'}
     }
 
     // Traffic — use current plan type to decide display
     const currentPlan=D.plans&&s.plan_id?D.plans.find(p=>p.id===s.plan_id):null;
     let tl;
     if(currentPlan){
-        if(currentPlan.type==='DEVICES') tl='Безлимитный';
+        if(currentPlan.type==='DEVICES') tl='Безлим.';
         else tl=(currentPlan.traffic_limit||'∞')+' ГБ';
     } else {
         tl=s.traffic_limit? s.traffic_limit+' ГБ':'∞';
@@ -877,7 +1002,7 @@ function renderSub(){
     if(dl){
         const devLimit=s.device_limit||'∞';
         const devActive=(typeof s.active_devices_count==='number')?s.active_devices_count:null;
-        dl.textContent=(devActive!==null)?(devActive+' / '+devLimit):devLimit;
+        dl.textContent=(devActive!==null)?(devActive+' из '+devLimit):devLimit;
     }
 
     // Show/hide renew (only for paid subs)
@@ -906,67 +1031,189 @@ function renderHomeExtras(){
     }
 }
 
-function renderPlans(){
-    const el=$('plans-list'), dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
-    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>'+t('no_plans')+'</h3></div>';return}
+function _getPayMethods(){
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const gateways=D.available_gateways||[];
+    let methods=[];
+    gateways.forEach(gw=>{
+        methods.push({type:gw.type,name:GW_LABELS[gw.type]||gw.type,icon:GW_ICONS[gw.type]||'💳',desc:GW_DESCS[gw.type]||''});
+    });
+    methods.push({type:'balance',name:t('balance'),icon:'💰',desc:D.user.balance+' '+sym});
+    return methods;
+}
+function _getDefaultMethod(){
+    const methods=_getPayMethods();
+    return methods.length>0?methods[0].type:'balance';
+}
+function _fmtPr(n){return n>=1000?n.toLocaleString('ru-RU'):String(n)}
 
-    el.innerHTML=D.plans.map((p,idx)=>{
-        // Find min price for "от X Р" display
-        let minPrice=null;
-        (p.durations||[]).forEach(d=>{
-            const pr=findPrice(d,dc);
-            if(pr!==null&&(minPrice===null||pr<minPrice))minPrice=pr;
-        });
-        const priceText=minPrice!==null?('от '+minPrice+' '+sym):'';
+function _renderDurGrid(plan,planId){
+    const dc=D.default_currency||'RUB',sym=CURRENCY_SYMBOLS[dc]||'₽';
+    let basePpd=null,bestDealDays=null,lowestPpd=null;
+    (plan.durations||[]).forEach(d=>{
+        const pr=findPrice(d,dc);
+        if(pr!==null&&d.days>0){
+            const ppd=pr/d.days;
+            if(basePpd===null||d.days<basePpd.days)basePpd={ppd,days:d.days};
+            if(lowestPpd===null||ppd<lowestPpd){lowestPpd=ppd;bestDealDays=d.days}
+        }
+    });
+    const durs=(plan.durations||[]).filter(d=>findPrice(d,dc)!==null);
+    const firstDur=durs[0];
+    if(!planSel[planId]){
+        planSel[planId]={days:firstDur?firstDur.days:0,price:firstDur?findPrice(firstDur,dc):0,method:_getDefaultMethod()};
+    }
+    return durs.map(d=>{
+        const pr=findPrice(d,dc);
+        const isSelected=planSel[planId].days===d.days;
+        const isBestDeal=d.days===bestDealDays&&durs.length>1&&basePpd&&d.days>basePpd.days;
+        const ppm=d.days>=30?Math.round(pr/(d.days/30)):null;
+        let h='<div class="plan-dur-card'+(isSelected?' selected':'')+'" onclick="selectDur(event,'+planId+','+d.days+','+pr+')">';
+        if(isBestDeal)h+='<span class="pdc-badge">'+t('best_deal')+'</span>';
+        h+='<div class="plan-dur-card-period">'+fmtDaysFull(d.days)+'</div>';
+        h+='<div class="plan-dur-card-price">'+_fmtPr(pr)+' '+sym+'</div>';
+        if(ppm!==null&&d.days>30)h+='<div class="plan-dur-card-ppm">'+_fmtPr(ppm)+' '+sym+' '+t('per_month')+'</div>';
+        h+='</div>';
+        return h;
+    }).join('');
+}
+function _renderPmBar(planId){
+    const methods=_getPayMethods();
+    const sel=planSel[planId];
+    const method=methods.find(m=>m.type===sel.method)||methods[0];
+    const canChange=methods.length>1;
+    return '<div class="plan-pm-bar" '+(canChange?'onclick="showPayMethodPicker(event,'+planId+')"':'')+'>'+
+        '<div class="plan-pm-icon">'+method.icon+'</div>'+
+        '<div class="plan-pm-info">'+
+            '<div class="plan-pm-name">'+esc(method.name)+'</div>'+
+            '<div class="plan-pm-desc">'+esc(method.desc)+'</div>'+
+        '</div>'+
+        (canChange?'<div class="plan-pm-change">'+t('change_method')+' ›</div>':'')+
+    '</div>';
+}
+function _renderPayBtn(planId){
+    const sel=planSel[planId];
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    return '<button class="plan-pay-btn" id="pay-btn-'+planId+'" onclick="planPayClick(event,'+planId+')">'+t('pay_btn')+' '+_fmtPr(sel.price)+' '+sym+'</button>';
+}
+
+function renderPlans(){
+    const el=$('plans-list'),dc=D.default_currency||'RUB',sym=CURRENCY_SYMBOLS[dc]||'₽';
+    if(!D.plans||!D.plans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><h3>'+t('no_plans')+'</h3></div>';return}
+    const activePlanId=D.subscription&&D.subscription.status==='ACTIVE'?(D.subscription.plan_id||(D.subscription.plan&&D.subscription.plan.id)):null;
+    const visiblePlans=activePlanId?D.plans.filter(p=>p.id!==activePlanId):D.plans;
+    if(!visiblePlans.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">✅</span><h3>Нет доступных планов</h3><p style="color:var(--text3);font-size:.84rem">Ваш текущий план — единственный</p></div>';return}
+    const singlePlan=visiblePlans.length===1;
+    el.innerHTML=visiblePlans.map(p=>{
         const desc=p.description||'';
         const trafficText=(p.traffic_limit||'∞')+' GB';
         const devicesText=(p.device_limit||'∞')+' '+t('dev_short');
-
-        // Find base ppd for savings
-        let basePpd=null;
-        (p.durations||[]).forEach(d=>{
-            const pr=findPrice(d,dc);
-            if(pr!==null && d.days>0){
-                const ppd=pr/d.days;
-                if(basePpd===null||d.days<=(basePpd.days||9999)){basePpd={ppd,days:d.days}}
-            }
-        });
-
-        const dursHtml=(p.durations||[]).map(d=>{
-            const pr=findPrice(d,dc);
-            if(pr===null) return '';
-            let savingsHtml='';
-            if(basePpd && d.days>basePpd.days && pr>0){
-                const ppd=pr/d.days;
-                const pct=Math.round((1-ppd/basePpd.ppd)*100);
-                if(pct>0) savingsHtml='<span class="plan-savings-badge">-'+pct+'%</span>';
-            }
-            return '<div class="plan-dur-item" onclick="event.stopPropagation();showConfirmPurchase('+p.id+','+d.days+','+pr+')"><span class="plan-dur-period">'+fmtDays(d.days)+'</span><span class="plan-dur-price">'+pr+' '+sym+'</span>'+savingsHtml+'</div>';
-        }).join('');
-
-        return '<div class="card plan-card-new" onclick="togglePlanCard(this)">'+
+        let minPrice=null;
+        (p.durations||[]).forEach(d=>{const pr=findPrice(d,dc);if(pr!==null&&(minPrice===null||pr<minPrice))minPrice=pr});
+        const priceText=minPrice!==null?('от '+minPrice+' '+sym):'';
+        const gridHtml=_renderDurGrid(p,p.id);
+        const promoHtml=(D.features&&D.features.promocodes_enabled)?
+            '<div class="plan-promo-row"><div class="promo-wrap"><span class="promo-icon">🏷</span><input placeholder="'+t('promo_placeholder')+'" id="plan-promo-'+p.id+'"></div><button onclick="applyPlanPromo(event,'+p.id+')">'+t('apply_code')+'</button></div>':'';
+        const pmBar=_renderPmBar(p.id);
+        const payBtn=_renderPayBtn(p.id);
+        return '<div class="card plan-card-new'+(singlePlan?' open':'')+'" '+(singlePlan?'':'onclick="togglePlanCard(this)"')+' data-plan-id="'+p.id+'">'+
             '<div class="plan-card-header">'+
                 '<div class="plan-card-name">'+esc(p.name)+'</div>'+
-                '<div class="plan-card-price">'+priceText+'</div>'+
+                (singlePlan?'':'<div class="plan-card-price">'+priceText+'</div>')+
             '</div>'+
             (desc?'<div class="plan-card-desc">'+esc(desc)+'</div>':'')+
             '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
-            '<div class="plan-card-body">'+
-                '<div class="plan-card-durations">'+dursHtml+'</div>'+
+            '<div class="plan-card-body"'+(singlePlan?' style="max-height:none;opacity:1;margin-top:12px"':'')+'>'+
+                '<div class="plan-dur-grid">'+gridHtml+'</div>'+
+                promoHtml+pmBar+payBtn+
             '</div>'+
-            '<div class="plan-card-toggle" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▼</div>'+
+            (singlePlan?'':'<div class="plan-card-toggle" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▼</div>')+
         '</div>';
     }).join('');
 }
 function togglePlanCard(card){
     const isOpen=card.classList.contains('open');
-    // Close all other cards
     document.querySelectorAll('.plan-card-new.open').forEach(c=>{if(c!==card)c.classList.remove('open')});
     card.classList.toggle('open',!isOpen);
-    // Update toggle arrows
     document.querySelectorAll('.plan-card-new .plan-card-toggle').forEach(el=>{
         el.textContent=el.parentElement.classList.contains('open')?'▲':'▼';
     });
+}
+function selectDur(e,planId,days,price){
+    e.stopPropagation();
+    planSel[planId]=planSel[planId]||{};
+    planSel[planId].days=days;planSel[planId].price=price;
+    planSel[planId].method=planSel[planId].method||_getDefaultMethod();
+    const card=document.querySelector('[data-plan-id="'+planId+'"]');
+    if(card){
+        card.querySelectorAll('.plan-dur-card').forEach(c=>c.classList.remove('selected'));
+        e.currentTarget.classList.add('selected');
+    }
+    _updatePayBtn(planId);
+}
+function _updatePayBtn(planId){
+    const sel=planSel[planId];if(!sel)return;
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const btn=document.getElementById('pay-btn-'+planId);
+    if(btn)btn.textContent=t('pay_btn')+' '+_fmtPr(sel.price)+' '+sym;
+}
+function showPayMethodPicker(e,planId){
+    e.stopPropagation();
+    const methods=_getPayMethods();
+    const sel=planSel[planId];
+    let itemsHtml=methods.map(m=>{
+        const isSelected=sel.method===m.type;
+        return '<div class="pm-picker-item'+(isSelected?' selected':'')+'" onclick="changePayMethod('+planId+',\''+m.type+'\')">'+
+            '<div class="pm-picker-icon">'+m.icon+'</div>'+
+            '<div class="pm-picker-info">'+
+                '<div class="pm-picker-name">'+esc(m.name)+'</div>'+
+                (m.desc?'<div class="pm-picker-desc">'+esc(m.desc)+'</div>':'')+
+            '</div>'+
+            '<div class="pm-picker-check"></div>'+
+        '</div>';
+    }).join('');
+    showModal(
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+            '<div style="display:flex;align-items:center;gap:10px">'+
+                '<span style="font-size:1.1rem">💳</span>'+
+                '<h3 style="margin:0">'+t('change_pay_method')+'</h3>'+
+            '</div>'+
+            '<button onclick="closeModal()" style="background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;padding:4px">✕</button>'+
+        '</div>'+
+        '<div class="pm-picker-list">'+itemsHtml+'</div>',
+        'modal-renew'
+    );
+}
+function changePayMethod(planId,method){
+    planSel[planId].method=method;
+    closeModal();
+    document.querySelectorAll('[data-plan-id="'+planId+'"] .plan-pm-bar, #renew-plan-view .plan-pm-bar').forEach(bar=>{
+        bar.outerHTML=_renderPmBar(planId);
+    });
+}
+function planPayClick(e,planId){
+    e.stopPropagation();
+    const sel=planSel[planId];
+    if(!sel||!sel.days||!sel.price)return;
+    if(sel.method==='balance'){
+        showConfirmPurchase(planId,sel.days,sel.price,'balance');
+    } else {
+        doPayment(planId,sel.days,sel.price,sel.method);
+    }
+}
+function applyPlanPromo(e,planId){
+    e.stopPropagation();
+    const input=document.getElementById('plan-promo-'+planId);
+    if(!input)return;
+    const code=input.value.trim();if(!code)return;
+    (async()=>{
+        try{
+            const res=await fetch(API+'/api/promocode/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+            const d=await res.json();
+            if(res.ok){toast(d.message||t('promo_activated'));input.value='';const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}}
+            else toast(d.detail||t('error'),'error');
+        }catch(e2){toast(t('net_error'),'error')}
+    })();
 }
 function _buildPayOpts(){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -979,43 +1226,45 @@ function _buildPayOpts(){
     });
     return options;
 }
-function showConfirmPurchase(planId,days,price){
+function showConfirmPurchase(planId,days,price,payMethod){
+    if(!payMethod)payMethod='balance';
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
     const plan=D.plans.find(p=>p.id===planId);
     const planName=plan?esc(plan.name):'—';
-    const pmSel=$('pm-sel-renew');
-    const payMethod=pmSel?pmSel.value:null;
+    const gateways=D.available_gateways||[];
+    let pmLabel='💰 '+t('balance');
+    if(payMethod==='balance'){pmLabel='💰 '+t('balance')}
+    else{const gw=gateways.find(g=>g.type===payMethod);pmLabel=(GW_ICONS[payMethod]||'💳')+' '+(gw?(GW_LABELS[gw.type]||gw.type):payMethod)}
     let note='';
     if(D.subscription&&D.subscription.status==='ACTIVE'){
-        note='<div class="confirm-note">⚠️ Ваша подписка будет продлена</div>';
+        const curPlanId=D.subscription.plan_id||(D.subscription.plan&&D.subscription.plan.id);
+        if(curPlanId && curPlanId!==planId){
+            note='<div class="confirm-note">⚠️ '+t('sub_change_note')+'</div>';
+        } else {
+            note='<div class="confirm-note">⚠️ '+t('sub_renew_note')+'</div>';
+        }
     }
-    let payActions='';
-    if(payMethod){
-        payActions='<button class="btn-confirm-pay" onclick="closeModal();doPayment('+planId+','+days+','+price+',\''+payMethod+'\')">'+'Оплатить'+'</button>'+
-            '<button class="btn btn-cancel" onclick="closeConfirmOverlay()">'+t('cancel')+'</button>';
-    } else {
-        const gwOpts=_buildPayOpts();
-        payActions='<select class="pay-method-select" id="pm-sel-confirm">'+gwOpts+'</select>'+
-            '<button class="btn-confirm-pay" onclick="doPaymentFromConfirm('+planId+','+days+','+price+')">'+'Оплатить'+'</button>'+
-            '<button class="btn btn-cancel" onclick="closeConfirmOverlay()">'+t('cancel')+'</button>';
-    }
-    const h='<h3>Подтверждение</h3>'+
+    const h='<h3>'+t('confirm')+'</h3>'+
         '<div class="confirm-info">'+
-            '<div class="confirm-row"><span class="c-label">Тариф:</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
-            '<div class="confirm-row"><span class="c-label">Период:</span><span class="c-value">'+fmtDaysFull(days)+'</span></div>'+
-            '<div class="confirm-row"><span class="c-label">Стоимость:</span><span class="c-value" style="color:var(--cyan)">'+price+' '+sym+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">'+t('tariff')+':</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">'+t('period')+':</span><span class="c-value">'+fmtDaysFull(days)+'</span></div>'+
+            '<div class="confirm-row"><span class="c-label">'+t('cost')+':</span><span class="c-value" style="color:var(--cyan)">'+price+' '+sym+'</span></div>'+
+            '<div style="border-top:1px solid rgba(255,255,255,.06);margin:8px 0"></div>'+
+            '<div class="confirm-row"><span class="c-label">'+t('payment_method')+':</span><span class="c-value">'+pmLabel+'</span></div>'+
         '</div>'+
         note+
-        '<div class="renew-pay-actions">'+payActions+'</div>';
+        '<div class="renew-pay-actions">'+
+            '<button class="btn-confirm-pay" onclick="closeConfirmOverlay();doPayment('+planId+','+days+','+price+',\''+payMethod+'\')">'+ t('confirm') +'</button>'+
+            '<button class="btn btn-cancel" onclick="closeConfirmOverlay()">'+t('cancel')+'</button>'+
+        '</div>';
     $('modal-root').insertAdjacentHTML('beforeend',
         '<div class="modal-overlay confirm-overlay" onclick="if(event.target===this)closeConfirmOverlay()" style="z-index:510">'+
         '<div class="modal-card modal-renew">'+h+'</div></div>'
     );
 }
 function closeConfirmOverlay(){const o=$('modal-root').querySelector('.confirm-overlay');if(o)o.remove()}
-function doPaymentFromConfirm(planId,days,price){const sel=$('pm-sel-confirm');const method=sel?sel.value:'balance';closeModal();doPayment(planId,days,price,method)}
 function doPayment(planId,days,price,method){
-    if(!method){const sel=$('pm-sel');method=sel?sel.value:'balance';}
+    if(!method)method='balance';
     if(method==='balance') return confirmPurchase(planId,days,price);
     payViaGateway(planId,days,method);
 }
@@ -1059,15 +1308,35 @@ function fmtDaysFull(d){
 function renderConnect(){
     const s=D.subscription;
     $('con-url').textContent=(s&&s.url)?s.url:t('no_active_sub');
+    // Download button — always same label
+    $('btn-download-label').textContent=t('download_app');
     if(s&&s.url&&DOMAIN){
         $('con-actions').style.display='';
         $('btn-oneclick').onclick=()=>openLink('https://'+DOMAIN+'/api/v1/connect/'+s.url);
         $('btn-subpage').onclick=()=>openLink(s.url);
+        $('btn-subpage').style.display='';
         $('btn-qr').style.display='';
+        $('btn-show-sub').style.display='';
+    } else {
+        $('con-actions').style.display='';
+        $('btn-subpage').style.display='none';
+        $('btn-qr').style.display='none';
+        $('btn-show-sub').style.display='none';
     }
     const dl=D.subscription&&D.subscription.device_limit;
     $('dev-limit').textContent=dl||'—';
     $('dev-used').textContent='—';
+}
+function toggleSubLink(){
+    const det=$('con-sub-detail');
+    const btn=$('btn-show-sub');
+    if(det.style.display==='none'){
+        det.style.display='';
+        btn.innerHTML='🔑&nbsp;'+t('hide_sub');
+    } else {
+        det.style.display='none';
+        btn.innerHTML='🔑&nbsp;'+t('show_sub');
+    }
 }
 
 function copyValue(el){
@@ -1105,11 +1374,12 @@ function renderProfile(){
         $('btn-get-bonus').style.display='none';
     }
     if(D.features&&D.features.balance_enabled!==false) $('balance-card').style.display='';
+    // Web credentials section
+    loadWebCredStatus();
     // Referral section
     if(D.features&&D.features.referral_enabled!==false){
         $('ref-card').style.display='';
-        const bot=D.bot_username||'bot';
-        $('ref-link').textContent='https://t.me/'+bot+'?start=ref_'+u.telegram_id;
+        $('ref-link').textContent=D.ref_link||'Бот не настроен';
         // Referral stats
         const rs=D.referral_stats||{};
         const statsEl=$('ref-stats');
@@ -1119,9 +1389,66 @@ function renderProfile(){
             '<div class="ref-stat-item"><div class="ref-stat-value">'+(rs.total_bonus||0)+' '+sym+'</div><div class="ref-stat-label">Начислено</div></div>';
     }
 }
+async function loadWebCredStatus(){
+    try{
+        const r=await fetch(API+'/api/auth/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:D.user.telegram_id})});
+        const d=await r.json();
+        const el=$('web-cred-status');
+        if(d.has_credentials){
+            el.innerHTML='<div class="card-row"><span class="card-label">Статус</span><span class="card-value" style="color:var(--green)">Подключено ✓</span></div>';
+            $('web-cred-setup').style.display='none';
+            $('web-cred-detail').style.display='';
+            $('wc-disp-login').textContent=d.web_username||'—';
+            $('wc-change-section').style.display='none';
+            // spoiler arrow toggle
+            const sp=$('wc-spoiler');
+            if(sp){sp.removeAttribute('open')}
+        } else {
+            el.innerHTML='<div class="card-row"><span class="card-label">Статус</span><span class="card-value" style="color:var(--text3)">Не подключен</span></div>';
+            $('web-cred-setup').style.display='';
+            $('web-cred-detail').style.display='none';
+        }
+    }catch(e){}
+}
+
+function showChangePass(){
+    $('wc-change-section').style.display='';
+    $('wc-old-pass').value='';$('wc-new-pass').value='';$('wc-new-pass2').value='';
+}
+function cancelWebCredChange(){
+    $('wc-change-section').style.display='none';
+    const sp=$('wc-spoiler');if(sp)sp.removeAttribute('open');
+}
+async function applyWebCredChange(){
+    const chSec=$('wc-change-section');
+    if(chSec.style.display!=='none'){
+        const op=$('wc-old-pass').value,np=$('wc-new-pass').value,np2=$('wc-new-pass2').value;
+        if(!op)return toast('Введите текущий пароль','error');
+        if(!np||np.length<6)return toast('Новый пароль минимум 6 символов','error');
+        if(np!==np2)return toast('Пароли не совпадают','error');
+        try{
+            const r=await fetch(API+'/api/user/credentials/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({old_password:op,new_password:np})});
+            if(r.ok){toast('Пароль изменён');$('wc-change-section').style.display='none'}
+            else{const d=await r.json();toast(d.detail||'Ошибка','error')}
+        }catch(e){toast('Ошибка','error')}
+    } else {
+        const sp=$('wc-spoiler');if(sp)sp.removeAttribute('open');
+    }
+}
+async function saveWebCredentials(){
+    const un=$('wc-username').value.trim(),pw=$('wc-password').value,pw2=$('wc-password2').value;
+    if(!un||un.length<3)return toast('Логин минимум 3 символа','error');
+    if(!pw||pw.length<6)return toast('Пароль минимум 6 символов','error');
+    if(pw!==pw2)return toast('Пароли не совпадают','error');
+    try{
+        const r=await fetch(API+'/api/user/credentials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({web_username:un,password:pw})});
+        if(r.ok){toast('Сохранено');loadWebCredStatus()}
+        else{const d=await r.json();toast(d.detail||'Ошибка','error')}
+    }catch(e){toast('Ошибка','error')}
+}
 function showBonusInfo(){
-    const bot=D.bot_username||'bot';
-    const refLink='https://t.me/'+bot+'?start=ref_'+D.user.telegram_id;
+    const refLink=D.ref_link;
+    if(!refLink){toast('Бот не настроен','error');return}
     showModal('<h3>Бонусный баланс</h3>'+
         '<p style="color:var(--text2);font-size:.84rem;margin-bottom:12px">Бонусный баланс начисляется за приглашение друзей через реферальную ссылку.</p>'+
         '<div class="ref-box" style="margin-bottom:12px"><code>'+esc(refLink)+'</code></div>'+
@@ -1130,10 +1457,33 @@ function showBonusInfo(){
         '<button class="btn btn-secondary btn-full" onclick="closeModal()">'+t('close')+'</button></div>');
 }
 function inviteFriend(){
-    const bot=D.bot_username||'bot';
-    const refLink='https://t.me/'+bot+'?start=ref_'+D.user.telegram_id;
-    const text=encodeURIComponent('Попробуй этот VPN! '+refLink);
-    tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+text);
+    const refLink=D.ref_link;
+    if(!refLink){toast(t('error'),'error');return}
+    // Prefer settingsCache (admin may have updated), fall back to D.features
+    let template=(settingsCache&&settingsCache.referral_invite_message!=null)?settingsCache.referral_invite_message:((D.features&&D.features.referral_invite_message)||'');
+    let msg='';
+    if(template){
+        msg=template.replace(/\{space\}/g,'\n').replace(/\{url\}/g,refLink).replace(/\{name\}/g,BRAND.name||DEFAULT_NAME);
+        if(msg.startsWith('\n'))msg=msg.substring(1);
+    }
+    let shareUrl;
+    if(msg&&msg.indexOf(refLink)!==-1){
+        // Message already contains the link — use text-only mode  
+        shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
+    } else if(msg){
+        // Message without link — put refLink as url param for link preview
+        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(msg);
+    } else {
+        // No custom message — share link with brand name
+        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(BRAND.name||DEFAULT_NAME);
+    }
+    try{
+        if(tg.initData&&typeof tg.openTelegramLink==='function'){
+            tg.openTelegramLink(shareUrl);
+        } else {
+            window.open(shareUrl,'_blank');
+        }
+    }catch(e){window.open(shareUrl,'_blank')}
 }
 
 function renderSupport(){
@@ -1163,87 +1513,39 @@ function openPayment(){
 function renewCurrentPlan(){
     const s=D.subscription;
     if(!s) return go('plans');
-    // Try plan_id first, then fallback to name match
     const planId=s.plan_id||(s.plan&&s.plan.id);
     const plan=D.plans.find(p=>p.id===planId)||
                (s.plan_name?D.plans.find(p=>p.name===s.plan_name):null);
     if(!plan) return go('plans');
-    const dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
-    // Find base ppd for savings calc
-    let basePpd=null;
-    (plan.durations||[]).forEach(d=>{
-        const pr=findPrice(d,dc);
-        if(pr!==null && d.days>0){
-            const ppd=pr/d.days;
-            if(basePpd===null||(d.days<basePpd.days)){basePpd={ppd,days:d.days}}
-        }
-    });
-    const dursHtml=(plan.durations||[]).map(d=>{
-        const pr=findPrice(d,dc);if(pr===null)return '';
-        let savBadge='';
-        if(basePpd && d.days>basePpd.days && pr>0){
-            const ppd=pr/d.days;
-            const pct=Math.round((1-ppd/basePpd.ppd)*100);
-            if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
-        }
-        return '<div class="plan-duration" onclick="showConfirmPurchase('+plan.id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
-    }).join('');
+    go('renew');
+    renderRenewPage(plan);
+}
+function renderRenewPage(plan){
+    const dc=D.default_currency||'RUB',sym=CURRENCY_SYMBOLS[dc]||'₽';
     let trafficText;
     if(plan.type==='DEVICES') trafficText='Безлимитный';
-    else trafficText=(plan.traffic_limit||'∞')+' ГБ';
+    else trafficText=(plan.traffic_limit||'∞')+' GB';
     const devicesText=(plan.device_limit||'∞')+' '+t('dev_short');
-    // Build payment options for footer
-    const gwOpts=_buildPayOpts();
-    showModal(
-        '<h3>'+t('renew')+'</h3>'+
-        '<div class="renew-plan-info">'+
-            '<div class="renew-plan-name">'+esc(plan.name)+'</div>'+
-            '<div class="renew-plan-meta">'+
-                '<span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span>'+
+    const gridHtml=_renderDurGrid(plan,plan.id);
+    const promoHtml=(D.features&&D.features.promocodes_enabled)?
+        '<div class="plan-promo-row"><div class="promo-wrap"><span class="promo-icon">🏷</span><input placeholder="'+t('promo_placeholder')+'" id="plan-promo-'+plan.id+'"></div><button onclick="applyPlanPromo(event,'+plan.id+')">'+t('apply_code')+'</button></div>':'';
+    const pmBar=_renderPmBar(plan.id);
+    const payBtn=_renderPayBtn(plan.id);
+    $('renew-plan-view').innerHTML=
+        '<div class="card plan-card-new open" data-plan-id="'+plan.id+'">'+
+            '<div class="plan-card-header">'+
+                '<div class="plan-card-name">'+esc(plan.name)+'</div>'+
             '</div>'+
-        '</div>'+
-        '<p style="color:var(--text3);font-size:.82rem;margin:0 0 8px">'+t('select_period')+'</p>'+
-        '<div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+
-        '<div class="renew-pay-actions" style="margin-top:14px">'+
-            '<select class="pay-method-select" id="pm-sel-renew">'+gwOpts+'</select>'+
-            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
-        '</div>',
-        'modal-renew'
-    );
+            '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
+            '<div class="plan-card-body" style="max-height:none;opacity:1;margin-top:12px">'+
+                '<div class="plan-dur-grid">'+gridHtml+'</div>'+
+                promoHtml+pmBar+payBtn+
+            '</div>'+
+        '</div>';
 }
 function selectPlan(id){
-    const plan=D.plans.find(p=>p.id===id);if(!plan)return;
-    const dc=D.default_currency||'RUB', sym=CURRENCY_SYMBOLS[dc]||'₽';
-    // Find base ppd for savings calc
-    let basePpd=null;
-    (plan.durations||[]).forEach(d=>{
-        const pr=findPrice(d,dc);
-        if(pr!==null && d.days>0){
-            const ppd=pr/d.days;
-            if(basePpd===null||d.days<=(basePpd.days||9999)){basePpd={ppd,days:d.days}}
-        }
-    });
-    const dursHtml=(plan.durations||[]).map(d=>{
-        const pr=findPrice(d,dc);if(pr===null)return '';
-        let savBadge='';
-        if(basePpd && d.days>basePpd.days && pr>0){
-            const ppd=pr/d.days;
-            const pct=Math.round((1-ppd/basePpd.ppd)*100);
-            if(pct>0) savBadge='<span class="plan-savings">('+t('savings')+' '+pct+'%)</span>';
-        }
-        return '<div class="plan-duration" onclick="showConfirmPurchase('+id+','+d.days+','+pr+')"><span class="plan-days">'+fmtDays(d.days)+'</span><span class="plan-price">'+pr+' '+sym+'</span><span class="plan-sav-col">'+savBadge+'</span></div>';
-    }).join('');
-    const gwOpts=_buildPayOpts();
-    showModal(
-        '<h3>'+esc(plan.name)+'</h3>'+
-        '<p style="color:var(--text3);font-size:.84rem;margin-bottom:8px">'+t('select_period')+'</p>'+
-        '<div class="plan-durations" style="gap:6px">'+dursHtml+'</div>'+
-        '<div class="renew-pay-actions" style="margin-top:14px">'+
-            '<select class="pay-method-select" id="pm-sel-renew">'+gwOpts+'</select>'+
-            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
-        '</div>',
-        'modal-renew'
-    );
+    /* Legacy — now handled by renderPlans grid inline */
+    go('plans');
 }
 async function confirmPurchase(planId,days,price){
     const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
@@ -1308,16 +1610,50 @@ function copyRef(){
     const rl=$('ref-link').textContent;
     navigator.clipboard.writeText(rl).then(()=>toast(t('link_copied'))).catch(()=>toast(t('error'),'error'));
 }
-function topupBalance(){toast(t('topup_via_bot'))}
+function topupBalance(){
+    const gateways=D.available_gateways||[];
+    if(!gateways.length){toast(t('topup_via_bot'));return}
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    let gwOpts=gateways.map(gw=>{
+        const label=GW_LABELS[gw.type]||gw.type;
+        const icon=GW_ICONS[gw.type]||'💳';
+        return '<option value="'+gw.type+'">'+icon+' '+label+'</option>';
+    }).join('');
+    showModal('<h3>'+t('topup')+'</h3>'+
+        '<div class="form-group"><label>'+t('topup_amount')+' ('+sym+')</label><input class="form-input" id="topup-amt" type="number" placeholder="100" min="1"></div>'+
+        '<div class="form-group"><label>'+t('payment_method')+'</label><select class="pay-method-select" id="topup-gw">'+gwOpts+'</select></div>'+
+        '<div class="modal-actions" style="gap:8px">'+
+            '<button class="btn-confirm-pay" onclick="doTopup()">'+t('topup')+'</button>'+
+            '<button class="btn btn-cancel" onclick="closeModal()">'+t('cancel')+'</button>'+
+        '</div>');
+}
+async function doTopup(){
+    const amt=parseInt($('topup-amt').value);
+    const gw=$('topup-gw').value;
+    if(!amt||amt<=0)return toast(t('enter_amount'),'error');
+    closeModal();
+    showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">'+t('processing')+'</p></div>');
+    try{
+        const r=await fetch(API+'/api/topup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt,gateway:gw})});
+        closeModal();
+        if(r.ok){
+            const j=await r.json();
+            if(j.payment_url)openLink(j.payment_url);
+            else toast(t('pay_created')+' ✅');
+        } else {
+            const j=await r.json();toast(j.detail||t('error'),'error');
+        }
+    }catch(e){closeModal();toast(t('net_error'),'error')}
+}
 async function activatePromo(){
     const code=$('promo-input').value.trim();if(!code)return;
     const r=$('promo-result');
     try{
         const res=await fetch(API+'/api/promocode/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
         const d=await res.json();r.style.display='block';
-        if(res.ok){r.style.color='var(--green)';r.textContent=d.message||'Промокод активирован!'}
-        else{r.style.color='var(--red)';r.textContent=d.detail||'Ошибка'}
-    }catch(e){r.style.display='block';r.style.color='var(--red)';r.textContent='Ошибка сети'}
+        if(res.ok){r.style.color='var(--green)';r.textContent=d.message||t('promo_activated')}
+        else{r.style.color='var(--red)';r.textContent=d.detail||t('error')}
+    }catch(e){r.style.display='block';r.style.color='var(--red)';r.textContent=t('net_error')}
 }
 
 /* ═══════════════════════════════════════
@@ -1362,7 +1698,7 @@ function drawUsers(list){
     }).join('');
 }
 async function openUser(tid){
-    go('auser');$('aud-title').textContent='Загрузка…';$('aud-body').innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+    go('auser');$('aud-title').textContent=t('loading');$('aud-body').innerHTML='<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
     try{
         const r=await fetch(API+'/api/admin/users/'+tid);if(!r.ok){$('aud-body').innerHTML='<div class="empty-state">Ошибка</div>';return}
         const u=await r.json();$('aud-title').textContent=u.name||'Пользователь';drawUserDetail(u);
@@ -1435,7 +1771,7 @@ async function togglePlan(id,btn){
     btn.closest('.plan-admin-card').classList.toggle('inactive',!d.is_active);
     toast(d.is_active?'Включён':'Выключен')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
-async function delPlan(id){if(!confirm('Удалить тариф?'))return;try{const r=await fetch(API+'/api/admin/plans/'+id,{method:'DELETE'});if(r.ok){toast('Удалён');loadAdmPlans()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}}
+async function delPlan(id){if(!confirm(t('delete_plan_q')))return;try{const r=await fetch(API+'/api/admin/plans/'+id,{method:'DELETE'});if(r.ok){toast(t('deleted'));loadAdmPlans()}else{const j=await r.json();toast(j.detail||t('error'),'error')}}catch(e){toast(t('error'),'error')}}
 
 /* ── Plan Create / Edit Modal ── */
 let editingPlanId=null;
@@ -1464,7 +1800,7 @@ function showPlanModal(p,title){
         '<div style="margin-bottom:8px"><label style="font-size:.8rem;color:var(--text3);font-weight:500">Периоды и цены ('+(CURRENCY_SYMBOLS[dc]||dc)+')</label></div>'+
         '<div id="dur-list">'+durs+'</div>'+
         '<button class="btn btn-secondary btn-sm" onclick="addDurEntry()" style="margin-bottom:10px">+ Период</button>'+
-        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Отмена</button><button class="btn btn-primary" onclick="savePlan()">Сохранить</button></div>'
+        '<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="savePlan()">'+t('save')+'</button></div>'
     );
     // Apply conditional fields after modal renders
     setTimeout(()=>onPlanTypeChange(),0);
@@ -1574,13 +1910,13 @@ function drawSettings(){
         {key:'bot_locale',icon:'🗣',label:'Язык бота',desc:s.bot_locale||'RU',type:'select',detail:'bot_locale'},
     ];
     let html='';
-    html+='<details class="spoiler-card settings-spoiler" open><summary><span class="spoiler-title">⚙️ Функционал</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler" open><summary><span class="spoiler-title">⚙️ Функционал</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     funcItems.forEach(item=>{html+=mkRow(item)});
     html+='</div></details>';
-    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">💳 Платёжные системы</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">💳 Платёжные системы</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     html+=gwRows;
     html+='</div></details>';
-    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">🤖 Управление ботом</span><span class="spoiler-chevron">&#8250;</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
+    html+='<details class="spoiler-card settings-spoiler"><summary><span class="spoiler-title">🤖 Управление ботом</span><span class="spoiler-chevron">▼</span></summary><div class="card" style="padding:0;overflow:hidden;margin-top:10px;margin-bottom:0">';
     botItems.forEach(item=>{html+=mkRow(item)});
     html+='</div></details>';
     $('settings-list').innerHTML=html;
@@ -1590,33 +1926,31 @@ function openSettingDetail(key,label,detail){
     curDetailCtx={key,label,detail};
     const s=settingsCache, val=s[key];
     let body='';
+    let saveAction='';
     if(detail==='balance'){
-        const modes={SEPARATE:'Раздельно',COMBINED:'Объединённый'};
-        body+='<div class="form-group"><label>Режим баланса</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            Object.entries(modes).map(([k,v])=>'<button class="btn '+((s.balance_mode||'SEPARATE')===k?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'balance_mode\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Минимум пополнения</label><input class="form-input" id="sd-bal-min" type="number" value="'+(s.balance_min_amount||10)+'"></div>'+
-            '<div class="form-group"><label>Максимум пополнения</label><input class="form-input" id="sd-bal-max" type="number" value="'+(s.balance_max_amount||100000)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({balance_min_amount:parseInt($(\'sd-bal-min\').value),balance_max_amount:parseInt($(\'sd-bal-max\').value)})">Сохранить</button>';
+        const curMode=s.balance_mode||'SEPARATE';
+        const sym=CURRENCY_SYMBOLS[s.default_currency]||'₽';
+        body+='<div class="setting-inline-row"><span class="setting-inline-label">Режим баланса</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'balance_mode\',this.value)"><option value="SEPARATE"'+(curMode==='SEPARATE'?' selected':'')+'>Раздельно</option><option value="COMBINED"'+(curMode==='COMBINED'?' selected':'')+'>Объединённый</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Минимальное пополнение</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-bal-min" type="number" value="'+(s.balance_min_amount||10)+'" style="width:80px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+sym+'</span></div></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Максимальное пополнение</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-bal-max" type="number" value="'+(s.balance_max_amount||100000)+'" style="width:80px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+sym+'</span></div></div>';
+        saveAction='saveMultiSub({balance_min_amount:parseInt($(\'sd-bal-min\').value),balance_max_amount:parseInt($(\'sd-bal-max\').value)})';
     } else if(detail==='community'){
-        body+='<div class="form-group"><label>URL сообщества</label><input class="form-input" id="sd-comm-url" value="'+esc(s.community_url||'')+'" placeholder="https://t.me/..."></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({community_url:$(\'sd-comm-url\').value})">Сохранить</button>';
+        body+='<div class="form-group"><label>URL сообщества</label><input class="form-input" id="sd-comm-url" value="'+esc(s.community_url||'')+'" placeholder="https://t.me/..."></div>';
+        saveAction='saveMultiSub({community_url:$(\'sd-comm-url\').value})';
     } else if(detail==='referral'){
-        const lvlLabels={'1':'1-й уровень','2':'2-й уровень'};
-        const acLabels={'ON_EACH_PAYMENT':'За каждую оплату','ON_FIRST_PAYMENT':'За первую оплату'};
-        const rtLabels={'MONEY':'Деньги','EXTRA_DAYS':'Доп. дни'};
-        const rsLabels={'AMOUNT':'Фиксированная','PERCENT':'Процент'};
-        body+='<div class="form-group"><label>Уровень</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            Object.entries(lvlLabels).map(([k,v])=>'<button class="btn '+((String(s.referral_level)==k)?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_level\','+k+')">'+v+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Тип награды</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            Object.entries(rtLabels).map(([k,v])=>'<button class="btn '+((s.referral_reward_type||'MONEY')===k?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_reward_type\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Условия начисления</label><div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">'+
-            Object.entries(acLabels).map(([k,v])=>'<button class="btn '+((s.referral_accrual_strategy||'ON_EACH_PAYMENT')===k?'btn-primary':'btn-secondary')+' btn-sm" style="font-size:.74rem" onclick="saveSubSetting(\'referral_accrual_strategy\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Форма начисления</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            Object.entries(rsLabels).map(([k,v])=>'<button class="btn '+((s.referral_reward_strategy||'AMOUNT')===k?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'referral_reward_strategy\',\''+k+'\')">'+v+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Награда ('+(s.referral_reward_strategy==='PERCENT'?'%':(CURRENCY_SYMBOLS[s.default_currency]||'₽'))+')</label><input class="form-input" id="sd-ref-val" type="number" value="'+(s.referral_reward_value||10)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSubSetting(\'referral_reward_value\',parseInt($(\'sd-ref-val\').value))">Сохранить награду</button>'+
-            '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px"><div class="form-group"><label>Текст приглашения</label><textarea class="form-input" id="sd-ref-msg" rows="3" style="resize:vertical">'+esc(s.referral_invite_message||'')+'</textarea></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSubSetting(\'referral_invite_message\',$(\'sd-ref-msg\').value)">Сохранить текст</button></div>';
+        const curLevel=String(s.referral_level||1);
+        const curRt=s.referral_reward_type||'MONEY';
+        const curAs=s.referral_accrual_strategy||'ON_EACH_PAYMENT';
+        const curRs=s.referral_reward_strategy||'AMOUNT';
+        const rewardUnit=curRs==='PERCENT'?'%':(curRt==='EXTRA_DAYS'?'дней':(CURRENCY_SYMBOLS[s.default_currency]||'₽'));
+        body+='<div class="setting-inline-row"><span class="setting-inline-label">Уровневость</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'referral_level\',parseInt(this.value));setTimeout(()=>openSettingDetail(\'referral_enabled\',\'Реф.система\',\'referral\'),100)"><option value="1"'+(curLevel==='1'?' selected':'')+'>1 уровень</option><option value="2"'+(curLevel==='2'?' selected':'')+'>2 уровня</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Тип награды</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'referral_reward_type\',this.value)"><option value="MONEY"'+(curRt==='MONEY'?' selected':'')+'>Деньги</option><option value="EXTRA_DAYS"'+(curRt==='EXTRA_DAYS'?' selected':'')+'>Дни</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Условия начисления</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'referral_accrual_strategy\',this.value)"><option value="ON_EACH_PAYMENT"'+(curAs==='ON_EACH_PAYMENT'?' selected':'')+'>За каждую оплату</option><option value="ON_FIRST_PAYMENT"'+(curAs==='ON_FIRST_PAYMENT'?' selected':'')+'>За первую оплату</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Форма начисления</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'referral_reward_strategy\',this.value)"><option value="AMOUNT"'+(curRs==='AMOUNT'?' selected':'')+'>Фиксированная</option><option value="PERCENT"'+(curRs==='PERCENT'?' selected':'')+'>Процентная</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Награда (ур. 1)</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-ref-val" type="number" value="'+(s.referral_reward_value||10)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+rewardUnit+'</span></div></div>'+
+            (curLevel==='2'?'<div class="setting-inline-row"><span class="setting-inline-label">Награда (ур. 2)</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-ref-val2" type="number" value="'+(s.referral_reward_value_l2||5)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+rewardUnit+'</span></div></div>':'')+
+            '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px"><div class="form-group"><label>Текст приглашения</label><textarea class="form-input" id="sd-ref-msg" rows="7" style="resize:vertical;min-height:120px" placeholder="Введите текст приглашения.\n{space} — перенос строки\n{url} — реферальная ссылка\n{name} — название бота">'+esc(s.referral_invite_message||'')+'</textarea></div></div>';
+        saveAction='saveMultiSub({referral_reward_value:parseInt($(\'sd-ref-val\').value),referral_reward_value_l2:$(\'sd-ref-val2\')?parseInt($(\'sd-ref-val2\').value):undefined,referral_invite_message:$(\'sd-ref-msg\').value})';
     } else if(detail==='notifications'){
         const unLabels={un_expires_3d:'Истекает через 3 дня',un_expires_2d:'Истекает через 2 дня',un_expires_1d:'Истекает через 1 день',un_expired:'Подписка истекла',un_limited:'Трафик исчерпан',un_expired_1d_ago:'Истекла 1 день назад',un_referral_attached:'Реферал присоединён',un_referral_reward:'Реферальная награда'};
         const snLabels={sn_bot_lifetime:'Время работы бота',sn_bot_update:'Обновление бота',sn_user_registered:'Регистрация пользователя',sn_subscription:'Подписка',sn_extra_devices:'Доп. устройства',sn_promocode:'Промокод активирован',sn_trial:'Пробный период',sn_node_status:'Статус ноды',sn_user_connected:'Первое подключение',sn_user_hwid:'HWID пользователя',sn_billing:'Биллинг',sn_balance_transfer:'Перевод баланса'};
@@ -1629,55 +1963,63 @@ function openSettingDetail(key,label,detail){
             body+='<div class="toggle-row"><label>'+v+'</label><button class="toggle-switch '+(s[k]?'active':'')+'" onclick="saveSubSetting(\''+k+'\','+(!s[k])+');this.classList.toggle(\'active\')"></button></div>';
         });
     } else if(detail==='extra_devices'){
-        body+='<div class="form-group"><label>Цена за устройство</label><input class="form-input" id="sd-ed-price" type="number" value="'+(s.extra_devices_price||100)+'"></div>'+
+        const sym=CURRENCY_SYMBOLS[s.default_currency]||'₽';
+        body+='<div class="setting-inline-row"><span class="setting-inline-label">Цена за устройство</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-ed-price" type="number" value="'+(s.extra_devices_price||100)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+sym+'</span></div></div>'+
             '<div class="toggle-row" style="margin-bottom:8px"><label>Единоразовая оплата</label><button class="toggle-switch '+(s.extra_devices_one_time?'active':'')+'" onclick="saveSubSetting(\'extra_devices_one_time\','+(!s.extra_devices_one_time)+');this.classList.toggle(\'active\')"></button></div>'+
-            '<div class="form-group"><label>Мин. дней до истечения</label><input class="form-input" id="sd-ed-days" type="number" value="'+(s.extra_devices_min_days||10)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({extra_devices_price:parseInt($(\'sd-ed-price\').value),extra_devices_min_days:parseInt($(\'sd-ed-days\').value)})">Сохранить</button>';
+            '<div class="setting-inline-row"><span class="setting-inline-label">Мин. дней до истечения</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-ed-days" type="number" value="'+(s.extra_devices_min_days||10)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"></div></div>';
+        saveAction='saveMultiSub({extra_devices_price:parseInt($(\'sd-ed-price\').value),extra_devices_min_days:parseInt($(\'sd-ed-days\').value)})';
     } else if(detail==='transfers'){
-        body+='<div class="form-group"><label>Тип комиссии</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            ['percent','fixed'].map(t=>'<button class="btn '+((s.transfers_commission_type||'percent')===t?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'transfers_commission_type\',\''+t+'\')">'+({percent:'Процент',fixed:'Фиксированная'}[t])+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Комиссия ('+(s.transfers_commission_type==='fixed'?'₽':'%')+')</label><input class="form-input" id="sd-tr-comm" type="number" value="'+(s.transfers_commission_value||5)+'"></div>'+
-            '<div class="form-group"><label>Мин. сумма</label><input class="form-input" id="sd-tr-min" type="number" value="'+(s.transfers_min_amount||10)+'"></div>'+
-            '<div class="form-group"><label>Макс. сумма</label><input class="form-input" id="sd-tr-max" type="number" value="'+(s.transfers_max_amount||100000)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({transfers_commission_value:parseInt($(\'sd-tr-comm\').value),transfers_min_amount:parseInt($(\'sd-tr-min\').value),transfers_max_amount:parseInt($(\'sd-tr-max\').value)})">Сохранить</button>';
+        const curTct=s.transfers_commission_type||'percent';
+        const commUnit=curTct==='fixed'?(CURRENCY_SYMBOLS[s.default_currency]||'₽'):'%';
+        const sym=CURRENCY_SYMBOLS[s.default_currency]||'₽';
+        body+='<div class="setting-inline-row"><span class="setting-inline-label">Тип комиссии</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'transfers_commission_type\',this.value);setTimeout(()=>openSettingDetail(\'transfers_enabled\',\'Переводы\',\'transfers\'),100)"><option value="percent"'+(curTct==='percent'?' selected':'')+'>Процент</option><option value="fixed"'+(curTct==='fixed'?' selected':'')+'>Фиксированная</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Комиссия</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-tr-comm" type="number" value="'+(s.transfers_commission_value||5)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+commUnit+'</span></div></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Мин. сумма</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-tr-min" type="number" value="'+(s.transfers_min_amount||10)+'" style="width:80px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+sym+'</span></div></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Макс. сумма</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-tr-max" type="number" value="'+(s.transfers_max_amount||100000)+'" style="width:80px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+sym+'</span></div></div>';
+        saveAction='saveMultiSub({transfers_commission_value:parseInt($(\'sd-tr-comm\').value),transfers_min_amount:parseInt($(\'sd-tr-min\').value),transfers_max_amount:parseInt($(\'sd-tr-max\').value)})';
     } else if(detail==='global_discount'){
-        body+='<div class="form-group"><label>Тип скидки</label><div style="display:flex;gap:6px;margin-top:4px">'+
-            ['percent','fixed'].map(t=>'<button class="btn '+((s.global_discount_type||'percent')===t?'btn-primary':'btn-secondary')+' btn-sm" onclick="saveSubSetting(\'global_discount_type\',\''+t+'\')">'+({percent:'Процент',fixed:'Фиксированная'}[t])+'</button>').join('')+'</div></div>'+
-            '<div class="form-group"><label>Значение скидки</label><input class="form-input" id="sd-gd-val" type="number" value="'+(s.global_discount_value||0)+'"></div>'+
+        const curGdt=s.global_discount_type||'percent';
+        const discUnit=curGdt==='fixed'?(CURRENCY_SYMBOLS[s.default_currency]||'₽'):'%';
+        body+='<div class="setting-inline-row"><span class="setting-inline-label">Тип скидки</span><select class="pay-method-select setting-inline-select" onchange="saveSubSetting(\'global_discount_type\',this.value);setTimeout(()=>openSettingDetail(\'global_discount_enabled\',\'Глобальная скидка\',\'global_discount\'),100)"><option value="percent"'+(curGdt==='percent'?' selected':'')+'>Процент</option><option value="fixed"'+(curGdt==='fixed'?' selected':'')+'>Фиксированная</option></select></div>'+
+            '<div class="setting-inline-row"><span class="setting-inline-label">Значение скидки</span><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><input class="form-input" id="sd-gd-val" type="number" value="'+(s.global_discount_value||0)+'" style="width:70px;text-align:center;padding:5px 8px;font-size:.78rem"><span style="color:var(--text3);font-size:.78rem;white-space:nowrap">'+discUnit+'</span></div></div>'+
             '<div class="toggle-row" style="margin-bottom:8px"><label>Складывать скидки</label><button class="toggle-switch '+(s.global_discount_stack?'active':'')+'" onclick="saveSubSetting(\'global_discount_stack\','+(!s.global_discount_stack)+');this.classList.toggle(\'active\')"></button></div>'+
             '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Применять к</div>'+
             '<div class="toggle-row"><label>Подписки</label><button class="toggle-switch '+(s.global_discount_apply_sub?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_sub\','+(!s.global_discount_apply_sub)+');this.classList.toggle(\'active\')"></button></div>'+
             '<div class="toggle-row"><label>Доп. устройства</label><button class="toggle-switch '+(s.global_discount_apply_devices?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_devices\','+(!s.global_discount_apply_devices)+');this.classList.toggle(\'active\')"></button></div>'+
-            '<div class="toggle-row"><label>Комиссия переводов</label><button class="toggle-switch '+(s.global_discount_apply_transfer?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_transfer\','+(!s.global_discount_apply_transfer)+');this.classList.toggle(\'active\')"></button></div></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" style="margin-top:10px" onclick="saveMultiSub({global_discount_value:parseInt($(\'sd-gd-val\').value)})">Сохранить</button>';
+            '<div class="toggle-row"><label>Комиссия переводов</label><button class="toggle-switch '+(s.global_discount_apply_transfer?'active':'')+'" onclick="saveSubSetting(\'global_discount_apply_transfer\','+(!s.global_discount_apply_transfer)+');this.classList.toggle(\'active\')"></button></div></div>';
+        saveAction='saveMultiSub({global_discount_value:parseInt($(\'sd-gd-val\').value)})';
     } else if(detail==='currency_rates'){
         const opts=['RUB','USD','EUR','XTR'];
-        body+=opts.map(o=>'<button class="btn '+(String(val)===o?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\''+key+'\',\''+o+'\')">'+o+'</button>').join('');
+        body+=opts.map(o=>'<button class="sub-action-btn sub-action-'+(String(val)===o?'renew':'change')+'" style="margin-top:6px;width:100%" onclick="saveSettingVal(\''+key+'\',\''+o+'\')">'+o+'</button>').join('');
         body+='<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px"><div style="font-size:.76rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Курсы валют</div></div>'+
             '<div class="toggle-row" style="margin-bottom:8px"><label>Автообновление (ЦБ РФ)</label><button class="toggle-switch '+(s.currency_rates_auto?'active':'')+'" onclick="saveSubSetting(\'currency_rates_auto\','+(!s.currency_rates_auto)+');this.classList.toggle(\'active\')"></button></div>'+
             '<div class="form-group"><label>USD → RUB</label><input class="form-input" id="sd-cr-usd" type="number" step="0.01" value="'+(s.currency_rates_usd||90)+'"></div>'+
             '<div class="form-group"><label>EUR → RUB</label><input class="form-input" id="sd-cr-eur" type="number" step="0.01" value="'+(s.currency_rates_eur||100)+'"></div>'+
-            '<div class="form-group"><label>Stars → RUB</label><input class="form-input" id="sd-cr-stars" type="number" step="0.01" value="'+(s.currency_rates_stars||1.5)+'"></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveMultiSub({currency_rates_usd:parseFloat($(\'sd-cr-usd\').value),currency_rates_eur:parseFloat($(\'sd-cr-eur\').value),currency_rates_stars:parseFloat($(\'sd-cr-stars\').value)})">Сохранить курсы</button>';
+            '<div class="form-group"><label>Stars → RUB</label><input class="form-input" id="sd-cr-stars" type="number" step="0.01" value="'+(s.currency_rates_stars||1.5)+'"></div>';
+        saveAction='saveMultiSub({currency_rates_usd:parseFloat($(\'sd-cr-usd\').value),currency_rates_eur:parseFloat($(\'sd-cr-eur\').value),currency_rates_stars:parseFloat($(\'sd-cr-stars\').value)})';
     } else if(detail==='tos'){
-        body+='<div class="form-group"><label>URL соглашения</label><input class="form-input" id="sd-tos-url" value="'+esc(s.tos_url||'')+'" placeholder="https://..."></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSettingStr(\'tos_url\',$(\'sd-tos-url\').value)">Сохранить</button>';
+        body+='<div class="form-group"><label>URL соглашения</label><input class="form-input" id="sd-tos-url" value="'+esc(s.tos_url||'')+'" placeholder="https://..."></div>';
+        saveAction='saveSettingStr(\'tos_url\',$(\'sd-tos-url\').value)';
     } else if(detail==='access_mode'){
         const amLabels={PUBLIC:'Публичный',INVITED:'По приглашению',RESTRICTED:'Ограниченный'};
-        body+=Object.entries(amLabels).map(([k,v])=>'<button class="btn '+(String(val)===k?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\'access_mode\',\''+k+'\')">'+v+'</button>').join('');
+        body+=Object.entries(amLabels).map(([k,v])=>'<button class="sub-action-btn sub-action-'+(String(val)===k?'renew':'change')+'" style="margin-top:6px;width:100%" onclick="saveSettingVal(\'access_mode\',\''+k+'\')">'+v+'</button>').join('');
     } else if(detail==='channel'){
         body+='<div class="toggle-row" style="margin-bottom:12px"><label>Обязательная подписка</label><button class="toggle-switch '+(s.channel_required?'active':'')+'" onclick="saveSubSetting(\'channel_required\','+(!s.channel_required)+');this.classList.toggle(\'active\')"></button></div>'+
-            '<div class="form-group"><label>Ссылка на канал</label><input class="form-input" id="sd-ch-link" value="'+esc(s.channel_link||'')+'" placeholder="https://t.me/..."></div>'+
-            '<button class="btn btn-primary btn-sm btn-full" onclick="saveSettingStr(\'channel_link\',$(\'sd-ch-link\').value)">Сохранить</button>';
+            '<div class="form-group"><label>Ссылка на канал</label><input class="form-input" id="sd-ch-link" value="'+esc(s.channel_link||'')+'" placeholder="https://t.me/..."></div>';
+        saveAction='saveSettingStr(\'channel_link\',$(\'sd-ch-link\').value)';
     } else if(detail==='bot_locale'){
         const locLabels={RU:'Русский',EN:'English',UK:'Українська',DE:'Deutsch'};
-        body+=Object.entries(locLabels).map(([k,v])=>'<button class="btn '+(String(val)===k?'btn-primary':'btn-secondary')+' btn-full" style="margin-top:6px" onclick="saveSettingVal(\'bot_locale\',\''+k+'\')">'+v+'</button>').join('');
+        body+=Object.entries(locLabels).map(([k,v])=>'<button class="sub-action-btn sub-action-'+(String(val)===k?'renew':'change')+'" style="margin-top:6px;width:100%" onclick="saveSettingVal(\'bot_locale\',\''+k+'\')">'+v+'</button>').join('');
     } else if(typeof val==='boolean'){
     } else {
-        body+='<div class="form-group"><label>Значение</label><input class="form-input" id="set-val" value="'+esc(String(val||''))+'"></div><button class="btn btn-primary btn-sm" onclick="saveSettingStr(\''+key+'\',$(\'set-val\').value)">Сохранить</button>';
+        body+='<div class="form-group"><label>Значение</label><input class="form-input" id="set-val" value="'+esc(String(val||''))+'"></div>';
+        saveAction='saveSettingStr(\''+key+'\',$(\'set-val\').value)';
     }
     if(!body)return;
-    showModal('<h3>'+label+'</h3>'+body+'<div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
+    let footer='<div class="modal-actions" style="gap:8px">';
+    if(saveAction) footer+='<button class="sub-action-btn sub-action-renew" style="flex:1;border-color:rgba(25,195,125,.35);color:var(--green)" onclick="'+saveAction+'">Принять</button>';
+    footer+='<button class="sub-action-btn sub-action-change" style="flex:1;border-color:rgba(224,79,95,.35);color:var(--red)" onclick="closeModal()">Отмена</button></div>';
+    showModal('<h3>'+label+'</h3>'+body+footer);
 }
 async function saveSubSetting(k,v){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
@@ -1687,7 +2029,9 @@ async function saveSubSetting(k,v){
 }
 async function saveMultiSub(obj){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
-    if(r.ok){Object.assign(settingsCache,obj);closeModal();drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){Object.assign(settingsCache,obj);
+        if(D.features&&obj.referral_invite_message!=null)D.features.referral_invite_message=obj.referral_invite_message;
+        closeModal();drawSettings();toast('Сохранено')}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 async function toggleSetAndRefresh(k,v,btn){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
@@ -1706,6 +2050,7 @@ async function toggleSet(k,v,dotId){
 let gatewaysCache=[];
 const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'ЮMoney',CRYPTOMUS:'Cryptomus',HELEKET:'Heleket',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
 const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'💜',CRYPTOMUS:'🪙',HELEKET:'🔷',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
+const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Электронный кошелёк',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'Криптовалюта',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
 const GW_SECRET_FIELDS=['api_key','secret_key'];
 async function loadGateways(){
     try{const r=await fetch(API+'/api/admin/gateways');if(!r.ok)return;gatewaysCache=await r.json();drawGateways()}catch(e){}
@@ -1723,7 +2068,7 @@ function openGatewayDetail(id){
     const settings=gw.settings||{};
     const fields=Object.keys(settings);
     if(!fields.length){
-        showModal('<h3>'+label+'</h3><p style="color:var(--text3);font-size:.84rem;margin:12px 0">Нет настраиваемых параметров</p><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
+        showModal('<h3>'+label+'</h3><p style="color:var(--text3);font-size:.84rem;margin:12px 0">Нет настраиваемых параметров</p><div class="modal-actions"><button class="sub-action-btn sub-action-change" style="flex:1;border-color:rgba(224,79,95,.35);color:var(--red)" onclick="closeModal()">Отмена</button></div>');
         return;
     }
     let body='<h3>'+label+'</h3><div style="margin-top:12px">';
@@ -1731,7 +2076,7 @@ function openGatewayDetail(id){
         const isSecret=GW_SECRET_FIELDS.includes(f);
         body+='<div class="form-group"><label>'+f+'</label><input class="form-input" id="gw-f-'+f+'" type="'+(isSecret?'password':'text')+'" value="'+esc(String(settings[f]||''))+'" placeholder="'+f+'"></div>';
     });
-    body+='</div><div class="modal-actions"><button class="btn btn-primary" onclick="saveGwSettings('+id+')">Сохранить</button><button class="btn btn-secondary" onclick="closeModal()">Отмена</button></div>';
+    body+='</div><div class="modal-actions" style="gap:8px"><button class="sub-action-btn sub-action-renew" style="flex:1;border-color:rgba(25,195,125,.35);color:var(--green)" onclick="saveGwSettings('+id+')">Принять</button><button class="sub-action-btn sub-action-change" style="flex:1;border-color:rgba(224,79,95,.35);color:var(--red)" onclick="closeModal()">Отмена</button></div>';
     showModal(body);
 }
 async function saveGwSettings(id){
@@ -1749,7 +2094,7 @@ function showQR(){
     const s=D&&D.subscription;
     if(!s||!s.url)return toast(t('no_active_sub')||'Нет активной подписки','error');
     const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=24C4F1&bgcolor=080C14&data='+encodeURIComponent(s.url);
-    showModal('<h3>QR-код</h3><div style="text-align:center;padding:10px 0"><img src="'+qrUrl+'" style="width:200px;height:200px;border-radius:12px" alt="QR"></div><p style="font-size:.75rem;color:var(--text3);text-align:center">Отсканируйте для подключения</p><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрыть</button></div>');
+    showModal('<h3>QR-код</h3><div style="text-align:center;padding:10px 0"><img src="'+qrUrl+'" style="width:200px;height:200px;border-radius:12px" alt="QR"></div><p style="font-size:.75rem;color:var(--text3);text-align:center">Отсканируйте для подключения</p><div class="modal-actions"><button class="btn-confirm-pay" style="flex:1" onclick="closeModal()">Готово</button></div>');
 }
 async function saveSettingStr(k,v){
     try{const r=await fetch(API+'/api/admin/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[k]:v})});
@@ -1779,7 +2124,7 @@ async function loadTickets(){
     }).join('')}catch(e){}
 }
 async function openTicket(id){
-    curTicketId=id; go('ticket');$('ticket-title').textContent='Загрузка…';$('ticket-chat').innerHTML='';$('ticket-reply').style.display='none';
+    curTicketId=id; go('ticket');$('ticket-title').textContent=t('loading');$('ticket-chat').innerHTML='';$('ticket-reply').style.display='none';
     try{const r=await fetch(API+'/api/tickets/'+id);if(!r.ok)return;
     const t=await r.json();$('ticket-title').textContent=t.subject;
     renderTicketChat($('ticket-chat'),t.messages);
@@ -1802,7 +2147,7 @@ function renderTicketChat(el,msgs){
 async function sendTicketReply(){
     const text=$('ticket-text').value.trim();if(!text||!curTicketId)return;
     try{const r=await fetch(API+'/api/tickets/'+curTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(r.ok){$('ticket-text').value='';const t=await r.json();renderTicketChat($('ticket-chat'),t.messages)}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){$('ticket-text').value='';const t=await r.json();renderTicketChat($('ticket-chat'),t.messages);pollTicketStatus()}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
 function showNewTicket(){
     showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..."></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
@@ -1824,52 +2169,54 @@ async function loadAdmTickets(){
     el.innerHTML=admTicketsCache.map(tk=>{
         const st=tk.status.toLowerCase();
         const stLabel=t('ticket_'+st)||TICKET_STATUS_LABELS[tk.status]||tk.status;
+        const lastMsg=(tk.messages&&tk.messages.length)?tk.messages[tk.messages.length-1].text:'';
         return '<div class="ticket-item'+(tk.is_read_by_admin?'':' unread')+'" onclick="openAdmTicket('+tk.id+')">'+
-            '<div class="ticket-top"><span class="ticket-id">ID '+tk.user_telegram_id+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
-            '<div class="ticket-row2"><span class="ticket-subject">'+esc(tk.subject)+'</span>'+
-            '<button class="btn-ticket-del" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div>'+
-            '<div class="ticket-bottom"><span class="ticket-date">'+tk.updated_at+'</span></div>'+
+            '<div class="ticket-top"><span class="ticket-id">#'+tk.id+' · ID '+tk.user_telegram_id+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-row2"><span class="ticket-subject">'+esc(tk.subject)+'</span></div>'+
+            (lastMsg?'<div class="ticket-preview">'+esc(lastMsg.substring(0,80))+'</div>':'')+
+            '<div class="ticket-bottom-row"><span class="ticket-date">'+tk.updated_at+'</span><button class="btn-trash" onclick="event.stopPropagation();delAdmTicket('+tk.id+')" title="Удалить тикет">🗑</button></div>'+
             '</div>';
     }).join('')}catch(e){}
 }
 async function delAdmTicket(id){
-    if(!confirm('Удалить тикет #'+id+'?'))return;
+    if(!confirm(t('delete_ticket_q')+' #'+id+'?'))return;
     try{const r=await fetch(API+'/api/admin/tickets/'+id,{method:'DELETE'});
-    if(r.ok){toast('Тикет удалён');loadAdmTickets()}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}
+    if(r.ok){toast(t('deleted'));loadAdmTickets()}else{const j=await r.json();toast(j.detail||t('error'),'error')}}catch(e){toast(t('error'),'error')}
 }
 let admCurTicketId=null;
 async function openAdmTicket(id){
-    admCurTicketId=id;go('aticket');$('at-title').textContent='Загрузка…';$('at-chat').innerHTML='';
-    $('at-status-bar').style.display='none';
+    admCurTicketId=id;go('aticket');$('at-title').textContent=t('loading');$('at-chat').innerHTML='';
     try{const r=await fetch(API+'/api/admin/tickets/'+id);if(!r.ok)return;
     const tk=await r.json();$('at-title').textContent='#'+tk.id+' '+tk.subject;
     renderTicketChat($('at-chat'),tk.messages);
     }catch(e){}
 }
 async function delAdmTicketFromDetail(id){
-    if(!confirm('Удалить тикет #'+id+'?'))return;
+    if(!confirm(t('delete_ticket_q')+' #'+id+'?'))return;
     try{const r=await fetch(API+'/api/admin/tickets/'+id,{method:'DELETE'});
-    if(r.ok){toast('Тикет удалён');admTab('tickets');go('admin')}else{const j=await r.json();toast(j.detail||'Ошибка','error')}}catch(e){toast('Ошибка','error')}
+    if(r.ok){toast(t('deleted'));admTab('tickets');go('admin')}else{const j=await r.json();toast(j.detail||t('error'),'error')}}catch(e){toast(t('error'),'error')}
 }
 async function sendAdmTicketReply(){
     const text=$('at-text').value.trim();if(!text||!admCurTicketId)return;
     try{const r=await fetch(API+'/api/admin/tickets/'+admCurTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    if(r.ok){$('at-text').value='';const t=await r.json();renderTicketChat($('at-chat'),t.messages)}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
+    if(r.ok){$('at-text').value='';const t2=await r.json();renderTicketChat($('at-chat'),t2.messages);pollTicketStatus()}else toast(t('error'),'error')}catch(e){toast(t('error'),'error')}
 }
 
 /* ── Admin Brand ── */
 function loadBrandForm(){$('br-name').value=BRAND.name||'';$('br-logo').value=BRAND.logo||'';$('br-slogan').value=BRAND.slogan||''}
 async function saveBrand(){
-    const d={name:$('br-name').value.trim()||'VPN Shop',logo:$('br-logo').value.trim()||'🔐',slogan:$('br-slogan').value.trim()};
+    const d={name:$('br-name').value.trim(),logo:$('br-logo').value.trim(),slogan:$('br-slogan').value.trim()};
     try{const r=await fetch(API+'/api/settings/brand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
     if(r.ok){
         BRAND=d;
         const logoEl=$('brand-logo');
-        if(BRAND.logo.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(BRAND.logo)+'" alt="">';logoEl.classList.add('has-img')}
-        else{logoEl.textContent=BRAND.logo;logoEl.classList.remove('has-img')}
-        $('brand-name').textContent=BRAND.name;
+        const effectiveLogo=BRAND.logo||DEFAULT_LOGO;
+        if(effectiveLogo.startsWith('http')){logoEl.innerHTML='<img class="brand-logo-img" src="'+esc(effectiveLogo)+'" alt="">';logoEl.classList.add('has-img')}
+        else{logoEl.textContent=effectiveLogo;logoEl.classList.remove('has-img')}
+        $('brand-name').textContent=BRAND.name||DEFAULT_NAME;
         const sl=$('brand-slogan');
-        if(BRAND.slogan){sl.textContent=BRAND.slogan;sl.style.display=''}else{sl.style.display='none'}
+        const effSl=BRAND.slogan||DEFAULT_SLOGAN;
+        sl.textContent=effSl;sl.style.display=''
         toast('Сохранено')
     }else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
@@ -1878,7 +2225,15 @@ async function saveBrand(){
    UTILS
    ═══════════════════════════════════════ */
 function toast(m,t){const e=$('toast');e.textContent=m;e.className='toast visible'+(t?' toast-'+t:'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3000)}
-function showModal(h,cls){$('modal-root').innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card modal-renew'+(cls&&cls!=='modal-renew'?' '+cls:'')+'">'+(h)+'</div></div>'}
+function showModal(h,cls){
+    const mr=$('modal-root');
+    const existing=mr.querySelector('.modal-overlay');
+    if(existing){
+        const card=existing.querySelector('.modal-card');
+        if(card){card.innerHTML=h;return}
+    }
+    mr.innerHTML='<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-card modal-renew'+(cls&&cls!=='modal-renew'?' '+cls:'')+'">'+(h)+'</div></div>';
+}
 function closeModal(){$('modal-root').innerHTML=''}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function pluralDays(n){

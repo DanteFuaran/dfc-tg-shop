@@ -9,36 +9,36 @@
         <h1 class="auth-title">Личный кабинет</h1>
     </div>
 
-    <!-- Step 1: Enter Telegram ID -->
-    <div id="step-telegram" class="auth-step active">
-        <p class="auth-hint">Введите ваш Telegram ID для входа</p>
-        <div class="input-group">
-            <input type="number" id="input-telegram-id" placeholder="Telegram ID" autocomplete="off">
-        </div>
-        <button class="pill pill-cyan" onclick="checkTelegramId()">Продолжить</button>
+    <!-- Step 0: Choose auth method -->
+    <div id="step-choose" class="auth-step active">
+        <p class="auth-hint">Выберите способ входа</p>
+        <button class="pill pill-cyan" onclick="chooseTelegram()" style="margin-bottom:10px">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style="flex-shrink:0"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.783-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            Telegram
+        </button>
+        <button class="pill pill-outline" onclick="choosePassword()" style="margin-bottom:10px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Логин и пароль
+        </button>
+        <button class="pill pill-outline" style="margin-bottom:10px;opacity:.45;cursor:default" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Электронная почта
+            <span style="font-size:.7rem;opacity:.7;margin-left:4px">в разработке</span>
+        </button>
     </div>
 
-    <!-- Step 2: Registration -->
-    <div id="step-register" class="auth-step">
-        <p class="auth-hint">Добро пожаловать, <span id="reg-name"></span>!</p>
-        <p class="auth-sub-hint">Придумайте логин и пароль для входа на сайт</p>
-        <div class="input-group">
-            <input type="text" id="input-reg-username" placeholder="Логин (мин. 3 символа)" autocomplete="off">
-        </div>
-        <div class="input-group">
-            <input type="password" id="input-reg-password" placeholder="Пароль (мин. 6 символов)">
-        </div>
-        <div class="input-group">
-            <input type="password" id="input-reg-password2" placeholder="Подтвердите пароль">
-        </div>
-        <button class="pill pill-gold" onclick="registerUser()">Зарегистрироваться</button>
-        <button class="pill pill-outline" onclick="showStep('step-telegram')" style="margin-top:8px">← Назад</button>
+    <!-- Step: Telegram info -->
+    <div id="step-telegram" class="auth-step">
+        <p class="auth-hint">Вход через Telegram</p>
+        <p class="auth-sub-hint">Откройте бота в Telegram и нажмите кнопку «Личный&nbsp;кабинет» — вход произойдёт автоматически.</p>
+        <p class="auth-sub-hint" style="opacity:.6;font-size:.78rem">Логин и пароль можно настроить в профиле после входа через Telegram.</p>
+        <button class="pill pill-outline" onclick="showStep('step-choose')" style="margin-top:12px">← Назад</button>
     </div>
 
-    <!-- Step 3: Login -->
+    <!-- Step: Login with password -->
     <div id="step-password" class="auth-step">
-        <p class="auth-hint">Добро пожаловать, <span id="login-name"></span>!</p>
-        <p class="auth-sub-hint">Введите ваш логин и пароль</p>
+        <p class="auth-hint">Вход по логину и паролю</p>
+        <p class="auth-sub-hint">Логин и пароль можно создать в профиле, войдя через Telegram</p>
         <div class="input-group">
             <input type="text" id="input-login-username" placeholder="Логин" autocomplete="username">
         </div>
@@ -46,7 +46,7 @@
             <input type="password" id="input-login-password" placeholder="Пароль" autocomplete="current-password">
         </div>
         <button class="pill pill-cyan" onclick="loginUser()">Войти</button>
-        <button class="pill pill-outline" onclick="showStep('step-telegram')" style="margin-top:8px">← Назад</button>
+        <button class="pill pill-outline" onclick="showStep('step-choose')" style="margin-top:8px">← Назад</button>
     </div>
 
     <div id="auth-error" class="auth-error"></div>
@@ -55,8 +55,6 @@
 
 {% block scripts %}
 <script>
-let currentTelegramId = null;
-
 function showStep(id) {
     document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -70,56 +68,8 @@ function hideError() {
     document.getElementById('auth-error').classList.remove('visible');
 }
 
-async function checkTelegramId() {
-    const tid = document.getElementById('input-telegram-id').value.trim();
-    if (!tid) { showError('Введите Telegram ID'); return; }
-    hideError();
-    try {
-        const res = await fetch('/web/api/auth/check', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({telegram_id: parseInt(tid)})
-        });
-        const data = await res.json();
-        if (!res.ok) { showError(data.detail || 'Ошибка'); return; }
-        currentTelegramId = parseInt(tid);
-        if (data.has_credentials) {
-            document.getElementById('login-name').textContent = data.name;
-            showStep('step-password');
-        } else {
-            document.getElementById('reg-name').textContent = data.name;
-            showStep('step-register');
-        }
-    } catch (e) {
-        showError('Ошибка соединения с сервером');
-    }
-}
-
-async function registerUser() {
-    const username = document.getElementById('input-reg-username').value.trim();
-    const password = document.getElementById('input-reg-password').value;
-    const password2 = document.getElementById('input-reg-password2').value;
-    if (!username || username.length < 3) { showError('Логин должен быть не менее 3 символов'); return; }
-    if (!password || password.length < 6) { showError('Пароль должен быть не менее 6 символов'); return; }
-    if (password !== password2) { showError('Пароли не совпадают'); return; }
-    hideError();
-    try {
-        const res = await fetch('/web/api/auth/register', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({telegram_id: currentTelegramId, web_username: username, password: password})
-        });
-        if (!res.ok) {
-            let detail = 'Ошибка регистрации';
-            try { const d = await res.json(); detail = d.detail || detail; } catch(e) {}
-            showError(detail);
-            return;
-        }
-        window.location.href = '/web/dashboard';
-    } catch (e) {
-        showError('Ошибка соединения с сервером. Попробуйте позже.');
-    }
-}
+function chooseTelegram() { showStep('step-telegram'); }
+function choosePassword() { showStep('step-password'); }
 
 async function loginUser() {
     const username = document.getElementById('input-login-username').value.trim();
@@ -145,9 +95,20 @@ async function loginUser() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('input-telegram-id').addEventListener('keydown', e => { if (e.key === 'Enter') checkTelegramId(); });
-    document.getElementById('input-reg-password2').addEventListener('keydown', e => { if (e.key === 'Enter') registerUser(); });
     document.getElementById('input-login-password').addEventListener('keydown', e => { if (e.key === 'Enter') loginUser(); });
+    // If inside Telegram WebApp — auto-authenticate and redirect to miniapp
+    try {
+        const tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.initData) {
+            fetch('/web/api/auth/tg', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({initData: tg.initData})
+            }).then(r => {
+                if (r.ok) window.location.href = '/web/dashboard';
+            }).catch(() => {});
+        }
+    } catch(e) {}
 });
 </script>
 {% endblock %}
