@@ -2321,7 +2321,7 @@ function _fmtTicketTime(dateStr){
         return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+', '+time;
     }catch(e){return dateStr}
 }
-function renderTicketChat(el,msgs){
+function renderTicketChat(el,msgs,isAdm){
     el.innerHTML=(msgs||[]).map(m=>{
         const cls=m.is_admin?'admin':'user';
         const canEdit=isAdm?m.is_admin:!m.is_admin;

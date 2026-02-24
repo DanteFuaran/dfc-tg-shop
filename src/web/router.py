@@ -211,7 +211,7 @@ async def _build_user_data(
         trial_available = False
         try:
             has_used = await subscription_service.has_used_trial(telegram_id)
-            has_any_sub = sub_data is not None  # user has current subscription
+            has_any_sub = bool(sub_data)  # user has current subscription
             if not has_any_sub:
                 # Also check if user ever had any subscription
                 all_subs = await subscription_service.get_all_by_user(telegram_id)
