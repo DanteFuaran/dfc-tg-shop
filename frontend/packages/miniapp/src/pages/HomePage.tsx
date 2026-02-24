@@ -16,7 +16,12 @@ export default function HomePage() {
   const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
 
   const handleInvite = () => {
-    if (!refLink) return;
+    console.log('🔘 handleInvite clicked');
+    
+    if (!refLink) {
+      console.warn('❌ refLink is empty or undefined');
+      return;
+    }
 
     // Повторяем логику invite_getter из бота (getters.py):
     // 1. Если шаблон содержит {url} — Python-style format: {url},{name},{space}
@@ -47,7 +52,13 @@ export default function HomePage() {
       inviteText = `Join us!\n\n${refLink}`;
     }
 
+    console.log('📝 inviteText:', inviteText);
+    console.log('🔗 refLink:', refLink);
+
     const tg = window.Telegram?.WebApp;
+    console.log('📱 Telegram.WebApp:', tg);
+    console.log('🖥️ platform:', tg?.platform);
+
     if (tg) {
       // switchInlineQuery работает только на мобильных клиентах Telegram.
       // На десктопе (tdesktop, macos, webk, weba) чат-пикер не открывается —
@@ -55,17 +66,24 @@ export default function HomePage() {
       const mobileClients = ['android', 'ios', 'android_x'];
       const isMobile = mobileClients.includes(tg.platform ?? '');
 
+      console.log('📱 isMobile:', isMobile);
+
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+      console.log('🔗 shareUrl:', shareUrl);
 
       if (isMobile) {
+        console.log('📱 Using switchInlineQuery (mobile)');
         tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
       } else {
         // Десктоп / веб-версия Telegram: открываем через openLink (нативный диалог)
+        console.log('🖥️ Using openLink (desktop)');
         tg.openLink(shareUrl);
       }
     } else {
       // Fallback: открываем share URL в браузере
+      console.log('🌐 No Telegram.WebApp, using browser fallback');
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+      console.log('🔗 shareUrl:', shareUrl);
       window.open(shareUrl, '_blank');
     }
   };
