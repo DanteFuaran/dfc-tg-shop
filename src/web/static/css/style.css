@@ -388,9 +388,9 @@ a{color:var(--cyan);text-decoration:none}
 .plan-pay-btn:disabled{opacity:.4;pointer-events:none}
 /* ── Plans sticky bottom bar ── */
 .plans-bottom-bar{
-    position:fixed;bottom:0;left:0;right:0;
+    position:fixed;bottom:calc(56px + env(safe-area-inset-bottom,0px));left:0;right:0;
     background:linear-gradient(to top,var(--bg) 80%,transparent);
-    padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:100;
+    padding:12px 16px 8px;z-index:100;
 }
 .plans-bottom-bar .plan-pm-bar{margin-top:0;margin-bottom:0}
 .plans-bottom-bar .plan-pay-btn{margin-top:10px}

@@ -1584,23 +1584,23 @@ function inviteFriend(){
         msg=template.replace(/\{space\}/g,'\n').replace(/\{url\}/g,refLink).replace(/\{name\}/g,BRAND.name||DEFAULT_NAME);
         if(msg.startsWith('\n'))msg=msg.substring(1);
     }
-    // Build share URL for Telegram's built-in share dialog
-    let shareUrl;
-    if(msg&&msg.indexOf(refLink)!==-1){
-        shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-    } else if(msg){
-        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(msg);
-    } else {
-        shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(BRAND.name||DEFAULT_NAME);
-    }
+    if(!msg)msg=(BRAND.name||DEFAULT_NAME)+'\n'+refLink;
+    // Truncate to 256 chars for inline query limit
+    if(msg.length>256)msg=msg.substring(0,256);
+    // Use switchInlineQuery(['users']) to open contacts-only picker
     try{
-        if(tg.initData&&typeof tg.openTelegramLink==='function'){
-            toast('Выберите контакт для отправки');
-            setTimeout(()=>tg.openTelegramLink(shareUrl),300);
+        if(tg.initData&&typeof tg.switchInlineQuery==='function'){
+            tg.switchInlineQuery(msg,['users']);
         } else {
-            window.open(shareUrl,'_blank');
+            // Fallback: standard share dialog
+            const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
+            if(typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);
+            else window.open(shareUrl,'_blank');
         }
-    }catch(e){window.open(shareUrl,'_blank')}
+    }catch(e){
+        const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
+        try{tg.openTelegramLink(shareUrl)}catch(e2){window.open(shareUrl,'_blank')}
+    }
 }
 
 function renderSupport(){
@@ -2239,9 +2239,13 @@ async function loadTickets(){
     tks.sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''));
     el.innerHTML=tks.map(tk=>{
         const st=tk.status.toLowerCase();
-        // User statuses: OPEN→"На рассмотрении", ANSWERED→"Ответ получен"
+        // User statuses: unread→"Новое"(red), OPEN→"На рассмотрении", ANSWERED→"Ответ получен"
         let stClass=st, stLabel;
-        stLabel=t('ticket_'+st)||st;
+        if(!tk.is_read_by_user && st!=='closed'){
+            stClass='new'; stLabel=t('ticket_new');
+        } else {
+            stLabel=t('ticket_'+st)||st;
+        }
         const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
         return '<div class="ticket-item" onclick="openTicket('+tk.id+')">'+
             '<div class="ticket-top"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+stClass+'">'+stLabel+'</span></div>'+
