@@ -386,6 +386,14 @@ a{color:var(--cyan);text-decoration:none}
 .plan-pay-btn:hover{box-shadow:0 4px 28px rgba(36,196,241,.35);transform:translateY(-1px)}
 .plan-pay-btn:active{transform:scale(.98)}
 .plan-pay-btn:disabled{opacity:.4;pointer-events:none}
+/* ── Plans sticky bottom bar ── */
+.plans-bottom-bar{
+    position:sticky;bottom:0;left:0;right:0;
+    background:linear-gradient(to top,var(--bg) 70%,transparent);
+    padding:16px 0 8px;margin-top:12px;z-index:50;
+}
+.plans-bottom-bar .plan-pm-bar{margin-top:0;margin-bottom:0}
+.plans-bottom-bar .plan-pay-btn{margin-top:10px}
 /* ── Payment method picker modal items ── */
 .pm-picker-list{display:flex;flex-direction:column;gap:6px}
 .pm-picker-item{
@@ -1006,6 +1014,7 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-row2{display:flex;justify-content:space-between;align-items:center;margin-bottom:0}
 .ticket-subject{font-weight:600;font-size:.92rem;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%}
 .ticket-status{font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:600;text-transform:uppercase}
+.ticket-status.new{background:var(--red-dim,rgba(224,79,95,.15));color:var(--red,#e04f5f)}
 .ticket-status.open{background:var(--cyan-dim);color:var(--cyan)}
 .ticket-status.answered{background:var(--green-dim,rgba(46,204,113,.15));color:var(--green,#2ecc71)}
 .ticket-status.closed{background:rgba(255,255,255,.06);color:var(--text3)}
@@ -1039,11 +1048,11 @@ a{color:var(--cyan);text-decoration:none}
 }
 .ticket-reply-box textarea:focus{border-color:var(--cyan);outline:none}
 .ticket-send-btn{
-    background:var(--cyan);color:#000;border:none;border-radius:10px;
-    padding:0 16px;font-weight:700;cursor:pointer;font-size:.88rem;
-    transition:all .2s;white-space:nowrap;
+    background:none;color:var(--cyan);border:none;border-radius:10px;
+    padding:0 12px;font-weight:700;cursor:pointer;font-size:.88rem;
+    transition:all .2s;white-space:nowrap;display:flex;align-items:center;
 }
-.ticket-send-btn:hover{opacity:.85}
+.ticket-send-btn:hover{opacity:.7}
 .ticket-badge{
     display:inline-flex;align-items:center;justify-content:center;
     min-width:18px;height:18px;border-radius:9px;
@@ -1052,18 +1061,6 @@ a{color:var(--cyan);text-decoration:none}
 }
 
 
-
-/* ── Ticket close buttons ── */
-.ticket-close-actions{display:flex;gap:8px;margin-top:12px}
-.ticket-close-btn{
-    flex:1;padding:10px;border-radius:var(--r-sm);border:none;
-    font-size:.82rem;font-weight:600;cursor:pointer;
-    font-family:var(--font);transition:all .25s;
-}
-.ticket-close-btn.resolved{background:var(--green);color:#fff}
-.ticket-close-btn.resolved:hover{opacity:.85;box-shadow:0 0 10px rgba(25,195,125,.2)}
-.ticket-close-btn.unresolved{background:var(--bg-card);border:1px solid var(--border);color:var(--text2)}
-.ticket-close-btn.unresolved:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 10px rgba(224,79,95,.15)}
 
 /* ── Renew plan modal info ── */
 .renew-plan-info{

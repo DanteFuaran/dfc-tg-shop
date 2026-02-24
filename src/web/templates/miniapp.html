@@ -94,6 +94,10 @@
         <h2 class="page-title">Тарифные планы</h2>
     </div>
     <div id="plans-list" class="plans-list"></div>
+    <div id="plans-bottom-bar" class="plans-bottom-bar" style="display:none">
+        <div id="plans-pm-bar-wrap"></div>
+        <button class="plan-pay-btn" id="plans-pay-btn" onclick="planPayClickGlobal()"></button>
+    </div>
 </section>
 
 <!-- ═══ RENEW ═══ -->
@@ -225,10 +229,6 @@
         <div id="ticket-reply" class="ticket-reply-box" style="display:none">
             <textarea id="ticket-text" placeholder="Напишите сообщение…" rows="1"></textarea>
             <button class="ticket-send-btn" onclick="sendTicketReply()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
-        </div>
-        <div id="ticket-close-actions" class="ticket-close-actions" style="display:none">
-            <button class="ticket-close-btn resolved" onclick="closeTicket(true)">✅ Вопрос решён</button>
-            <button class="ticket-close-btn unresolved" onclick="closeTicket(false)">❌ Не решён</button>
         </div>
     </div>
 </section>
@@ -474,7 +474,8 @@ const I18N={
         fill_all:'Заполните все поля',ticket_created:'Тикет создан',
         resolved:'Вопрос решён',unresolved:'Не решён',
         ticket_closed_resolved:'Тикет закрыт как решённый',ticket_closed_unresolved:'Тикет закрыт как нерешённый',
-        ticket_open:'Открыт',ticket_answered:'Отвечен',ticket_closed:'Закрыт',
+        ticket_open:'На рассмотрении',ticket_answered:'Ответ получен',ticket_closed:'Закрыт',ticket_new:'Новое',
+        waiting_payment:'Ожидание оплаты',waiting_payment_hint:'Завершите оплату на странице платёжной системы',pay_success:'Оплата прошла успешно!',
         copied:'Скопировано!',link_copied:'Ссылка скопирована!',no_sub_err:'Нет подписки',
         user_role:'Пользователь',admin_role:'Администратор',dev_role:'Разработчик',
         agreement:'Соглашение',no_tickets:'Нет тикетов',create_first:'Создайте первый тикет',
@@ -531,7 +532,8 @@ const I18N={
         fill_all:'Fill in all fields',ticket_created:'Ticket created',
         resolved:'Resolved',unresolved:'Not resolved',
         ticket_closed_resolved:'Ticket closed as resolved',ticket_closed_unresolved:'Ticket closed as unresolved',
-        ticket_open:'Open',ticket_answered:'Answered',ticket_closed:'Closed',
+        ticket_open:'Pending',ticket_answered:'Reply received',ticket_closed:'Closed',ticket_new:'New',
+        waiting_payment:'Waiting for payment',waiting_payment_hint:'Complete payment on the payment system page',pay_success:'Payment successful!',
         copied:'Copied!',link_copied:'Link copied!',no_sub_err:'No subscription',
         user_role:'User',admin_role:'Administrator',dev_role:'Developer',
         agreement:'Terms',no_tickets:'No tickets',create_first:'Create your first ticket',
@@ -588,7 +590,8 @@ const I18N={
         fill_all:'Заповніть всі поля',ticket_created:'Тікет створено',
         resolved:'Питання вирішено',unresolved:'Не вирішено',
         ticket_closed_resolved:'Тікет закрито як вирішений',ticket_closed_unresolved:'Тікет закрито як невирішений',
-        ticket_open:'Відкритий',ticket_answered:'Відповідь',ticket_closed:'Закритий',
+        ticket_open:'На розгляді',ticket_answered:'Відповідь отримано',ticket_closed:'Закритий',ticket_new:'Нове',
+        waiting_payment:'Очікування оплати',waiting_payment_hint:'Завершіть оплату на сторінці платіжної системи',pay_success:'Оплата пройшла успішно!',
         copied:'Скопійовано!',link_copied:'Посилання скопійовано!',no_sub_err:'Немає підписки',
         user_role:'Користувач',admin_role:'Адміністратор',dev_role:'Розробник',
         agreement:'Угода',no_tickets:'Немає тікетів',create_first:'Створіть перший тікет',
@@ -645,7 +648,8 @@ const I18N={
         fill_all:'Alle Felder ausfüllen',ticket_created:'Ticket erstellt',
         resolved:'Gelöst',unresolved:'Nicht gelöst',
         ticket_closed_resolved:'Ticket als gelöst geschlossen',ticket_closed_unresolved:'Ticket als ungelöst geschlossen',
-        ticket_open:'Offen',ticket_answered:'Beantwortet',ticket_closed:'Geschlossen',
+        ticket_open:'In Bearbeitung',ticket_answered:'Antwort erhalten',ticket_closed:'Geschlossen',ticket_new:'Neu',
+        waiting_payment:'Warten auf Zahlung',waiting_payment_hint:'Schließen Sie die Zahlung auf der Zahlungsseite ab',pay_success:'Zahlung erfolgreich!',
         copied:'Kopiert!',link_copied:'Link kopiert!',no_sub_err:'Kein Abo',
         user_role:'Benutzer',admin_role:'Administrator',dev_role:'Entwickler',
         agreement:'AGB',no_tickets:'Keine Tickets',create_first:'Erstellen Sie Ihr erstes Ticket',
@@ -800,7 +804,7 @@ function initParticles(){
     if(typeof particlesJS==='undefined')return;
     particlesJS('particles-js',{
         particles:{
-            number:{value:50,density:{enable:true,value_area:800}},
+            number:{value:100,density:{enable:true,value_area:800}},
             color:{value:'#24C4F1'},
             shape:{type:'circle'},
             opacity:{value:0.25,random:true,anim:{enable:false}},
@@ -811,7 +815,7 @@ function initParticles(){
         interactivity:{
             detect_on:'window',
             events:{onhover:{enable:true,mode:'grab'},onclick:{enable:true,mode:'push'},resize:true},
-            modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:0}}
+            modes:{grab:{distance:140,line_linked:{opacity:0.3}},push:{particles_nb:4}}
         },
         retina_detect:true
     });
@@ -852,6 +856,7 @@ async function init(){
         initParticles();
         render();
         applyLocale();
+        _setupTicketKeys();
         // Start polling ticket status every 15 seconds
         setInterval(pollTicketStatus, 15000);
     }catch(e){showErr(t('error')+': '+e.message)}
@@ -1112,8 +1117,6 @@ function renderPlans(){
         (p.durations||[]).forEach(d=>{const pr=findPrice(d,dc);if(pr!==null&&(minPrice===null||pr<minPrice))minPrice=pr});
         const priceText=minPrice!==null?('от '+minPrice+' '+sym):'';
         const gridHtml=_renderDurGrid(p,p.id);
-        const promoHtml=(D.features&&D.features.promocodes_enabled)?
-            '<div class="plan-promo-row"><div class="promo-wrap"><span class="promo-icon">🏷</span><input placeholder="'+t('promo_placeholder')+'" id="plan-promo-'+p.id+'"></div><button onclick="applyPlanPromo(event,'+p.id+')">'+t('apply_code')+'</button></div>':'';
         const pmBar=_renderPmBar(p.id);
         const payBtn=_renderPayBtn(p.id);
         return '<div class="card plan-card-new'+(singlePlan?' open':'')+'" '+(singlePlan?'':'onclick="togglePlanCard(this)"')+' data-plan-id="'+p.id+'">'+
@@ -1125,11 +1128,37 @@ function renderPlans(){
             '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
             '<div class="plan-card-body"'+(singlePlan?' style="max-height:none;opacity:1;margin-top:12px"':'')+'>'+
                 '<div class="plan-dur-grid">'+gridHtml+'</div>'+
-                promoHtml+pmBar+payBtn+
             '</div>'+
             (singlePlan?'':'<div class="plan-card-toggle" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▼</div>')+
         '</div>';
     }).join('');
+    // Select the first (or single) plan for sticky bar
+    selectedPlanId=visiblePlans[0].id;
+    _updateStickyBar();
+}
+let selectedPlanId=null;
+function _updateStickyBar(){
+    const bar=$('plans-bottom-bar');
+    if(!selectedPlanId||!planSel[selectedPlanId]){if(bar)bar.style.display='none';return}
+    if(bar)bar.style.display='';
+    const wrap=$('plans-pm-bar-wrap');
+    if(wrap)wrap.innerHTML=_renderPmBar(selectedPlanId);
+    const btn=$('plans-pay-btn');
+    if(btn){
+        const sel=planSel[selectedPlanId];
+        const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+        btn.textContent=t('pay_btn')+' '+_fmtPr(sel.price)+' '+sym;
+    }
+}
+function planPayClickGlobal(){
+    if(!selectedPlanId)return;
+    const sel=planSel[selectedPlanId];
+    if(!sel||!sel.days||!sel.price)return;
+    if(sel.method==='balance'){
+        showConfirmPurchase(selectedPlanId,sel.days,sel.price,'balance');
+    } else {
+        doPayment(selectedPlanId,sel.days,sel.price,sel.method);
+    }
 }
 function togglePlanCard(card){
     const isOpen=card.classList.contains('open');
@@ -1138,6 +1167,10 @@ function togglePlanCard(card){
     document.querySelectorAll('.plan-card-new .plan-card-toggle').forEach(el=>{
         el.textContent=el.parentElement.classList.contains('open')?'▲':'▼';
     });
+    if(!isOpen){
+        const pid=parseInt(card.getAttribute('data-plan-id'));
+        if(pid){selectedPlanId=pid;_updateStickyBar()}
+    }
 }
 function selectDur(e,planId,days,price){
     e.stopPropagation();
@@ -1149,7 +1182,8 @@ function selectDur(e,planId,days,price){
         card.querySelectorAll('.plan-dur-card').forEach(c=>c.classList.remove('selected'));
         e.currentTarget.classList.add('selected');
     }
-    _updatePayBtn(planId);
+    selectedPlanId=planId;
+    _updateStickyBar();
 }
 function _updatePayBtn(planId){
     const sel=planSel[planId];if(!sel)return;
@@ -1190,6 +1224,7 @@ function changePayMethod(planId,method){
     document.querySelectorAll('[data-plan-id="'+planId+'"] .plan-pm-bar, #renew-plan-view .plan-pm-bar').forEach(bar=>{
         bar.outerHTML=_renderPmBar(planId);
     });
+    _updateStickyBar();
 }
 function planPayClick(e,planId){
     e.stopPropagation();
@@ -1268,6 +1303,7 @@ function doPayment(planId,days,price,method){
     if(method==='balance') return confirmPurchase(planId,days,price);
     payViaGateway(planId,days,method);
 }
+let _payPollTimer=null;
 async function payViaGateway(planId,days,gwType){
     showModal('<div style="text-align:center;padding:20px"><div class="spinner"></div><p style="margin-top:12px;color:var(--text2)">'+t('processing')+'</p></div>');
     try{
@@ -1275,13 +1311,83 @@ async function payViaGateway(planId,days,gwType){
         closeModal();
         if(r.ok){
             const j=await r.json();
-            if(j.payment_url)openLink(j.payment_url);
-            else{toast(t('sub_done')+' ✅');const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}}
+            if(j.payment_url){
+                openLink(j.payment_url);
+                _showPayWaiting(planId,days,gwType,j.payment_url);
+            } else {
+                toast(t('sub_done')+' ✅');
+                const dr=await fetch(API+'/api/user/data');if(dr.ok){D=await dr.json();render()}
+            }
         } else {
             try{const j=await r.json();toast(j.detail||t('purchase_error'),'error')}
             catch(e2){toast(t('purchase_error')+' ('+r.status+')','error')}
         }
     }catch(e){closeModal();toast(e.message||t('net_error'),'error')}
+}
+function _showPayWaiting(planId,days,gwType,payUrl){
+    const plan=D.plans.find(p=>p.id===planId);
+    const planName=plan?esc(plan.name):'—';
+    const sym=CURRENCY_SYMBOLS[D.default_currency]||'₽';
+    const sel=planSel[planId];
+    const amount=sel?_fmtPr(sel.price):'—';
+    const gwLabel=(GW_ICONS[gwType]||'💳')+' '+(GW_LABELS[gwType]||gwType);
+    showModal(
+        '<div style="text-align:center;padding:16px 0">'+
+            '<div class="spinner" style="margin:0 auto"></div>'+
+            '<h3 style="margin-top:16px;color:var(--gold)">'+t('waiting_payment')+'</h3>'+
+            '<p style="color:var(--text3);font-size:.82rem;margin-top:6px">'+t('waiting_payment_hint')+'</p>'+
+            '<div class="confirm-info" style="margin-top:16px;text-align:left">'+
+                '<div class="confirm-row"><span class="c-label">'+t('tariff')+':</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('period')+':</span><span class="c-value">'+fmtDaysFull(days)+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('cost')+':</span><span class="c-value" style="color:var(--cyan)">'+amount+' '+sym+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('payment_method')+':</span><span class="c-value">'+gwLabel+'</span></div>'+
+            '</div>'+
+            '<div style="margin-top:18px;display:flex;flex-direction:column;gap:8px">'+
+                '<button class="btn btn-primary btn-full" onclick="openLink(\''+esc(payUrl)+'\')">'+t('pay_btn')+'</button>'+
+                '<button class="btn btn-secondary btn-full" onclick="_cancelPayWaiting()">'+t('cancel')+'</button>'+
+            '</div>'+
+        '</div>',
+        'modal-renew'
+    );
+    // Start polling for payment completion
+    if(_payPollTimer)clearInterval(_payPollTimer);
+    const oldSubStatus=D.subscription?D.subscription.status:null;
+    const oldSubExpire=D.subscription?D.subscription.expire_date:null;
+    _payPollTimer=setInterval(async()=>{
+        try{
+            const dr=await fetch(API+'/api/user/data');
+            if(!dr.ok)return;
+            const newD=await dr.json();
+            const newSub=newD.subscription;
+            const changed=newSub&&(newSub.status==='ACTIVE')&&(oldSubStatus!=='ACTIVE'||newSub.expire_date!==oldSubExpire);
+            if(changed){
+                clearInterval(_payPollTimer);_payPollTimer=null;
+                D=newD;render();
+                closeModal();
+                _showPaySuccess(planName,days,amount+' '+sym,gwLabel);
+            }
+        }catch(e){}
+    },4000);
+}
+function _cancelPayWaiting(){
+    if(_payPollTimer){clearInterval(_payPollTimer);_payPollTimer=null}
+    closeModal();
+}
+function _showPaySuccess(planName,period,cost,method){
+    showModal(
+        '<div style="text-align:center;padding:16px 0">'+
+            '<div style="font-size:3.5rem">✅</div>'+
+            '<h3 style="margin-top:12px;color:var(--green)">'+t('pay_success')+'</h3>'+
+            '<div class="confirm-info" style="margin-top:16px;text-align:left">'+
+                '<div class="confirm-row"><span class="c-label">'+t('tariff')+':</span><span class="c-value" style="color:var(--green)">'+planName+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('period')+':</span><span class="c-value">'+period+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('cost')+':</span><span class="c-value" style="color:var(--cyan)">'+cost+'</span></div>'+
+                '<div class="confirm-row"><span class="c-label">'+t('payment_method')+':</span><span class="c-value">'+method+'</span></div>'+
+            '</div>'+
+            '<button class="btn btn-primary btn-full" style="margin-top:18px" onclick="closeModal()">'+t('done')+'</button>'+
+        '</div>',
+        'modal-renew'
+    );
 }
 
 function findPrice(dur,currency){
@@ -1477,13 +1583,7 @@ function inviteFriend(){
         // No custom message — share link with brand name
         shareUrl='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent(BRAND.name||DEFAULT_NAME);
     }
-    try{
-        if(tg.initData&&typeof tg.openTelegramLink==='function'){
-            tg.openTelegramLink(shareUrl);
-        } else {
-            window.open(shareUrl,'_blank');
-        }
-    }catch(e){window.open(shareUrl,'_blank')}
+    try{ window.open(shareUrl,'_blank') }catch(e){}
 }
 
 function renderSupport(){
@@ -1527,8 +1627,6 @@ function renderRenewPage(plan){
     else trafficText=(plan.traffic_limit||'∞')+' GB';
     const devicesText=(plan.device_limit||'∞')+' '+t('dev_short');
     const gridHtml=_renderDurGrid(plan,plan.id);
-    const promoHtml=(D.features&&D.features.promocodes_enabled)?
-        '<div class="plan-promo-row"><div class="promo-wrap"><span class="promo-icon">🏷</span><input placeholder="'+t('promo_placeholder')+'" id="plan-promo-'+plan.id+'"></div><button onclick="applyPlanPromo(event,'+plan.id+')">'+t('apply_code')+'</button></div>':'';
     const pmBar=_renderPmBar(plan.id);
     const payBtn=_renderPayBtn(plan.id);
     $('renew-plan-view').innerHTML=
@@ -1539,7 +1637,7 @@ function renderRenewPage(plan){
             '<div class="plan-card-meta"><span>📦 '+trafficText+'</span><span>📱 '+devicesText+'</span></div>'+
             '<div class="plan-card-body" style="max-height:none;opacity:1;margin-top:12px">'+
                 '<div class="plan-dur-grid">'+gridHtml+'</div>'+
-                promoHtml+pmBar+payBtn+
+                pmBar+payBtn+
             '</div>'+
         '</div>';
 }
@@ -1587,17 +1685,6 @@ function expandDevices(){
         return;
     }
     toast(t('expand_via_bot'));
-}
-async function closeTicket(resolved){
-    if(!curTicketId)return;
-    try{
-        const r=await fetch(API+'/api/tickets/'+curTicketId+'/close',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resolved})});
-        if(r.ok){
-            toast(resolved?t('ticket_closed_resolved'):t('ticket_closed_unresolved'));
-            $('ticket-reply').style.display='none';
-            $('ticket-close-actions').style.display='none';
-        }else{const j=await r.json();toast(j.detail||'Ошибка','error')}
-    }catch(e){toast('Ошибка','error')}
 }
 function openLink(u){if(u){if(tg.initData)tg.openLink(u);else window.open(u,'_blank')}}
 async function webLogout(){try{await fetch(API+'/api/auth/logout',{method:'POST'})}catch(e){}window.location.href='/web/login'}
@@ -2048,9 +2135,9 @@ async function toggleSet(k,v,dotId){
 
 /* ═══ PAYMENT GATEWAYS ═══ */
 let gatewaysCache=[];
-const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'ЮMoney',CRYPTOMUS:'Cryptomus',HELEKET:'Heleket',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
-const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'💜',CRYPTOMUS:'🪙',HELEKET:'🔷',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
-const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Электронный кошелёк',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'Криптовалюта',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
+const GW_LABELS={TELEGRAM_STARS:'Telegram Stars',YOOKASSA:'ЮKassa',YOOMONEY:'Карта',CRYPTOMUS:'Cryptomus',HELEKET:'Криптовалюта',CRYPTOPAY:'CryptoPay',ROBOKASSA:'Robokassa',BALANCE:'Баланс'};
+const GW_ICONS={TELEGRAM_STARS:'⭐',YOOKASSA:'🏦',YOOMONEY:'💳',CRYPTOMUS:'🪙',HELEKET:'₿',CRYPTOPAY:'💎',ROBOKASSA:'🤖',BALANCE:'💰'};
+const GW_DESCS={TELEGRAM_STARS:'Telegram',YOOKASSA:'Оплата банковской картой',YOOMONEY:'Банковская карта',CRYPTOMUS:'USDT, TON, BTC и другие',HELEKET:'BTC, USDT и другие',CRYPTOPAY:'TON, USDT и другие',ROBOKASSA:'Банковские карты',BALANCE:'Оплата с баланса'};
 const GW_SECRET_FIELDS=['api_key','secret_key'];
 async function loadGateways(){
     try{const r=await fetch(API+'/api/admin/gateways');if(!r.ok)return;gatewaysCache=await r.json();drawGateways()}catch(e){}
@@ -2113,12 +2200,20 @@ async function loadTickets(){
     try{const r=await fetch(API+'/api/tickets');if(!r.ok)return;const tks=await r.json();
     const el=$('tickets-list');
     if(!tks.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🎫</span><h3>'+t('no_tickets')+'</h3><p style="color:var(--text3);font-size:.84rem">'+t('create_first')+'</p></div>';return}
+    // Sort by updated_at descending (newest first)
+    tks.sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''));
     el.innerHTML=tks.map(tk=>{
         const st=tk.status.toLowerCase();
-        const stLabel=t('ticket_'+st)||st;
+        // Determine display status: unread→"Новое"(red), open→"На рассмотрении", answered→"Ответ получен"
+        let stClass=st, stLabel;
+        if(!tk.is_read_by_user && st!=='closed'){
+            stClass='new'; stLabel=t('ticket_new');
+        } else {
+            stLabel=t('ticket_'+st)||st;
+        }
         const last=tk.messages&&tk.messages.length?tk.messages[tk.messages.length-1].text:'';
         return '<div class="ticket-item'+(tk.is_read_by_user?'':' unread')+'" onclick="openTicket('+tk.id+')">'+
-            '<div class="ticket-top"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+st+'">'+stLabel+'</span></div>'+
+            '<div class="ticket-top"><span class="ticket-subject">'+esc(tk.subject)+'</span><span class="ticket-status '+stClass+'">'+stLabel+'</span></div>'+
             '<div class="ticket-preview">'+esc(last.substring(0,80))+'</div>'+
             '<div class="ticket-date">'+tk.updated_at+'</div></div>';
     }).join('')}catch(e){}
@@ -2126,15 +2221,12 @@ async function loadTickets(){
 async function openTicket(id){
     curTicketId=id; go('ticket');$('ticket-title').textContent=t('loading');$('ticket-chat').innerHTML='';$('ticket-reply').style.display='none';
     try{const r=await fetch(API+'/api/tickets/'+id);if(!r.ok)return;
-    const t=await r.json();$('ticket-title').textContent=t.subject;
-    renderTicketChat($('ticket-chat'),t.messages);
-    const hasAdminReply=(t.messages||[]).some(m=>m.is_admin);
-    if(t.status!=='CLOSED'){
+    const t2=await r.json();$('ticket-title').textContent=t2.subject;
+    renderTicketChat($('ticket-chat'),t2.messages);
+    if(t2.status!=='CLOSED'){
         $('ticket-reply').style.display='flex';
-        $('ticket-close-actions').style.display=hasAdminReply?'flex':'none';
     } else {
         $('ticket-reply').style.display='none';
-        $('ticket-close-actions').style.display='none';
     }
     }catch(e){}
 }
@@ -2149,6 +2241,13 @@ async function sendTicketReply(){
     try{const r=await fetch(API+'/api/tickets/'+curTicketId+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
     if(r.ok){$('ticket-text').value='';const t=await r.json();renderTicketChat($('ticket-chat'),t.messages);pollTicketStatus()}else toast('Ошибка','error')}catch(e){toast('Ошибка','error')}
 }
+// Enter to send, Shift+Enter for newline on ticket textareas
+function _setupTicketKeys(){
+    const tt=$('ticket-text');
+    if(tt)tt.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTicketReply()}});
+    const at=$('at-text');
+    if(at)at.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAdmTicketReply()}});
+}
 function showNewTicket(){
     showModal('<h3>'+t('new_ticket_title')+'</h3><div class="form-group"><label>'+t('subject')+'</label><input class="form-input" id="nt-subj" placeholder="..."></div><div class="form-group"><label>'+t('message')+'</label><textarea class="form-input" id="nt-text" rows="4" placeholder="..." style="resize:vertical"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">'+t('cancel')+'</button><button class="btn btn-primary" onclick="createTicket()">'+t('send')+'</button></div>');
 }
@@ -2160,7 +2259,7 @@ async function createTicket(){
 }
 
 /* ── Tickets (Admin) ── */
-const TICKET_STATUS_LABELS={OPEN:'Открыт',ANSWERED:'Отвечен',CLOSED:'Закрыт',open:'Открыт',answered:'Отвечен',closed:'Закрыт'};
+const TICKET_STATUS_LABELS={OPEN:'На рассмотрении',ANSWERED:'Ответ получен',CLOSED:'Закрыт',open:'На рассмотрении',answered:'Ответ получен',closed:'Закрыт'};
 let admTicketsCache=[];
 async function loadAdmTickets(){
     try{const r=await fetch(API+'/api/admin/tickets');if(!r.ok)return;admTicketsCache=await r.json();
