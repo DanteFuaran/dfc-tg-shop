@@ -312,11 +312,11 @@ a{color:var(--cyan);text-decoration:none}
     border:1.5px solid var(--border);cursor:pointer;
     transition:border-color .25s,background .25s,box-shadow .25s;text-align:left;
 }
-.plan-dur-card:hover{border-color:rgba(36,196,241,.25);background:rgba(36,196,241,.03)}
+.plan-dur-card:hover{border-color:rgba(36,196,241,.25);background:rgba(36,196,241,.08)}
 .plan-dur-card:active{transform:scale(.97)}
 .plan-dur-card.selected{
     border-color:var(--cyan);
-    background:rgba(36,196,241,.06);
+    background:rgba(36,196,241,.15);
     box-shadow:0 0 16px rgba(36,196,241,.15);
 }
 .plan-dur-card-period{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:4px}
@@ -412,8 +412,8 @@ a{color:var(--cyan);text-decoration:none}
     border:1.5px solid var(--border);cursor:pointer;
     transition:all .2s;
 }
-.pm-picker-item:hover{border-color:rgba(36,196,241,.2);background:rgba(36,196,241,.03)}
-.pm-picker-item.selected{border-color:var(--cyan);background:rgba(36,196,241,.06)}
+.pm-picker-item:hover{border-color:rgba(36,196,241,.2);background:rgba(36,196,241,.08)}
+.pm-picker-item.selected{border-color:var(--cyan);background:rgba(36,196,241,.15)}
 .pm-picker-icon{
     width:38px;height:38px;border-radius:10px;
     background:none;
@@ -580,7 +580,7 @@ a{color:var(--cyan);text-decoration:none}
     background:linear-gradient(135deg,var(--cyan),#1AA3CC);color:#fff;
     font-weight:700;box-shadow:0 2px 10px rgba(36,196,241,.2);
 }
-.admin-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04)}
+.admin-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.15)}
 .admin-tab-badge{
     min-width:16px;height:16px;border-radius:8px;
     background:var(--red);color:#fff;font-size:.58rem;font-weight:700;
@@ -819,7 +819,7 @@ a{color:var(--cyan);text-decoration:none}
     border-bottom:1px solid rgba(255,255,255,.03);
 }
 .settings-row:last-child{border-bottom:none}
-.settings-row:hover{background:rgba(255,255,255,.02)}
+.settings-row:hover{background:rgba(255,255,255,.08)}
 .settings-row-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
 .settings-icon{font-size:1.1rem;flex-shrink:0;width:28px;text-align:center}
 .settings-label{font-size:.86rem;font-weight:600;color:var(--text)}
@@ -1028,7 +1028,7 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-status.done{background:var(--green-dim,rgba(46,204,113,.15));color:var(--green,#2ecc71)}
 .ticket-status.open{background:var(--cyan-dim);color:var(--cyan)}
 .ticket-status.answered{background:var(--green-dim,rgba(46,204,113,.15));color:var(--green,#2ecc71)}
-.ticket-status.closed{background:rgba(255,255,255,.06);color:var(--text3)}
+.ticket-status.closed{background:rgba(255,255,255,.15);color:var(--text3)}
 .ticket-date{font-size:.75rem;color:var(--text3)}
 .ticket-bottom{display:flex;justify-content:flex-end;align-items:center;margin-top:6px}
 .ticket-bottom-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
@@ -1046,20 +1046,20 @@ a{color:var(--cyan);text-decoration:none}
 .ticket-page.active{display:flex;animation:fadeUp .22s ease}
 .ticket-chat{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;padding:4px 0}
 .ticket-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:.88rem;line-height:1.4;word-break:break-word}
-/* User view: own messages LEFT, admin replies RIGHT */
-.ticket-msg.user{align-self:flex-start;background:rgba(36,196,241,.3);color:var(--text1);border-bottom-left-radius:4px}
-.ticket-msg.admin{align-self:flex-end;background:rgba(255,255,255,.3);border:1px solid var(--border);color:var(--text1);border-bottom-right-radius:4px;margin-right:6px}
+/* User view: own messages LEFT, admin replies RIGHT — same bg */
+.ticket-msg.user{align-self:flex-start;background:rgba(36,196,241,.18);color:var(--text1);border-bottom-left-radius:4px}
+.ticket-msg.admin{align-self:flex-end;background:rgba(36,196,241,.18);color:var(--text1);border-bottom-right-radius:4px;margin-right:6px}
 .ticket-msg-time{font-size:.68rem;color:var(--text3);margin-top:3px}
 .ticket-msg.admin .ticket-msg-time{text-align:right}
 /* Admin view: admin messages LEFT (own), user messages RIGHT (incoming) */
-#at-chat .ticket-msg.admin{align-self:flex-start;background:rgba(36,196,241,.3);border:none;border-radius:14px;border-bottom-left-radius:4px;margin-right:0}
-#at-chat .ticket-msg.user{align-self:flex-end;background:rgba(255,255,255,.3);border:1px solid var(--border);border-radius:14px;border-bottom-right-radius:4px;margin-right:6px}
+#at-chat .ticket-msg.admin{align-self:flex-start;background:rgba(36,196,241,.18);border:none;border-radius:14px;border-bottom-left-radius:4px;margin-right:0}
+#at-chat .ticket-msg.user{align-self:flex-end;background:rgba(36,196,241,.18);border:none;border-radius:14px;border-bottom-right-radius:4px;margin-right:6px}
 #at-chat .ticket-msg.admin .ticket-msg-time{text-align:left}
 #at-chat .ticket-msg.user .ticket-msg-time{text-align:right}
 .ticket-reply-box{display:flex;gap:8px;margin-top:8px}
 .ticket-bottom-bar{flex-shrink:0;padding:28px 0 8px}
 .ticket-reply-box textarea{
-    flex:1;background:rgba(255,255,255,.05);border:1.5px solid rgba(36,196,241,.3);border-radius:10px;
+    flex:1;background:rgba(255,255,255,.15);border:1.5px solid rgba(36,196,241,.3);border-radius:10px;
     color:var(--text1);padding:10px 12px;font-size:.88rem;resize:none;min-height:44px;max-height:120px;
     font-family:inherit;
 }

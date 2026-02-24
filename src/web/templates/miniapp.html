@@ -865,8 +865,6 @@ async function init(){
         _setupTicketKeys();
         // Start polling ticket status every 15 seconds
         setInterval(pollTicketStatus, 15000);
-        // Start polling features every 20 seconds for real-time toggles
-        setInterval(pollFeatures, 20000);
     }catch(e){showErr(t('error')+': '+e.message)}
 }
 
@@ -924,26 +922,6 @@ async function pollTicketStatus(){
         D.ticket_unread=s.unread;
         if(s.admin_unread!==undefined) D.admin_ticket_unread=s.admin_unread;
         updateFab();
-    }catch(e){}
-}
-async function pollFeatures(){
-    try{
-        const r=await fetch(API+'/api/user/data');
-        if(!r.ok)return;
-        const newD=await r.json();
-        let changed=false;
-        if(newD.features){
-            const keys=['community_enabled','community_url','referral_enabled','tos_enabled','tos_url'];
-            keys.forEach(k=>{
-                if(JSON.stringify(D.features&&D.features[k])!==JSON.stringify(newD.features[k]))changed=true;
-            });
-            if(changed){
-                D.features=newD.features;
-                D.available_gateways=newD.available_gateways;
-                D.user=newD.user;
-                renderHomeExtras();
-            }
-        }
     }catch(e){}
 }
 
@@ -1164,9 +1142,14 @@ function renderPlans(){
             (singlePlan?'':'<div class="plan-card-toggle" onclick="event.stopPropagation();togglePlanCard(this.parentElement)">▼</div>')+
         '</div>';
     }).join('');
-    // Select the first (or single) plan for sticky bar
-    selectedPlanId=visiblePlans[0].id;
-    _updateStickyBar();
+    // Only show sticky bar when a card is open; for single plan it's always open
+    if(singlePlan){
+        selectedPlanId=visiblePlans[0].id;
+        _updateStickyBar();
+    } else {
+        selectedPlanId=null;
+        const bar=$('plans-bottom-bar');if(bar)bar.style.display='none';
+    }
 }
 let selectedPlanId=null;
 function _updateStickyBar(){
@@ -1197,6 +1180,10 @@ function togglePlanCard(card,ev){
     if(!isOpen){
         const pid=parseInt(card.getAttribute('data-plan-id'));
         if(pid){selectedPlanId=pid;_updateStickyBar()}
+    } else {
+        // Card was closed
+        selectedPlanId=null;
+        const bar=$('plans-bottom-bar');if(bar)bar.style.display='none';
     }
 }
 function selectDur(e,planId,days,price){
@@ -1608,7 +1595,8 @@ function inviteFriend(){
     }
     try{
         if(tg.initData&&typeof tg.openTelegramLink==='function'){
-            tg.openTelegramLink(shareUrl);
+            toast('Выберите контакт для отправки');
+            setTimeout(()=>tg.openTelegramLink(shareUrl),300);
         } else {
             window.open(shareUrl,'_blank');
         }
@@ -2273,10 +2261,29 @@ async function openTicket(id){
     }
     }catch(e){}
 }
+function _fmtTicketTime(dateStr){
+    if(!dateStr)return '';
+    try{
+        const d=new Date(dateStr);
+        if(isNaN(d))return dateStr;
+        const now=new Date();
+        const hh=String(d.getHours()).padStart(2,'0');
+        const mm=String(d.getMinutes()).padStart(2,'0');
+        const time=hh+':'+mm;
+        const isToday=d.getDate()===now.getDate()&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+        if(isToday)return time;
+        const yesterday=new Date(now);yesterday.setDate(now.getDate()-1);
+        const isYesterday=d.getDate()===yesterday.getDate()&&d.getMonth()===yesterday.getMonth()&&d.getFullYear()===yesterday.getFullYear();
+        if(isYesterday)return 'вчера, '+time;
+        const months=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+        if(d.getFullYear()===now.getFullYear())return d.getDate()+' '+months[d.getMonth()]+', '+time;
+        return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()+', '+time;
+    }catch(e){return dateStr}
+}
 function renderTicketChat(el,msgs){
     el.innerHTML=(msgs||[]).map(m=>{
         const cls=m.is_admin?'admin':'user';
-        return '<div class="ticket-msg '+cls+'">'+esc(m.text)+'<div class="ticket-msg-time">'+m.created_at+'</div></div>';
+        return '<div class="ticket-msg '+cls+'">'+esc(m.text)+'<div class="ticket-msg-time">'+_fmtTicketTime(m.created_at)+'</div></div>';
     }).join('');
     // Use requestAnimationFrame to ensure DOM is rendered before scrolling
     requestAnimationFrame(()=>{el.scrollTop=el.scrollHeight});
