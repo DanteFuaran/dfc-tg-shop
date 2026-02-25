@@ -23,6 +23,7 @@ from src.services.settings import SettingsService
 from src.services.subscription import SubscriptionService
 from src.services.ticket import TicketService
 from src.services.user import UserService
+from src.services.broadcast import BroadcastService
 from src.web.auth import hash_password, verify_password
 from src.web.dependencies import require_auth
 
@@ -358,3 +359,35 @@ async def api_user_subscription(request: Request, uid: int = Depends(require_aut
                 "url": subscription.url or "",
             }
         })
+
+
+# ══════════════════════════════════════════════════════════════════
+# USER BROADCAST MESSAGES
+# ══════════════════════════════════════════════════════════════════
+
+
+@router.get("/user/messages")
+async def api_user_messages(request: Request, uid: int = Depends(require_auth)):
+    """User: list broadcast messages addressed to this user."""
+    container: AsyncContainer = request.app.state.dishka_container
+    async with container(scope=Scope.REQUEST) as req_container:
+        broadcast_service: BroadcastService = await req_container.get(BroadcastService)
+        rows = await broadcast_service.uow.repository.broadcasts.get_messages_for_user(uid)
+
+        messages = []
+        for bm, bc in rows:
+            text = ""
+            if bc.payload:
+                # payload is stored as JSON dict
+                if isinstance(bc.payload, dict):
+                    text = bc.payload.get("text", "")
+                elif hasattr(bc.payload, "text"):
+                    text = bc.payload.text or ""
+            messages.append({
+                "id": bm.id,
+                "broadcast_id": bc.id,
+                "text": text,
+                "status": bm.status.value if hasattr(bm.status, "value") else str(bm.status),
+                "created_at": bc.created_at.strftime("%d.%m.%Y %H:%M") if bc.created_at else "",
+            })
+        return JSONResponse(messages)

@@ -16,6 +16,7 @@ import type {
   AdminPromocode,
   AdminBroadcast,
   MonitoringStats,
+  UserBroadcastMessage,
 } from '../types';
 
 /* ═══ Auth ═══ */
@@ -40,6 +41,8 @@ export const userApi = {
   getData: () => api.get<UserData>('/web/api/user/data'),
 
   getSubscription: () => api.get('/web/api/user/subscription'),
+
+  getMessages: () => api.get<UserBroadcastMessage[]>('/web/api/user/messages'),
 
   getConfig: () => api.get<AppConfig>('/web/api/config'),
 

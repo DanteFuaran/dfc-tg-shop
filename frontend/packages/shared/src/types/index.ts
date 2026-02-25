@@ -247,6 +247,15 @@ export interface AdminBroadcast {
 export type BroadcastStatus = 'PROCESSING' | 'COMPLETED' | 'CANCELED' | 'DELETED' | 'ERROR';
 export type BroadcastAudience = 'ALL' | 'SUBSCRIBED' | 'UNSUBSCRIBED' | 'EXPIRED' | 'TRIAL' | 'PLAN';
 
+/* ═══ User Broadcast Message ═══ */
+export interface UserBroadcastMessage {
+  id: number;
+  broadcast_id: number;
+  text: string;
+  status: string;
+  created_at: string;
+}
+
 /* ═══ Monitoring ═══ */
 export interface MonitoringStats {
   [key: string]: unknown;

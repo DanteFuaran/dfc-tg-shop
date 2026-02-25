@@ -73,7 +73,7 @@ async def api_admin_broadcast_create(
         raise HTTPException(status_code=400, detail=f"Неверная аудитория: {audience_str}")
 
     task_id = uuid.uuid4()
-    payload = MessagePayload(text=text, auto_delete_after=None)
+    payload = MessagePayload(text=text, auto_delete_after=None, add_close_button=True)
 
     container: AsyncContainer = request.app.state.dishka_container
     async with container(scope=Scope.REQUEST) as req_container:

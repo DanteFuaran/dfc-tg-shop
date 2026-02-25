@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from uuid import UUID
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 from src.infrastructure.database.models.sql import Broadcast, BroadcastMessage
 
@@ -48,3 +48,14 @@ class BroadcastRepository(BaseRepository):
             return
 
         await self.session.execute(update(BroadcastMessage), data)
+
+    async def get_messages_for_user(self, user_id: int) -> list[tuple[BroadcastMessage, Broadcast]]:
+        """Get all broadcast messages sent to a specific user, with parent broadcast."""
+        query = (
+            select(BroadcastMessage, Broadcast)
+            .join(Broadcast, BroadcastMessage.broadcast_id == Broadcast.id)
+            .where(BroadcastMessage.user_id == user_id)
+            .order_by(BroadcastMessage.id.desc())
+        )
+        result = await self.session.execute(query)
+        return list(result.all())

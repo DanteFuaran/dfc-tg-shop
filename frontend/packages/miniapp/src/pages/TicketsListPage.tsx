@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Ticket } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { useTicketStore, formatDate, TICKET_STATUS_LABELS } from '@dfc/shared';
 
 const statusBadge: Record<string, string> = {
@@ -24,7 +24,7 @@ export default function TicketsListPage() {
         <button className="back-btn" onClick={() => navigate('/support')}>
           <ArrowLeft size={18} />
         </button>
-        <h1 className="page-title" style={{ margin: 0 }}>Мои тикеты</h1>
+        <h1 className="page-title" style={{ margin: 0 }}>Мои обращения</h1>
       </div>
 
       {isLoading ? (
@@ -34,8 +34,8 @@ export default function TicketsListPage() {
         </div>
       ) : tickets.length === 0 ? (
         <div className="empty-state">
-          <Ticket size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-          <p>У вас нет тикетов</p>
+          <MessageSquare size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+          <p>У вас нет обращений</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -462,9 +462,11 @@
 /* ── Admin Tabs ────────────────────────────────── */
 .admin-tabs {
   display: flex;
-  gap: 6px;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--r-sm);
+  padding: 3px;
   overflow-x: auto;
-  padding: 4px 0;
   margin-bottom: 16px;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -475,27 +477,77 @@
 }
 
 .admin-tab {
-  white-space: nowrap;
-  padding: 8px 16px;
-  border-radius: var(--r-pill);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text2);
-  cursor: pointer;
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text3);
+  font-size: 0.78rem;
   font-weight: 500;
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font);
+  white-space: nowrap;
+  min-width: 36px;
+  overflow: hidden;
+  position: relative;
 }
 
-.admin-tab:hover {
-  border-color: var(--border-accent);
-  color: var(--text);
+.admin-tab .tab-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.admin-tab .tab-label {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s,
+              margin 0.35s;
+  margin-left: 0;
+}
+
+.admin-tab.active .tab-label {
+  max-width: 120px;
+  opacity: 1;
+  margin-left: 6px;
 }
 
 .admin-tab.active {
-  background: rgba(36, 196, 241, 0.08);
-  border-color: var(--cyan);
-  color: var(--cyan);
+  background: linear-gradient(135deg, var(--cyan), #1AA3CC);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(36, 196, 241, 0.2);
+}
+
+.admin-tab:hover:not(.active) {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-tab-badge {
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 16px;
+  margin-left: 4px;
 }
 
 /* ── Form ──────────────────────────────────────── */
