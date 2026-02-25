@@ -84,3 +84,109 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ── Invite modal (desktop) ── */
+.invite-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease;
+}
+
+.invite-modal {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(34,193,195,0.1);
+  animation: slideUp 0.2s ease;
+}
+
+.invite-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.invite-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.invite-modal-icon {
+  color: var(--cyan);
+}
+
+.invite-modal-close {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.invite-modal-close:hover {
+  color: var(--text);
+  background: var(--bg3);
+}
+
+.invite-modal-desc {
+  font-size: .84rem;
+  color: var(--text2);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.invite-modal-text-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.invite-modal-text {
+  font-size: .82rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  line-height: 1.55;
+}
+
+.invite-modal-copy-btn {
+  transition: all 0.2s;
+}
+
+.invite-modal-copy-btn.copied {
+  background: linear-gradient(135deg, var(--green), #27ae60) !important;
+  box-shadow: 0 2px 12px rgba(46,204,113,0.3) !important;
+}
+
+.invite-modal-hint {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--cyan);
+  margin-top: 10px;
+  animation: fadeIn 0.2s ease;
+}

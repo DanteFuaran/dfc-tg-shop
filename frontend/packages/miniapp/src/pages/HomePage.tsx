@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore, CURRENCY_SYMBOLS } from '@dfc/shared';
 import {
   Zap, Link, Gift, Smartphone, Share2,
-  Download, BarChart3, Clock, Wifi,
+  Download, BarChart3, Clock, Wifi, Copy, Check, X,
 } from 'lucide-react';
 import './HomePage.css';
 
@@ -12,6 +13,10 @@ export default function HomePage() {
     user, subscription, trialAvailable, defaultCurrency,
     features, botUsername, refLink,
   } = useUserStore();
+
+  const [inviteModal, setInviteModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [inviteText, setInviteText] = useState('');
 
   const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
 
@@ -40,39 +45,73 @@ export default function HomePage() {
 
     const tg = window.Telegram?.WebApp;
     const platform = tg?.platform ?? '';
-    // На мобильных openTelegramLink открывает нативный чат-пикер.
-    // На Telegram Desktop этот метод НЕ открывает чат-пикер (ограничение платформы).
     const isMobile = ['android', 'ios', 'android_x'].includes(platform);
 
     if (tg && isMobile) {
-      // Мобильные: открывает диалог выбора чата
+      // Мобильные: открывает нативный диалог выбора чата
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
       tg.openTelegramLink(shareUrl);
-    } else if (tg) {
-      // ПК (desktop/macos/webk/weba): копируем приглашение в буфер + подсказка
-      navigator.clipboard.writeText(inviteText).then(() => {
-        tg.showPopup({
-          title: '📋 Сообщение скопировано',
-          message: 'Пригласительное сообщение скопировано в буфер обмена.\n\nОткройте нужный чат в Telegram и вставьте его (Ctrl+V или ⌘+V).',
-          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
-        });
-      }).catch(() => {
-        // Clipboard недоступен — показываем саму ссылку
-        tg.showPopup({
-          title: 'Пригласить друга',
-          message: `Скопируйте ссылку и отправьте другу:\n\n${refLink}`,
-          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
-        });
-      });
     } else {
-      // Браузер без Telegram
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
-      window.open(shareUrl, '_blank');
+      // ПК и браузер: показываем кастомный модал с копированием
+      setInviteText(inviteText);
+      setInviteModal(true);
+      setCopied(false);
     }
+  };
+
+  const handleCopy = () => {
+    if (!inviteText) return;
+    navigator.clipboard.writeText(inviteText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }).catch(() => {
+      // fallback: select text
+    });
   };
 
   return (
     <div className="home-page animate-in">
+
+      {/* ── Invite modal (desktop) ── */}
+      {inviteModal && (
+        <div className="invite-modal-overlay" onClick={() => setInviteModal(false)}>
+          <div className="invite-modal" onClick={e => e.stopPropagation()}>
+            <div className="invite-modal-header">
+              <div className="invite-modal-title">
+                <Share2 size={18} className="invite-modal-icon" />
+                Пригласить друга
+              </div>
+              <button className="invite-modal-close" onClick={() => setInviteModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="invite-modal-desc">
+              Отправьте это сообщение другу — он присоединится как ваш реферал и вы получите бонус.
+            </p>
+
+            <div className="invite-modal-text-box">
+              <pre className="invite-modal-text">{inviteText}</pre>
+            </div>
+
+            <button
+              className={`btn btn-primary btn-full invite-modal-copy-btn${copied ? ' copied' : ''}`}
+              onClick={handleCopy}
+            >
+              {copied
+                ? <><Check size={16} /> Скопировано!</>
+                : <><Copy size={16} /> Скопировать сообщение</>
+              }
+            </button>
+
+            {copied && (
+              <p className="invite-modal-hint">
+                Вставьте сообщение в нужный чат (Ctrl+V или ⌘+V)
+              </p>
+            )}
+          </div>
+        </div>
+      )}
       {/* ── Subscription status ── */}
       {subscription ? (
         <div className="card sub-card">
