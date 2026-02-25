@@ -38,14 +38,35 @@ export default function HomePage() {
       inviteText = refLink;
     }
 
-    // Оригинальная реализация: openTelegramLink с t.me/share/url
-    // Telegram обрабатывает этот URL нативно — открывает диалог выбора чата
-    // Передаем url и text отдельно для правильной обработки
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+    const tg = window.Telegram?.WebApp;
+    const platform = tg?.platform ?? '';
+    // На мобильных openTelegramLink открывает нативный чат-пикер.
+    // На Telegram Desktop этот метод НЕ открывает чат-пикер (ограничение платформы).
+    const isMobile = ['android', 'ios', 'android_x'].includes(platform);
 
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(shareUrl);
+    if (tg && isMobile) {
+      // Мобильные: открывает диалог выбора чата
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+      tg.openTelegramLink(shareUrl);
+    } else if (tg) {
+      // ПК (desktop/macos/webk/weba): копируем приглашение в буфер + подсказка
+      navigator.clipboard.writeText(inviteText).then(() => {
+        tg.showPopup({
+          title: '📋 Сообщение скопировано',
+          message: 'Пригласительное сообщение скопировано в буфер обмена.\n\nОткройте нужный чат в Telegram и вставьте его (Ctrl+V или ⌘+V).',
+          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
+        });
+      }).catch(() => {
+        // Clipboard недоступен — показываем саму ссылку
+        tg.showPopup({
+          title: 'Пригласить друга',
+          message: `Скопируйте ссылку и отправьте другу:\n\n${refLink}`,
+          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
+        });
+      });
     } else {
+      // Браузер без Telegram
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
       window.open(shareUrl, '_blank');
     }
   };
