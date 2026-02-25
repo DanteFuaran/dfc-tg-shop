@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import ParticleBackground from '../components/ParticleBackground';
 import BottomNav from '../components/BottomNav';
+import AppHeader from '../components/AppHeader';
 import './MainLayout.css';
 
 export default function MainLayout() {
@@ -8,6 +9,7 @@ export default function MainLayout() {
     <div className="app-layout">
       <ParticleBackground />
       <div className="bg-glow" />
+      <AppHeader />
       <main className="app-content">
         <Outlet />
       </main>

@@ -210,3 +210,44 @@ export interface TopupRequest {
 export interface PromocodeActivateRequest {
   code: string;
 }
+
+/* ═══ Admin Promocode ═══ */
+export interface AdminPromocode {
+  id: number;
+  code: string;
+  name: string;
+  is_active: boolean;
+  reward_type: PromocodeRewardType;
+  reward: number | null;
+  availability: string;
+  lifetime: number | null;
+  max_activations: number | null;
+  activations_count: number;
+  is_expired: boolean;
+  is_depleted: boolean;
+  created_at: string;
+}
+
+export type PromocodeRewardType = 'DURATION' | 'TRAFFIC' | 'DEVICES' | 'SUBSCRIPTION' | 'PERSONAL_DISCOUNT';
+export type PromocodeAvailability = 'ALL' | 'NEW' | 'EXISTING' | 'INVITED' | 'ALLOWED';
+
+/* ═══ Broadcast ═══ */
+export interface AdminBroadcast {
+  id: number;
+  task_id: string;
+  status: BroadcastStatus;
+  audience: BroadcastAudience;
+  total_count: number;
+  success_count: number;
+  failed_count: number;
+  created_at: string;
+  text: string;
+}
+
+export type BroadcastStatus = 'PROCESSING' | 'COMPLETED' | 'CANCELED' | 'DELETED' | 'ERROR';
+export type BroadcastAudience = 'ALL' | 'SUBSCRIBED' | 'UNSUBSCRIBED' | 'EXPIRED' | 'TRIAL' | 'PLAN';
+
+/* ═══ Monitoring ═══ */
+export interface MonitoringStats {
+  [key: string]: unknown;
+}

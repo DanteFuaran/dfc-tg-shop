@@ -25,6 +25,7 @@ from fastapi import APIRouter
 
 from .routers import pages, auth, user, purchase, tickets
 from .routers.admin import brand, gateways, plans, settings, stats, tickets as admin_tickets, users
+from .routers.admin import monitoring, broadcast, promocodes, bot as admin_bot
 
 WEB_DIR = Path(__file__).parent
 
@@ -47,3 +48,7 @@ router.include_router(settings.router)
 router.include_router(gateways.router)
 router.include_router(brand.router)
 router.include_router(admin_tickets.router)
+router.include_router(monitoring.router)
+router.include_router(broadcast.router)
+router.include_router(promocodes.router)
+router.include_router(admin_bot.router)

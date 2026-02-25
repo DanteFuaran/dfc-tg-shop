@@ -2,19 +2,23 @@ import { useState } from 'react';
 import { useUserStore } from '@dfc/shared';
 import { Shield } from 'lucide-react';
 import AdminStats from './admin/AdminStats';
+import AdminMonitoring from './admin/AdminMonitoring';
+import AdminBroadcast from './admin/AdminBroadcast';
 import AdminUsers from './admin/AdminUsers';
 import AdminPlans from './admin/AdminPlans';
-import AdminSettings from './admin/AdminSettings';
-import AdminTickets from './admin/AdminTickets';
+import AdminBotManagement from './admin/AdminBotManagement';
+import AdminFeatures from './admin/AdminFeatures';
 import AdminBrand from './admin/AdminBrand';
 
 const tabs = [
   { id: 'stats', label: 'Статистика' },
+  { id: 'monitoring', label: 'Мониторинг' },
+  { id: 'broadcast', label: 'Рассылка' },
   { id: 'users', label: 'Пользователи' },
   { id: 'plans', label: 'Тарифы' },
-  { id: 'settings', label: 'Настройки' },
-  { id: 'tickets', label: 'Тикеты' },
-  { id: 'brand', label: 'Бренд' },
+  { id: 'bot', label: 'Управление ботом' },
+  { id: 'features', label: 'Функционал' },
+  { id: 'brand', label: 'Брендирование' },
 ];
 
 export default function AdminPage() {
@@ -45,10 +49,12 @@ export default function AdminPage() {
         ))}
       </div>
       {activeTab === 'stats' && <AdminStats />}
+      {activeTab === 'monitoring' && <AdminMonitoring />}
+      {activeTab === 'broadcast' && <AdminBroadcast />}
       {activeTab === 'users' && <AdminUsers />}
       {activeTab === 'plans' && <AdminPlans />}
-      {activeTab === 'settings' && <AdminSettings />}
-      {activeTab === 'tickets' && <AdminTickets />}
+      {activeTab === 'bot' && <AdminBotManagement />}
+      {activeTab === 'features' && <AdminFeatures />}
       {activeTab === 'brand' && <AdminBrand />}
     </div>
   );

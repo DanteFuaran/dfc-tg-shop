@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { adminApi, formatPrice, useUserStore, CURRENCY_SYMBOLS } from '@dfc/shared';
-import { Search, Loader, ChevronLeft, ChevronRight, Ban, ShieldCheck, Wallet, Gift, X } from 'lucide-react';
+import { Search, Loader, Ban, ShieldCheck, Wallet, Gift } from 'lucide-react';
 
 interface UserItem {
   telegram_id: number;
-  first_name?: string;
+  name?: string;
   username?: string;
   role: string;
   balance: number;
-  bonus_balance: number;
-  blocked: boolean;
+  bonus_balance?: number;
+  is_blocked: boolean;
 }
 
 const ROLE_CLASS: Record<string, string> = { DEV: 'role-dev', ADMIN: 'role-admin', USER: 'role-user' };
@@ -21,9 +21,6 @@ export default function AdminUsers() {
   const sym = CURRENCY_SYMBOLS[currency] ?? '₽';
 
   const [users, setUsers] = useState<UserItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -31,32 +28,26 @@ export default function AdminUsers() {
   const [bonusInput, setBonusInput] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = useCallback(async (p: number, q: string) => {
+  const load = useCallback(async (q: string) => {
     setLoading(true);
     try {
-      const res = await adminApi.listUsers(p, q || undefined);
-      const d = res.data;
-      setUsers(d.users);
-      setTotal(d.total);
-      setPage(d.page);
-      setPages(d.pages);
+      const res = await adminApi.listUsers(1, q || undefined);
+      setUsers(Array.isArray(res.data) ? res.data : (res.data as any).users ?? []);
     } catch { /* ignore */ }
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(1, search); }, []);
+  useEffect(() => { load(search); }, []);
 
   const handleSearch = (val: string) => {
     setSearch(val);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => load(1, val), 400);
+    debounceRef.current = setTimeout(() => load(val), 400);
   };
-
-  const goPage = (p: number) => { if (p >= 1 && p <= pages) load(p, search); };
 
   const handleRole = async (tid: number, role: string) => {
     await adminApi.setUserRole(tid, role);
-    load(page, search);
+    load(search);
   };
 
   const handleAddBalance = async (tid: number) => {
@@ -64,7 +55,7 @@ export default function AdminUsers() {
     if (!v) return;
     await adminApi.addBalance(tid, v);
     setBalanceInput('');
-    load(page, search);
+    load(search);
   };
 
   const handleAddBonus = async (tid: number) => {
@@ -72,12 +63,12 @@ export default function AdminUsers() {
     if (!v) return;
     await adminApi.addBonusBalance(tid, v);
     setBonusInput('');
-    load(page, search);
+    load(search);
   };
 
-  const handleBlock = async (tid: number, blocked: boolean) => {
-    await adminApi.blockUser(tid, !blocked);
-    load(page, search);
+  const handleBlock = async (tid: number, is_blocked: boolean) => {
+    await adminApi.blockUser(tid, !is_blocked);
+    load(search);
   };
 
   const toggle = (tid: number) => {
@@ -108,20 +99,20 @@ export default function AdminUsers() {
             <div className="card" key={u.telegram_id}>
               <div className="card-row" onClick={() => toggle(u.telegram_id)} style={{ cursor: 'pointer' }}>
                 <div>
-                  <strong>{u.first_name || 'Без имени'}</strong>
+                  <strong>{u.name || 'Без имени'}</strong>
                   {u.username && <span style={{ opacity: 0.6, marginLeft: 6 }}>@{u.username}</span>}
                   <div style={{ fontSize: 12, opacity: 0.5 }}>ID: {u.telegram_id}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span className={ROLE_CLASS[u.role] ?? 'role-user'}>{u.role}</span>
-                  {u.blocked && <Ban size={14} style={{ color: 'var(--red)' }} />}
+                  {u.is_blocked && <Ban size={14} style={{ color: 'var(--red)' }} />}
                 </div>
               </div>
 
               {expanded === u.telegram_id && (
                 <div className="card-detail" style={{ padding: '12px 0 0' }}>
                   <div style={{ marginBottom: 8, fontSize: 13, opacity: 0.7 }}>
-                    Баланс: {formatPrice(u.balance)} {sym} &nbsp;|&nbsp; Бонус: {formatPrice(u.bonus_balance)} {sym}
+                    Баланс: {formatPrice(u.balance)} {sym} &nbsp;|&nbsp; Бонус: {formatPrice(u.bonus_balance ?? 0)} {sym}
                   </div>
 
                   <div style={{ marginBottom: 10 }}>
@@ -164,11 +155,11 @@ export default function AdminUsers() {
                   </div>
 
                   <button
-                    className={`btn btn-sm ${u.blocked ? 'btn-success' : 'btn-danger'}`}
-                    onClick={() => handleBlock(u.telegram_id, u.blocked)}
+                    className={`btn btn-sm ${u.is_blocked ? 'btn-success' : 'btn-danger'}`}
+                    onClick={() => handleBlock(u.telegram_id, u.is_blocked)}
                     style={{ width: '100%' }}
                   >
-                    {u.blocked ? <><ShieldCheck size={14} /> Разблокировать</> : <><Ban size={14} /> Заблокировать</>}
+                    {u.is_blocked ? <><ShieldCheck size={14} /> Разблокировать</> : <><Ban size={14} /> Заблокировать</>}
                   </button>
                 </div>
               )}
@@ -177,17 +168,9 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {pages > 1 && (
-        <div className="pagination">
-          <button className="btn btn-sm" disabled={page <= 1} onClick={() => goPage(page - 1)}>
-            <ChevronLeft size={16} />
-          </button>
-          <span style={{ fontSize: 13 }}>{page} / {pages} &nbsp;(всего: {total})</span>
-          <button className="btn btn-sm" disabled={page >= pages} onClick={() => goPage(page + 1)}>
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+      <div style={{ fontSize: 12, opacity: 0.5, textAlign: 'center', marginTop: 8 }}>
+        Всего: {users.length}
+      </div>
     </div>
   );
 }

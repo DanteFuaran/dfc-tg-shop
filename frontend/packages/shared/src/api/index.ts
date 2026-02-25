@@ -13,6 +13,9 @@ import type {
   PurchaseResponse,
   TopupRequest,
   BrandSettings,
+  AdminPromocode,
+  AdminBroadcast,
+  MonitoringStats,
 } from '../types';
 
 /* ═══ Auth ═══ */
@@ -103,8 +106,8 @@ export const adminApi = {
   addBonusBalance: (tid: number, amount: number) =>
     api.post(`/web/api/admin/users/${tid}/bonus-balance`, { amount }),
 
-  blockUser: (tid: number, blocked: boolean) =>
-    api.post(`/web/api/admin/users/${tid}/block`, { blocked }),
+  blockUser: (tid: number, block: boolean) =>
+    api.post(`/web/api/admin/users/${tid}/block`, { block }),
 
   // Plans
   listPlans: () => api.get<Plan[]>('/web/api/admin/plans'),
@@ -154,4 +157,40 @@ export const adminApi = {
   getBrand: () => api.get<BrandSettings>('/web/api/settings/brand'),
 
   saveBrand: (data: BrandSettings) => api.post('/web/api/settings/brand', data),
+
+  // Monitoring
+  getMonitoring: () => api.get<MonitoringStats>('/web/api/admin/monitoring'),
+
+  // Broadcast
+  listBroadcasts: () => api.get<AdminBroadcast[]>('/web/api/admin/broadcast'),
+
+  createBroadcast: (data: { text: string; audience: string; plan_id?: number }) =>
+    api.post<AdminBroadcast>('/web/api/admin/broadcast', data),
+
+  deleteBroadcast: (id: number) => api.delete(`/web/api/admin/broadcast/${id}`),
+
+  // Promocodes (admin CRUD)
+  adminListPromocodes: () => api.get<AdminPromocode[]>('/web/api/admin/promocodes'),
+
+  adminCreatePromocode: (data: {
+    code?: string;
+    name: string;
+    reward_type: string;
+    reward: number;
+    availability?: string;
+    lifetime?: number;
+    max_activations?: number;
+  }) => api.post<AdminPromocode>('/web/api/admin/promocodes', data),
+
+  adminTogglePromocode: (id: number) =>
+    api.patch<AdminPromocode>(`/web/api/admin/promocodes/${id}/toggle`),
+
+  adminDeletePromocode: (id: number) =>
+    api.delete(`/web/api/admin/promocodes/${id}`),
+
+  // Bot management
+  getBotInfo: () => api.get('/web/api/admin/bot/info'),
+
+  getBotLogs: (lines?: number) =>
+    api.get('/web/api/admin/bot/logs', { params: { lines: lines ?? 100 } }),
 };
