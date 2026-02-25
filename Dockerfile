@@ -1,3 +1,12 @@
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /opt/dfc-tg/frontend
+
+COPY ./frontend/package.json ./frontend/package-lock.json ./
+COPY ./frontend/packages ./packages
+
+RUN npm install && npm run build:miniapp
+
 FROM ghcr.io/astral-sh/uv:python3.12-alpine AS builder
 
 WORKDIR /opt/dfc-tg
@@ -34,6 +43,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/dfc-tg
 
 COPY ./src ./src
+COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist/assets ./src/web/static/assets
+COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist/index.html ./src/web/templates/miniapp.html
 COPY ./version ./version
 COPY ./assets /opt/dfc-tg/assets.default
 COPY ./scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh

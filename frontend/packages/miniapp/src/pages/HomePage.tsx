@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore, CURRENCY_SYMBOLS } from '@dfc/shared';
 import {
-  Zap, Link, Gift, Smartphone, Share2,
-  Download, BarChart3, Clock, Wifi, Copy, Check, X,
+  Zap, Gift, Smartphone, Share2,
+  Download, Clock, Wifi, Copy, Check, X,
 } from 'lucide-react';
 import './HomePage.css';
 
@@ -21,52 +21,34 @@ export default function HomePage() {
   const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
 
   const handleInvite = () => {
-    console.log('🔘 Invite button clicked');
-    
-    if (!refLink) {
-      console.warn('❌ refLink is empty');
-      return;
-    }
+    if (!refLink) return;
 
-    console.log('✅ refLink:', refLink);
-    console.log('✅ features:', features);
-
-    // Формируем текст приглашения (логика invite_getter из бота)
+    // Формируем текст приглашения
     const rawTemplate = features?.referral_invite_message ?? '';
     let msgText: string;
 
     if (rawTemplate) {
-      if (rawTemplate.includes('{url}')) {
-        msgText = rawTemplate
-          .replace(/\{url\}/g, refLink)
-          .replace(/\{name\}/g, 'VPN')
-          .replace(/\{space\}/g, '\n');
-      } else {
-        msgText = rawTemplate
-          .replace(/\$url/g, refLink)
-          .replace(/\$name/g, 'VPN');
-      }
+      msgText = rawTemplate
+        .replace(/\{url\}/g, refLink)
+        .replace(/\{name\}/g, 'VPN')
+        .replace(/\{space\}/g, '\n')
+        .replace(/\$url/g, refLink)
+        .replace(/\$name/g, 'VPN');
       if (msgText.startsWith('\n')) msgText = msgText.slice(1);
     } else {
       msgText = refLink;
     }
 
-    console.log('📝 msgText:', msgText);
-
     const tg = window.Telegram?.WebApp;
     const platform = tg?.platform ?? '';
     const isMobile = ['android', 'ios', 'android_x'].includes(platform);
 
-    console.log('📱 platform:', platform, '| isMobile:', isMobile);
-
     if (tg && isMobile) {
-      // Мобильные: открывает нативный диалог выбора чата
-      console.log('📱 Using native chat picker');
+      // Мобильные: нативный диалог выбора чата
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(msgText)}`;
       tg.openTelegramLink(shareUrl);
     } else {
-      // ПК и браузер: показываем кастомный модал с копированием
-      console.log('🖥️ Showing custom modal');
+      // ПК / браузер: кастомный модал с копированием
       setInviteText(msgText);
       setInviteModal(true);
       setCopied(false);
@@ -182,21 +164,6 @@ export default function HomePage() {
             <Share2 size={16} /> Пригласить друга
           </button>
         )}
-        {/* Тестовая кнопка — switchInlineQuery с захардкоженным текстом */}
-        <button
-          className="pill pill-cyan"
-          onClick={() => {
-            const tg = window.Telegram?.WebApp;
-            console.log('TEST BTN: tg=', tg, 'platform=', tg?.platform);
-            if (tg?.switchInlineQuery) {
-              tg.switchInlineQuery('Привет! Приходи!', ['users', 'groups', 'channels']);
-            } else {
-              alert('switchInlineQuery недоступен, platform: ' + (tg?.platform ?? 'no tg'));
-            }
-          }}
-        >
-          <Share2 size={16} /> Пригласить [тест]
-        </button>
       </div>
 
       {/* ── Buy / Renew ── */}
