@@ -12,8 +12,8 @@ interface UserItem {
   blocked: boolean;
 }
 
-const ROLE_CLASS: Record<string, string> = { OWNER: 'role-dev', ADMIN: 'role-admin', USER: 'role-user' };
-const ROLES = ['USER', 'ADMIN', 'OWNER'];
+const ROLE_CLASS: Record<string, string> = { DEV: 'role-dev', ADMIN: 'role-admin', USER: 'role-user' };
+const ROLES = ['USER', 'ADMIN', 'DEV'];
 
 export default function AdminUsers() {
   const { defaultCurrency } = useUserStore();

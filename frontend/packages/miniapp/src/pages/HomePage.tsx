@@ -1,10 +1,26 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '@dfc/shared';
-import { Zap, ShoppingCart, Wifi, Monitor, Gift, Wallet, MessageCircle, ExternalLink } from 'lucide-react';
+import { useUserStore, adminApi, formatPrice, copyToClipboard, CURRENCY_SYMBOLS } from '@dfc/shared';
+import { Gift, ShoppingCart, Wifi, Smartphone, Link2, CreditCard } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, subscription, features, trialAvailable, isLoading } = useUserStore();
+  const {
+    user, subscription, features, trialAvailable, isLoading,
+    defaultCurrency, refLink,
+  } = useUserStore();
+
+  const [brand, setBrand] = useState<{ name: string; logo: string; slogan: string }>({
+    name: 'VPN Shop', logo: '🔐', slogan: '',
+  });
+
+  useEffect(() => {
+    adminApi.getBrand()
+      .then(({ data }) => setBrand({ name: data.name || 'VPN Shop', logo: data.logo || '🔐', slogan: data.slogan || '' }))
+      .catch(() => {});
+  }, []);
+
+  const sym = CURRENCY_SYMBOLS[defaultCurrency] || '₽';
 
   if (isLoading) {
     return (
@@ -18,121 +34,114 @@ export default function HomePage() {
   const isActive = hasSub && subscription.status === 'ACTIVE';
   const isTrial = hasSub && subscription.is_trial;
 
-  const daysLeft = hasSub && subscription.expire_at
-    ? Math.max(0, Math.ceil((new Date(subscription.expire_at).getTime() - Date.now()) / 86400000))
-    : 0;
+  /* Subscription label */
+  const subText = isActive
+    ? subscription.plan_name
+    : 'Нет активной подписки';
+
+  /* Buy button label */
+  const buyLabel = isActive && !isTrial ? 'Оплатить подписку' : 'Купить подписку';
 
   return (
-    <div className="animate-in">
-      {/* Greeting */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-          Привет, {user?.name || 'друг'} 👋
-        </h1>
-        <p style={{ color: 'var(--text2)', fontSize: '.9rem', marginTop: 4 }}>
-          Ваш личный кабинет
-        </p>
-      </div>
+    <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-      {/* Subscription Card */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <span style={{ fontSize: '.95rem', fontWeight: 600 }}>Подписка</span>
-          {isActive ? (
-            <span className={`badge ${isTrial ? 'badge-gold' : 'badge-green'}`}>
-              {isTrial ? '🎁 Пробная' : '✓ Активна'}
-            </span>
-          ) : hasSub ? (
-            <span className="badge badge-red">Истекла</span>
-          ) : (
-            <span className="badge" style={{ background: 'rgba(141,160,174,.12)', color: 'var(--text2)' }}>
-              Нет подписки
-            </span>
+      {/* ── Header: brand + balances ── */}
+      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+        {/* Logo */}
+        <div style={{
+          width: 44, height: 44, borderRadius: 10,
+          background: 'linear-gradient(135deg, var(--cyan), #1AA3CC)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: brand.logo.length <= 2 ? '1.5rem' : '1rem', flexShrink: 0,
+        }}>
+          {brand.logo}
+        </div>
+
+        {/* Name + slogan */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem', lineHeight: 1.2 }}>{brand.name}</div>
+          {brand.slogan && (
+            <div style={{ color: 'var(--text2)', fontSize: '.75rem', marginTop: 2 }}>{brand.slogan}</div>
           )}
         </div>
 
-        {isActive && (
-          <>
-            <div className="card-row">
-              <span className="card-label">Тариф</span>
-              <span className="card-value">{subscription.plan_name}</span>
-            </div>
-            <div className="card-row" style={{ marginTop: 8 }}>
-              <span className="card-label">Осталось дней</span>
-              <span className="card-value" style={{ color: daysLeft <= 3 ? 'var(--red)' : 'var(--cyan)' }}>
-                {daysLeft}
-              </span>
-            </div>
-            {subscription.device_limit && (
-              <div className="card-row" style={{ marginTop: 8 }}>
-                <span className="card-label">Устройства</span>
-                <span className="card-value">
-                  {subscription.active_devices_count} / {subscription.device_limit}
-                </span>
-              </div>
-            )}
-          </>
-        )}
-
-        {!hasSub && trialAvailable && (
-          <div style={{ marginTop: 12 }}>
-            <button className="btn btn-full" style={{ background: 'var(--green)', color: '#fff' }}
-              onClick={() => navigate('/plans')}>
-              <Zap size={16} /> Активировать пробный период
-            </button>
-          </div>
-        )}
-
-        {isActive && (
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn btn-primary btn-full" onClick={() => navigate('/connect')}>
-              <Wifi size={15} /> Подключить
-            </button>
-            <button className="btn btn-secondary btn-full" onClick={() => navigate('/devices')}>
-              <Monitor size={15} /> Устройства
-            </button>
+        {/* Balances */}
+        {features?.balance_enabled && user && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, flexShrink: 0 }}>
+            <span style={{ fontSize: '.8rem', color: 'var(--text2)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              💰 {formatPrice(user.balance)} {sym}
+            </span>
+            <span style={{ fontSize: '.8rem', color: 'var(--text2)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              🎁 {formatPrice(user.referral_balance)} {sym}
+            </span>
           </div>
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+      {/* ── Subscription status ── */}
+      <div className="card" style={{ textAlign: 'center', padding: '18px 16px' }}>
+        <div style={{ color: isActive ? 'var(--text)' : 'var(--text2)', fontSize: '.95rem' }}>
+          {subText}
+        </div>
+      </div>
+
+      {/* ── Buy / Pay subscription ── */}
+      <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
+        onClick={() => navigate('/plans')}>
+        <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--cyan)' }}>
+          {buyLabel}
+        </span>
+      </div>
+
+      {/* ── Trial button ── */}
+      {trialAvailable && (
+        <div className="card" style={{
+          textAlign: 'center', padding: '14px 16px', cursor: 'pointer',
+          borderColor: 'rgba(25, 195, 125, 0.3)',
+        }}
           onClick={() => navigate('/plans')}>
-          <ShoppingCart size={24} style={{ color: 'var(--cyan)', marginBottom: 8 }} />
-          <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Тарифы</div>
-        </button>
+          <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--green)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Gift size={18} /> Попробовать бесплатно
+          </span>
+        </div>
+      )}
 
-        {features?.balance_enabled && (
-          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
-            onClick={() => navigate('/topup')}>
-            <Wallet size={24} style={{ color: 'var(--gold)', marginBottom: 8 }} />
-            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Пополнить</div>
-          </button>
-        )}
-
-        {features?.promocodes_enabled && (
-          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
-            onClick={() => navigate('/promo')}>
-            <Gift size={24} style={{ color: 'var(--green)', marginBottom: 8 }} />
-            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Промокод</div>
-          </button>
-        )}
-
-        <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
-          onClick={() => navigate('/support')}>
-          <MessageCircle size={24} style={{ color: 'var(--orange)', marginBottom: 8 }} />
-          <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Поддержка</div>
-        </button>
-
-        {features?.community_enabled && features.community_url && (
-          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
-            onClick={() => window.open(features.community_url, '_blank')}>
-            <ExternalLink size={24} style={{ color: 'var(--cyan)', marginBottom: 8 }} />
-            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Сообщество</div>
-          </button>
-        )}
+      {/* ── Connect ── */}
+      <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
+        onClick={() => navigate('/connect')}>
+        <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <Wifi size={18} style={{ color: 'var(--cyan)' }} /> Подключиться
+        </span>
       </div>
+
+      {/* ── Promo + Devices row ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {features?.promocodes_enabled && (
+          <div className="card" style={{ textAlign: 'center', padding: '14px 12px', cursor: 'pointer' }}
+            onClick={() => navigate('/promo')}>
+            <span style={{ fontWeight: 600, fontSize: '.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Gift size={16} style={{ color: 'var(--gold)' }} /> Промокоды
+            </span>
+          </div>
+        )}
+
+        <div className="card" style={{ textAlign: 'center', padding: '14px 12px', cursor: 'pointer' }}
+          onClick={() => navigate('/devices')}>
+          <span style={{ fontWeight: 600, fontSize: '.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Smartphone size={16} style={{ color: 'var(--gold)' }} /> Устройства
+          </span>
+        </div>
+      </div>
+
+      {/* ── Invite friend ── */}
+      {features?.referral_enabled && refLink && (
+        <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
+          onClick={() => copyToClipboard(refLink)}>
+          <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Link2 size={18} style={{ color: 'var(--cyan)' }} /> Пригласить друга
+          </span>
+        </div>
+      )}
     </div>
   );
 }

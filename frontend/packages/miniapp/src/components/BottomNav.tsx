@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, MessageCircle, User, Shield } from 'lucide-react';
+import { Home, MessageCircle, User, Shield, Users } from 'lucide-react';
 import { useUserStore } from '@dfc/shared';
 import './BottomNav.css';
 
@@ -8,40 +8,53 @@ interface NavItem {
   label: string;
   icon: React.ElementType;
   adminOnly?: boolean;
+  external?: boolean;
 }
-
-const navItems: NavItem[] = [
-  { path: '/', label: 'Home', icon: Home },
-  { path: '/support', label: 'Support', icon: MessageCircle },
-  { path: '/profile', label: 'Profile', icon: User },
-  { path: '/admin', label: 'Admin', icon: Shield, adminOnly: true },
-];
 
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, ticketUnread } = useUserStore();
+  const { user, features, ticketUnread } = useUserStore();
 
   const role = user?.role;
-  const isAdmin = role === 'ADMIN' || role === 'OWNER';
+  const isAdmin = role === 'ADMIN' || role === 'DEV';
+
+  const navItems: NavItem[] = [
+    { path: '/', label: 'Главная', icon: Home },
+    { path: '/profile', label: 'Профиль', icon: User },
+    ...(features?.community_enabled && features.community_url
+      ? [{ path: features.community_url, label: 'Группа', icon: Users, external: true } as NavItem]
+      : []),
+    { path: '/support', label: 'Поддержка', icon: MessageCircle },
+    { path: '/admin', label: 'Админ', icon: Shield, adminOnly: true },
+  ];
 
   return (
     <nav className="bottom-nav">
       {navItems.map((item) => {
         if (item.adminOnly && !isAdmin) return null;
 
-        const isActive =
+        const isActive = !item.external && (
           item.path === '/'
             ? location.pathname === '/'
-            : location.pathname.startsWith(item.path);
+            : location.pathname.startsWith(item.path)
+        );
 
         const Icon = item.icon;
+
+        const handleClick = () => {
+          if (item.external) {
+            window.open(item.path, '_blank');
+          } else {
+            navigate(item.path);
+          }
+        };
 
         return (
           <div
             key={item.path}
             className={`nav-item${isActive ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
+            onClick={handleClick}
           >
             <Icon size={22} />
             {item.path === '/support' && ticketUnread > 0 && (

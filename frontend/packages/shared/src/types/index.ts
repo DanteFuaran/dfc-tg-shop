@@ -11,7 +11,7 @@ export interface User {
   is_blocked: boolean;
 }
 
-export type UserRole = 'USER' | 'ADMIN' | 'OWNER';
+export type UserRole = 'USER' | 'ADMIN' | 'DEV';
 
 /* ═══ Subscription ═══ */
 export interface Subscription {
@@ -194,9 +194,9 @@ export interface AuthCheckResponse {
 
 /* ═══ Brand Settings ═══ */
 export interface BrandSettings {
-  app_name: string;
-  logo_url: string;
-  accent_color: string;
+  name: string;
+  logo: string;
+  slogan: string;
   [key: string]: unknown;
 }
 

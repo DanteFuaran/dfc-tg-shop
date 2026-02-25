@@ -51,7 +51,7 @@ export default function ProfilePage() {
         </div>
         <div className="card-row" style={{ marginTop: 8 }}>
           <span className="card-label">Роль</span>
-          <span className={`badge ${user.role === 'OWNER' ? 'role-dev' : user.role === 'ADMIN' ? 'role-admin' : 'role-user'}`}>
+          <span className={`badge ${user.role === 'DEV' ? 'role-dev' : user.role === 'ADMIN' ? 'role-admin' : 'role-user'}`}>
             {user.role}
           </span>
         </div>

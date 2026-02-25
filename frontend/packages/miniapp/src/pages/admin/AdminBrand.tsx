@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Save, Eye } from 'lucide-react';
 import { adminApi } from '@dfc/shared';
 
-type BrandSettings = { app_name: string; logo_url: string; accent_color: string; [key: string]: unknown };
+type BrandForm = { name: string; logo: string; slogan: string };
 
-const defaultBrand: BrandSettings = { app_name: '', logo_url: '', accent_color: '#24C4F1' };
+const defaultBrand: BrandForm = { name: '', logo: '', slogan: '' };
 
 export default function AdminBrand() {
-  const [brand, setBrand] = useState<BrandSettings>(defaultBrand);
+  const [brand, setBrand] = useState<BrandForm>(defaultBrand);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
@@ -16,22 +16,22 @@ export default function AdminBrand() {
     (async () => {
       setLoading(true);
       try {
-        const data = await adminApi.getBrand();
-        setBrand({ ...defaultBrand, ...data });
+        const { data } = await adminApi.getBrand();
+        setBrand({ name: data.name || '', logo: data.logo || '', slogan: data.slogan || '' });
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const handleChange = (key: keyof BrandSettings, value: string) => {
+  const handleChange = (key: keyof BrandForm, value: string) => {
     setBrand((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await adminApi.saveBrand(brand);
+      await adminApi.saveBrand(brand as any);
       setToast('Сохранено');
       setTimeout(() => setToast(''), 2500);
     } finally {
@@ -41,35 +41,27 @@ export default function AdminBrand() {
 
   if (loading) {
     return (
-      <div style={{ padding: 16, maxWidth: 'var(--max-w)', margin: '0 auto' }}>
-        <h1 className="page-title" style={{ marginBottom: 12 }}>Бренд</h1>
-        <div className="loading"><div className="spinner" /><span>Загрузка…</span></div>
-      </div>
+      <div className="empty-state"><div className="spinner" /></div>
     );
   }
 
   return (
-    <div style={{ padding: 16, maxWidth: 'var(--max-w)', margin: '0 auto' }}>
-      <h1 className="page-title" style={{ marginBottom: 16 }}>Бренд</h1>
-
+    <div>
       {/* Form */}
       <div className="card" style={{ marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={{ fontSize: '0.84rem', color: 'var(--text2)' }}>Название приложения</span>
-          <input className="input" value={brand.app_name} onChange={(e) => handleChange('app_name', e.target.value)} placeholder="My App" />
+          <span className="form-label">Название</span>
+          <input className="input" value={brand.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="My VPN" />
         </label>
 
         <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={{ fontSize: '0.84rem', color: 'var(--text2)' }}>URL логотипа</span>
-          <input className="input" value={brand.logo_url} onChange={(e) => handleChange('logo_url', e.target.value)} placeholder="https://…" />
+          <span className="form-label">Логотип (эмодзи или текст)</span>
+          <input className="input" value={brand.logo} onChange={(e) => handleChange('logo', e.target.value)} placeholder="🔐" />
         </label>
 
         <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={{ fontSize: '0.84rem', color: 'var(--text2)' }}>Акцентный цвет</span>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input className="input" value={brand.accent_color} onChange={(e) => handleChange('accent_color', e.target.value)} style={{ flex: 1 }} />
-            <div style={{ width: 36, height: 36, borderRadius: 'var(--r-sm)', background: brand.accent_color, border: '1px solid var(--border)', flexShrink: 0 }} />
-          </div>
+          <span className="form-label">Слоган</span>
+          <input className="input" value={brand.slogan} onChange={(e) => handleChange('slogan', e.target.value)} placeholder="Ваш надёжный VPN" />
         </label>
 
         <button className="btn btn-primary btn-full" onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -83,20 +75,24 @@ export default function AdminBrand() {
           <Eye size={15} /> Предпросмотр
         </div>
         <div style={{ width: '100%', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-          {brand.logo_url ? (
-            <img src={brand.logo_url} alt="logo" style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)', background: brand.accent_color, opacity: 0.3 }} />
-          )}
-          <span style={{ fontWeight: 600, fontSize: '1.05rem', color: brand.accent_color || 'var(--text)' }}>
-            {brand.app_name || 'App Name'}
-          </span>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10,
+            background: 'linear-gradient(135deg, var(--cyan), #1AA3CC)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.3rem', flexShrink: 0,
+          }}>
+            {brand.logo || '🔐'}
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '1rem' }}>{brand.name || 'VPN Shop'}</div>
+            {brand.slogan && <div style={{ color: 'var(--text2)', fontSize: '.75rem' }}>{brand.slogan}</div>}
+          </div>
         </div>
       </div>
 
       {/* Toast */}
       {toast && (
-        <div className="animate-fade" style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: 'var(--green)', color: '#fff', padding: '8px 20px', borderRadius: 'var(--r-pill)', fontSize: '0.88rem', fontWeight: 600, zIndex: 100 }}>
+        <div className="animate-fade" style={{ position: 'fixed', bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 16px)', left: '50%', transform: 'translateX(-50%)', background: 'var(--green)', color: '#fff', padding: '8px 20px', borderRadius: 'var(--r-pill)', fontSize: '0.88rem', fontWeight: 600, zIndex: 100 }}>
           {toast}
         </div>
       )}

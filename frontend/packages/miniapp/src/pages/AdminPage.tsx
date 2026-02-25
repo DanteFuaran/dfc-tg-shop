@@ -21,7 +21,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('stats');
   const { user } = useUserStore();
 
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'OWNER')) {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'DEV')) {
     return (
       <div className="animate-in empty-state">
         <Shield size={48} style={{ color: 'var(--red)', marginBottom: 16 }} />
