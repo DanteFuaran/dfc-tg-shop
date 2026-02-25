@@ -18,8 +18,7 @@ export default function HomePage() {
   const handleInvite = () => {
     if (!refLink) return;
 
-    // Формируем текст приглашения (логика invite_getter из бота):
-    // {url}/{name}/{space} — Python-style, $url/$name — legacy
+    // Формируем текст приглашения (логика invite_getter из бота)
     const rawTemplate = features?.referral_invite_message ?? '';
     let inviteText: string;
 
@@ -36,35 +35,17 @@ export default function HomePage() {
       }
       if (inviteText.startsWith('\n')) inviteText = inviteText.slice(1);
     } else {
-      inviteText = `Join us!\n\n${refLink}`;
+      inviteText = refLink;
     }
 
-    const tg = window.Telegram?.WebApp;
-    const platform = tg?.platform ?? 'unknown';
-    const isDesktop = ['desktop', 'macos', 'webk', 'weba', 'web'].includes(platform);
+    // Оригинальная реализация: openTelegramLink с t.me/share/url
+    // Telegram обрабатывает этот URL нативно — открывает диалог выбора чата
+    // на обеих платформах (мобильные и ПК)
+    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(inviteText)}`;
 
-    if (tg && isDesktop) {
-      // ПК: копируем приглашение в буфер обмена + показываем попап с инструкцией
-      navigator.clipboard.writeText(inviteText).then(() => {
-        tg.showPopup({
-          title: '✅ Сообщение скопировано',
-          message: 'Пригласительное сообщение скопировано в буфер обмена.\n\nОткройте нужный чат в Telegram и вставьте его (Ctrl+V или ⌘+V).',
-          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
-        });
-      }).catch(() => {
-        // Clipboard API недоступен — показываем попап с самой ссылкой
-        tg.showPopup({
-          title: 'Пригласить друга',
-          message: `Скопируйте ссылку и отправьте другу:\n\n${refLink}`,
-          buttons: [{ type: 'ok', text: 'Понятно', id: 'ok' }],
-        });
-      });
-    } else if (tg) {
-      // Мобильные: нативный чат-пикер
-      tg.switchInlineQuery(inviteText, ['users', 'groups', 'channels']);
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(shareUrl);
     } else {
-      // Браузер без Telegram
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
       window.open(shareUrl, '_blank');
     }
   };
