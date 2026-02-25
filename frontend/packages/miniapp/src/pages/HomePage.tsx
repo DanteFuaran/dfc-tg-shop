@@ -182,6 +182,21 @@ export default function HomePage() {
             <Share2 size={16} /> Пригласить друга
           </button>
         )}
+        {/* Тестовая кнопка — switchInlineQuery с захардкоженным текстом */}
+        <button
+          className="pill pill-cyan"
+          onClick={() => {
+            const tg = window.Telegram?.WebApp;
+            console.log('TEST BTN: tg=', tg, 'platform=', tg?.platform);
+            if (tg?.switchInlineQuery) {
+              tg.switchInlineQuery('Привет! Приходи!', ['users', 'groups', 'channels']);
+            } else {
+              alert('switchInlineQuery недоступен, platform: ' + (tg?.platform ?? 'no tg'));
+            }
+          }}
+        >
+          <Share2 size={16} /> Пригласить [тест]
+        </button>
       </div>
 
       {/* ── Buy / Renew ── */}
