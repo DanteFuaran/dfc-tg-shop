@@ -33,11 +33,18 @@ def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
     app.mount("/web/static", StaticFiles(directory=str(WEB_DIR / "static")), name="web-static")
 
     # React miniapp assets (JS/CSS bundles)
+    # Mounted at both paths: Vite may output /assets/ or /web/miniapp/assets/
     if _MINIAPP_DIST.exists():
         app.mount(
             "/web/miniapp/assets",
             StaticFiles(directory=str(_MINIAPP_DIST / "assets")),
             name="miniapp-assets",
+        )
+        # Also serve at /assets/ — Vite default base '/' produces these paths
+        app.mount(
+            "/assets",
+            StaticFiles(directory=str(_MINIAPP_DIST / "assets")),
+            name="miniapp-assets-root",
         )
 
     app.include_router(web_router, prefix="/web")
