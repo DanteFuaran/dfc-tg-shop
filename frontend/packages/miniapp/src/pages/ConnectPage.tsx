@@ -1,102 +1,157 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Copy, Check, ExternalLink, Smartphone, Monitor, ChevronDown, ChevronUp, Download, Link2 } from 'lucide-react';
 import { useUserStore, copyToClipboard } from '@dfc/shared';
-import {
-  Link2,
-  Eye,
-  EyeOff,
-  Copy,
-  Download,
-  QrCode,
-  CheckCircle,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import './ConnectPage.css';
+
+interface SpoilerProps {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}
+
+function Spoiler({ title, icon, children }: SpoilerProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`spoiler${open ? ' open' : ''}`}>
+      <div className="spoiler-header" onClick={() => setOpen(!open)}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {icon}
+          <span className="fw-600" style={{ fontSize: '0.9rem' }}>{title}</span>
+        </div>
+        {open ? <ChevronUp size={16} color="var(--text2)" /> : <ChevronDown size={16} color="var(--text2)" />}
+      </div>
+      <div className="spoiler-body">
+        <div style={{ padding: '12px 14px', fontSize: '0.85rem', color: 'var(--text2)', lineHeight: 1.7 }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ConnectPage() {
-  const { subscription, botUsername } = useUserStore();
-  const [showUrl, setShowUrl] = useState(false);
-  const [showQR, setShowQR] = useState(false);
+  const navigate = useNavigate();
+  const { subscription } = useUserStore();
+  const [copied, setCopied] = useState(false);
 
+  const handleCopy = async () => {
+    if (!subscription?.url) return;
+    const ok = await copyToClipboard(subscription.url);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  /* No subscription — empty state */
   if (!subscription || subscription.status !== 'ACTIVE') {
     return (
-      <div className="connect-page animate-in">
-        <div className="empty-state">
-          <Link2 size={40} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h1 className="page-title animate-in">Подключение</h1>
+        <div className="empty-state animate-in">
+          <Link2 size={36} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
           <p>У вас нет активной подписки</p>
+          <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navigate('/plans')}>
+            Выбрать тариф
+          </button>
         </div>
       </div>
     );
   }
 
-  const url = subscription.url;
-
-  const handleCopy = async () => {
-    const ok = await copyToClipboard(url);
-    toast(ok ? 'Ссылка скопирована' : 'Ошибка копирования');
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([url], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'subscription.txt';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&bgcolor=111111&color=00BCD4`;
+  const subUrl = subscription.url;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&bgcolor=080C14&color=24C4F1&data=${encodeURIComponent(subUrl)}`;
 
   return (
-    <div className="connect-page animate-in">
-      <h2 className="page-title"><Link2 size={20} /> Подключение</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <h1 className="page-title animate-in">Подключение</h1>
 
-      <div className="card">
-        <div className="card-title">
-          <CheckCircle size={16} color="var(--cyan)" /> Ваша ссылка подключения
+      {/* Subscription URL */}
+      <div className="card animate-in">
+        <div className="card-title">Ссылка подписки</div>
+        <div
+          className="mono"
+          style={{
+            background: 'var(--bg-input)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--r-sm)',
+            padding: '10px 12px',
+            fontSize: '0.78rem',
+            wordBreak: 'break-all',
+            color: 'var(--cyan)',
+            marginBottom: 12,
+          }}
+        >
+          {subUrl}
         </div>
-
-        <div className="url-box">
-          {showUrl ? (
-            <code className="url-text">{url}</code>
-          ) : (
-            <code className="url-text url-hidden">••••••••••••••••••••••••••••••</code>
-          )}
-          <button
-            className="url-toggle"
-            onClick={() => setShowUrl((p) => !p)}
-            title={showUrl ? 'Скрыть' : 'Показать'}
-          >
-            {showUrl ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
-
-        <div className="connect-actions">
-          <button className="pill pill-outline" onClick={handleCopy}>
-            <Copy size={14} /> Копировать
-          </button>
-          <button className="pill pill-outline" onClick={handleDownload}>
-            <Download size={14} /> Скачать
-          </button>
-          <button className="pill pill-outline" onClick={() => setShowQR((p) => !p)}>
-            <QrCode size={14} /> QR
-          </button>
-        </div>
-
-        {showQR && (
-          <div className="qr-box animate-in">
-            <img src={qrUrl} alt="QR Code" className="qr-img" />
-          </div>
-        )}
+        <button className="btn btn-primary btn-full" onClick={handleCopy}>
+          {copied ? <><Check size={16} /> Скопировано</> : <><Copy size={16} /> Копировать ссылку</>}
+        </button>
       </div>
 
-      <div className="card">
-        <div className="card-title">Инструкция</div>
-        <ol className="instruction-list">
-          <li>Скопируйте ссылку подключения</li>
-          <li>Откройте приложение VPN (v2rayNG, Hiddify, Streisand и др.)</li>
-          <li>Импортируйте ссылку из буфера обмена</li>
-          <li>Подключитесь к серверу</li>
-        </ol>
+      {/* QR */}
+      <div className="card animate-in" style={{ textAlign: 'center' }}>
+        <div className="card-title">QR-код</div>
+        <img
+          src={qrUrl}
+          alt="QR"
+          width={180}
+          height={180}
+          style={{ margin: '0 auto', borderRadius: 8 }}
+        />
+        <p style={{ color: 'var(--text2)', fontSize: '0.8rem', marginTop: 10 }}>
+          Отсканируйте в приложении для подключения
+        </p>
+      </div>
+
+      {/* Instructions */}
+      <h2 className="page-title animate-in" style={{ fontSize: '0.95rem', marginTop: 8 }}>
+        Инструкции по подключению
+      </h2>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <Spoiler title="V2RayNG — Android" icon={<Smartphone size={16} color="var(--green)" />}>
+          <ol style={{ paddingLeft: 18 }}>
+            <li>
+              Скачайте{' '}
+              <a href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank" rel="noreferrer">
+                V2RayNG <ExternalLink size={12} style={{ verticalAlign: -1 }} />
+              </a>
+            </li>
+            <li>Скопируйте ссылку подписки выше</li>
+            <li>Откройте приложение → <b>+</b> → <b>Импорт из буфера</b></li>
+            <li>Нажмите кнопку подключения ▶</li>
+          </ol>
+        </Spoiler>
+
+        <Spoiler title="Streisand — iOS" icon={<Smartphone size={16} color="var(--cyan)" />}>
+          <ol style={{ paddingLeft: 18 }}>
+            <li>
+              Установите{' '}
+              <a href="https://apps.apple.com/app/streisand/id6450534064" target="_blank" rel="noreferrer">
+                Streisand <ExternalLink size={12} style={{ verticalAlign: -1 }} />
+              </a>
+            </li>
+            <li>Скопируйте ссылку подписки</li>
+            <li>Откройте приложение → перейдите на вкладку подписок</li>
+            <li>Нажмите <b>+</b>, вставьте ссылку и сохраните</li>
+            <li>Включите VPN на главном экране</li>
+          </ol>
+        </Spoiler>
+
+        <Spoiler title="Hiddify — Windows / macOS" icon={<Monitor size={16} color="var(--gold)" />}>
+          <ol style={{ paddingLeft: 18 }}>
+            <li>
+              Скачайте{' '}
+              <a href="https://github.com/hiddify/hiddify-app/releases" target="_blank" rel="noreferrer">
+                Hiddify <ExternalLink size={12} style={{ verticalAlign: -1 }} />
+              </a>
+            </li>
+            <li>Скопируйте ссылку подписки</li>
+            <li>Откройте Hiddify → <b>New Profile</b> → вставьте ссылку</li>
+            <li>Нажмите <b>Connect</b></li>
+          </ol>
+        </Spoiler>
       </div>
     </div>
   );

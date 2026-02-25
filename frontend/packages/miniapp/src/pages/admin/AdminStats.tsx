@@ -1,44 +1,44 @@
 import { useEffect } from 'react';
-import { useAdminStore, CURRENCY_SYMBOLS } from '@dfc/shared';
-import { TrendingUp, Users, DollarSign } from 'lucide-react';
+import { useAdminStore, useUserStore, formatPrice, CURRENCY_SYMBOLS } from '@dfc/shared';
+import { Loader } from 'lucide-react';
 
 export default function AdminStats() {
-  const { stats, fetchStats } = useAdminStore();
+  const { stats, isLoading, fetchStats } = useAdminStore();
+  const { defaultCurrency } = useUserStore();
+  const currency = defaultCurrency ?? 'RUB';
+  const sym = CURRENCY_SYMBOLS[currency] ?? '₽';
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
-  if (!stats) return <div className="empty-state">Загрузка...</div>;
+  if (isLoading || !stats) {
+    return (
+      <div className="empty-state">
+        <Loader size={32} className="spinner" />
+      </div>
+    );
+  }
+
+  const items = [
+    { label: 'Пользователей', value: stats.total_users, color: 'var(--cyan)' },
+    { label: 'Активные', value: stats.active_subscriptions, color: 'var(--green)' },
+    { label: 'Истёкшие', value: stats.expired_subscriptions, color: 'var(--red)' },
+    { label: 'Доход (сегодня)', value: formatPrice(stats.revenue_today) + ' ' + sym, color: 'var(--gold)' },
+    { label: 'Доход (месяц)', value: formatPrice(stats.revenue_month) + ' ' + sym, color: 'var(--gold)' },
+    { label: 'Общий доход', value: formatPrice(stats.total_revenue) + ' ' + sym, color: 'var(--cyan)' },
+  ];
 
   return (
-    <>
-      <div className="stat-grid">
-        <div className="stat-card">
-          <span className="stat-value">{stats.total_users}</span>
-          <span className="stat-label"><Users size={12} /> Пользователей</span>
+    <div className="stat-grid">
+      {items.map((item) => (
+        <div className="stat-card" key={item.label}>
+          <div className="stat-value" style={{ color: item.color }}>
+            {item.value}
+          </div>
+          <div className="stat-label">{item.label}</div>
         </div>
-        <div className="stat-card">
-          <span className="stat-value">{stats.active_subscriptions}</span>
-          <span className="stat-label"><TrendingUp size={12} /> Активных</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{stats.revenue_today} ₽</span>
-          <span className="stat-label"><DollarSign size={12} /> Сегодня</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{stats.revenue_month} ₽</span>
-          <span className="stat-label"><DollarSign size={12} /> За месяц</span>
-        </div>
-      </div>
-      <div className="stat-grid">
-        <div className="stat-card">
-          <span className="stat-value">{stats.expired_subscriptions}</span>
-          <span className="stat-label">Истёкших</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{stats.total_revenue} ₽</span>
-          <span className="stat-label">Всего дохода</span>
-        </div>
-      </div>
-    </>
+      ))}
+    </div>
   );
 }

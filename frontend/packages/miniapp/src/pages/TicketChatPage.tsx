@@ -1,280 +1,157 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTicketStore, formatDate, escapeHtml } from '@dfc/shared';
-import type { TicketMessage } from '@dfc/shared';
-import {
-  ArrowLeft,
-  Send,
-  Image,
-  X,
-  Edit3,
-  Trash2,
-  MoreVertical,
-  XCircle,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import './TicketChatPage.css';
+import { ArrowLeft, Send } from 'lucide-react';
+import { useTicketStore, formatDate, TICKET_STATUS_LABELS } from '@dfc/shared';
+
+const statusBadge: Record<string, string> = {
+  OPEN: 'badge badge-cyan',
+  ANSWERED: 'badge badge-green',
+  WAITING: 'badge badge-gold',
+  CLOSED: 'badge',
+};
+
+const bubbleUser: React.CSSProperties = {
+  alignSelf: 'flex-end',
+  background: 'var(--bg-raised)',
+  border: '1px solid var(--border-accent)',
+  borderRadius: '12px 12px 4px 12px',
+  padding: '10px 14px',
+  maxWidth: '80%',
+};
+
+const bubbleAdmin: React.CSSProperties = {
+  alignSelf: 'flex-start',
+  background: 'var(--bg-card)',
+  border: '1px solid var(--border)',
+  borderRadius: '12px 12px 12px 4px',
+  padding: '10px 14px',
+  maxWidth: '80%',
+};
 
 export default function TicketChatPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const ticketId = Number(id);
-  const { currentTicket, fetchTicket, reply, editMessage, deleteMessage, closeTicket } =
-    useTicketStore();
-
+  const { currentTicket, isLoading, fetchTicket, reply } = useTicketStore();
+  const bottomRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState('');
-  const [imageData, setImageData] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [editingMsg, setEditingMsg] = useState<TicketMessage | null>(null);
-  const [contextMsg, setContextMsg] = useState<TicketMessage | null>(null);
-  const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-  const [showClose, setShowClose] = useState(false);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (ticketId) fetchTicket(ticketId);
-  }, [ticketId, fetchTicket]);
+    if (id) fetchTicket(Number(id));
+  }, [id, fetchTicket]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentTicket?.messages]);
 
-  /* ─── Paste image ─── */
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const blob = item.getAsFile();
-        if (!blob) return;
-        const reader = new FileReader();
-        reader.onload = () => setImageData(reader.result as string);
-        reader.readAsDataURL(blob);
-        return;
-      }
-    }
-  }, []);
+  const isClosed = currentTicket?.status === 'CLOSED';
 
-  /* ─── File picker ─── */
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = () => setImageData(reader.result as string);
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-
-  /* ─── Send / Edit ─── */
   const handleSend = async () => {
-    const trimmed = text.trim();
-    if (!trimmed && !imageData) return;
+    if (!text.trim() || !id || sending) return;
     setSending(true);
     try {
-      if (editingMsg) {
-        await editMessage(ticketId, editingMsg.id, trimmed);
-        setEditingMsg(null);
-        toast.success('Сообщение изменено');
-      } else {
-        await reply(ticketId, trimmed, imageData ?? undefined);
-        setImageData(null);
-      }
+      await reply(Number(id), text.trim());
       setText('');
-    } catch (e: any) {
-      toast.error(e?.response?.data?.detail ?? 'Ошибка');
     } finally {
       setSending(false);
     }
   };
 
-  /* ─── Context menu ─── */
-  const handleContextMenu = (e: React.MouseEvent | React.TouchEvent, msg: TicketMessage) => {
-    if (msg.sender !== 'user') return;
-    e.preventDefault();
-    let clientX: number, clientY: number;
-    if ('touches' in e && e.touches.length > 0) {
-      clientX = e.touches[0]!.clientX;
-      clientY = e.touches[0]!.clientY;
-    } else if ('clientX' in e) {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    } else {
-      return;
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
-    setContextPos({ x: clientX, y: clientY });
-    setContextMsg(msg);
   };
 
-  const handleEdit = () => {
-    if (!contextMsg) return;
-    setEditingMsg(contextMsg);
-    setText(contextMsg.text);
-    setContextMsg(null);
-    inputRef.current?.focus();
-  };
-
-  const handleDelete = async () => {
-    if (!contextMsg) return;
-    try {
-      await deleteMessage(ticketId, contextMsg.id);
-      toast.success('Сообщение удалено');
-    } catch {
-      toast.error('Ошибка удаления');
-    }
-    setContextMsg(null);
-  };
-
-  const handleClose = async () => {
-    try {
-      await closeTicket(ticketId, 'Закрыто пользователем');
-      toast.success('Тикет закрыт');
-      navigate('/tickets');
-    } catch {
-      toast.error('Ошибка');
-    }
-    setShowClose(false);
-  };
-
-  if (!currentTicket) {
-    return <div className="ticket-chat-page animate-in"><div className="empty-state">Загрузка...</div></div>;
+  if (isLoading || !currentTicket) {
+    return (
+      <div style={{ padding: 16, maxWidth: 'var(--max-w)', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <button className="back-btn" onClick={() => navigate('/tickets')}>
+            <ArrowLeft size={18} />
+          </button>
+          <span className="page-title" style={{ margin: 0 }}>Загрузка…</span>
+        </div>
+        <div className="loading">
+          <div className="spinner" />
+        </div>
+      </div>
+    );
   }
 
-  const isClosed = currentTicket.status === 'CLOSED';
-
   return (
-    <div className="ticket-chat-page">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: 'var(--max-w)', margin: '0 auto' }}>
       {/* Header */}
-      <div className="chat-header">
-        <button className="chat-back" onClick={() => navigate('/tickets')}>
-          <ArrowLeft size={20} />
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button className="back-btn" onClick={() => navigate('/tickets')}>
+          <ArrowLeft size={18} />
         </button>
-        <div className="chat-header-info">
-          <span className="chat-subject">{currentTicket.subject}</span>
-          <span className="chat-status">#{currentTicket.id}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="truncate" style={{ fontWeight: 600, fontSize: '0.95rem' }}>
+            {currentTicket.subject}
+          </div>
         </div>
-        {!isClosed && (
-          <button className="chat-close-btn" onClick={() => setShowClose(true)}>
-            <XCircle size={20} />
-          </button>
-        )}
+        <span className={statusBadge[currentTicket.status] ?? 'badge'}>
+          {TICKET_STATUS_LABELS[currentTicket.status] ?? currentTicket.status}
+        </span>
       </div>
 
       {/* Messages */}
-      <div className="chat-messages">
-        {currentTicket.messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`chat-bubble ${msg.sender === 'user' ? 'bubble-user' : 'bubble-admin'}`}
-            onContextMenu={(e) => handleContextMenu(e, msg)}
-          >
-            {msg.image_url && (
-              <img src={msg.image_url} alt="" className="bubble-image" />
-            )}
-            {msg.text && (
-              <div
-                className="bubble-text"
-                dangerouslySetInnerHTML={{ __html: escapeHtml(msg.text).replace(/\n/g, '<br/>') }}
-              />
-            )}
-            <div className="bubble-time">{formatDate(msg.created_at)}</div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+      <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {currentTicket.messages.map((msg) => {
+          const isUser = msg.sender === 'user';
+          return (
+            <div key={msg.id} className="animate-fade" style={isUser ? bubbleUser : bubbleAdmin}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text3)', marginBottom: 4 }}>
+                {isUser ? 'Вы' : 'Поддержка'}
+              </div>
+              {msg.image_url && (
+                <img
+                  src={msg.image_url}
+                  alt=""
+                  style={{ borderRadius: 8, marginBottom: 6, maxWidth: '100%' }}
+                />
+              )}
+              <div style={{ fontSize: '0.9rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                {msg.text}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text3)', marginTop: 4, textAlign: isUser ? 'right' : 'left' }}>
+                {formatDate(msg.created_at)}
+              </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
       </div>
 
-      {/* Context menu */}
-      {contextMsg && (
-        <>
-          <div className="ctx-overlay" onClick={() => setContextMsg(null)} />
-          <div
-            className="ctx-menu"
-            style={{ top: contextPos.y, left: Math.min(contextPos.x, window.innerWidth - 160) }}
-          >
-            <button className="ctx-item" onClick={handleEdit}>
-              <Edit3 size={14} /> Изменить
-            </button>
-            <button className="ctx-item ctx-danger" onClick={handleDelete}>
-              <Trash2 size={14} /> Удалить
+      {/* Input / Closed */}
+      <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border)', flexShrink: 0, paddingBottom: 'calc(10px + var(--safe-bottom))' }}>
+        {isClosed ? (
+          <div style={{ textAlign: 'center', color: 'var(--text3)', fontSize: '0.88rem', padding: '6px 0' }}>
+            Тикет закрыт
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              className="input"
+              placeholder="Написать сообщение…"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKey}
+              style={{ flex: 1 }}
+            />
+            <button
+              className="btn btn-primary btn-sm"
+              disabled={!text.trim() || sending}
+              onClick={handleSend}
+              style={{ padding: '10px 14px' }}
+            >
+              <Send size={18} />
             </button>
           </div>
-        </>
-      )}
-
-      {/* Close confirm */}
-      {showClose && (
-        <div className="modal-overlay" onClick={() => setShowClose(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <p>Закрыть обращение?</p>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn btn-full" onClick={() => setShowClose(false)}>Отмена</button>
-              <button className="btn btn-primary btn-full" onClick={handleClose}>Закрыть</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Image preview */}
-      {imageData && (
-        <div className="image-preview">
-          <img src={imageData} alt="preview" />
-          <button className="image-preview-close" onClick={() => setImageData(null)}>
-            <X size={16} />
-          </button>
-        </div>
-      )}
-
-      {/* Edit indicator */}
-      {editingMsg && (
-        <div className="edit-indicator">
-          <Edit3 size={14} />
-          <span>Редактирование</span>
-          <button onClick={() => { setEditingMsg(null); setText(''); }}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Input */}
-      {!isClosed && (
-        <div className="chat-input-bar">
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={handleFileSelect}
-          />
-          <button className="chat-attach" onClick={() => fileInputRef.current?.click()}>
-            <Image size={20} />
-          </button>
-          <textarea
-            ref={inputRef}
-            className="chat-input"
-            placeholder="Сообщение..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onPaste={handlePaste}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            rows={1}
-          />
-          <button
-            className="chat-send"
-            disabled={sending || (!text.trim() && !imageData)}
-            onClick={handleSend}
-          >
-            <Send size={20} />
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -1,95 +1,141 @@
-import { useUserStore, CURRENCY_SYMBOLS, copyToClipboard } from '@dfc/shared';
-import { User as UserIcon, Wallet, Share2, Link, Key, Globe } from 'lucide-react';
-import toast from 'react-hot-toast';
-import './ProfilePage.css';
+import { useState } from 'react';
+import { useUserStore, formatPrice, copyToClipboard, CURRENCY_SYMBOLS } from '@dfc/shared';
+import { Copy, Check, Users, Wallet, Globe } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, subscription, features, refLink, defaultCurrency } = useUserStore();
-  const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
+  const { user, features, refLink, defaultCurrency, botLocale, subscription } = useUserStore();
+  const [copied, setCopied] = useState(false);
 
   if (!user) return null;
 
-  const handleCopyRef = async () => {
-    if (!refLink) return;
-    const ok = await copyToClipboard(refLink);
-    toast(ok ? 'Ссылка скопирована' : 'Ошибка');
-  };
+  const currSymbol = CURRENCY_SYMBOLS[defaultCurrency] || defaultCurrency;
 
-  const handleInvite = () => {
-    if (!refLink) return;
-    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(refLink)}`;
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(shareUrl);
-    } else {
-      window.open(shareUrl, '_blank');
+  const handleCopyRef = async () => {
+    if (refLink) {
+      const ok = await copyToClipboard(refLink);
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     }
   };
 
   return (
-    <div className="profile-page animate-in">
+    <div className="animate-in">
       <h2 className="page-title">Профиль</h2>
 
-      {/* Profile card */}
-      <div className="card">
-        <div className="card-title"><UserIcon size={18} /> Профиль</div>
-        <div className="card-row">
-          <span className="card-label">ID</span>
-          <span className="card-value">{user.telegram_id}</span>
+      {/* User Info Card */}
+      <div className="card" style={{ marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--cyan), #1AA3CC)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.3rem', fontWeight: 700, color: '#fff'
+          }}>
+            {user.name?.charAt(0)?.toUpperCase() || '?'}
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '1rem' }}>{user.name}</div>
+            {user.username && (
+              <div style={{ color: 'var(--text2)', fontSize: '.85rem' }}>@{user.username}</div>
+            )}
+          </div>
         </div>
+
         <div className="card-row">
-          <span className="card-label">Имя</span>
-          <span className="card-value">{user.name}</span>
+          <span className="card-label">Telegram ID</span>
+          <span className="card-value" style={{ fontFamily: 'var(--font-mono)', fontSize: '.85rem' }}>
+            {user.telegram_id}
+          </span>
+        </div>
+        <div className="card-row" style={{ marginTop: 8 }}>
+          <span className="card-label">Роль</span>
+          <span className={`badge ${user.role === 'OWNER' ? 'role-dev' : user.role === 'ADMIN' ? 'role-admin' : 'role-user'}`}>
+            {user.role}
+          </span>
+        </div>
+        <div className="card-row" style={{ marginTop: 8 }}>
+          <span className="card-label">Язык</span>
+          <span className="card-value">{botLocale}</span>
         </div>
       </div>
 
-      {/* Balance */}
+      {/* Balance Card */}
       {features?.balance_enabled && (
-        <div className="card">
-          <div className="card-title"><Wallet size={18} /> Баланс</div>
+        <div className="card" style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Wallet size={18} style={{ color: 'var(--gold)' }} />
+            <span style={{ fontWeight: 600 }}>Баланс</span>
+          </div>
           <div className="card-row">
             <span className="card-label">Основной</span>
-            <span className="card-value">{user.balance} {sym}</span>
+            <span className="card-value" style={{ color: 'var(--cyan)', fontWeight: 600 }}>
+              {formatPrice(user.balance)} {currSymbol}
+            </span>
           </div>
-          {features.referral_enabled && (
-            <div className="card-row">
-              <span className="card-label">Реферальный</span>
-              <span className="card-value">{user.referral_balance} {sym}</span>
-            </div>
+          <div className="card-row" style={{ marginTop: 8 }}>
+            <span className="card-label">Реферальный</span>
+            <span className="card-value" style={{ color: 'var(--gold)' }}>
+              {formatPrice(user.referral_balance)} {currSymbol}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Referral Card */}
+      {features?.referral_enabled && refLink && (
+        <div className="card" style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Users size={18} style={{ color: 'var(--green)' }} />
+            <span style={{ fontWeight: 600 }}>Реферальная программа</span>
+          </div>
+          
+          {features.referral_invite_message && (
+            <p style={{ color: 'var(--text2)', fontSize: '.85rem', marginBottom: 12 }}>
+              {features.referral_invite_message}
+            </p>
           )}
-          <button className="btn btn-primary btn-full" style={{ marginTop: 8 }}>
-            Пополнить
+          
+          <div style={{
+            background: 'var(--bg-input)', border: '1px solid var(--border)',
+            borderRadius: 'var(--r-sm)', padding: '10px 12px',
+            fontFamily: 'var(--font-mono)', fontSize: '.8rem', color: 'var(--text2)',
+            wordBreak: 'break-all', marginBottom: 10
+          }}>
+            {refLink}
+          </div>
+          <button className="btn btn-primary btn-full" onClick={handleCopyRef}>
+            {copied ? <><Check size={15} /> Скопировано!</> : <><Copy size={15} /> Копировать ссылку</>}
           </button>
         </div>
       )}
 
-      {/* Referral */}
-      {features?.referral_enabled && refLink && (
+      {/* Subscription Info */}
+      {subscription && subscription.status && (
         <div className="card">
-          <div className="card-title"><Share2 size={18} /> Реферальная программа</div>
-          <div className="ref-link-box">
-            <code className="ref-link-text">{refLink}</code>
+          <div style={{ fontWeight: 600, marginBottom: 12 }}>Подписка</div>
+          <div className="card-row">
+            <span className="card-label">Тариф</span>
+            <span className="card-value">{subscription.plan_name}</span>
           </div>
-          <div className="ref-actions">
-            <button className="pill pill-outline" onClick={handleCopyRef}>
-              <Link size={14} /> Копировать
-            </button>
-            <button className="pill pill-cyan" onClick={handleInvite}>
-              <Share2 size={14} /> Пригласить
-            </button>
+          <div className="card-row" style={{ marginTop: 8 }}>
+            <span className="card-label">Статус</span>
+            <span className={`badge ${subscription.status === 'ACTIVE' ? 'badge-green' : 'badge-red'}`}>
+              {subscription.status === 'ACTIVE' ? 'Активна' : subscription.status === 'EXPIRED' ? 'Истекла' : 'Отключена'}
+            </span>
           </div>
+          {subscription.url && (
+            <div className="card-row" style={{ marginTop: 8 }}>
+              <span className="card-label">Ссылка подписки</span>
+              <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '.8rem' }}
+                onClick={() => copyToClipboard(subscription.url)}>
+                <Copy size={13} /> Скопировать
+              </button>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Language */}
-      <div className="card">
-        <div className="card-row">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Globe size={16} color="var(--text2)" />
-            <span className="card-label">Язык</span>
-          </div>
-          <span className="card-value">{user.language}</span>
-        </div>
-      </div>
     </div>
   );
 }

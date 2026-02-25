@@ -1,186 +1,138 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore, CURRENCY_SYMBOLS } from '@dfc/shared';
-import {
-  Zap, Gift, Smartphone, Share2,
-  Download, Clock, Wifi, Copy, Check, X,
-} from 'lucide-react';
-import './HomePage.css';
+import { useUserStore } from '@dfc/shared';
+import { Zap, ShoppingCart, Wifi, Monitor, Gift, Wallet, MessageCircle, ExternalLink } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const {
-    user, subscription, trialAvailable, defaultCurrency,
-    features, botUsername, refLink,
-  } = useUserStore();
+  const { user, subscription, features, trialAvailable, isLoading } = useUserStore();
 
-  const [inviteModal, setInviteModal] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [inviteText, setInviteText] = useState('');
+  if (isLoading) {
+    return (
+      <div className="animate-in" style={{ display: 'flex', justifyContent: 'center', paddingTop: 60 }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
 
-  const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
+  const hasSub = subscription && subscription.status;
+  const isActive = hasSub && subscription.status === 'ACTIVE';
+  const isTrial = hasSub && subscription.is_trial;
 
-  const handleInvite = () => {
-    if (!refLink) return;
-
-    // Формируем текст приглашения
-    const rawTemplate = features?.referral_invite_message ?? '';
-    let msgText: string;
-
-    if (rawTemplate) {
-      msgText = rawTemplate
-        .replace(/\{url\}/g, refLink)
-        .replace(/\{name\}/g, 'VPN')
-        .replace(/\{space\}/g, '\n')
-        .replace(/\$url/g, refLink)
-        .replace(/\$name/g, 'VPN');
-      if (msgText.startsWith('\n')) msgText = msgText.slice(1);
-    } else {
-      msgText = refLink;
-    }
-
-    const tg = window.Telegram?.WebApp;
-    const platform = tg?.platform ?? '';
-    const isMobile = ['android', 'ios', 'android_x'].includes(platform);
-
-    if (tg && isMobile) {
-      // Мобильные: нативный диалог выбора чата
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(msgText)}`;
-      tg.openTelegramLink(shareUrl);
-    } else {
-      // ПК / браузер: кастомный модал с копированием
-      setInviteText(msgText);
-      setInviteModal(true);
-      setCopied(false);
-    }
-  };
-
-  const handleCopy = () => {
-    if (!inviteText) return;
-    navigator.clipboard.writeText(inviteText).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    }).catch(() => {
-      // fallback: select text
-    });
-  };
+  const daysLeft = hasSub && subscription.expire_at
+    ? Math.max(0, Math.ceil((new Date(subscription.expire_at).getTime() - Date.now()) / 86400000))
+    : 0;
 
   return (
-    <div className="home-page animate-in">
+    <div className="animate-in">
+      {/* Greeting */}
+      <div style={{ marginBottom: 20 }}>
+        <h1 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+          Привет, {user?.name || 'друг'} 👋
+        </h1>
+        <p style={{ color: 'var(--text2)', fontSize: '.9rem', marginTop: 4 }}>
+          Ваш личный кабинет
+        </p>
+      </div>
 
-      {/* ── Invite modal (desktop) ── */}
-      {inviteModal && (
-        <div className="invite-modal-overlay" onClick={() => setInviteModal(false)}>
-          <div className="invite-modal" onClick={e => e.stopPropagation()}>
-            <div className="invite-modal-header">
-              <div className="invite-modal-title">
-                <Share2 size={18} className="invite-modal-icon" />
-                Пригласить друга
-              </div>
-              <button className="invite-modal-close" onClick={() => setInviteModal(false)}>
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="invite-modal-desc">
-              Отправьте это сообщение другу — он присоединится как ваш реферал и вы получите бонус.
-            </p>
-
-            <div className="invite-modal-text-box">
-              <pre className="invite-modal-text">{inviteText}</pre>
-            </div>
-
-            <button
-              className={`btn btn-primary btn-full invite-modal-copy-btn${copied ? ' copied' : ''}`}
-              onClick={handleCopy}
-            >
-              {copied
-                ? <><Check size={16} /> Скопировано!</>
-                : <><Copy size={16} /> Скопировать сообщение</>
-              }
-            </button>
-
-            {copied && (
-              <p className="invite-modal-hint">
-                Вставьте сообщение в нужный чат (Ctrl+V или ⌘+V)
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-      {/* ── Subscription status ── */}
-      {subscription ? (
-        <div className="card sub-card">
-          <div className="sub-status-row">
-            <div className="sub-status-dot active" />
-            <span className="sub-plan-name">{subscription.plan_name}</span>
-            <span className={`sub-status-badge ${subscription.status.toLowerCase()}`}>
-              {subscription.status === 'ACTIVE' ? 'Активна' : 'Истекла'}
+      {/* Subscription Card */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ fontSize: '.95rem', fontWeight: 600 }}>Подписка</span>
+          {isActive ? (
+            <span className={`badge ${isTrial ? 'badge-gold' : 'badge-green'}`}>
+              {isTrial ? '🎁 Пробная' : '✓ Активна'}
             </span>
-          </div>
-          <div className="sub-meta">
-            <div className="sub-meta-item">
-              <Clock size={14} />
-              <span>{subscription.expire_at}</span>
-            </div>
-            <div className="sub-meta-item">
-              <Wifi size={14} />
-              <span>{subscription.traffic_limit ?? '∞'} GB</span>
-            </div>
-            <div className="sub-meta-item">
-              <Smartphone size={14} />
-              <span>{subscription.active_devices_count}/{subscription.device_limit ?? '∞'}</span>
-            </div>
-          </div>
+          ) : hasSub ? (
+            <span className="badge badge-red">Истекла</span>
+          ) : (
+            <span className="badge" style={{ background: 'rgba(141,160,174,.12)', color: 'var(--text2)' }}>
+              Нет подписки
+            </span>
+          )}
         </div>
-      ) : (
-        <div className="card sub-card sub-card-empty">
-          <div className="sub-empty-text">Нет подписки</div>
-        </div>
-      )}
 
-      {/* ── Quick actions ── */}
-      <div className="quick-actions">
-        {trialAvailable && (
-          <button className="pill pill-cyan" onClick={() => navigate('/plans?trial=1')}>
-            <Gift size={16} /> Попробовать бесплатно
-          </button>
+        {isActive && (
+          <>
+            <div className="card-row">
+              <span className="card-label">Тариф</span>
+              <span className="card-value">{subscription.plan_name}</span>
+            </div>
+            <div className="card-row" style={{ marginTop: 8 }}>
+              <span className="card-label">Осталось дней</span>
+              <span className="card-value" style={{ color: daysLeft <= 3 ? 'var(--red)' : 'var(--cyan)' }}>
+                {daysLeft}
+              </span>
+            </div>
+            {subscription.device_limit && (
+              <div className="card-row" style={{ marginTop: 8 }}>
+                <span className="card-label">Устройства</span>
+                <span className="card-value">
+                  {subscription.active_devices_count} / {subscription.device_limit}
+                </span>
+              </div>
+            )}
+          </>
         )}
-        {subscription && (
-          <button className="pill pill-cyan" onClick={() => navigate('/connect')}>
-            <Zap size={16} /> Подключиться
-          </button>
+
+        {!hasSub && trialAvailable && (
+          <div style={{ marginTop: 12 }}>
+            <button className="btn btn-full" style={{ background: 'var(--green)', color: '#fff' }}
+              onClick={() => navigate('/plans')}>
+              <Zap size={16} /> Активировать пробный период
+            </button>
+          </div>
         )}
-        {features?.promocodes_enabled && (
-          <button className="pill pill-outline" onClick={() => navigate('/promo')}>
-            <Gift size={16} /> Промокоды
-          </button>
-        )}
-        <button className="pill pill-outline" onClick={() => navigate('/devices')}>
-          <Smartphone size={16} /> Устройства
-        </button>
-        {features?.referral_enabled && (
-          <button className="pill pill-outline" onClick={handleInvite}>
-            <Share2 size={16} /> Пригласить друга
-          </button>
+
+        {isActive && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+            <button className="btn btn-primary btn-full" onClick={() => navigate('/connect')}>
+              <Wifi size={15} /> Подключить
+            </button>
+            <button className="btn btn-secondary btn-full" onClick={() => navigate('/devices')}>
+              <Monitor size={15} /> Устройства
+            </button>
+          </div>
         )}
       </div>
 
-      {/* ── Buy / Renew ── */}
-      <button className="btn btn-primary btn-full" onClick={() => navigate('/plans')}>
-        {subscription ? 'Продлить подписку' : 'Купить подписку'}
-      </button>
-
-      {/* ── App download ── */}
-      {subscription && (
-        <button
-          className="btn btn-secondary btn-full"
-          style={{ marginTop: 8 }}
-          onClick={() => window.open('/api/v1/download', '_blank')}
-        >
-          <Download size={16} /> Скачать приложение
+      {/* Quick Actions */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+          onClick={() => navigate('/plans')}>
+          <ShoppingCart size={24} style={{ color: 'var(--cyan)', marginBottom: 8 }} />
+          <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Тарифы</div>
         </button>
-      )}
+
+        {features?.balance_enabled && (
+          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+            onClick={() => navigate('/topup')}>
+            <Wallet size={24} style={{ color: 'var(--gold)', marginBottom: 8 }} />
+            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Пополнить</div>
+          </button>
+        )}
+
+        {features?.promocodes_enabled && (
+          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+            onClick={() => navigate('/promo')}>
+            <Gift size={24} style={{ color: 'var(--green)', marginBottom: 8 }} />
+            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Промокод</div>
+          </button>
+        )}
+
+        <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+          onClick={() => navigate('/support')}>
+          <MessageCircle size={24} style={{ color: 'var(--orange)', marginBottom: 8 }} />
+          <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Поддержка</div>
+        </button>
+
+        {features?.community_enabled && features.community_url && (
+          <button className="card" style={{ cursor: 'pointer', textAlign: 'center', padding: 16 }}
+            onClick={() => window.open(features.community_url, '_blank')}>
+            <ExternalLink size={24} style={{ color: 'var(--cyan)', marginBottom: 8 }} />
+            <div style={{ fontSize: '.85rem', fontWeight: 500 }}>Сообщество</div>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

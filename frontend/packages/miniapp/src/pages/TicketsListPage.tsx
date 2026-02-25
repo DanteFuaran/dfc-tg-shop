@@ -1,128 +1,72 @@
-import { useEffect, useState } from 'react';
-import { useTicketStore, TICKET_STATUS_LABELS, formatDate } from '@dfc/shared';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  MessageSquare,
-  Plus,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  X,
-} from 'lucide-react';
-import './TicketsListPage.css';
+import { ArrowLeft, Ticket } from 'lucide-react';
+import { useTicketStore, formatDate, TICKET_STATUS_LABELS } from '@dfc/shared';
 
-const STATUS_ICONS: Record<string, React.ReactNode> = {
-  OPEN: <AlertCircle size={14} />,
-  ANSWERED: <CheckCircle2 size={14} />,
-  WAITING: <Clock size={14} />,
-  CLOSED: <X size={14} />,
+const statusBadge: Record<string, string> = {
+  OPEN: 'badge badge-cyan',
+  ANSWERED: 'badge badge-green',
+  WAITING: 'badge badge-gold',
+  CLOSED: 'badge',
 };
 
 export default function TicketsListPage() {
-  const { tickets, fetchTickets } = useTicketStore();
   const navigate = useNavigate();
-  const [showCreate, setShowCreate] = useState(false);
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [creating, setCreating] = useState(false);
-  const { createTicket } = useTicketStore();
+  const { tickets, isLoading, fetchTickets } = useTicketStore();
 
   useEffect(() => {
     fetchTickets();
   }, [fetchTickets]);
 
-  const handleCreate = async () => {
-    if (!subject.trim() || !message.trim()) return;
-    setCreating(true);
-    try {
-      const ticket = await createTicket(subject.trim(), message.trim());
-      if (ticket) {
-        setShowCreate(false);
-        setSubject('');
-        setMessage('');
-        navigate(`/tickets/${ticket.id}`);
-      }
-    } finally {
-      setCreating(false);
-    }
-  };
-
   return (
-    <div className="tickets-list-page animate-in">
-      <div className="tickets-header">
-        <h2 className="page-title"><MessageSquare size={20} /> Обращения</h2>
-        <button
-          className="pill pill-cyan"
-          onClick={() => setShowCreate(true)}
-        >
-          <Plus size={14} /> Новое
+    <div style={{ padding: '16px', maxWidth: 'var(--max-w)', margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <button className="back-btn" onClick={() => navigate('/support')}>
+          <ArrowLeft size={18} />
         </button>
+        <h1 className="page-title" style={{ margin: 0 }}>Мои тикеты</h1>
       </div>
 
-      {/* Create modal */}
-      {showCreate && (
-        <div className="modal-overlay" onClick={() => setShowCreate(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <span>Новое обращение</span>
-              <button className="modal-close" onClick={() => setShowCreate(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <input
-              type="text"
-              className="input"
-              placeholder="Тема"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              autoComplete="off"
-            />
-            <textarea
-              className="input ticket-textarea"
-              placeholder="Опишите проблему..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={4}
-            />
-            <button
-              className="btn btn-primary btn-full btn-glossy"
-              disabled={creating || !subject.trim() || !message.trim()}
-              onClick={handleCreate}
-            >
-              {creating ? 'Создание...' : 'Создать'}
-            </button>
-          </div>
+      {isLoading ? (
+        <div className="loading">
+          <div className="spinner" />
+          <span>Загрузка…</span>
         </div>
-      )}
-
-      {/* Ticket list */}
-      {tickets.length === 0 ? (
+      ) : tickets.length === 0 ? (
         <div className="empty-state">
-          <MessageSquare size={40} />
-          <p>Нет обращений</p>
+          <Ticket size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+          <p>У вас нет тикетов</p>
         </div>
       ) : (
-        <div className="tickets-list">
-          {tickets.map((t) => (
-            <div
-              key={t.id}
-              className="ticket-item card"
-              onClick={() => navigate(`/tickets/${t.id}`)}
-            >
-              <div className="ticket-item-top">
-                <span className="ticket-subject">{t.subject}</span>
-                <span className={`ticket-status status-${t.status.toLowerCase()}`}>
-                  {STATUS_ICONS[t.status]}
-                  {TICKET_STATUS_LABELS[t.status]}
-                </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {tickets.map((ticket, i) => {
+            const lastMsg = ticket.messages?.[ticket.messages.length - 1];
+            return (
+              <div
+                key={ticket.id}
+                className="card animate-in"
+                style={{ cursor: 'pointer', animationDelay: `${i * 0.03}s` }}
+                onClick={() => navigate(`/tickets/${ticket.id}`)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.95rem' }} className="truncate">
+                    {ticket.subject}
+                  </span>
+                  <span className={statusBadge[ticket.status] ?? 'badge'}>
+                    {TICKET_STATUS_LABELS[ticket.status] ?? ticket.status}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text2)', marginBottom: 4 }}>
+                  {formatDate(ticket.created_at)}
+                </div>
+                {lastMsg && (
+                  <p className="truncate" style={{ fontSize: '0.84rem', color: 'var(--text3)', margin: 0 }}>
+                    {lastMsg.text}
+                  </p>
+                )}
               </div>
-              <div className="ticket-item-meta">
-                <span>#{t.id}</span>
-                <span>{formatDate(t.created_at)}</span>
-                <span>{t.messages.length} сообщ.</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

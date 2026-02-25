@@ -1,46 +1,56 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Headphones, User, Shield } from 'lucide-react';
+import { Home, MessageCircle, User, Shield } from 'lucide-react';
 import { useUserStore } from '@dfc/shared';
 import './BottomNav.css';
 
-const ITEMS = [
-  { path: '/', icon: Home, label: 'Главная' },
-  { path: '/support', icon: Headphones, label: 'Поддержка' },
-  { path: '/profile', icon: User, label: 'Профиль' },
-];
+interface NavItem {
+  path: string;
+  label: string;
+  icon: React.ElementType;
+  adminOnly?: boolean;
+}
 
-const ADMIN_ITEM = { path: '/admin', icon: Shield, label: 'Админ' };
+const navItems: NavItem[] = [
+  { path: '/', label: 'Home', icon: Home },
+  { path: '/support', label: 'Support', icon: MessageCircle },
+  { path: '/profile', label: 'Profile', icon: User },
+  { path: '/admin', label: 'Admin', icon: Shield, adminOnly: true },
+];
 
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useUserStore((s) => s.user);
-  const ticketUnread = useUserStore((s) => s.ticketUnread);
+  const { user, ticketUnread } = useUserStore();
 
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'OWNER';
-  const items = isAdmin ? [...ITEMS, ADMIN_ITEM] : ITEMS;
+  const role = user?.role;
+  const isAdmin = role === 'ADMIN' || role === 'OWNER';
 
   return (
     <nav className="bottom-nav">
-      {items.map(({ path, icon: Icon, label }) => {
-        const active = path === '/'
-          ? location.pathname === '/'
-          : location.pathname.startsWith(path);
+      {navItems.map((item) => {
+        if (item.adminOnly && !isAdmin) return null;
+
+        const isActive =
+          item.path === '/'
+            ? location.pathname === '/'
+            : location.pathname.startsWith(item.path);
+
+        const Icon = item.icon;
 
         return (
-          <button
-            key={path}
-            className={`nav-item${active ? ' active' : ''}`}
-            onClick={() => navigate(path)}
+          <div
+            key={item.path}
+            className={`nav-item${isActive ? ' active' : ''}`}
+            onClick={() => navigate(item.path)}
           >
-            <div className="nav-icon-wrap">
-              <Icon size={22} strokeWidth={active ? 2.2 : 1.8} />
-              {path === '/support' && ticketUnread > 0 && (
-                <span className="nav-badge">{ticketUnread}</span>
-              )}
-            </div>
-            <span className="nav-label">{label}</span>
-          </button>
+            <Icon size={22} />
+            {item.path === '/support' && ticketUnread > 0 && (
+              <span className="nav-badge">
+                {ticketUnread > 99 ? '99+' : ticketUnread}
+              </span>
+            )}
+            <span className="nav-label">{item.label}</span>
+          </div>
         );
       })}
     </nav>
