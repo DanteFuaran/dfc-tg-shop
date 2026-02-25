@@ -11,6 +11,10 @@ from src.services.mirror_bot_manager import MirrorBotManager
 from src.web.router import WEB_DIR
 from src.web.router import router as web_router
 
+# React miniapp build directory (copied from frontend-builder in Docker)
+import pathlib as _pl
+_MINIAPP_DIST = _pl.Path("/opt/dfc-tg/miniapp-dist")
+
 
 def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
     app: FastAPI = FastAPI(lifespan=lifespan)
@@ -27,8 +31,18 @@ def create_app(config: AppConfig, dispatcher: Dispatcher) -> FastAPI:
 
     # Web cabinet + Mini App
     app.mount("/web/static", StaticFiles(directory=str(WEB_DIR / "static")), name="web-static")
+
+    # React miniapp assets (JS/CSS bundles)
+    if _MINIAPP_DIST.exists():
+        app.mount(
+            "/web/miniapp/assets",
+            StaticFiles(directory=str(_MINIAPP_DIST / "assets")),
+            name="miniapp-assets",
+        )
+
     app.include_router(web_router, prefix="/web")
     app.state.config = config
+    app.state.miniapp_dist = _MINIAPP_DIST
 
     # Root redirect — so bare domain goes to web cabinet
     @app.get("/", include_in_schema=False)

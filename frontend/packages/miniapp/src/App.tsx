@@ -33,7 +33,7 @@ export default function App() {
           },
         }}
       />
-      <BrowserRouter basename="/miniapp">
+      <BrowserRouter basename="/web/miniapp">
         <Routes>
           <Route element={<MainLayout />}>
             <Route index element={<HomePage />} />

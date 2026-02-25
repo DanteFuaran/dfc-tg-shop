@@ -43,8 +43,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/dfc-tg
 
 COPY ./src ./src
-COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist/assets ./src/web/static/assets
-COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist/index.html ./src/web/templates/miniapp.html
+COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist ./miniapp-dist
 COPY ./version ./version
 COPY ./assets /opt/dfc-tg/assets.default
 COPY ./scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh

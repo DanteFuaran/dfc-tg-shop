@@ -1437,6 +1437,7 @@ manage_change_settings() {
                     {
                         old_domain=$(grep "^APP_DOMAIN=" "$ENV_FILE" | cut -d'=' -f2)
                         update_env_var "$ENV_FILE" "APP_DOMAIN" "$new_domain" >/dev/null 2>&1
+                        update_env_var "$ENV_FILE" "BOT_MINI_APP" "https://${new_domain}/web/miniapp" >/dev/null 2>&1
                         
                         # Обновляем Caddyfile в /opt/remnawave/caddy/
                         if [ -f "/opt/remnawave/caddy/Caddyfile" ]; then
@@ -2404,10 +2405,13 @@ while true; do
 done
 update_env_var "$ENV_FILE" "APP_DOMAIN" "$APP_DOMAIN"
 
+# Автоматически устанавливаем Mini App URL для Telegram WebApp
+update_env_var "$ENV_FILE" "BOT_MINI_APP" "https://${APP_DOMAIN}/web/miniapp"
+
 # APP_WEB_DOMAIN
-reading_inline "Введите домен веб-кабинета (Enter = тот же домен бота):" APP_WEB_DOMAIN
+reading_inline "Введите домен веб-сайта (Enter = пропустить, настроите позже):" APP_WEB_DOMAIN
 if [ -z "$APP_WEB_DOMAIN" ]; then
-    APP_WEB_DOMAIN="$APP_DOMAIN"
+    APP_WEB_DOMAIN=""
 fi
 update_env_var "$ENV_FILE" "APP_WEB_DOMAIN" "$APP_WEB_DOMAIN"
 
