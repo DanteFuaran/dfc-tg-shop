@@ -43,10 +43,8 @@ async def web_login_page(request: Request):
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
-async def web_dashboard_page(request: Request, access_token: Optional[str] = Cookie(default=None)):
-    uid = await get_current_user_id(request, access_token)
-    if not uid:
-        return RedirectResponse(url="/web/login", status_code=302)
+async def web_dashboard_page(request: Request):
+    """Serve React miniapp directly — it handles auth itself via Telegram initData."""
     return _miniapp_index(request)
 
 
