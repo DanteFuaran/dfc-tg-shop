@@ -10,14 +10,7 @@ const api = axios.create({
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
-      // Only redirect to login on the web dashboard (non-miniapp pages)
-      const path = typeof window !== 'undefined' ? window.location.pathname : '';
-      const isMiniapp = path.includes('/miniapp') || path.includes('/dashboard');
-      if (!isMiniapp) {
-        window.location.href = '/web/login';
-      }
-    }
+    // Never redirect to login — miniapp handles auth via Telegram initData automatically
     return Promise.reject(err);
   },
 );
