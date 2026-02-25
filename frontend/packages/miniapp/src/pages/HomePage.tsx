@@ -40,8 +40,8 @@ export default function HomePage() {
 
     // Оригинальная реализация: openTelegramLink с t.me/share/url
     // Telegram обрабатывает этот URL нативно — открывает диалог выбора чата
-    // на обеих платформах (мобильные и ПК)
-    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(inviteText)}`;
+    // Передаем url и text отдельно для правильной обработки
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
 
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.openTelegramLink(shareUrl);
