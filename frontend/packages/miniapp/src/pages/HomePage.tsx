@@ -21,39 +21,53 @@ export default function HomePage() {
   const sym = CURRENCY_SYMBOLS[defaultCurrency] ?? '₽';
 
   const handleInvite = () => {
-    if (!refLink) return;
+    console.log('🔘 Invite button clicked');
+    
+    if (!refLink) {
+      console.warn('❌ refLink is empty');
+      return;
+    }
+
+    console.log('✅ refLink:', refLink);
+    console.log('✅ features:', features);
 
     // Формируем текст приглашения (логика invite_getter из бота)
     const rawTemplate = features?.referral_invite_message ?? '';
-    let inviteText: string;
+    let msgText: string;
 
     if (rawTemplate) {
       if (rawTemplate.includes('{url}')) {
-        inviteText = rawTemplate
+        msgText = rawTemplate
           .replace(/\{url\}/g, refLink)
           .replace(/\{name\}/g, 'VPN')
           .replace(/\{space\}/g, '\n');
       } else {
-        inviteText = rawTemplate
+        msgText = rawTemplate
           .replace(/\$url/g, refLink)
           .replace(/\$name/g, 'VPN');
       }
-      if (inviteText.startsWith('\n')) inviteText = inviteText.slice(1);
+      if (msgText.startsWith('\n')) msgText = msgText.slice(1);
     } else {
-      inviteText = refLink;
+      msgText = refLink;
     }
+
+    console.log('📝 msgText:', msgText);
 
     const tg = window.Telegram?.WebApp;
     const platform = tg?.platform ?? '';
     const isMobile = ['android', 'ios', 'android_x'].includes(platform);
 
+    console.log('📱 platform:', platform, '| isMobile:', isMobile);
+
     if (tg && isMobile) {
       // Мобильные: открывает нативный диалог выбора чата
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(inviteText)}`;
+      console.log('📱 Using native chat picker');
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(msgText)}`;
       tg.openTelegramLink(shareUrl);
     } else {
       // ПК и браузер: показываем кастомный модал с копированием
-      setInviteText(inviteText);
+      console.log('🖥️ Showing custom modal');
+      setInviteText(msgText);
       setInviteModal(true);
       setCopied(false);
     }
