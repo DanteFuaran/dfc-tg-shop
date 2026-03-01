@@ -279,10 +279,17 @@ async def connect_to_happ(
                 window.location.href = happUrl;
             }}, 500);
             
-            // Автоматически закрываем страницу через 3 секунды
+            // Закрываем страницу как только пользователь переключился в приложение
+            document.addEventListener('visibilitychange', () => {{
+                if (document.hidden) {{
+                    setTimeout(() => {{ window.close(); }}, 300);
+                }}
+            }});
+            
+            // Запасной таймер: закрываем через 6 секунд если приложение не открылось
             setTimeout(() => {{
                 window.close();
-            }}, 3000);
+            }}, 6000);
         </script>
     </body>
     </html>
