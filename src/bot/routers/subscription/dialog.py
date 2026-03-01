@@ -239,15 +239,7 @@ confirm = Window(
             when=~F["url"],
         ),
     ),
-    Row(
-        ColoredButton(
-            text=I18nFormat("btn-check-payment"),
-            id=f"{PURCHASE_PREFIX}check_payment",
-            on_click=on_check_payment,
-            when=F["url"],
-            style="success",
-        ),
-    ),
+
     Row(
         SwitchTo(
             text=I18nFormat("btn-subscription-back-payment-method"),

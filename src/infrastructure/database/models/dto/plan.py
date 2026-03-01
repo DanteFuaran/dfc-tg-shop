@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from remnapy.enums.users import TrafficLimitStrategy
 
 from src.core.enums import Currency, PlanAvailability, PlanType
@@ -23,6 +23,13 @@ class PlanSnapshotDto(TrackableDto):
     traffic_limit_strategy: TrafficLimitStrategy = TrafficLimitStrategy.NO_RESET
     internal_squads: list[UUID]
     external_squad: Optional[list[UUID]] = None
+
+    @field_validator("external_squad", mode="before")
+    @classmethod
+    def coerce_external_squad(cls, v):  # noqa: N805
+        if isinstance(v, str):
+            return [UUID(v)]
+        return v
 
     @property
     def is_unlimited_duration(self) -> bool:
