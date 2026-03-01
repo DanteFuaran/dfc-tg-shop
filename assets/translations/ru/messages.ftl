@@ -877,12 +877,8 @@ msg-statistics-transactions =
     }
     </blockquote>
 
-    <b>💰 Реальные деньги:</b>
-    
     { $payment_gateways }
 
-    <b>🎁 Бонусы пользователей:</b>
-    
     { $bonus_gateways }
 
 msg-statistics-subscriptions =
