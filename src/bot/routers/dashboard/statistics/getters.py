@@ -291,7 +291,7 @@ def get_transactions_statistics(
         "popular_gateway": i18n.get("gateway-type", gateway_type=popular_gateway)
         if popular_gateway
         else False,
-        "payment_gateways": "\n".join(payment_gateways_stats),
+        "payment_gateways": "\n\n".join(payment_gateways_stats),
         "bonus_gateways": bonus_gateways_stats,
     }
 
