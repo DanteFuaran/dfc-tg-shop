@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-echo "Installing dependencies..."
-apk add --no-cache postgresql-client docker-cli > /dev/null 2>&1
-echo "Dependencies installed successfully"
-
 ASSETS_CONTAINER_PATH="/opt/dfc-tg/assets"
 ASSETS_DEFAULT_PATH="/opt/dfc-tg/assets.default"
 ASSETS_BACKUP_PATH="${ASSETS_CONTAINER_PATH}/.bak"
