@@ -45,7 +45,7 @@ async def api_admin_bot_info(
             "access_mode": settings.access_mode.value if hasattr(settings.access_mode, "value") else str(settings.access_mode),
             "registration_allowed": settings.registration_allowed,
             "purchases_allowed": settings.purchases_allowed,
-            "notifications_enabled": settings.notifications_enabled,
+            "notifications_enabled": settings.features.notifications_enabled,
             "default_currency": settings.default_currency.value if hasattr(settings.default_currency, "value") else str(settings.default_currency),
             "bot_locale": settings.bot_locale.value if hasattr(settings.bot_locale, "value") else str(settings.bot_locale),
         })
