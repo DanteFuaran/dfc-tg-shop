@@ -82,6 +82,9 @@ input, textarea, select {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+  pointer-events: auto;
+  touch-action: auto;
+  -webkit-touch-callout: default;
 }
 
 button { cursor: pointer; }

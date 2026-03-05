@@ -35,19 +35,16 @@ export default function HomePage() {
       {/* ── Buy / Pay subscription ── */}
       <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
         onClick={() => navigate('/plans')}>
-        <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--cyan)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <BuyIcon size={18} /> {buyLabel}
         </span>
       </div>
 
       {/* ── Trial button ── */}
       {trialAvailable && (
-        <div className="card" style={{
-          textAlign: 'center', padding: '14px 16px', cursor: 'pointer',
-          borderColor: 'rgba(25, 195, 125, 0.3)',
-        }}
+        <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
           onClick={() => navigate('/plans')}>
-          <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--green)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <Gift size={18} /> Попробовать бесплатно
           </span>
         </div>
@@ -57,7 +54,7 @@ export default function HomePage() {
       <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
         onClick={() => navigate('/connect')}>
         <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <Wifi size={18} style={{ color: 'var(--cyan)' }} /> Подключиться
+          <Wifi size={18} /> Подключиться
         </span>
       </div>
 
@@ -67,14 +64,14 @@ export default function HomePage() {
           <div className="card" style={{ textAlign: 'center', padding: '14px 12px', cursor: 'pointer' }}
             onClick={() => navigate('/promo')}>
             <span style={{ fontWeight: 600, fontSize: '.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Gift size={16} style={{ color: 'var(--gold)' }} /> Промокоды
+              <Gift size={16} /> Промокоды
             </span>
           </div>
         )}
         <div className="card" style={{ textAlign: 'center', padding: '14px 12px', cursor: 'pointer' }}
           onClick={() => navigate('/devices')}>
           <span style={{ fontWeight: 600, fontSize: '.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Smartphone size={16} style={{ color: 'var(--gold)' }} /> Устройства
+              <Smartphone size={16} /> Устройства
           </span>
         </div>
       </div>
@@ -84,7 +81,7 @@ export default function HomePage() {
         <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
           onClick={() => navigate('/topup')}>
           <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <CreditCard size={18} style={{ color: 'var(--green)' }} /> Пополнить баланс
+            <CreditCard size={18} /> Пополнить баланс
           </span>
         </div>
       )}
@@ -94,7 +91,7 @@ export default function HomePage() {
         <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
           onClick={() => copyToClipboard(refLink)}>
           <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <Link2 size={18} style={{ color: 'var(--cyan)' }} /> Пригласить друга
+            <Link2 size={18} /> Пригласить друга
           </span>
         </div>
       )}
