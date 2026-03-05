@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useUserStore, copyToClipboard } from '@dfc/shared';
+import { useUserStore } from '@dfc/shared';
 import { Gift, Wifi, Smartphone, Link2, ShoppingCart, CreditCard } from 'lucide-react';
 
 export default function HomePage() {
@@ -89,7 +89,7 @@ export default function HomePage() {
       {/* ── Invite friend ── */}
       {features?.referral_enabled && refLink && (
         <div className="card" style={{ textAlign: 'center', padding: '14px 16px', cursor: 'pointer' }}
-          onClick={() => copyToClipboard(refLink)}>
+          onClick={() => navigate('/referral')}>
           <span style={{ fontWeight: 600, fontSize: '.95rem', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <Link2 size={18} /> Пригласить друга
           </span>

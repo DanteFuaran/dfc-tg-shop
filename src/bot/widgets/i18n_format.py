@@ -10,7 +10,7 @@ from magic_filter import MagicFilter
 
 from src.core.constants import CONTAINER_KEY
 from src.core.i18n.translator import get_translated_kwargs
-from src.core.utils.formatters import i18n_postprocess_text
+from src.core.utils.formatters import i18n_postprocess_text, make_emoji_monochrome
 
 
 def default_format_text(text: str, data: dict[str, Any]) -> str:
@@ -61,4 +61,7 @@ class I18nFormat(Text):
 
         data = get_translated_kwargs(i18n, data)
         translated_text = i18n.get(self.key.format_map(data), **data)
+        # Buttons (keys starting with "btn-") get monochromatic emoji via VS15
+        if self.key.startswith("btn-"):
+            translated_text = make_emoji_monochrome(translated_text)
         return i18n_postprocess_text(text=translated_text)

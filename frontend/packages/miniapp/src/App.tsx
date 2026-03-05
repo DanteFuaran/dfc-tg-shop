@@ -12,6 +12,7 @@ import TicketsListPage from './pages/TicketsListPage';
 import TicketChatPage from './pages/TicketChatPage';
 import MessagesPage from './pages/MessagesPage';
 import AdminPage from './pages/AdminPage';
+import ReferralPage from './pages/ReferralPage';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="tickets" element={<TicketsListPage />} />
           <Route path="tickets/:id" element={<TicketChatPage />} />
           <Route path="messages" element={<MessagesPage />} />
+          <Route path="referral" element={<ReferralPage />} />
           <Route path="admin/*" element={<AdminPage />} />
         </Route>
       </Routes>

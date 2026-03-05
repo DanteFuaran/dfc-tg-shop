@@ -344,6 +344,76 @@ def format_price(price: int | Decimal, currency: Currency) -> str:
             return f"{decimal_price:.2f} {currency.symbol}"
 
 
+_VS15 = '\uFE0E'  # text variation selector — monochromatic emoji
+_VS16 = '\uFE0F'  # emoji variation selector — colored emoji
+_ZWJ  = '\u200D'  # zero width joiner (part of compound emoji sequences)
+
+
+def make_emoji_monochrome(text: str) -> str:
+    """Add VS15 (\uFE0E) after emoji to force monochromatic/text presentation.
+
+    - Emoji followed by VS16 (\uFE0F): replace VS16 → VS15
+    - Emoji already followed by VS15: skip
+    - Emoji followed by ZWJ (compound sequence): skip
+    - Regional indicators (flags 🇷🇺 etc.): skip
+    - Otherwise: insert VS15 after the emoji
+    """
+    chars = list(text)
+    result: list[str] = []
+    i = 0
+    while i < len(chars):
+        c = chars[i]
+        cp = ord(c)
+
+        # Skip regional indicator pairs (flag sequences U+1F1E0..U+1F1FF)
+        if 0x1F1E0 <= cp <= 0x1F1FF:
+            result.append(c)
+            if i + 1 < len(chars) and 0x1F1E0 <= ord(chars[i + 1]) <= 0x1F1FF:
+                result.append(chars[i + 1])
+                i += 2
+            else:
+                i += 1
+            continue
+
+        # Detect emoji codepoints
+        is_emoji = (
+            (0x1F000 <= cp <= 0x1FFFF)    # Supplementary: faces, objects, symbols…
+            or (0x2600 <= cp <= 0x27BF)    # Misc symbols & dingbats
+            or (0x2300 <= cp <= 0x23FF)    # Misc technical
+            or (0x25A0 <= cp <= 0x25FF)    # Geometric shapes
+            or (0x2B00 <= cp <= 0x2BFF)    # Misc symbols and arrows
+            or cp in (
+                0x00A9, 0x00AE,            # © ®
+                0x203C, 0x2049,            # ‼ ⁉
+                0x20E3,                    # combining enclosing keycap
+                0x303D, 0x3030,            # 〽 〰
+            )
+        )
+
+        if is_emoji:
+            result.append(c)
+            nxt = chars[i + 1] if i + 1 < len(chars) else ''
+            if nxt == _VS15:
+                # Already monochrome — keep as-is
+                result.append(nxt)
+                i += 2
+            elif nxt == _VS16:
+                # Replace colored selector with monochrome
+                result.append(_VS15)
+                i += 2
+            elif nxt == _ZWJ:
+                # Part of a compound emoji (e.g. family sequences) — don't touch
+                i += 1
+            else:
+                result.append(_VS15)
+                i += 1
+        else:
+            result.append(c)
+            i += 1
+
+    return ''.join(result)
+
+
 def i18n_postprocess_text(text: str, collapse_level: int = 2) -> str:
     def collapse_html_tags(txt: str) -> str:
         pattern = r"<(\w+)>[\n\r]+(.*?)[\n\r]+</\1>"
