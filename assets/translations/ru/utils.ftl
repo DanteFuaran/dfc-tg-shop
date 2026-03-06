@@ -116,6 +116,12 @@ frg-user-details =
     • <b>Язык</b>: { language }{ $is_referral_enable ->
         [1] {"\u000A"}• <b>Реферальный код</b>: <code>{ $referral_code }</code>
         *[0] {""}
+    }{ $has_referrer ->
+        [1] {"\u000A"}• <b>Реферер</b>: <a href="tg://user?id={ $referrer_tg_id }">{ $referrer_name }</a>{ $referrer_username ->
+            [0] {""}
+            *[HAS] {" "}(@{ $referrer_username })
+        }
+        *[0] {""}
     }{ $is_balance_enabled ->
         [1] {"\u000A"}• <b>Баланс</b>: { $balance } ₽
         *[0] {""}

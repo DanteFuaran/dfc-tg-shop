@@ -70,6 +70,10 @@ async def user_getter(
     # В режиме COMBINED показываем общий баланс
     total_balance = target_user.balance + referral_balance if balance_mode == BalanceMode.COMBINED else target_user.balance
 
+    # Получаем реферера (кто пригласил этого пользователя)
+    referral = await referral_service.get_referral_by_referred(target_telegram_id)
+    referrer = referral.referrer if referral else None
+
     data: dict[str, Any] = {
         "user_id": str(target_user.telegram_id),
         "username": target_user.username or False,
@@ -91,6 +95,11 @@ async def user_getter(
         "is_referral_enable": 1 if await settings_service.is_referral_enable() else 0,
         "is_balance_separate": 1 if balance_mode == BalanceMode.SEPARATE else 0,
         "is_balance_enabled": 1 if await settings_service.is_balance_enabled() else 0,
+        # Реферер
+        "has_referrer": 1 if referrer else 0,
+        "referrer_name": referrer.name if referrer else "",
+        "referrer_username": referrer.username if referrer and referrer.username else 0,
+        "referrer_tg_id": str(referrer.telegram_id) if referrer else "0",
     }
 
     if subscription:
