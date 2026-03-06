@@ -97,7 +97,7 @@ services:
 
     volumes:
       - ./logs:/opt/dfc-tg/logs
-      - ./assets:/opt/dfc-tg/assets
+      - ./assets/banners:/opt/dfc-tg/assets/banners
       - ./backups:/opt/dfc-tg/backups
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -135,7 +135,7 @@ services:
 
     volumes:
       - ./logs:/opt/dfc-tg/logs
-      - ./assets:/opt/dfc-tg/assets
+      - ./assets/banners:/opt/dfc-tg/assets/banners
       - ./backups:/opt/dfc-tg/backups
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -173,7 +173,7 @@ services:
 
     volumes:
       - ./logs:/opt/dfc-tg/logs
-      - ./assets:/opt/dfc-tg/assets
+      - ./assets/banners:/opt/dfc-tg/assets/banners
       - ./backups:/opt/dfc-tg/backups
       - /var/run/docker.sock:/var/run/docker.sock
 

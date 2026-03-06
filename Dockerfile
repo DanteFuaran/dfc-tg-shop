@@ -45,6 +45,8 @@ COPY ./src ./src
 COPY --from=frontend-builder /opt/dfc-tg/frontend/packages/miniapp/dist ./miniapp-dist
 COPY ./version ./version
 COPY ./assets /opt/dfc-tg/assets.default
+# translations baked directly into image for fast startup (no volume I/O overhead)
+COPY ./assets/translations /opt/dfc-tg/assets/translations
 COPY ./scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 COPY ./scripts/docker-entrypoint-worker.sh ./scripts/docker-entrypoint-worker.sh
 COPY ./scripts/docker-entrypoint-scheduler.sh ./scripts/docker-entrypoint-scheduler.sh
