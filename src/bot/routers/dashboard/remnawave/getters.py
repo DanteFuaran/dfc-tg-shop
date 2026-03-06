@@ -94,7 +94,7 @@ async def hosts_getter(
     return {
         "pages": len(hosts),
         "current_page": current_page + 1,
-        "host": hosts[current_page] if hosts else None,
+        "host": hosts[current_page] if hosts else "",
     }
 
 
@@ -147,7 +147,7 @@ async def nodes_getter(
     return {
         "pages": len(nodes),
         "current_page": current_page + 1,
-        "node": nodes[current_page] if nodes else None,
+        "node": nodes[current_page] if nodes else "",
     }
 
 
@@ -187,5 +187,5 @@ async def inbounds_getter(
     return {
         "pages": len(inbounds),
         "current_page": current_page + 1,
-        "inbound": inbounds[current_page] if inbounds else None,
+        "inbound": inbounds[current_page] if inbounds else "",
     }
