@@ -90,6 +90,10 @@ from .handlers import (
     on_transactions,
     on_cancel_role_change,
     on_accept_role_change,
+    on_cancel_balance_change,
+    on_accept_balance_change,
+    on_cancel_referral_balance_change,
+    on_accept_referral_balance_change,
 )
 
 user = Window(
@@ -756,13 +760,18 @@ main_balance = Window(
         width=2,
     ),
     Row(
-        ColoredSwitchTo(
-            text=I18nFormat("btn-back"),
-            id="back",
-            state=DashboardUser.POINTS,
-            style="primary",
+        ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_cancel_balance_change,
+            style="danger",
         ),
-        *main_menu_button,
+        ColoredButton(
+            text=I18nFormat("btn-accept"),
+            id="accept",
+            on_click=on_accept_balance_change,
+            style="success",
+        ),
     ),
     MessageInput(func=on_points_input),
     IgnoreUpdate(),
@@ -786,13 +795,18 @@ referral_balance = Window(
         width=2,
     ),
     Row(
-        ColoredSwitchTo(
-            text=I18nFormat("btn-back"),
-            id="back",
-            state=DashboardUser.POINTS,
-            style="primary",
+        ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_cancel_referral_balance_change,
+            style="danger",
         ),
-        *main_menu_button,
+        ColoredButton(
+            text=I18nFormat("btn-accept"),
+            id="accept",
+            on_click=on_accept_referral_balance_change,
+            style="success",
+        ),
     ),
     MessageInput(func=on_referral_points_input),
     IgnoreUpdate(),

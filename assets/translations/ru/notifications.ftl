@@ -668,6 +668,7 @@ ntf-user-subscription-empty = <i>❌ Текущая подписка не най
 ntf-user-plans-empty = <i>❌ Нет доступных планов для выдачи.</i>
 ntf-user-devices-empty = <i>❌ Список устройств пуст.</i>
 ntf-user-invalid-number = <i>❌ Некорректное число.</i>
+ntf-user-no-pending-amount = <i>⚠️ Сначала выберите сумму для начисления.</i>
 ntf-user-device-limit-exceeded = <i>❌ Количество устройств не может быть больше 100.</i>
 ntf-user-allowed-plans-empty = <i>❌ Нет доступных планов для предоставления доступа.</i>
 ntf-user-message-success = <i>✅ Сообщение успешно отправлено.</i>
@@ -966,6 +967,10 @@ ntf-event-admin-balance-change =
 
     <b>💰 Детали:</b>
     <blockquote>
+    • <b>Баланс</b>: { $balance_type ->
+        [MAIN] 💰 Основной
+        *[REFERRAL] 🎁 Бонусный
+    }
     • <b>Операция</b>: { $operation ->
         [ADD] ➕ Начисление
         *[SUB] ➖ Списание

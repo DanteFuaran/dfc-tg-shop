@@ -419,34 +419,9 @@ async def on_points_input(
         )
         return
 
-    target_user.balance = new_balance
-    await user_service.update(user=target_user)
-
-    logger.info(
-        f"{log(user)} {'Added' if number > 0 else 'Subtracted'} "
-        f"'{abs(number)}' to balance for '{target_telegram_id}'"
-    )
-
-    # Системное уведомление о начислении/списании баланса администратором
-    from src.core.enums import SystemNotificationType
-    await notification_service.system_notify(
-        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
-        payload=MessagePayload.not_deleted(
-            i18n_key="ntf-event-admin-balance-change",
-            i18n_kwargs={
-                "admin_id": str(user.telegram_id),
-                "admin_name": user.name,
-                "admin_username": user.username or False,
-                "target_id": str(target_user.telegram_id),
-                "target_name": target_user.name,
-                "target_username": target_user.username or False,
-                "amount": str(abs(number)),
-                "operation": "ADD" if number > 0 else "SUB",
-                "new_balance": str(new_balance),
-            },
-            reply_markup=get_user_keyboard(target_user.telegram_id),
-        ),
-    )
+    # Сохраняем в pending, не применяем сразу
+    dialog_manager.dialog_data["pending_balance_amount"] = number
+    logger.debug(f"{log(user)} Set pending balance amount '{number}' for '{target_telegram_id}'")
 
 
 @inject
@@ -480,34 +455,9 @@ async def on_points_select(
         )
         return
 
-    target_user.balance = new_balance
-    await user_service.update(target_user)
-
-    logger.info(
-        f"{log(user)} {'Added' if selected_points > 0 else 'Subtracted'} "
-        f"'{abs(selected_points)}' to balance for '{target_telegram_id}'"
-    )
-
-    # Системное уведомление о начислении/списании баланса администратором
-    from src.core.enums import SystemNotificationType
-    await notification_service.system_notify(
-        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
-        payload=MessagePayload.not_deleted(
-            i18n_key="ntf-event-admin-balance-change",
-            i18n_kwargs={
-                "admin_id": str(user.telegram_id),
-                "admin_name": user.name,
-                "admin_username": user.username or False,
-                "target_id": str(target_user.telegram_id),
-                "target_name": target_user.name,
-                "target_username": target_user.username or False,
-                "amount": str(abs(selected_points)),
-                "operation": "ADD" if selected_points > 0 else "SUB",
-                "new_balance": str(new_balance),
-            },
-            reply_markup=get_user_keyboard(target_user.telegram_id),
-        ),
-    )
+    # Сохраняем в pending, не применяем сразу
+    dialog_manager.dialog_data["pending_balance_amount"] = selected_points
+    logger.debug(f"{log(user)} Set pending balance amount '{selected_points}' for '{target_telegram_id}'")
 
 
 @inject
@@ -546,30 +496,14 @@ async def on_referral_points_input(
         )
         return
 
-    # For positive values - create direct reward
-    # For negative values - subtract from referral balance only
-    if number > 0:
-        # Create referral reward directly
-        await referral_service.create_direct_reward(
-            user_telegram_id=target_telegram_id,
-            amount=number,
-            reward_type=ReferralRewardType.MONEY,
-        )
-        logger.info(
-            f"{log(user)} Added '{number}' to referral balance for '{target_telegram_id}'"
-        )
-    else:
-        # Get current referral balance
+    # Для отрицательных значений — проверяем достаточность баланса
+    if number < 0:
         referral_balance = await referral_service.get_pending_rewards_amount(
             target_telegram_id,
             ReferralRewardType.MONEY,
         )
         
-        # Check if referral balance is sufficient
-        amount_to_subtract = abs(number)
-        new_referral_balance = referral_balance - amount_to_subtract
-        
-        if new_referral_balance < 0:
+        if referral_balance - abs(number) < 0:
             await notification_service.notify_user(
                 user=user,
                 payload=MessagePayload(
@@ -578,17 +512,10 @@ async def on_referral_points_input(
                 ),
             )
             return
-        
-        # Subtract from referral balance by marking rewards as issued
-        await referral_service.mark_rewards_as_issued(
-            target_telegram_id,
-            amount_to_subtract,
-            ReferralRewardType.MONEY,
-        )
-        
-        logger.info(
-            f"{log(user)} Subtracted '{abs(number)}' from referral balance for '{target_telegram_id}'"
-        )
+
+    # Сохраняем в pending, не применяем сразу
+    dialog_manager.dialog_data["pending_referral_amount"] = number
+    logger.debug(f"{log(user)} Set pending referral amount '{number}' for '{target_telegram_id}'")
 
 
 @inject
@@ -618,30 +545,14 @@ async def on_referral_points_select(
         )
         return
 
-    # For positive values - create direct reward
-    # For negative values - subtract from referral balance only
-    if selected_points > 0:
-        # Create referral reward directly
-        await referral_service.create_direct_reward(
-            user_telegram_id=target_telegram_id,
-            amount=selected_points,
-            reward_type=ReferralRewardType.MONEY,
-        )
-        logger.info(
-            f"{log(user)} Added '{selected_points}' to referral balance for '{target_telegram_id}'"
-        )
-    else:
-        # Get current referral balance
+    # Для отрицательных значений — проверяем достаточность баланса
+    if selected_points < 0:
         referral_balance = await referral_service.get_pending_rewards_amount(
             target_telegram_id,
             ReferralRewardType.MONEY,
         )
         
-        # Check if referral balance is sufficient
-        amount_to_subtract = abs(selected_points)
-        new_referral_balance = referral_balance - amount_to_subtract
-        
-        if new_referral_balance < 0:
+        if referral_balance - abs(selected_points) < 0:
             await notification_service.notify_user(
                 user=user,
                 payload=MessagePayload(
@@ -650,17 +561,200 @@ async def on_referral_points_select(
                 ),
             )
             return
-        
-        # Subtract from referral balance by marking rewards as issued
+
+    # Сохраняем в pending, не применяем сразу
+    dialog_manager.dialog_data["pending_referral_amount"] = selected_points
+    logger.debug(f"{log(user)} Set pending referral amount '{selected_points}' for '{target_telegram_id}'")
+
+
+# --- Accept / Cancel для основного баланса ---
+
+@inject
+async def on_cancel_balance_change(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Отменить изменение баланса и вернуться назад."""
+    dialog_manager.dialog_data.pop("pending_balance_amount", None)
+    await dialog_manager.switch_to(state=DashboardUser.POINTS)
+
+
+@inject
+async def on_accept_balance_change(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+    user_service: FromDishka[UserService],
+    notification_service: FromDishka[NotificationService],
+) -> None:
+    """Применить изменение основного баланса."""
+    from src.core.enums import SystemNotificationType
+
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    pending_amount = dialog_manager.dialog_data.pop("pending_balance_amount", None)
+
+    if pending_amount is None:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-user-no-pending-amount"),
+        )
+        return
+
+    target_telegram_id = dialog_manager.dialog_data["target_telegram_id"]
+    target_user = await user_service.get(telegram_id=target_telegram_id)
+
+    if not target_user:
+        raise ValueError(f"User '{target_telegram_id}' not found")
+
+    new_balance = target_user.balance + pending_amount
+
+    if new_balance < 0:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(
+                i18n_key="ntf-user-invalid-balance",
+                i18n_kwargs={"operation": "ADD" if pending_amount > 0 else "SUB"},
+            ),
+        )
+        return
+
+    target_user.balance = new_balance
+    await user_service.update(user=target_user)
+
+    logger.info(
+        f"{log(user)} {'Added' if pending_amount > 0 else 'Subtracted'} "
+        f"'{abs(pending_amount)}' to balance for '{target_telegram_id}'"
+    )
+
+    # Системное уведомление
+    await notification_service.system_notify(
+        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
+        payload=MessagePayload.not_deleted(
+            i18n_key="ntf-event-admin-balance-change",
+            i18n_kwargs={
+                "admin_id": str(user.telegram_id),
+                "admin_name": user.name,
+                "admin_username": user.username or False,
+                "target_id": str(target_user.telegram_id),
+                "target_name": target_user.name,
+                "target_username": target_user.username or False,
+                "amount": str(abs(pending_amount)),
+                "operation": "ADD" if pending_amount > 0 else "SUB",
+                "new_balance": str(new_balance),
+                "balance_type": "MAIN",
+            },
+            reply_markup=get_user_keyboard(target_user.telegram_id),
+        ),
+    )
+
+    await dialog_manager.switch_to(state=DashboardUser.POINTS)
+
+
+# --- Accept / Cancel для бонусного баланса ---
+
+@inject
+async def on_cancel_referral_balance_change(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Отменить изменение бонусного баланса и вернуться назад."""
+    dialog_manager.dialog_data.pop("pending_referral_amount", None)
+    await dialog_manager.switch_to(state=DashboardUser.POINTS)
+
+
+@inject
+async def on_accept_referral_balance_change(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+    referral_service: FromDishka[ReferralService],
+    user_service: FromDishka[UserService],
+    notification_service: FromDishka[NotificationService],
+) -> None:
+    """Применить изменение бонусного баланса."""
+    from src.core.enums import ReferralRewardType, SystemNotificationType
+
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    pending_amount = dialog_manager.dialog_data.pop("pending_referral_amount", None)
+
+    if pending_amount is None:
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-user-no-pending-amount"),
+        )
+        return
+
+    target_telegram_id = dialog_manager.dialog_data["target_telegram_id"]
+    target_user = await user_service.get(telegram_id=target_telegram_id)
+
+    if not target_user:
+        raise ValueError(f"User '{target_telegram_id}' not found")
+
+    if pending_amount > 0:
+        await referral_service.create_direct_reward(
+            user_telegram_id=target_telegram_id,
+            amount=pending_amount,
+            reward_type=ReferralRewardType.MONEY,
+        )
+        logger.info(
+            f"{log(user)} Added '{pending_amount}' to referral balance for '{target_telegram_id}'"
+        )
+    else:
+        referral_balance = await referral_service.get_pending_rewards_amount(
+            target_telegram_id,
+            ReferralRewardType.MONEY,
+        )
+        amount_to_subtract = abs(pending_amount)
+
+        if referral_balance - amount_to_subtract < 0:
+            await notification_service.notify_user(
+                user=user,
+                payload=MessagePayload(
+                    i18n_key="ntf-user-invalid-balance",
+                    i18n_kwargs={"operation": "SUB"},
+                ),
+            )
+            return
+
         await referral_service.mark_rewards_as_issued(
             target_telegram_id,
             amount_to_subtract,
             ReferralRewardType.MONEY,
         )
-        
         logger.info(
-            f"{log(user)} Subtracted '{abs(selected_points)}' from referral balance for '{target_telegram_id}'"
+            f"{log(user)} Subtracted '{abs(pending_amount)}' from referral balance for '{target_telegram_id}'"
         )
+
+    # Получаем обновленный баланс для уведомления
+    new_referral_balance = await referral_service.get_pending_rewards_amount(
+        target_telegram_id,
+        ReferralRewardType.MONEY,
+    )
+
+    # Системное уведомление
+    await notification_service.system_notify(
+        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
+        payload=MessagePayload.not_deleted(
+            i18n_key="ntf-event-admin-balance-change",
+            i18n_kwargs={
+                "admin_id": str(user.telegram_id),
+                "admin_name": user.name,
+                "admin_username": user.username or False,
+                "target_id": str(target_user.telegram_id),
+                "target_name": target_user.name,
+                "target_username": target_user.username or False,
+                "amount": str(abs(pending_amount)),
+                "operation": "ADD" if pending_amount > 0 else "SUB",
+                "new_balance": str(new_referral_balance),
+                "balance_type": "REFERRAL",
+            },
+            reply_markup=get_user_keyboard(target_user.telegram_id),
+        ),
+    )
+
+    await dialog_manager.switch_to(state=DashboardUser.POINTS)
 
 
 @inject

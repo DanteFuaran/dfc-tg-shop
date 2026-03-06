@@ -643,6 +643,7 @@ ntf-user-subscription-empty = <i>❌ Current subscription not found.</i>
 ntf-user-plans-empty = <i>❌ No available plans to grant.</i>
 ntf-user-devices-empty = <i>❌ Device list is empty.</i>
 ntf-user-invalid-number = <i>❌ Invalid number.</i>
+ntf-user-no-pending-amount = <i>⚠️ Select an amount first.</i>
 ntf-user-device-limit-exceeded = <i>❌ Device count cannot exceed 100.</i>
 ntf-user-allowed-plans-empty = <i>❌ No available plans to grant access.</i>
 ntf-user-message-success = <i>✅ Message sent successfully.</i>
@@ -941,6 +942,10 @@ ntf-event-admin-balance-change =
 
     <b>💰 Details:</b>
     <blockquote>
+    • <b>Balance</b>: { $balance_type ->
+        [MAIN] 💰 Main
+        *[REFERRAL] 🎁 Bonus
+    }
     • <b>Operation</b>: { $operation ->
         [ADD] ➕ Added
         *[SUB] ➖ Subtracted

@@ -329,6 +329,8 @@ async def points_getter(
         "is_referral_enable": 1 if is_referral_enable else 0,
         "show_finance_details": 1 if (is_balance_enabled or is_referral_enable) else 0,
         "discount_value": target_user.purchase_discount or 0,
+        "pending_balance_amount": dialog_manager.dialog_data.get("pending_balance_amount", None),
+        "has_pending_balance": 1 if dialog_manager.dialog_data.get("pending_balance_amount") is not None else 0,
     }
 
 
@@ -359,6 +361,8 @@ async def referral_points_getter(
     return {
         "current_referral_balance": str(referral_balance),
         "balance": formatted_points,
+        "pending_referral_amount": dialog_manager.dialog_data.get("pending_referral_amount", None),
+        "has_pending_referral": 1 if dialog_manager.dialog_data.get("pending_referral_amount") is not None else 0,
     }
 
 

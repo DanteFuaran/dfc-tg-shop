@@ -1221,15 +1221,25 @@ msg-user-main-balance =
     <b>💰 Main Balance</b>
 
     <b>Current balance: { $current_balance } ₽</b>
+    { $has_pending_balance ->
+        [1] <b>Pending: { $pending_balance_amount } ₽</b>
+        *[0] {""}
+    }
 
-    Select from button or enter your own value to add or subtract.
+    Select an amount or enter your own value.
+    Press <b>✅ Accept</b> to confirm.
 
 msg-user-referral-balance =
-    <b>🎁 Referral Balance</b>
+    <b>🎁 Bonus Balance</b>
 
     <b>Current balance: { $current_referral_balance } ₽</b>
+    { $has_pending_referral ->
+        [1] <b>Pending: { $pending_referral_amount } ₽</b>
+        *[0] {""}
+    }
 
-    Select from button or enter your own value to add.
+    Select an amount or enter your own value.
+    Press <b>✅ Accept</b> to confirm.
 
 msg-user-points =
     <b>💎 Change Balance</b>
