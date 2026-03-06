@@ -2433,8 +2433,8 @@ async def on_finances_cancel(
         dialog_manager.dialog_data.pop("pending_finances", None)
         logger.info(f"{log(user)} Cancelled finances changes")
     
-    # Навигируем обратно в главное меню настроек
-    await dialog_manager.switch_to(DashboardSettings.MAIN)
+    # Возврат в Панель управления
+    await dialog_manager.start(Dashboard.MAIN, mode=StartMode.RESET_STACK)
 
 
 @inject
@@ -2493,8 +2493,8 @@ async def on_finances_accept(
         dialog_manager.dialog_data.pop("pending_finances", None)
         logger.info(f"{log(user)} Accepted finances changes")
     
-    # Навигируем обратно в главное меню настроек
-    await dialog_manager.switch_to(DashboardSettings.MAIN)
+    # Возврат в Панель управления
+    await dialog_manager.start(Dashboard.MAIN, mode=StartMode.RESET_STACK)
 
 
 # ==================== Настройки языка ====================

@@ -16,7 +16,7 @@ btn-dashboard-user-management = 👥 Користувачі
 # Bot Management
 btn-bot-check-update = 🔍 Оновлення
 btn-bot-restart = 🔁 Перезапустити
-btn-mirror-bots = 🤖 Додати дзеркало
+btn-mirror-bots = 🤖 Зеркала
 btn-mirror-bot-add = ➕ Додати нового бота
 
 # Database Management

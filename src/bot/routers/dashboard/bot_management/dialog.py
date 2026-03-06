@@ -32,21 +32,22 @@ bot_management_window = Window(
         state=DashboardAccess.MAIN,
         mode=StartMode.RESET_STACK,
     ),
-    # 2. Добавить зеркало
-    Start(
-        text=I18nFormat("btn-mirror-bots"),
-        id="mirror_bots",
-        state=DashboardMirrorBots.MAIN,
-        mode=StartMode.RESET_STACK,
+    # 2. Зеркала | Уведомления
+    Row(
+        Start(
+            text=I18nFormat("btn-mirror-bots"),
+            id="mirror_bots",
+            state=DashboardMirrorBots.MAIN,
+            mode=StartMode.RESET_STACK,
+        ),
+        Start(
+            text=I18nFormat("btn-settings-notifications"),
+            id="notifications",
+            state=TelegramNotifications.MAIN,
+            mode=StartMode.RESET_STACK,
+        ),
     ),
-    # 3. Уведомления
-    Start(
-        text=I18nFormat("btn-settings-notifications"),
-        id="notifications",
-        state=TelegramNotifications.MAIN,
-        mode=StartMode.RESET_STACK,
-    ),
-    # 4. Язык | Логи
+    # 3. Язык | Логи
     Row(
         Button(
             text=I18nFormat("btn-settings-language"),
@@ -59,7 +60,7 @@ bot_management_window = Window(
             on_click=on_logs_request,
         ),
     ),
-    # 5. Обновление | Перезагрузить
+    # 4. Обновление | Перезапустить
     Row(
         Button(
             text=I18nFormat("btn-bot-check-update"),
@@ -72,7 +73,7 @@ bot_management_window = Window(
             on_click=on_restart_bot,
         ),
     ),
-    # 6. Назад | Главное меню
+    # 5. Назад | Главное меню
     Row(
         ColoredButton(
             text=I18nFormat("btn-back"),

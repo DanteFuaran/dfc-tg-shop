@@ -775,14 +775,12 @@ msg-invite-reward = { $value }{ $reward_strategy_type ->
 
 # Dashboard
 msg-dashboard-main =
-    <b>🛠 Панель управления:</b> Версия <code>{ $bot_version }</code> { $update_available ->
+    <b>🛠 Панель управления v{ $bot_version }</b> { $update_available ->
         [1] — 🔔 Доступно обновление: <b>{ $new_version }</b>
         *[0] {""}
     }
 msg-bot-management =
     <b>🤖 Управление ботом</b>
-
-    • Версия бота: <code>{ $bot_version }</code>
 msg-mirror-bots =
     <b>🤖 Дополнительные боты</b>
 
