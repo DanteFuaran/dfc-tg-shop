@@ -1,3 +1,5 @@
+# Monitoring has been moved to DashboardStatistics module.
+# This stub dialog is kept to avoid FSM state restore errors for DashboardRemnawave.MAIN.
 from aiogram_dialog import Dialog, StartMode, Window
 from aiogram_dialog.widgets.kbd import Row
 
@@ -5,11 +7,10 @@ from src.bot.keyboards import main_menu_button
 from src.bot.states import Dashboard, DashboardRemnawave
 from src.bot.widgets import Banner, ColoredStart, I18nFormat, IgnoreUpdate
 
-from .getters import monitoring_getter
 
-monitoring = Window(
+stub = Window(
     Banner(),
-    I18nFormat("msg-monitoring"),
+    I18nFormat("msg-statistics-hub"),
     Row(
         ColoredStart(
             text=I18nFormat("btn-back"),
@@ -22,9 +23,6 @@ monitoring = Window(
     ),
     IgnoreUpdate(),
     state=DashboardRemnawave.MAIN,
-    getter=monitoring_getter,
 )
 
-router = Dialog(
-    monitoring,
-)
+router = Dialog(stub)

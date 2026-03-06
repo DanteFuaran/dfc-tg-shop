@@ -858,6 +858,8 @@ msg-dashboard-extra-devices-settings =
 
 msg-users-main = <b>👥 Users</b>
 msg-broadcast-main = <b>📢 Broadcast</b>
+msg-statistics-hub = <b>📊 Statistiken</b>
+
 msg-statistics-main = { $statistics }
     
 msg-statistics-users =
@@ -1349,39 +1351,25 @@ msg-monitoring =
     <b>📡 Monitoring</b>
 
     <b>👥 Benutzer</b>
-
-    <b>📊 Statistiken:</b>
     <blockquote>
     • <b>Gesamt</b>: { $users_total }
     • <b>Aktiv</b>: { $users_active }
     • <b>Deaktiviert</b>: { $users_disabled }
     • <b>Eingeschränkt</b>: { $users_limited }
     • <b>Abgelaufen</b>: { $users_expired }
+    • <b>Gesamt online</b>: { $total_online }
     </blockquote>
-
-    <b>🟢 Online:</b>
-    <blockquote>
-    • <b>Letzter Tag</b>: { $online_last_day }
-    • <b>Letzte Woche</b>: { $online_last_week }
-    • <b>Nie eingeloggt</b>: { $online_never }
-    • <b>Gerade online</b>: { $online_now }
-    </blockquote>
-
-    <b>📍 Standorte & Online</b>
 
     <b>📊 Statistiken:</b>
     <blockquote>
     • <b>Server gesamt</b>: { $total_servers }
     • <b>Verfügbar</b>: { $available_servers }
-    • <b>Gesamt online</b>: { $total_online }
     </blockquote>
 
     <b>📋 Serverliste:</b>
     <blockquote>
     { $servers_list }
     </blockquote>
-
-    🕐 <b>Letzte Aktualisierung:</b> { $last_update }
 
 msg-monitoring-no-servers = Keine Server verfügbar
 

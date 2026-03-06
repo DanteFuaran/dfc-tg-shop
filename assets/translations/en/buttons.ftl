@@ -882,6 +882,9 @@ btn-bonus-amount-2500 = { $selected ->
 
 
 # Statistics
+btn-statistics-monitoring = 📡 Monitoring
+btn-statistics-user-stats = 📊 User Stats
+
 btn-statistics-page =
     { $target_page1 ->
     [1] 👥

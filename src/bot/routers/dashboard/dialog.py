@@ -15,7 +15,6 @@ from src.bot.states import (
     DashboardPromocodes,
     DashboardSettings,
     DashboardTelegram,
-    DashboardRemnawave,
     DashboardStatistics,
     DashboardUsers,
     DashboardDB,
@@ -67,12 +66,6 @@ dashboard = Window(
             text=I18nFormat("btn-dashboard-statistics"),
             id="statistics",
             state=DashboardStatistics.MAIN,
-        ),
-        Start(
-            text=I18nFormat("btn-dashboard-remnawave"),
-            id="remnawave",
-            state=DashboardRemnawave.MAIN,
-            mode=StartMode.RESET_STACK,
         ),
     ),
     Row(

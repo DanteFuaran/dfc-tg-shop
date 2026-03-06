@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Optional
 
 from aiogram_dialog import DialogManager
@@ -5,6 +6,7 @@ from aiogram_dialog.widgets.common import ManagedScroll
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from fluentogram import TranslatorRunner
+from remnapy import RemnawaveSDK
 
 from src.core.enums import Currency, PaymentGatewayType, PromocodeRewardType, SubscriptionStatus
 from src.core.utils.formatters import format_percent, i18n_format_days
@@ -23,6 +25,63 @@ from src.services.promocode import PromocodeService
 from src.services.subscription import SubscriptionService
 from src.services.transaction import TransactionService
 from src.services.user import UserService
+
+
+@inject
+async def monitoring_getter(
+    dialog_manager: DialogManager,
+    remnawave: FromDishka[RemnawaveSDK],
+    i18n: FromDishka[TranslatorRunner],
+    **kwargs: Any,
+) -> dict[str, Any]:
+    stats, hosts_result, nodes_result = await asyncio.gather(
+        remnawave.system.get_stats(),
+        remnawave.hosts.get_all_hosts(),
+        remnawave.nodes.get_all_nodes(),
+    )
+
+    # Статистика пользователей
+    users_total = stats.users.total_users
+    users_active = stats.users.status_counts.get("ACTIVE", 0)
+    users_disabled = stats.users.status_counts.get("DISABLED", 0)
+    users_limited = stats.users.status_counts.get("LIMITED", 0)
+    users_expired = stats.users.status_counts.get("EXPIRED", 0)
+    total_online = stats.online_stats.online_now
+
+    # Статистика серверов (по хостам)
+    total_servers = len(hosts_result)
+    available_servers = sum(1 for h in hosts_result if not h.is_disabled)
+
+    # Онлайн по нодам (сопоставление хост.address → нода.users_online)
+    node_online_map: dict[str, int] = {}
+    for node in nodes_result:
+        if node.address:
+            node_online_map[node.address.lower().strip()] = node.users_online
+
+    server_lines = []
+    for host in hosts_result:
+        status_icon = "🟢" if not host.is_disabled else "🔴"
+        host_addr = (host.address or "").lower().strip()
+        online = node_online_map.get(host_addr, 0)
+        server_lines.append(f"{status_icon} {host.remark} 👥 {online}")
+
+    servers_list = (
+        "\n".join(server_lines)
+        if server_lines
+        else i18n.get("msg-monitoring-no-servers")
+    )
+
+    return {
+        "users_total": str(users_total),
+        "users_active": str(users_active),
+        "users_disabled": str(users_disabled),
+        "users_limited": str(users_limited),
+        "users_expired": str(users_expired),
+        "total_online": str(total_online),
+        "total_servers": str(total_servers),
+        "available_servers": str(available_servers),
+        "servers_list": servers_list,
+    }
 
 
 @inject

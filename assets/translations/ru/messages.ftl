@@ -856,6 +856,8 @@ msg-dashboard-extra-devices-settings =
 
 msg-users-main = <b>👥 Пользователи</b>
 msg-broadcast-main = <b>📢 Рассылка</b>
+msg-statistics-hub = <b>📊 Статистика</b>
+
 msg-statistics-main = { $statistics }
     
 msg-statistics-users =
@@ -1352,39 +1354,25 @@ msg-monitoring =
     <b>📡 Мониторинг</b>
 
     <b>👥 Пользователи</b>
-
-    <b>📊 Статистика:</b>
     <blockquote>
     • <b>Всего</b>: { $users_total }
-    • <b>Активные</b>: { $users_active }
-    • <b>Отключенные</b>: { $users_disabled }
-    • <b>Ограниченные</b>: { $users_limited }
-    • <b>Истекшие</b>: { $users_expired }
+    • <b>Активных</b>: { $users_active }
+    • <b>Отключенных</b>: { $users_disabled }
+    • <b>Ограниченных</b>: { $users_limited }
+    • <b>Истекших</b>: { $users_expired }
+    • <b>Всего онлайн</b>: { $total_online }
     </blockquote>
-
-    <b>🟢 Онлайн:</b>
-    <blockquote>
-    • <b>За день</b>: { $online_last_day }
-    • <b>За неделю</b>: { $online_last_week }
-    • <b>Никогда не заходили</b>: { $online_never }
-    • <b>Сейчас онлайн</b>: { $online_now }
-    </blockquote>
-
-    <b>📍 Локации и онлайн</b>
 
     <b>📊 Статистика:</b>
     <blockquote>
     • <b>Всего серверов</b>: { $total_servers }
     • <b>Доступно</b>: { $available_servers }
-    • <b>Всего онлайн</b>: { $total_online }
     </blockquote>
 
     <b>📋 Список серверов:</b>
     <blockquote>
     { $servers_list }
     </blockquote>
-
-    🕐 <b>Последнее обновление:</b> { $last_update }
 
 msg-monitoring-no-servers = Нет доступных серверов
 

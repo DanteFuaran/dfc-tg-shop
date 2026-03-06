@@ -857,6 +857,8 @@ msg-dashboard-extra-devices-settings =
 
 msg-users-main = <b>👥 Пользователи</b>
 msg-broadcast-main = <b>📢 Рассылка</b>
+msg-statistics-hub = <b>📊 Статистика</b>
+
 msg-statistics-main = { $statistics }
     
 msg-statistics-users =
@@ -1353,39 +1355,25 @@ msg-monitoring =
     <b>📡 Моніторинг</b>
 
     <b>👥 Користувачі</b>
-
-    <b>📊 Статистика:</b>
     <blockquote>
     • <b>Всього</b>: { $users_total }
-    • <b>Активні</b>: { $users_active }
-    • <b>Вимкнені</b>: { $users_disabled }
-    • <b>Обмежені</b>: { $users_limited }
+    • <b>Активних</b>: { $users_active }
+    • <b>Вимкнених</b>: { $users_disabled }
+    • <b>Обмежених</b>: { $users_limited }
     • <b>Закінчилися</b>: { $users_expired }
+    • <b>Всього онлайн</b>: { $total_online }
     </blockquote>
-
-    <b>🟢 Онлайн:</b>
-    <blockquote>
-    • <b>За день</b>: { $online_last_day }
-    • <b>За тиждень</b>: { $online_last_week }
-    • <b>Ніколи не заходили</b>: { $online_never }
-    • <b>Зараз онлайн</b>: { $online_now }
-    </blockquote>
-
-    <b>📍 Локації та онлайн</b>
 
     <b>📊 Статистика:</b>
     <blockquote>
     • <b>Всього серверів</b>: { $total_servers }
     • <b>Доступно</b>: { $available_servers }
-    • <b>Всього онлайн</b>: { $total_online }
     </blockquote>
 
     <b>📋 Список серверів:</b>
     <blockquote>
     { $servers_list }
     </blockquote>
-
-    🕐 <b>Останнє оновлення:</b> { $last_update }
 
 msg-monitoring-no-servers = Немає доступних серверів
 

@@ -89,6 +89,8 @@ class DashboardMirrorBots(StatesGroup):
 
 class DashboardStatistics(StatesGroup):
     MAIN = State()
+    MONITORING = State()
+    USER_STATS = State()
 
 
 class DashboardBroadcast(StatesGroup):
