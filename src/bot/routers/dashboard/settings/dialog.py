@@ -22,7 +22,6 @@ from .getters import (
     community_settings_getter,
     finances_settings_getter,
     currency_rates_getter,
-    language_settings_getter,
 )
 from .handlers import (
     on_accept_transfers,
@@ -150,12 +149,6 @@ from .handlers import (
     on_stars_rate_input,
     on_accept_rates,
     on_cancel_rates,
-    # Язык
-    on_language_click,
-    on_toggle_language,
-    on_language_select,
-    on_language_cancel,
-    on_language_apply,
 )
 
 
@@ -273,22 +266,6 @@ settings_main = Window(
             ),
             id="toggle_community",
             on_click=on_toggle_community,
-        ),
-    ),
-    # 11. Язык
-    Row(
-        Button(
-            text=I18nFormat("btn-settings-language"),
-            id="language",
-            on_click=on_language_click,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["language_enabled"],
-            ),
-            id="toggle_language",
-            on_click=on_toggle_language,
         ),
     ),
     # 12. Соглашение
@@ -1974,65 +1951,6 @@ community_url_manual = Window(
 # Настройки языка
 # ═══════════════════════════════════════════════════════════════
 
-language_settings = Window(
-    Banner(),
-    I18nFormat("msg-dashboard-settings-language", enabled=F["enabled"], current_locale=F["current_locale"]),
-    Row(
-        Button(
-            text=I18nFormat("btn-language-multilang", enabled=F["enabled"]),
-            id="toggle_multilang",
-            on_click=on_toggle_language,
-        ),
-    ),
-    Row(
-        Button(
-            text=I18nFormat("btn-language-ru"),
-            id="lang_ru",
-            on_click=on_language_select,
-            when=F["show_ru"],
-        ),
-        Button(
-            text=I18nFormat("btn-language-uk"),
-            id="lang_uk",
-            on_click=on_language_select,
-            when=F["show_uk"],
-        ),
-    ),
-    Row(
-        Button(
-            text=I18nFormat("btn-language-en"),
-            id="lang_en",
-            on_click=on_language_select,
-            when=F["show_en"],
-        ),
-        Button(
-            text=I18nFormat("btn-language-de"),
-            id="lang_de",
-            on_click=on_language_select,
-            when=F["show_de"],
-        ),
-    ),
-    Row(
-        ColoredButton(
-            text=I18nFormat("btn-language-cancel"),
-            id="lang_cancel",
-            on_click=on_language_cancel,
-            style="danger",
-        ),
-        ColoredButton(
-            text=I18nFormat("btn-language-apply"),
-            id="lang_apply",
-            on_click=on_language_apply,
-            style="success",
-        ),
-    ),
-    IgnoreUpdate(),
-    state=DashboardSettings.LANGUAGE,
-    getter=language_settings_getter,
-)
-
-
-# ═══════════════════════════════════════════════════════════════
 # Финансы
 # ═══════════════════════════════════════════════════════════════
 
@@ -2203,7 +2121,6 @@ router = Dialog(
     tos_url_manual,
     community_settings,
     community_url_manual,
-    language_settings,
     finances_settings,
     currency_rates_settings,
     currency_rate_usd,

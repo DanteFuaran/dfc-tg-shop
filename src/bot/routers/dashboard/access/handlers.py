@@ -7,7 +7,7 @@ from dishka.integrations.aiogram_dialog import inject
 from loguru import logger
 from pydantic import SecretStr
 
-from src.bot.states import DashboardAccess, DashboardSettings
+from src.bot.states import DashboardAccess, DashboardBotManagement, DashboardSettings
 from src.core.constants import T_ME, USER_KEY
 from src.core.enums import AccessMode
 from src.core.utils.formatters import format_user_log as log
@@ -208,9 +208,9 @@ async def on_access_cancel(
     
     logger.info(f"{log(user)} Cancelled access changes")
     
-    # Возврат в меню настроек
+    # Возврат в меню Управление ботом
     await dialog_manager.start(
-        state=DashboardSettings.MAIN,
+        state=DashboardBotManagement.MAIN,
         mode=StartMode.RESET_STACK,
     )
 
@@ -268,8 +268,8 @@ async def on_access_accept(
     
     logger.info(f"{log(user)} Accepted and saved access changes")
     
-    # Возврат в меню настроек
+    # Возврат в меню Управление ботом
     await dialog_manager.start(
-        state=DashboardSettings.MAIN,
+        state=DashboardBotManagement.MAIN,
         mode=StartMode.RESET_STACK,
     )

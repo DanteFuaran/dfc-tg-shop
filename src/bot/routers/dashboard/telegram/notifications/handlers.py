@@ -5,7 +5,7 @@ from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from loguru import logger
 
-from src.bot.states import DashboardSettings, TelegramNotifications, DashboardTelegram
+from src.bot.states import DashboardBotManagement, DashboardSettings, TelegramNotifications, DashboardTelegram
 from src.core.constants import USER_KEY
 from src.core.enums import SystemNotificationType, UserNotificationType
 from src.core.utils.formatters import format_user_log as log
@@ -162,8 +162,8 @@ async def on_notifications_cancel_main(
     
     logger.info(f"{log(user)} Cancelled notifications")
     
-    # Возврат в меню Настройки
-    await dialog_manager.start(DashboardSettings.MAIN, mode=StartMode.NORMAL)
+    # Возврат в меню Управление ботом
+    await dialog_manager.start(DashboardBotManagement.MAIN, mode=StartMode.RESET_STACK)
 
 
 @inject
@@ -212,8 +212,8 @@ async def on_notifications_accept_main(
     dialog_manager.dialog_data.pop("notifications_changes", None)
     dialog_manager.dialog_data.pop("initial_notifications_state", None)
     
-    # Возврат в меню Настройки
-    await dialog_manager.start(DashboardSettings.MAIN, mode=StartMode.NORMAL)
+    # Возврат в меню Управление ботом
+    await dialog_manager.start(DashboardBotManagement.MAIN, mode=StartMode.RESET_STACK)
 
 
 @inject

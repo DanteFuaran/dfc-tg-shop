@@ -50,6 +50,7 @@ async def bot_management_getter(
         "bot_version": __version__,
         "access_enabled": 1 if settings.access_mode == AccessMode.PUBLIC else 0,
         "notifications_enabled": 1 if features.notifications_enabled else 0,
+        "language_enabled": 1 if features.language_enabled else 0,
     }
 
 

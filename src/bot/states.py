@@ -77,6 +77,7 @@ class DashboardDB(StatesGroup):
 
 class DashboardBotManagement(StatesGroup):
     MAIN = State()
+    LANGUAGE = State()
 
 
 class DashboardMirrorBots(StatesGroup):

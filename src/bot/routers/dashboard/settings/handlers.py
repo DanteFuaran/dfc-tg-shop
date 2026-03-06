@@ -7,7 +7,7 @@ from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from loguru import logger
 
-from src.bot.states import Dashboard, DashboardSettings, MainMenu
+from src.bot.states import Dashboard, DashboardBotManagement, DashboardSettings, MainMenu
 from src.core.config import AppConfig
 from src.core.constants import USER_KEY
 from src.core.enums import AccessMode, ReferralRewardType
@@ -2507,7 +2507,7 @@ async def on_language_click(
     dialog_manager: DialogManager,
 ) -> None:
     """Открыть меню настройки языка."""
-    await dialog_manager.switch_to(DashboardSettings.LANGUAGE)
+    await dialog_manager.switch_to(DashboardBotManagement.LANGUAGE)
 
 
 @inject
@@ -2650,7 +2650,7 @@ async def on_language_select(
         # ВАЖНО: не используем bg().update() так как он может вызвать пересоздание translator_runner
         # Вместо этого используем switch_to для перерисовки текущего окна
         dialog_manager.show_mode = ShowMode.EDIT
-        await dialog_manager.switch_to(DashboardSettings.LANGUAGE)
+        await dialog_manager.switch_to(DashboardBotManagement.LANGUAGE)
         
         logger.info(f"{log(user)} Selected language: {locale_code} (pending confirmation)")
         await callback.answer()
@@ -2696,8 +2696,8 @@ async def on_language_cancel(
     dialog_manager.dialog_data.pop("original_locale", None)
     dialog_manager.dialog_data.pop("original_multilang", None)
     
-    # Переключаемся на главную страницу настроек
-    await dialog_manager.switch_to(DashboardSettings.MAIN)
+    # Переключаемся на главную страницу управления ботом
+    await dialog_manager.switch_to(DashboardBotManagement.MAIN)
     await callback.answer()
 
 @inject
@@ -2770,5 +2770,5 @@ async def on_language_apply(
         locale_name = locale_names.get(pending_locale, str(pending_locale))
         await callback.answer(f"✅ {locale_name}")
     
-    # Переключаемся на главную страницу настроек
-    await dialog_manager.switch_to(DashboardSettings.MAIN)
+    # Переключаемся на главную страницу управления ботом
+    await dialog_manager.switch_to(DashboardBotManagement.MAIN)
