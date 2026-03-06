@@ -145,6 +145,7 @@ class SystemNotificationType(UpperStrEnum):  # == SystemNotificationDto
     USER_HWID = auto()
     BILLING = auto()
     BALANCE_TRANSFER = auto()
+    ADMIN_BALANCE_CHANGE = auto()
 
 
 class UserNotificationType(UpperStrEnum):  # == UserNotificationDto
@@ -230,6 +231,8 @@ class PaymentGatewayType(UpperStrEnum):
     HELEKET = auto()
     CRYPTOPAY = auto()
     ROBOKASSA = auto()
+    LAVA = auto()
+    PLATEGA = auto()
     BALANCE = auto()  # Payment from user balance
 
 
@@ -269,6 +272,8 @@ class Currency(UpperStrEnum):
             PaymentGatewayType.CRYPTOMUS: cls.USD,
             PaymentGatewayType.HELEKET: cls.USD,
             PaymentGatewayType.CRYPTOPAY: cls.USD,
+            PaymentGatewayType.LAVA: cls.RUB,
+            PaymentGatewayType.PLATEGA: cls.RUB,
             PaymentGatewayType.BALANCE: cls.RUB,
         }
 

@@ -1946,6 +1946,7 @@ msg-subscription-promocode =
     <b>🎟 Enter Promo Code</b>
 
     Send the promo code to activate bonuses or discounts.
+    You can also enter another user's <b>referral code</b> to link to them.
 
 msg-subscription-success =
     { hdr-user-profile }

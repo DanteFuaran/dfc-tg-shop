@@ -32,8 +32,10 @@ from src.infrastructure.database.models.dto import (
     CryptomusGatewaySettingsDto,
     CryptopayGatewaySettingsDto,
     HeleketGatewaySettingsDto,
+    LavaGatewaySettingsDto,
     PaymentGatewayDto,
     PaymentResult,
+    PlategaGatewaySettingsDto,
     PlanSnapshotDto,
     PriceDetailsDto,
     RobokassaGatewaySettingsDto,
@@ -129,6 +131,12 @@ class PaymentGatewayService(BaseService):
                 case PaymentGatewayType.HELEKET:
                     is_active = False
                     settings = HeleketGatewaySettingsDto()
+                case PaymentGatewayType.LAVA:
+                    is_active = False
+                    settings = LavaGatewaySettingsDto()
+                case PaymentGatewayType.PLATEGA:
+                    is_active = False
+                    settings = PlategaGatewaySettingsDto()
                 # case PaymentGatewayType.CRYPTOPAY:
                 #     is_active = False
                 #     settings = CryptopayGatewaySettingsDto()

@@ -945,6 +945,10 @@ async def balance_amounts_getter(
         gateway_type_formatted = i18n.get("lbl-payment-cryptomus")
     elif gateway_type_enum == PaymentGatewayType.TELEGRAM_STARS:
         gateway_type_formatted = i18n.get("lbl-payment-telegram-stars")
+    elif gateway_type_enum == PaymentGatewayType.LAVA:
+        gateway_type_formatted = i18n.get("lbl-payment-lava")
+    elif gateway_type_enum == PaymentGatewayType.PLATEGA:
+        gateway_type_formatted = i18n.get("lbl-payment-platega")
     else:
         gateway_type_formatted = gateway_type_enum.value if gateway_type_enum else "N/A"
     
@@ -987,6 +991,10 @@ async def balance_amount_getter(
         gateway_type_formatted = i18n.get("lbl-payment-cryptomus")
     elif gateway_type_enum == PaymentGatewayType.TELEGRAM_STARS:
         gateway_type_formatted = i18n.get("lbl-payment-telegram-stars")
+    elif gateway_type_enum == PaymentGatewayType.LAVA:
+        gateway_type_formatted = i18n.get("lbl-payment-lava")
+    elif gateway_type_enum == PaymentGatewayType.PLATEGA:
+        gateway_type_formatted = i18n.get("lbl-payment-platega")
     else:
         gateway_type_formatted = gateway_type_enum.value if gateway_type_enum else "N/A"
     
@@ -1036,6 +1044,10 @@ async def balance_confirm_getter(
         gateway_type_formatted = i18n.get("lbl-payment-cryptomus")
     elif gateway_type_enum == PaymentGatewayType.TELEGRAM_STARS:
         gateway_type_formatted = i18n.get("lbl-payment-telegram-stars")
+    elif gateway_type_enum == PaymentGatewayType.LAVA:
+        gateway_type_formatted = i18n.get("lbl-payment-lava")
+    elif gateway_type_enum == PaymentGatewayType.PLATEGA:
+        gateway_type_formatted = i18n.get("lbl-payment-platega")
     else:
         gateway_type_formatted = gateway_type_enum.value if gateway_type_enum else "N/A"
     

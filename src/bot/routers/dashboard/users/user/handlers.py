@@ -13,7 +13,7 @@ from loguru import logger
 from remnapy import RemnawaveSDK
 from remnapy.exceptions import NotFoundError
 
-from src.bot.keyboards import get_contact_support_keyboard
+from src.bot.keyboards import get_contact_support_keyboard, get_user_keyboard
 from src.bot.states import DashboardUser
 from src.core.config import AppConfig
 from src.core.constants import USER_KEY
@@ -427,6 +427,27 @@ async def on_points_input(
         f"'{abs(number)}' to balance for '{target_telegram_id}'"
     )
 
+    # Системное уведомление о начислении/списании баланса администратором
+    from src.core.enums import SystemNotificationType
+    await notification_service.system_notify(
+        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
+        payload=MessagePayload.not_deleted(
+            i18n_key="ntf-event-admin-balance-change",
+            i18n_kwargs={
+                "admin_id": str(user.telegram_id),
+                "admin_name": user.name,
+                "admin_username": user.username or False,
+                "target_id": str(target_user.telegram_id),
+                "target_name": target_user.name,
+                "target_username": target_user.username or False,
+                "amount": str(abs(number)),
+                "operation": "ADD" if number > 0 else "SUB",
+                "new_balance": str(new_balance),
+            },
+            reply_markup=get_user_keyboard(target_user.telegram_id),
+        ),
+    )
+
 
 @inject
 async def on_points_select(
@@ -465,6 +486,27 @@ async def on_points_select(
     logger.info(
         f"{log(user)} {'Added' if selected_points > 0 else 'Subtracted'} "
         f"'{abs(selected_points)}' to balance for '{target_telegram_id}'"
+    )
+
+    # Системное уведомление о начислении/списании баланса администратором
+    from src.core.enums import SystemNotificationType
+    await notification_service.system_notify(
+        ntf_type=SystemNotificationType.ADMIN_BALANCE_CHANGE,
+        payload=MessagePayload.not_deleted(
+            i18n_key="ntf-event-admin-balance-change",
+            i18n_kwargs={
+                "admin_id": str(user.telegram_id),
+                "admin_name": user.name,
+                "admin_username": user.username or False,
+                "target_id": str(target_user.telegram_id),
+                "target_name": target_user.name,
+                "target_username": target_user.username or False,
+                "amount": str(abs(selected_points)),
+                "operation": "ADD" if selected_points > 0 else "SUB",
+                "new_balance": str(new_balance),
+            },
+            reply_markup=get_user_keyboard(target_user.telegram_id),
+        ),
     )
 
 

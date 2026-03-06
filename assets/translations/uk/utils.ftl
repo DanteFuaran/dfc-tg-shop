@@ -60,8 +60,8 @@ lbl-balance-mode-separate = • <b>Separate</b> - separate bonus balance
 lbl-not-set = Not set
 lbl-payment-yoomoney = ЮMoney
 lbl-payment-cryptomus = Cryptomus
-lbl-payment-telegram-stars = Telegram Stars
-
+lbl-payment-telegram-stars = Telegram Starslbl-payment-lava = Lava
+lbl-payment-platega = Platega
 # Messages
 msg-fill-data-and-send = <i>ℹ️ Fill in the data and click the "Send" button.</i>
 
@@ -340,6 +340,8 @@ gateway-type = { $gateway_type ->
     [YOOMONEY] 💳 YooMoney
     [CRYPTOMUS] 🔐 Cryptomus
     [HELEKET] 💎 Heleket
+    [LAVA] 🌊 Lava
+    [PLATEGA] 💳 Platega
     [URLPAY] UrlPay
     [BALANCE] 💰 З балансу
     *[OTHER] { $gateway_type }

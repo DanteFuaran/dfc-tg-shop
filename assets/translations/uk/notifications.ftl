@@ -752,6 +752,8 @@ ntf-trial-unavailable = <i>❌ Пробна підписка тимчасово 
 ntf-referral-code-self = <i>❌ Ви не можете використати свій власний реферальний код.</i>
 ntf-referral-code-own-referral = <i>❌ Ви не можете використати реферальний код користувача, якого ви запросили.</i>
 ntf-referral-code-already-used = <i>❌ Ви вже використали реферальну підписку.</i>
+ntf-referral-code-already-has = <i>❌ Ви вже прив'язані до реферера. Повторна прив'язка неможлива.</i>
+ntf-referral-code-success-promo = <i>✅ Ви успішно прив'язалися до реферера!</i>
 
 ntf-importer-not-file = <i>⚠️ Надішліть базу даних як файл.</i>
 ntf-importer-db-invalid = <i>❌ Цей файл неможливо імпортувати.</i>
@@ -906,3 +908,37 @@ ntf-ref-code-invalid =
     Довжина: 3–32 символи.
 ntf-ref-code-taken = ❌ Цей код вже зайнятий іншим користувачем. Оберіть інший.
 ntf-ref-code-success = ✅ Реферальний код змінено на <code>{ $referral_code }</code>
+
+# Admin balance change notification
+ntf-event-admin-balance-change =
+    🧑‍💻 <b>Система: Зміна балансу адміністратором!</b>
+
+    <b>👤 Адміністратор:</b>
+    <blockquote>
+    • <b>ID</b>: <code>{ $admin_id }</code>
+    • <b>Ім'я</b>: { $admin_name }
+    { $admin_username ->
+        [false] {""}
+        *[other] • <b>Username</b>: @{ $admin_username }
+    }
+    </blockquote>
+
+    <b>👤 Користувач:</b>
+    <blockquote>
+    • <b>ID</b>: <code>{ $target_id }</code>
+    • <b>Ім'я</b>: { $target_name }
+    { $target_username ->
+        [false] {""}
+        *[other] • <b>Username</b>: @{ $target_username }
+    }
+    </blockquote>
+
+    <b>💰 Деталі:</b>
+    <blockquote>
+    • <b>Операція</b>: { $operation ->
+        [ADD] ➕ Нарахування
+        *[SUB] ➖ Списання
+    }
+    • <b>Сума</b>: { $amount } ₽
+    • <b>Баланс після</b>: { $new_balance } ₽
+    </blockquote>

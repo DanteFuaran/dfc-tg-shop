@@ -756,6 +756,8 @@ ntf-referral-code-invalid = <i>❌ Invalid referral code. Try again.</i>
 ntf-referral-code-self = <i>❌ You cannot use your own referral code.</i>
 ntf-referral-code-own-referral = <i>❌ You cannot use the referral code of a user you invited.</i>
 ntf-referral-code-already-used = <i>❌ You already used a referral subscription.</i>
+ntf-referral-code-already-has = <i>❌ You are already linked to a referrer. Re-linking is not possible.</i>
+ntf-referral-code-success-promo = <i>✅ You have been successfully linked to a referrer!</i>
 
 ntf-importer-not-file = <i>⚠️ Send the database as a file.</i>
 ntf-importer-db-invalid = <i>❌ This file cannot be imported.</i>
@@ -912,3 +914,37 @@ ntf-ref-code-invalid =
     Length: 3–32 characters.
 ntf-ref-code-taken = ❌ This code is already taken. Please choose another one.
 ntf-ref-code-success = ✅ Referral code changed to <code>{ $referral_code }</code>
+
+# Admin balance change notification
+ntf-event-admin-balance-change =
+    🧑‍💻 <b>System: Balance changed by admin!</b>
+
+    <b>👤 Admin:</b>
+    <blockquote>
+    • <b>ID</b>: <code>{ $admin_id }</code>
+    • <b>Name</b>: { $admin_name }
+    { $admin_username ->
+        [false] {""}
+        *[other] • <b>Username</b>: @{ $admin_username }
+    }
+    </blockquote>
+
+    <b>👤 User:</b>
+    <blockquote>
+    • <b>ID</b>: <code>{ $target_id }</code>
+    • <b>Name</b>: { $target_name }
+    { $target_username ->
+        [false] {""}
+        *[other] • <b>Username</b>: @{ $target_username }
+    }
+    </blockquote>
+
+    <b>💰 Details:</b>
+    <blockquote>
+    • <b>Operation</b>: { $operation ->
+        [ADD] ➕ Added
+        *[SUB] ➖ Subtracted
+    }
+    • <b>Amount</b>: { $amount } ₽
+    • <b>Balance after</b>: { $new_balance } ₽
+    </blockquote>

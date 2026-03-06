@@ -61,6 +61,8 @@ lbl-not-set = Не назначено
 lbl-payment-yoomoney = ЮMoney
 lbl-payment-cryptomus = Cryptomus
 lbl-payment-telegram-stars = Telegram Stars
+lbl-payment-lava = Lava
+lbl-payment-platega = Platega
 
 # Messages
 msg-fill-data-and-send = <i>ℹ️ Заполните данные и нажмите на кнопку "Отправить".</i>
@@ -353,6 +355,8 @@ gateway-type = { $gateway_type ->
     [YOOMONEY] 💳 ЮMoney
     [CRYPTOMUS] 🔐 Cryptomus
     [HELEKET] 💎 Heleket
+    [LAVA] 🌊 Lava
+    [PLATEGA] 💳 Platega
     [URLPAY] UrlPay
     [BALANCE] 💰 С баланса
     *[OTHER] { $gateway_type }

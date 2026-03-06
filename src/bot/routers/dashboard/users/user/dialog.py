@@ -196,20 +196,7 @@ subscription = Window(
             id="reset",
             on_click=on_reset_traffic,
         ),
-        Button(
-            text=I18nFormat("btn-user-subscription-devices"),
-            id="devices",
-            on_click=on_devices,
-        ),
         when=F["has_subscription"],
-    ),
-    Row(
-        SwitchTo(
-            text=I18nFormat("btn-user-subscription-device-limit"),
-            id="device_limit_sub",
-            state=DashboardUser.DEVICE_LIMIT,
-        ),
-        when=F["has_subscription"] & F["can_edit"],
     ),
     Row(
         SwitchTo(

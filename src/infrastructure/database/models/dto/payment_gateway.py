@@ -90,6 +90,18 @@ class RobokassaGatewaySettingsDto(GatewaySettingsDto):
     secret_key: Optional[SecretStr] = None
 
 
+class LavaGatewaySettingsDto(GatewaySettingsDto):
+    type: Literal[PaymentGatewayType.LAVA] = PaymentGatewayType.LAVA
+    shop_id: Optional[str] = None
+    secret_key: Optional[SecretStr] = None
+
+
+class PlategaGatewaySettingsDto(GatewaySettingsDto):
+    type: Literal[PaymentGatewayType.PLATEGA] = PaymentGatewayType.PLATEGA
+    shop_id: Optional[str] = None
+    secret_key: Optional[SecretStr] = None
+
+
 AnyGatewaySettingsDto = Annotated[
     Union[
         YookassaGatewaySettingsDto,
@@ -98,6 +110,8 @@ AnyGatewaySettingsDto = Annotated[
         HeleketGatewaySettingsDto,
         CryptopayGatewaySettingsDto,
         RobokassaGatewaySettingsDto,
+        LavaGatewaySettingsDto,
+        PlategaGatewaySettingsDto,
     ],
     Field(discriminator="type"),
 ]

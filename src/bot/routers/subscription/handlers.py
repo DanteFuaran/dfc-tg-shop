@@ -1185,12 +1185,13 @@ async def on_promocode_input(
     user_service: FromDishka["UserService"],
     subscription_service: FromDishka["SubscriptionService"],
     remnawave_service: FromDishka["RemnawaveService"],
+    referral_service: FromDishka["ReferralService"],
     i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Обработчик ввода промокода для активации."""
     import asyncio
     from datetime import datetime, timedelta, timezone
-    from src.core.enums import PromocodeRewardType
+    from src.core.enums import PromocodeRewardType, SystemNotificationType
     from src.infrastructure.database.models.sql import PromocodeActivation
     
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
@@ -1205,6 +1206,108 @@ async def on_promocode_input(
         return
     
     logger.info(f"{log(user)} Trying to activate promocode: {promocode_text}")
+    
+    # === Проверяем, является ли введённый код реферальным кодом ===
+    referral_code_lower = promocode_text.lower()
+    referrer = await user_service.get_by_referral_code(referral_code_lower)
+    
+    if referrer:
+        # Это реферальный код — обрабатываем как привязку реферала
+        logger.info(f"{log(user)} Input matched referral code of user {referrer.telegram_id}")
+        
+        # Проверяем, что пользователь не вводит свой код
+        if referral_code_lower == user.referral_code.lower():
+            logger.warning(f"{log(user)} Tried to use own referral code via promo input")
+            try:
+                await message.delete()
+            except Exception:
+                pass
+            error_msg = await message.answer(i18n.get("ntf-referral-code-self"))
+            asyncio.create_task(_delete_message_after_delay(error_msg, 5))
+            dialog_manager.show_mode = ShowMode.NO_UPDATE
+            return
+        
+        # Проверяем, не привязан ли пользователь уже к рефереру
+        existing_referral = await referral_service.get_referral_by_referred(user.telegram_id)
+        if existing_referral:
+            logger.warning(f"{log(user)} Already has a referrer, cannot enter referral code again")
+            try:
+                await message.delete()
+            except Exception:
+                pass
+            error_msg = await message.answer(i18n.get("ntf-referral-code-already-has"))
+            asyncio.create_task(_delete_message_after_delay(error_msg, 5))
+            dialog_manager.show_mode = ShowMode.NO_UPDATE
+            return
+        
+        # Проверяем, что пользователь не вводит код своего реферала (кольцевая ссылка)
+        user_referrals = await referral_service.get_referrals_by_referrer(user.telegram_id)
+        if any(ref.referred.telegram_id == referrer.telegram_id for ref in user_referrals):
+            logger.warning(f"{log(user)} Tried to use code of own referral: {referrer.telegram_id}")
+            try:
+                await message.delete()
+            except Exception:
+                pass
+            error_msg = await message.answer(i18n.get("ntf-referral-code-own-referral"))
+            asyncio.create_task(_delete_message_after_delay(error_msg, 5))
+            dialog_manager.show_mode = ShowMode.NO_UPDATE
+            return
+        
+        # Создаём реферальную связь
+        await referral_service.create_referral(
+            referrer=referrer,
+            referred=user,
+            level=ReferralLevel.FIRST,
+        )
+        
+        logger.info(f"{log(user)} Referral created via promo input: {referrer.telegram_id} -> {user.telegram_id}")
+        
+        # Уведомляем реферера
+        await notification_service.notify_user(
+            user=referrer,
+            payload=MessagePayload(
+                i18n_key="ntf-event-user-referral-attached",
+                i18n_kwargs={"name": user.name},
+                auto_delete_after=None,
+                add_close_button=True,
+            ),
+        )
+        
+        # Системное уведомление
+        base_i18n_kwargs = {
+            "user_id": str(user.telegram_id),
+            "user_name": user.name,
+            "username": user.username or False,
+        }
+        referrer_i18n_kwargs = {
+            "has_referrer": True,
+            "referrer_user_id": str(referrer.telegram_id),
+            "referrer_user_name": referrer.name,
+            "referrer_username": referrer.username or False,
+        }
+        await notification_service.system_notify(
+            payload=MessagePayload.not_deleted(
+                i18n_key="ntf-event-referral-upgrade",
+                i18n_kwargs={**base_i18n_kwargs, **referrer_i18n_kwargs},
+                reply_markup=get_user_keyboard(user.telegram_id),
+            ),
+            ntf_type=SystemNotificationType.USER_REGISTERED,
+        )
+        
+        # Обновляем кеш
+        await user_service.clear_user_cache(user.telegram_id)
+        
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        
+        # Уведомляем пользователя об успешной привязке
+        error_msg = await message.answer(i18n.get("ntf-referral-code-success-promo"))
+        asyncio.create_task(_delete_message_after_delay(error_msg, 5))
+        dialog_manager.show_mode = ShowMode.NO_UPDATE
+        return
+    # === Конец проверки реферального кода ===
     
     try:
         # Ищем промокод по коду
