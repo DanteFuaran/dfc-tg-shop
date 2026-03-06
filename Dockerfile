@@ -50,6 +50,14 @@ COPY ./assets/translations /opt/dfc-tg/assets/translations
 COPY ./scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 COPY ./scripts/docker-entrypoint-worker.sh ./scripts/docker-entrypoint-worker.sh
 COPY ./scripts/docker-entrypoint-scheduler.sh ./scripts/docker-entrypoint-scheduler.sh
+COPY ./scripts/precompile_translations.py ./scripts/precompile_translations.py
+
+# Pre-compile FTL translations to .pyc bytecode at build time
+# This converts ~44s CPU-bound compile_messages() at startup into ~50ms .pyc import.
+# Output: /opt/dfc-tg/assets/ftl_precompiled/ftl_{locale}.py + __pycache__/*.pyc
+RUN python3 ./scripts/precompile_translations.py \
+    /opt/dfc-tg/assets/translations \
+    /opt/dfc-tg/assets/ftl_precompiled
 
 RUN chmod +x ./scripts/docker-entrypoint.sh \
     && chmod +x ./scripts/docker-entrypoint-worker.sh \
