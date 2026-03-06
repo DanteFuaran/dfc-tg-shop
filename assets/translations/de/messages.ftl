@@ -1228,7 +1228,6 @@ msg-user-main-balance =
     }
 
     Select an amount or enter your own value.
-    Press <b>✅ Accept</b> to confirm.
 
 msg-user-referral-balance =
     <b>🎁 Bonus Balance</b>
@@ -1240,7 +1239,6 @@ msg-user-referral-balance =
     }
 
     Select an amount or enter your own value.
-    Press <b>✅ Accept</b> to confirm.
 
 msg-user-points =
     <b>💎 Change Balance</b>
@@ -1952,11 +1950,17 @@ msg-subscription-referral-success =
 
     <b>🎉 Subscription successfully upgraded to Referral!</b>
 
+msg-subscription-referral-attached =
+    <b>🎉 Glückwunsch!</b>
+
+    Sie sind dem Empfehlungsprogramm beigetreten und erhalten jetzt zusätzliche Boni beim Aufladen Ihres Guthabens!
+
 msg-subscription-promocode =
     <b>🎟 Enter Promo Code</b>
 
     Send the promo code to activate bonuses or discounts.
-    You can also enter another user's <b>referral code</b> to link to them.
+
+    You can enter a user's <b>referral code</b> to participate in the referral program.
 
 msg-subscription-success =
     { hdr-user-profile }

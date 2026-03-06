@@ -255,7 +255,7 @@ ntf-event-new-user =
     }
 
 ntf-event-referral-upgrade =
-    🤖 <b>System: Abo auf Empfehlung aufgewertet!</b>
+    🤖 <b>System: Registrierung im Empfehlungssystem!</b>
 
     { hdr-user }
     { frg-user-info }

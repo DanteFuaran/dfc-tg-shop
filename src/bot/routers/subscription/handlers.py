@@ -1302,10 +1302,9 @@ async def on_promocode_input(
         except Exception:
             pass
         
-        # Уведомляем пользователя об успешной привязке
-        error_msg = await message.answer(i18n.get("ntf-referral-code-success-promo"))
-        asyncio.create_task(_delete_message_after_delay(error_msg, 5))
-        dialog_manager.show_mode = ShowMode.NO_UPDATE
+        # Переходим на экран успешной привязки к реферальной программе
+        dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
+        await dialog_manager.switch_to(state=Subscription.REFERRAL_ATTACHED)
         return
     # === Конец проверки реферального кода ===
     

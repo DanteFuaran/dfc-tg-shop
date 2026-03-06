@@ -508,6 +508,22 @@ referral_success = Window(
     getter=referral_success_getter,
 )
 
+referral_attached = Window(
+    Banner(),
+    I18nFormat("msg-subscription-referral-attached"),
+    Row(
+        ColoredStart(
+            text=I18nFormat("btn-done"),
+            id="back_main_menu_attached",
+            state=MainMenu.MAIN,
+            mode=StartMode.RESET_STACK,
+            style="success",
+        ),
+    ),
+    IgnoreUpdate(),
+    state=Subscription.REFERRAL_ATTACHED,
+)
+
 promocode_input = Window(
     Banner(),
     I18nFormat("msg-subscription-promocode"),
@@ -886,6 +902,7 @@ router = Dialog(
     extra_devices_list,
     referral_code_input,
     referral_success,
+    referral_attached,
     promocode_input,
     plans,
     duration,

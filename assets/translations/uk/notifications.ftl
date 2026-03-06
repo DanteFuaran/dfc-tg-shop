@@ -255,7 +255,7 @@ ntf-event-new-user =
     }
 
 ntf-event-referral-upgrade =
-    🤖 <b>Система: Покращення підписки до реферальної!</b>
+    🤖 <b>Система: Реєстрація в реф.системі!</b>
 
     { hdr-user }
     { frg-user-info }

@@ -47,6 +47,7 @@ class Subscription(StatesGroup):
     PROMOCODE = State()
     REFERRAL_CODE = State()
     REFERRAL_SUCCESS = State()
+    REFERRAL_ATTACHED = State()
     PLANS = State()
     DURATION = State()
     PAYMENT_METHOD = State()
