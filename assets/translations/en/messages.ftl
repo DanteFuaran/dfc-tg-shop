@@ -776,7 +776,7 @@ msg-invite-reward = { $value }{ $reward_strategy_type ->
 msg-menu-invite-edit-code =
     ✏️ <b>Change Referral Code</b>
 
-    • Current code: <code>{ $referral_code }</code>
+    <blockquote>• Current code: <code>{ $referral_code }</code></blockquote>
 
     <i>Enter your new referral code.</i>
     { $ref_code_error ->

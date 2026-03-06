@@ -904,7 +904,7 @@ async def on_ref_code_input(
     dialog_manager.middleware_data[USER_KEY] = user
     logger.info(f"{log(user)} Changed referral code to '{new_code}'")
 
-    await dialog_manager.switch_to(MainMenu.INVITE)
+    await dialog_manager.switch_to(MainMenu.INVITE, show_mode=ShowMode.DELETE_AND_SEND)
 
 
 async def on_promocode(
