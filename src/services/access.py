@@ -1,4 +1,3 @@
-from aiogram import Bot
 from aiogram.types import CallbackQuery, TelegramObject
 from aiogram.types import User as AiogramUser
 from aiogram_dialog.utils import remove_intent_id
@@ -31,7 +30,6 @@ class AccessService(BaseService):
     def __init__(
         self,
         config: AppConfig,
-        bot: Bot,
         redis_client: Redis,
         redis_repository: RedisRepository,
         translator_hub: TranslatorHub,
@@ -41,7 +39,7 @@ class AccessService(BaseService):
         referral_service: ReferralService,
         notification_service: NotificationService,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
         self.settings_service = settings_service
         self.user_service = user_service
         self.referral_service = referral_service

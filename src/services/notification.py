@@ -68,7 +68,8 @@ class NotificationService(BaseService):
         user_service: UserService,
         settings_service: SettingsService,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
+        self.bot = bot
         self.user_service = user_service
         self.settings_service = settings_service
 

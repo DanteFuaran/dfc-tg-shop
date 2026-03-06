@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Annotated, NewType, TypeAlias, Union
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Annotated, NewType, Optional, TypeAlias, Union
 
 from aiogram.types import (
     BufferedInputFile,
@@ -13,6 +14,19 @@ from remnapy.models import UserResponseDto
 from remnapy.models.webhook import UserDto as UserWebhookDto
 
 from src.core.enums import Locale, SystemNotificationType, UserNotificationType
+
+
+@dataclass(frozen=True, slots=True)
+class CreateUserInput:
+    """Platform-agnostic input for user creation.
+
+    Can be constructed from any source: Telegram Bot, Mini App, Website, etc.
+    """
+
+    telegram_id: int
+    full_name: str
+    username: Optional[str] = None
+    language_code: Optional[str] = None
 
 if TYPE_CHECKING:
     ListStr: TypeAlias = list[str]

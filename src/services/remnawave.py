@@ -2,7 +2,6 @@ from datetime import timedelta
 from typing import Optional, cast
 from uuid import UUID
 
-from aiogram import Bot
 from fluentogram import TranslatorHub
 from loguru import logger
 from redis.asyncio import Redis
@@ -79,7 +78,6 @@ class RemnawaveService(BaseService):
     def __init__(
         self,
         config: AppConfig,
-        bot: Bot,
         redis_client: Redis,
         redis_repository: RedisRepository,
         translator_hub: TranslatorHub,
@@ -90,7 +88,7 @@ class RemnawaveService(BaseService):
         notification_service: NotificationService,
         plan_service: PlanService,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
         self.remnawave = remnawave
         self.user_service = user_service
         self.subscription_service = subscription_service

@@ -1,14 +1,19 @@
 import asyncio
 from datetime import datetime, timedelta
 
+from aiogram import Bot
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.methods import SetWebhook
 from aiogram.types import WebhookInfo
 from loguru import logger
+from fluentogram import TranslatorHub
+from redis.asyncio import Redis
 
+from src.core.config import AppConfig
 from src.core.security.crypto import get_webhook_hash
 from src.core.storage.keys import WebhookLockKey
 from src.core.utils.time import datetime_now
+from src.infrastructure.redis import RedisRepository
 
 from .base import BaseService
 
@@ -17,6 +22,17 @@ _NETWORK_RETRY_DELAY = 5  # seconds
 
 
 class WebhookService(BaseService):
+    def __init__(
+        self,
+        config: AppConfig,
+        bot: Bot,
+        redis_client: Redis,
+        redis_repository: RedisRepository,
+        translator_hub: TranslatorHub,
+    ) -> None:
+        super().__init__(config, redis_client, redis_repository, translator_hub)
+        self.bot = bot
+
     async def setup(self, allowed_updates: list[str]) -> WebhookInfo:
         safe_webhook_url = self.config.bot.safe_webhook_url(domain=self.config.domain)
 

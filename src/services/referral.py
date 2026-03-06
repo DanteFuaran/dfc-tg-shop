@@ -58,7 +58,8 @@ class ReferralService(BaseService):
         settings_service: SettingsService,
         notification_service: NotificationService,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
+        self.bot = bot
         self.uow = uow
         self.user_service = user_service
         self.settings_service = settings_service

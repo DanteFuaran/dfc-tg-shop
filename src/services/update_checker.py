@@ -16,7 +16,6 @@ from src.services.settings import SettingsService
 
 from .base import BaseService
 
-from aiogram import Bot
 from fluentogram import TranslatorHub
 from redis.asyncio import Redis
 from src.core.config import AppConfig
@@ -51,7 +50,6 @@ class UpdateCheckerService(BaseService):
     def __init__(
         self,
         config: AppConfig,
-        bot: Bot,
         redis_client: Redis,
         redis_repository: RedisRepository,
         translator_hub: TranslatorHub,
@@ -59,7 +57,7 @@ class UpdateCheckerService(BaseService):
         notification_service: NotificationService,
         settings_service: SettingsService,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
         self.notification_service = notification_service
         self.settings_service = settings_service
 

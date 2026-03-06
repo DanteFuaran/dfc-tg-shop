@@ -1,6 +1,5 @@
 from typing import Optional
 
-from aiogram import Bot
 from fluentogram import TranslatorHub
 from loguru import logger
 from redis.asyncio import Redis
@@ -22,14 +21,13 @@ class BalanceTransferService(BaseService):
     def __init__(
         self,
         config: AppConfig,
-        bot: Bot,
         redis_client: Redis,
         redis_repository: RedisRepository,
         translator_hub: TranslatorHub,
         #
         uow: UnitOfWork,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
         self.uow = uow
 
     async def create_transfer(

@@ -1,8 +1,6 @@
 from typing import Optional, Union
 
-from aiogram import Bot
 from aiogram.types import Message
-from aiogram.types import User as AiogramUser
 from fluentogram import TranslatorHub
 from loguru import logger
 from redis.asyncio import Redis
@@ -20,7 +18,7 @@ from src.core.storage.key_builder import StorageKey, build_key
 from src.core.storage.keys import RecentActivityUsersKey
 from src.core.utils.formatters import format_user_name
 from src.core.utils.generators import generate_referral_code
-from src.core.utils.types import RemnaUserDto
+from src.core.utils.types import CreateUserInput, RemnaUserDto
 from src.infrastructure.database import UnitOfWork
 from src.infrastructure.database.models.dto import UserDto, SettingsDto
 from src.infrastructure.database.models.dto.user import BaseUserDto
@@ -36,21 +34,20 @@ class UserService(BaseService):
     def __init__(
         self,
         config: AppConfig,
-        bot: Bot,
         redis_client: Redis,
         redis_repository: RedisRepository,
         translator_hub: TranslatorHub,
         #
         uow: UnitOfWork,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
         self.uow = uow
 
-    async def create(self, aiogram_user: AiogramUser, settings: Optional[SettingsDto] = None) -> UserDto:
+    async def create(self, user_input: CreateUserInput, settings: Optional[SettingsDto] = None) -> UserDto:
         # Определяем язык пользователя
         logger.info(
-            f"Creating user {aiogram_user.id}: "
-            f"telegram_lang='{aiogram_user.language_code}', "
+            f"Creating user {user_input.telegram_id}: "
+            f"telegram_lang='{user_input.language_code}', "
             f"multilingual={settings.features.language_enabled if settings else 'N/A'}, "
             f"bot_locale={settings.bot_locale if settings else 'N/A'}, "
             f"supported_locales={[loc.value for loc in self.config.locales]}"
@@ -60,29 +57,29 @@ class UserService(BaseService):
             # Мультиязычность включена - используем язык Telegram
             # Если язык Telegram не поддерживается - используем русский
             locale_codes = [loc.value for loc in self.config.locales]
-            if aiogram_user.language_code and aiogram_user.language_code in locale_codes:
-                language = Locale(aiogram_user.language_code)
-                logger.info(f"User {aiogram_user.id} created with Telegram language: {language.value}")
+            if user_input.language_code and user_input.language_code in locale_codes:
+                language = Locale(user_input.language_code)
+                logger.info(f"User {user_input.telegram_id} created with Telegram language: {language.value}")
             else:
                 language = settings.bot_locale if settings else Locale.RU
                 logger.info(
-                    f"User {aiogram_user.id} Telegram language '{aiogram_user.language_code}' "
+                    f"User {user_input.telegram_id} Telegram language '{user_input.language_code}' "
                     f"not supported, using bot locale: {language.value}"
                 )
         else:
             # Мультиязычность выключена - используем язык выбранный админом
             language = settings.bot_locale if settings else Locale.RU
-            logger.info(f"User {aiogram_user.id} created with admin language: {language.value}")
+            logger.info(f"User {user_input.telegram_id} created with admin language: {language.value}")
         
         user = UserDto(
-            telegram_id=aiogram_user.id,
-            username=aiogram_user.username,
+            telegram_id=user_input.telegram_id,
+            username=user_input.username,
             referral_code=generate_referral_code(
-                aiogram_user.id,
+                user_input.telegram_id,
                 secret=self.config.crypt_key.get_secret_value(),
             ),
-            name=aiogram_user.full_name,
-            role=(UserRole.DEV if self.config.bot.dev_id == aiogram_user.id else UserRole.USER),
+            name=user_input.full_name,
+            role=(UserRole.DEV if self.config.bot.dev_id == user_input.telegram_id else UserRole.USER),
             language=language,
         )
         db_user = User(**user.model_dump())

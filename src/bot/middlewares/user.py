@@ -17,6 +17,7 @@ from src.core.constants import CONTAINER_KEY, IS_SUPER_DEV_KEY, USER_KEY, SETTIN
 from src.core.enums import MiddlewareEventType, PlanType, SystemNotificationType
 from src.core.utils.formatters import format_bytes_to_gb
 from src.core.utils.message_payload import MessagePayload
+from src.core.utils.types import CreateUserInput
 from src.infrastructure.database.models.dto import (
     PlanSnapshotDto,
     SubscriptionDto,
@@ -84,7 +85,15 @@ class UserMiddleware(EventTypedMiddleware):
             subscription_service: SubscriptionService = await container.get(SubscriptionService)
             translator_hub: TranslatorHub = await container.get(TranslatorHub)
 
-            user = await user_service.create(aiogram_user, settings=settings)
+            user = await user_service.create(
+                CreateUserInput(
+                    telegram_id=aiogram_user.id,
+                    full_name=aiogram_user.full_name,
+                    username=aiogram_user.username,
+                    language_code=aiogram_user.language_code,
+                ),
+                settings=settings,
+            )
 
             # Проверяем существующую подписку в Remnawave
             try:

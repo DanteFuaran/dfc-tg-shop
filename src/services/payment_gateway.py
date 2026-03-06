@@ -93,7 +93,8 @@ class PaymentGatewayService(BaseService):
         extra_device_service: ExtraDeviceService,
         remnawave: RemnawaveSDK,
     ) -> None:
-        super().__init__(config, bot, redis_client, redis_repository, translator_hub)
+        super().__init__(config, redis_client, redis_repository, translator_hub)
+        self.bot = bot
         self.uow = uow
         self.transaction_service = transaction_service
         self.subscription_service = subscription_service
@@ -485,7 +486,6 @@ class PaymentGatewayService(BaseService):
             # Создаем SettingsService (нужен для NotificationService)
             settings_service = SettingsService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -495,7 +495,6 @@ class PaymentGatewayService(BaseService):
             # Создаем UserService (нужен для SubscriptionService, RemnawaveService, NotificationService)
             user_service = UserService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -515,7 +514,6 @@ class PaymentGatewayService(BaseService):
             
             extra_device_service = ExtraDeviceService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -523,7 +521,6 @@ class PaymentGatewayService(BaseService):
             )
             subscription_service = SubscriptionService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -532,7 +529,6 @@ class PaymentGatewayService(BaseService):
             )
             plan_service = PlanService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -540,7 +536,6 @@ class PaymentGatewayService(BaseService):
             )
             remnawave_service = RemnawaveService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -786,7 +781,6 @@ class PaymentGatewayService(BaseService):
             
             plan_service = PlanService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,
@@ -795,7 +789,6 @@ class PaymentGatewayService(BaseService):
             
             remnawave_service = RemnawaveService(
                 config=self.config,
-                bot=self.bot,
                 redis_client=self.redis_client,
                 redis_repository=self.redis_repository,
                 translator_hub=self.translator_hub,

@@ -2,14 +2,29 @@ from typing import Optional
 
 from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats, MenuButtonCommands
+from fluentogram import TranslatorHub
 from loguru import logger
+from redis.asyncio import Redis
 
+from src.core.config import AppConfig
 from src.core.enums import Command, Locale
+from src.infrastructure.redis import RedisRepository
 
 from .base import BaseService
 
 
 class CommandService(BaseService):
+    def __init__(
+        self,
+        config: AppConfig,
+        bot: Bot,
+        redis_client: Redis,
+        redis_repository: RedisRepository,
+        translator_hub: TranslatorHub,
+    ) -> None:
+        super().__init__(config, redis_client, redis_repository, translator_hub)
+        self.bot = bot
+
     async def setup(self) -> None:
         """Set up commands for the main bot."""
         await self.setup_for_bot(self.bot)

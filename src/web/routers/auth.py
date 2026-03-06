@@ -9,8 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from aiogram.types import User as AiogramUser
-
+from src.core.utils.types import CreateUserInput
 from src.infrastructure.database import UnitOfWork
 from src.infrastructure.database.models.sql.web_credential import WebCredential
 from src.services.settings import SettingsService
@@ -60,15 +59,16 @@ async def auth_telegram(request: Request):
             try:
                 settings_service: SettingsService = await req_container.get(SettingsService)
                 settings = await settings_service.get()
-                aiogram_user = AiogramUser(
-                    id=telegram_id,
-                    is_bot=False,
-                    first_name=user_obj.get("first_name") or "User",
-                    last_name=user_obj.get("last_name"),
+                first_name = user_obj.get("first_name") or "User"
+                last_name = user_obj.get("last_name")
+                full_name = f"{first_name} {last_name}" if last_name else first_name
+                user_input = CreateUserInput(
+                    telegram_id=telegram_id,
+                    full_name=full_name,
                     username=user_obj.get("username"),
                     language_code=user_obj.get("language_code"),
                 )
-                await user_service.create(aiogram_user, settings=settings)
+                await user_service.create(user_input, settings=settings)
                 logger.info(f"Auto-registered user {telegram_id} via Mini App initData")
             except Exception as exc:
                 logger.warning(f"Auto-register failed for user {telegram_id}: {exc}")
