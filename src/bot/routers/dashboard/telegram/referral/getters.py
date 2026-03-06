@@ -77,13 +77,13 @@ async def referral_getter(
         elif reward_strategy == ReferralRewardStrategy.PERCENT:
             if reward_type == ReferralRewardType.EXTRA_DAYS:
                 return f"{value}% от дней подписки"
-            return f"{value}%"
+            return f"{value}% от стоимости подписки"
         else:
             # Для фиксированной награды
             if reward_type == ReferralRewardType.MONEY:
                 return f"{value} ₽"
             else:  # EXTRA_DAYS
-                return f"{value} дн. за каждые 100 Р"
+                return f"{value} дн. за каждые 100 ₽"
     
     # Форматируем отображение награды в зависимости от количества уровней
     if level.value == 1:
@@ -230,7 +230,7 @@ async def reward_getter(
         elif is_percent:
             if reward_type == ReferralRewardType.EXTRA_DAYS:
                 return f"{value}% от дней подписки"
-            return f"{value}% от суммы платежа"
+            return f"{value}% от стоимости подписки"
         else:
             if reward_type == ReferralRewardType.MONEY:
                 return f"{value} ₽"
@@ -320,8 +320,8 @@ async def cashback_getter(
         "cashback_0_selected": 1 if cashback == 0 else 0,
     }
     
-    # Процентные кнопки (5-50%)
-    for val in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+    # Процентные кнопки (10-100%)
+    for val in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
         result[f"cashback_{val}_selected"] = 1 if cashback == val else 0
     
     return result

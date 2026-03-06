@@ -591,21 +591,11 @@ cashback = Window(
         id="cashback_free",
         on_click=on_cashback_free_select,
     ),
-    # Процентные кнопки (5-50%)
+    # Процентные кнопки (10-100%)
     Row(
-        Button(
-            text=I18nFormat("btn-cashback-5", selected=F["cashback_5_selected"]),
-            id="cashback_5",
-            on_click=on_cashback_preset_select,
-        ),
         Button(
             text=I18nFormat("btn-cashback-10", selected=F["cashback_10_selected"]),
             id="cashback_10",
-            on_click=on_cashback_preset_select,
-        ),
-        Button(
-            text=I18nFormat("btn-cashback-15", selected=F["cashback_15_selected"]),
-            id="cashback_15",
             on_click=on_cashback_preset_select,
         ),
         Button(
@@ -614,20 +604,8 @@ cashback = Window(
             on_click=on_cashback_preset_select,
         ),
         Button(
-            text=I18nFormat("btn-cashback-25", selected=F["cashback_25_selected"]),
-            id="cashback_25",
-            on_click=on_cashback_preset_select,
-        ),
-    ),
-    Row(
-        Button(
             text=I18nFormat("btn-cashback-30", selected=F["cashback_30_selected"]),
             id="cashback_30",
-            on_click=on_cashback_preset_select,
-        ),
-        Button(
-            text=I18nFormat("btn-cashback-35", selected=F["cashback_35_selected"]),
-            id="cashback_35",
             on_click=on_cashback_preset_select,
         ),
         Button(
@@ -636,13 +614,35 @@ cashback = Window(
             on_click=on_cashback_preset_select,
         ),
         Button(
-            text=I18nFormat("btn-cashback-45", selected=F["cashback_45_selected"]),
-            id="cashback_45",
+            text=I18nFormat("btn-cashback-50", selected=F["cashback_50_selected"]),
+            id="cashback_50",
+            on_click=on_cashback_preset_select,
+        ),
+    ),
+    Row(
+        Button(
+            text=I18nFormat("btn-cashback-60", selected=F["cashback_60_selected"]),
+            id="cashback_60",
             on_click=on_cashback_preset_select,
         ),
         Button(
-            text=I18nFormat("btn-cashback-50", selected=F["cashback_50_selected"]),
-            id="cashback_50",
+            text=I18nFormat("btn-cashback-70", selected=F["cashback_70_selected"]),
+            id="cashback_70",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-80", selected=F["cashback_80_selected"]),
+            id="cashback_80",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-90", selected=F["cashback_90_selected"]),
+            id="cashback_90",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-100", selected=F["cashback_100_selected"]),
+            id="cashback_100",
             on_click=on_cashback_preset_select,
         ),
     ),

@@ -1317,45 +1317,45 @@ btn-cashback-free = { $selected ->
     [1] [ Выключить ]
     *[0] Выключить
     }
-btn-cashback-5 = { $selected ->
-    [1] [ 5% ]
-    *[0] 5%
-    }
 btn-cashback-10 = { $selected ->
     [1] [ 10% ]
     *[0] 10%
-    }
-btn-cashback-15 = { $selected ->
-    [1] [ 15% ]
-    *[0] 15%
     }
 btn-cashback-20 = { $selected ->
     [1] [ 20% ]
     *[0] 20%
     }
-btn-cashback-25 = { $selected ->
-    [1] [ 25% ]
-    *[0] 25%
-    }
 btn-cashback-30 = { $selected ->
     [1] [ 30% ]
     *[0] 30%
-    }
-btn-cashback-35 = { $selected ->
-    [1] [ 35% ]
-    *[0] 35%
     }
 btn-cashback-40 = { $selected ->
     [1] [ 40% ]
     *[0] 40%
     }
-btn-cashback-45 = { $selected ->
-    [1] [ 45% ]
-    *[0] 45%
-    }
 btn-cashback-50 = { $selected ->
     [1] [ 50% ]
     *[0] 50%
+    }
+btn-cashback-60 = { $selected ->
+    [1] [ 60% ]
+    *[0] 60%
+    }
+btn-cashback-70 = { $selected ->
+    [1] [ 70% ]
+    *[0] 70%
+    }
+btn-cashback-80 = { $selected ->
+    [1] [ 80% ]
+    *[0] 80%
+    }
+btn-cashback-90 = { $selected ->
+    [1] [ 90% ]
+    *[0] 90%
+    }
+btn-cashback-100 = { $selected ->
+    [1] [ 100% ]
+    *[0] 100%
     }
 
 # Старые кнопки (оставлены для совместимости)
