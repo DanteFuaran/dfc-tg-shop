@@ -170,12 +170,13 @@ async def on_update_now(
             f"cp /tmp/repo/version {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/src {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/scripts {_HOST_PROJECT_DIR}/ && "
+            f"cp -r /tmp/repo/frontend {_HOST_PROJECT_DIR}/ && "
             f"cp -r /tmp/repo/assets/translations {_HOST_PROJECT_DIR}/assets/ 2>/dev/null || true && "
             f"cp -r /tmp/repo/assets/update {_HOST_PROJECT_DIR}/assets/ 2>/dev/null || true && "
             f"cp /tmp/repo/assets/README.md {_HOST_PROJECT_DIR}/assets/ 2>/dev/null || true && "
             f"cd {_HOST_PROJECT_DIR} && "
             "docker build -t dfc-tg:local . && "
-            "docker compose up -d && "
+            "docker compose up -d --force-recreate --no-deps dfc-tg dfc-tg-taskiq-worker dfc-tg-taskiq-scheduler && "
             "rm -rf /tmp/repo"
         )
 
