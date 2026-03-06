@@ -1348,25 +1348,9 @@ msg-user-message =
     
 
 # Панель
-msg-remnawave-main =
-    <b>🌊 Панель</b>
-    
-    <b>🖥️ Система:</b>
-    <blockquote>
-    • <b>ЦПУ</b>: { $cpu_cores } { $cpu_cores ->
-    [one] ядро
-    [few] ядра
-    *[more] ядер
-    } { $cpu_threads } { $cpu_threads ->
-    [one] поток
-    [few] потока
-    *[more] потоков
-    }
-    • <b>ОЗУ</b>: { $ram_used } / { $ram_total } ({ $ram_used_percent }%)
-    • <b>Аптайм</b>: { $uptime }
-    </blockquote>
+msg-monitoring =
+    <b>📡 Мониторинг</b>
 
-msg-remnawave-users =
     <b>👥 Пользователи</b>
 
     <b>📊 Статистика:</b>
@@ -1386,63 +1370,23 @@ msg-remnawave-users =
     • <b>Сейчас онлайн</b>: { $online_now }
     </blockquote>
 
-msg-remnawave-host-details =
-    <b>{ $remark } ({ $status ->
-    [ON] включен
-    *[OFF] выключен
-    }):</b>
+    <b>📍 Локации и онлайн</b>
+
+    <b>📊 Статистика:</b>
     <blockquote>
-    • <b>Адрес</b>: <code>{ $address }:{ $port }</code>
-    { $inbound_uuid ->
-    [0] { empty }
-    *[HAS] • <b>Инбаунд</b>: <code>{ $inbound_uuid }</code>
-    }
+    • <b>Всего серверов</b>: { $total_servers }
+    • <b>Доступно</b>: { $available_servers }
+    • <b>Всего онлайн</b>: { $total_online }
     </blockquote>
 
-msg-remnawave-node-details =
-    <b>{ $country } { $name } ({ $status ->
-    [ON] подключено
-    *[OFF] отключено
-    }):</b>
+    <b>📋 Список серверов:</b>
     <blockquote>
-    • <b>Адрес</b>: <code>{ $address }{ $port -> 
-    [0] { empty }
-    *[HAS]:{ $port }
-    }</code>
-    • <b>Аптайм (xray)</b>: { $xray_uptime }
-    • <b>Пользователей онлайн</b>: { $users_online }
-    • <b>Трафик</b>: { $traffic_used } / { $traffic_limit }
+    { $servers_list }
     </blockquote>
 
-msg-remnawave-inbound-details =
-    <b>🔗 { $tag }</b>
-    <blockquote>
-    • <b>ID</b>: <code>{ $inbound_id }</code>
-    • <b>Протокол</b>: { $type } ({ $network })
-    { $port ->
-    [0] { empty }
-    *[HAS] • <b>Порт</b>: { $port }
-    }
-    { $security ->
-    [0] { empty }
-    *[HAS] • <b>Безопасность</b>: { $security } 
-    }
-    </blockquote>
+    🕐 <b>Последнее обновление:</b> { $last_update }
 
-msg-remnawave-hosts =
-    <b>🌐 Хосты</b>
-    
-    { $host }
-
-msg-remnawave-nodes = 
-    <b>🖥️ Ноды</b>
-
-    { $node }
-
-msg-remnawave-inbounds =
-    <b>🔌 Инбаунды</b>
-
-    { $inbound }
+msg-monitoring-no-servers = Нет доступных серверов
 
 
 # Телеграм

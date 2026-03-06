@@ -282,10 +282,6 @@ class TelegramPlans(StatesGroup):
 
 class DashboardRemnawave(StatesGroup):
     MAIN = State()
-    USERS = State()
-    HOSTS = State()
-    NODES = State()
-    INBOUNDS = State()
 
 
 class DashboardImporter(StatesGroup):

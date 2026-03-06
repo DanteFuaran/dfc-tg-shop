@@ -1344,23 +1344,9 @@ msg-user-message =
     
 
 # Panel
-msg-remnawave-main =
-    <b>🌊 Panel</b>
-    
-    <b>🖥️ System:</b>
-    <blockquote>
-    • <b>CPU</b>: { $cpu_cores } { $cpu_cores ->
-    [one] core
-    *[other] cores
-    } { $cpu_threads } { $cpu_threads ->
-    [one] thread
-    *[other] threads
-    }
-    • <b>RAM</b>: { $ram_used } / { $ram_total } ({ $ram_used_percent }%)
-    • <b>Uptime</b>: { $uptime }
-    </blockquote>
+msg-monitoring =
+    <b>📡 Monitoring</b>
 
-msg-remnawave-users =
     <b>👥 Users</b>
 
     <b>📊 Statistics:</b>
@@ -1380,63 +1366,23 @@ msg-remnawave-users =
     • <b>Currently online</b>: { $online_now }
     </blockquote>
 
-msg-remnawave-host-details =
-    <b>{ $remark } ({ $status ->
-    [ON] enabled
-    *[OFF] disabled
-    }):</b>
+    <b>📍 Locations & online</b>
+
+    <b>📊 Statistics:</b>
     <blockquote>
-    • <b>Address</b>: <code>{ $address }:{ $port }</code>
-    { $inbound_uuid ->
-    [0] { empty }
-    *[HAS] • <b>Inbound</b>: <code>{ $inbound_uuid }</code>
-    }
+    • <b>Total servers</b>: { $total_servers }
+    • <b>Available</b>: { $available_servers }
+    • <b>Total online</b>: { $total_online }
     </blockquote>
 
-msg-remnawave-node-details =
-    <b>{ $country } { $name } ({ $status ->
-    [ON] connected
-    *[OFF] disconnected
-    }):</b>
+    <b>📋 Server list:</b>
     <blockquote>
-    • <b>Address</b>: <code>{ $address }{ $port -> 
-    [0] { empty }
-    *[HAS]:{ $port }
-    }</code>
-    • <b>Uptime (xray)</b>: { $xray_uptime }
-    • <b>Users online</b>: { $users_online }
-    • <b>Traffic</b>: { $traffic_used } / { $traffic_limit }
+    { $servers_list }
     </blockquote>
 
-msg-remnawave-inbound-details =
-    <b>🔗 { $tag }</b>
-    <blockquote>
-    • <b>ID</b>: <code>{ $inbound_id }</code>
-    • <b>Protocol</b>: { $type } ({ $network })
-    { $port ->
-    [0] { empty }
-    *[HAS] • <b>Port</b>: { $port }
-    }
-    { $security ->
-    [0] { empty }
-    *[HAS] • <b>Security</b>: { $security } 
-    }
-    </blockquote>
+    🕐 <b>Last update:</b> { $last_update }
 
-msg-remnawave-hosts =
-    <b>🌐 Hosts</b>
-    
-    { $host }
-
-msg-remnawave-nodes = 
-    <b>🖥️ Nodes</b>
-
-    { $node }
-
-msg-remnawave-inbounds =
-    <b>🔌 Inbounds</b>
-
-    { $inbound }
+msg-monitoring-no-servers = No servers available
 
 
 # Telegram

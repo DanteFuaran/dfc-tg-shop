@@ -1349,101 +1349,45 @@ msg-user-message =
     
 
 # Панель
-msg-remnawave-main =
-    <b>🌊 Панель</b>
-    
-    <b>🖥️ Система:</b>
-    <blockquote>
-    • <b>ЦПУ</b>: { $cpu_cores } { $cpu_cores ->
-    [one] ядро
-    [few] ядра
-    *[more] ядер
-    } { $cpu_threads } { $cpu_threads ->
-    [one] поток
-    [few] потока
-    *[more] потоков
-    }
-    • <b>ОЗУ</b>: { $ram_used } / { $ram_total } ({ $ram_used_percent }%)
-    • <b>Аптайм</b>: { $uptime }
-    </blockquote>
+msg-monitoring =
+    <b>📡 Моніторинг</b>
 
-msg-remnawave-users =
-    <b>👥 Пользователи</b>
+    <b>👥 Користувачі</b>
 
     <b>📊 Статистика:</b>
     <blockquote>
-    • <b>Всего</b>: { $users_total }
-    • <b>Активные</b>: { $users_active }
-    • <b>Отключенные</b>: { $users_disabled }
-    • <b>Ограниченные</b>: { $users_limited }
-    • <b>Истекшие</b>: { $users_expired }
+    • <b>Всього</b>: { $users_total }
+    • <b>Активні</b>: { $users_active }
+    • <b>Вимкнені</b>: { $users_disabled }
+    • <b>Обмежені</b>: { $users_limited }
+    • <b>Закінчилися</b>: { $users_expired }
     </blockquote>
 
     <b>🟢 Онлайн:</b>
     <blockquote>
     • <b>За день</b>: { $online_last_day }
-    • <b>За неделю</b>: { $online_last_week }
-    • <b>Никогда не заходили</b>: { $online_never }
-    • <b>Сейчас онлайн</b>: { $online_now }
+    • <b>За тиждень</b>: { $online_last_week }
+    • <b>Ніколи не заходили</b>: { $online_never }
+    • <b>Зараз онлайн</b>: { $online_now }
     </blockquote>
 
-msg-remnawave-host-details =
-    <b>{ $remark } ({ $status ->
-    [ON] включен
-    *[OFF] выключен
-    }):</b>
+    <b>📍 Локації та онлайн</b>
+
+    <b>📊 Статистика:</b>
     <blockquote>
-    • <b>Адрес</b>: <code>{ $address }:{ $port }</code>
-    { $inbound_uuid ->
-    [0] { empty }
-    *[HAS] • <b>Инбаунд</b>: <code>{ $inbound_uuid }</code>
-    }
+    • <b>Всього серверів</b>: { $total_servers }
+    • <b>Доступно</b>: { $available_servers }
+    • <b>Всього онлайн</b>: { $total_online }
     </blockquote>
 
-msg-remnawave-node-details =
-    <b>{ $country } { $name } ({ $status ->
-    [ON] подключено
-    *[OFF] отключено
-    }):</b>
+    <b>📋 Список серверів:</b>
     <blockquote>
-    • <b>Адрес</b>: <code>{ $address }{ $port -> 
-    [0] { empty }
-    *[HAS]:{ $port }
-    }</code>
-    • <b>Аптайм (xray)</b>: { $xray_uptime }
-    • <b>Пользователей онлайн</b>: { $users_online }
-    • <b>Трафик</b>: { $traffic_used } / { $traffic_limit }
+    { $servers_list }
     </blockquote>
 
-msg-remnawave-inbound-details =
-    <b>🔗 { $tag }</b>
-    <blockquote>
-    • <b>ID</b>: <code>{ $inbound_id }</code>
-    • <b>Протокол</b>: { $type } ({ $network })
-    { $port ->
-    [0] { empty }
-    *[HAS] • <b>Порт</b>: { $port }
-    }
-    { $security ->
-    [0] { empty }
-    *[HAS] • <b>Безопасность</b>: { $security } 
-    }
-    </blockquote>
+    🕐 <b>Останнє оновлення:</b> { $last_update }
 
-msg-remnawave-hosts =
-    <b>🌐 Хосты</b>
-    
-    { $host }
-
-msg-remnawave-nodes = 
-    <b>🖥️ Ноды</b>
-
-    { $node }
-
-msg-remnawave-inbounds =
-    <b>🔌 Инбаунды</b>
-
-    { $inbound }
+msg-monitoring-no-servers = Немає доступних серверів
 
 
 # Телеграм

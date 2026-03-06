@@ -1345,99 +1345,45 @@ msg-user-message =
     
 
 # Panel
-msg-remnawave-main =
-    <b>🌊 Panel</b>
-    
-    <b>🖥️ System:</b>
-    <blockquote>
-    • <b>CPU</b>: { $cpu_cores } { $cpu_cores ->
-    [one] core
-    *[other] cores
-    } { $cpu_threads } { $cpu_threads ->
-    [one] thread
-    *[other] threads
-    }
-    • <b>RAM</b>: { $ram_used } / { $ram_total } ({ $ram_used_percent }%)
-    • <b>Uptime</b>: { $uptime }
-    </blockquote>
+msg-monitoring =
+    <b>📡 Monitoring</b>
 
-msg-remnawave-users =
-    <b>👥 Users</b>
+    <b>👥 Benutzer</b>
 
-    <b>📊 Statistics:</b>
+    <b>📊 Statistiken:</b>
     <blockquote>
-    • <b>Total</b>: { $users_total }
-    • <b>Active</b>: { $users_active }
-    • <b>Disabled</b>: { $users_disabled }
-    • <b>Limited</b>: { $users_limited }
-    • <b>Expired</b>: { $users_expired }
+    • <b>Gesamt</b>: { $users_total }
+    • <b>Aktiv</b>: { $users_active }
+    • <b>Deaktiviert</b>: { $users_disabled }
+    • <b>Eingeschränkt</b>: { $users_limited }
+    • <b>Abgelaufen</b>: { $users_expired }
     </blockquote>
 
     <b>🟢 Online:</b>
     <blockquote>
-    • <b>Last day</b>: { $online_last_day }
-    • <b>Last week</b>: { $online_last_week }
-    • <b>Never logged in</b>: { $online_never }
-    • <b>Currently online</b>: { $online_now }
+    • <b>Letzter Tag</b>: { $online_last_day }
+    • <b>Letzte Woche</b>: { $online_last_week }
+    • <b>Nie eingeloggt</b>: { $online_never }
+    • <b>Gerade online</b>: { $online_now }
     </blockquote>
 
-msg-remnawave-host-details =
-    <b>{ $remark } ({ $status ->
-    [ON] enabled
-    *[OFF] disabled
-    }):</b>
+    <b>📍 Standorte & Online</b>
+
+    <b>📊 Statistiken:</b>
     <blockquote>
-    • <b>Address</b>: <code>{ $address }:{ $port }</code>
-    { $inbound_uuid ->
-    [0] { empty }
-    *[HAS] • <b>Inbound</b>: <code>{ $inbound_uuid }</code>
-    }
+    • <b>Server gesamt</b>: { $total_servers }
+    • <b>Verfügbar</b>: { $available_servers }
+    • <b>Gesamt online</b>: { $total_online }
     </blockquote>
 
-msg-remnawave-node-details =
-    <b>{ $country } { $name } ({ $status ->
-    [ON] connected
-    *[OFF] disconnected
-    }):</b>
+    <b>📋 Serverliste:</b>
     <blockquote>
-    • <b>Address</b>: <code>{ $address }{ $port -> 
-    [0] { empty }
-    *[HAS]:{ $port }
-    }</code>
-    • <b>Uptime (xray)</b>: { $xray_uptime }
-    • <b>Users online</b>: { $users_online }
-    • <b>Traffic</b>: { $traffic_used } / { $traffic_limit }
+    { $servers_list }
     </blockquote>
 
-msg-remnawave-inbound-details =
-    <b>🔗 { $tag }</b>
-    <blockquote>
-    • <b>ID</b>: <code>{ $inbound_id }</code>
-    • <b>Protocol</b>: { $type } ({ $network })
-    { $port ->
-    [0] { empty }
-    *[HAS] • <b>Port</b>: { $port }
-    }
-    { $security ->
-    [0] { empty }
-    *[HAS] • <b>Security</b>: { $security } 
-    }
-    </blockquote>
+    🕐 <b>Letzte Aktualisierung:</b> { $last_update }
 
-msg-remnawave-hosts =
-    <b>🌐 Hosts</b>
-    
-    { $host }
-
-msg-remnawave-nodes = 
-    <b>🖥️ Nodes</b>
-
-    { $node }
-
-msg-remnawave-inbounds =
-    <b>🔌 Inbounds</b>
-
-    { $inbound }
+msg-monitoring-no-servers = Keine Server verfügbar
 
 
 # Telegram
