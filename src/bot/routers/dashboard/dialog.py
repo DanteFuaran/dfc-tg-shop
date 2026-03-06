@@ -93,15 +93,49 @@ user_management = Window(
     I18nFormat("msg-dashboard-user-management"),
     Row(
         Start(
-            text=I18nFormat("btn-dashboard-users"),
-            id="users",
-            state=DashboardUsers.MAIN,
+            text=I18nFormat("btn-users-all"),
+            id="all_users",
+            state=DashboardUsers.ALL_USERS,
             mode=StartMode.RESET_STACK,
         ),
+    ),
+    Row(
         Start(
             text=I18nFormat("btn-remnashop-admins"),
             id="admins",
             state=DashboardTelegram.ADMINS,
+            mode=StartMode.RESET_STACK,
+        ),
+    ),
+    Row(
+        Start(
+            text=I18nFormat("btn-users-search"),
+            id="search",
+            state=DashboardUsers.SEARCH,
+            mode=StartMode.RESET_STACK,
+        ),
+    ),
+    Row(
+        Start(
+            text=I18nFormat("btn-users-recent-registered"),
+            id="recent_registered",
+            state=DashboardUsers.RECENT_REGISTERED,
+            mode=StartMode.RESET_STACK,
+        ),
+    ),
+    Row(
+        Start(
+            text=I18nFormat("btn-users-recent-activity"),
+            id="recent_activity",
+            state=DashboardUsers.RECENT_ACTIVITY,
+            mode=StartMode.RESET_STACK,
+        ),
+    ),
+    Row(
+        Start(
+            text=I18nFormat("btn-users-blacklist"),
+            id="blacklist",
+            state=DashboardUsers.BLACKLIST,
             mode=StartMode.RESET_STACK,
         ),
     ),

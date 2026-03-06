@@ -639,8 +639,8 @@ class PaymentGatewayService(BaseService):
                 ),
             )
             
-            # Assign referral rewards
-            if not transaction.pricing.is_free and transaction.gateway_type != PaymentGatewayType.BALANCE:
+            # Assign referral rewards (для любого способа оплаты, включая баланс)
+            if not transaction.pricing.is_free:
                 await self.referral_service.assign_referral_rewards(transaction=transaction)
             
             # Перенаправляем на экран успеха добавления устройств
@@ -679,9 +679,8 @@ class PaymentGatewayService(BaseService):
                     amount=int(transaction.pricing.final_amount),
                 )
             
-            # Assign referral rewards (only for external payment gateways)
-            if not transaction.pricing.is_free and transaction.gateway_type != PaymentGatewayType.BALANCE:
-                await self.referral_service.assign_referral_rewards(transaction=transaction)
+            # Пополнение баланса НЕ начисляет реферальные награды
+            # Награды начисляются только при покупке/продлении подписки
             
             # Redirect user to main menu
             await redirect_to_main_menu_task.kiq(telegram_id=transaction.user.telegram_id)
@@ -826,8 +825,8 @@ class PaymentGatewayService(BaseService):
             transaction.user.purchase_discount_expires_at = None
             await self.user_service.update(transaction.user)
 
-        # Назначить реферальные бонусы (только для внешних шлюзов, не для баланса и не для бесплатных)
-        if not transaction.pricing.is_free and transaction.gateway_type != PaymentGatewayType.BALANCE:
+        # Назначить реферальные бонусы (для любого способа оплаты, включая баланс)
+        if not transaction.pricing.is_free:
             await self.referral_service.assign_referral_rewards(transaction=transaction)
 
         logger.debug(f"Called tasks payment for user '{transaction.user.telegram_id}'")

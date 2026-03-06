@@ -74,10 +74,11 @@ search = Window(
     Banner(),
     I18nFormat("msg-users-search"),
     Row(
-        ColoredSwitchTo(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
-            state=DashboardUsers.MAIN,
+            state=Dashboard.USER_MANAGEMENT,
+            mode=StartMode.RESET_STACK,
             style="primary",
         ),
         *main_menu_button,
@@ -105,10 +106,11 @@ recent_registered = Window(
         hide_on_single_page=True,
     ),
     Row(
-        ColoredSwitchTo(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
-            state=DashboardUsers.MAIN,
+            state=Dashboard.USER_MANAGEMENT,
+            mode=StartMode.RESET_STACK,
             style="primary",
         ),
         *main_menu_button,
@@ -136,10 +138,11 @@ recent_activity = Window(
         hide_on_single_page=True,
     ),
     Row(
-        ColoredSwitchTo(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
-            state=DashboardUsers.MAIN,
+            state=Dashboard.USER_MANAGEMENT,
+            mode=StartMode.RESET_STACK,
             style="primary",
         ),
         *main_menu_button,
@@ -167,10 +170,11 @@ all_users = Window(
         hide_on_single_page=True,
     ),
     Row(
-        ColoredSwitchTo(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
-            state=DashboardUsers.MAIN,
+            state=Dashboard.USER_MANAGEMENT,
+            mode=StartMode.RESET_STACK,
             style="primary",
         ),
         *main_menu_button,
@@ -237,10 +241,11 @@ blacklist = Window(
         ),
     ),
     Row(
-        ColoredSwitchTo(
+        ColoredStart(
             text=I18nFormat("btn-back"),
             id="back",
-            state=DashboardUsers.MAIN,
+            state=Dashboard.USER_MANAGEMENT,
+            mode=StartMode.RESET_STACK,
             style="primary",
         ),
         *main_menu_button,
