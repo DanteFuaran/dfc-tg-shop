@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 import time
 from typing import cast
 
@@ -83,8 +84,6 @@ async def on_update_now(
     update_checker_service: FromDishka[UpdateCheckerService],
 ) -> None:
     """Handle 'Update now' button — trigger bot update via Docker."""
-    import subprocess
-
     notification: Message = cast(Message, callback.message)
     user_id = user.telegram_id
     now = time.time()
@@ -188,7 +187,7 @@ async def on_update_now(
             "docker:cli", "sh", "-c", update_script,
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = await asyncio.to_thread(subprocess.run, cmd, capture_output=True, text=True, timeout=120)
 
         if result.returncode == 0:
             logger.info(f"[update] Updater container started: {result.stdout.strip()[:12]}")
