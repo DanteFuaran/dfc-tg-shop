@@ -884,3 +884,11 @@ ntf-no-subscription-for-devices = <i>⚠️ Вам необхідно отрим
 
 ntf-no-subscription-for-connect = <i>⚠️ Вам необхідно отримати підписку.</i>
 
+
+# Referral code change
+ntf-ref-code-invalid =
+    ❌ <b>Недопустимий код.</b>
+    Використовуйте лише: A–Z, a–z, 0–9, _ -
+    Довжина: 3–32 символи.
+ntf-ref-code-taken = ❌ Цей код вже зайнятий іншим користувачем. Оберіть інший.
+ntf-ref-code-success = ✅ Реферальний код змінено на <code>{ $referral_code }</code>

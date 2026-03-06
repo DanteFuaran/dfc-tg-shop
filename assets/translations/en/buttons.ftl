@@ -383,6 +383,7 @@ btn-menu-invite-about = ❓ More About Rewards
 btn-menu-invite-copy = 🔗 Invitation Link
 btn-menu-invite-send = 📩 Invite
 btn-menu-invite-qr = 🧾 QR Code
+btn-menu-invite-edit-code = ✏️ Change Ref. Code
 btn-menu-invite-withdraw-points = 💰 Withdraw Balance
 btn-menu-invite-withdraw-balance = 💸 Activate Bonuses
 btn-menu-promocode = 🎟 Promo Code

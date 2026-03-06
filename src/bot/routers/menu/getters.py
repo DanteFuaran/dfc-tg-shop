@@ -717,6 +717,15 @@ async def invite_about_getter(
     }
 
 
+async def invite_edit_code_getter(
+    dialog_manager: DialogManager,
+    user: UserDto,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Геттер для окна смены реферального кода."""
+    return {"referral_code": user.referral_code}
+
+
 @inject
 async def balance_menu_getter(
     dialog_manager: DialogManager,

@@ -383,6 +383,7 @@ btn-menu-invite-about = ❓ Mehr über Belohnungen
 btn-menu-invite-copy = 🔗 Einladungslink
 btn-menu-invite-send = 📩 Einladen
 btn-menu-invite-qr = 🧾 QR-Code
+btn-menu-invite-edit-code = ✏️ Ref.-Code ändern
 btn-menu-invite-withdraw-points = 💰 Guthaben abheben
 btn-menu-invite-withdraw-balance = 💸 Boni aktivieren
 btn-menu-promocode = 🎟 Gutscheincode

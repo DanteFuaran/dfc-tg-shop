@@ -773,6 +773,15 @@ msg-invite-reward = { $value }{ $reward_strategy_type ->
     *[OTHER] { $reward_strategy_type }
     }
 
+msg-menu-invite-edit-code =
+    ✏️ <b>Empfehlungscode ändern</b>
+
+    Aktueller Code: <code>{ $referral_code }</code>
+
+    Gib deinen neuen Empfehlungscode ein:
+    Erlaubte Zeichen: <code>A–Z a–z 0–9 _ -</code>
+    Länge: 3 bis 32 Zeichen.
+
 
 # Dashboard
 msg-dashboard-main =

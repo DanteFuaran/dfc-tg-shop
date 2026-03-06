@@ -36,6 +36,7 @@ from .getters import (
     connect_getter,
     devices_getter,
     invite_about_getter,
+    invite_edit_code_getter,
     invite_getter,
     menu_getter,
     transfer_amount_manual_getter,
@@ -83,6 +84,7 @@ from .handlers import (
     on_invite,
     on_platform_select,
     on_promocode,
+    on_ref_code_input,
     on_show_qr,
     on_show_key,
     on_withdraw_points,
@@ -313,10 +315,34 @@ invite = Window(
             copy_text=Format("{referral_link}"),
         ),
     ),
+    Row(
+        SwitchTo(
+            text=I18nFormat("btn-menu-invite-edit-code"),
+            id="edit_code",
+            state=MainMenu.INVITE_EDIT_CODE,
+        ),
+    ),
     Row(*main_menu_button),
     IgnoreUpdate(),
     state=MainMenu.INVITE,
     getter=invite_getter,
+)
+
+invite_edit_code = Window(
+    Banner(),
+    I18nFormat("msg-menu-invite-edit-code", referral_code=F["referral_code"]),
+    MessageInput(func=on_ref_code_input),
+    Row(
+        ColoredSwitchTo(
+            text=I18nFormat("btn-back"),
+            id="back",
+            state=MainMenu.INVITE,
+            style="danger",
+        ),
+    ),
+    IgnoreUpdate(),
+    state=MainMenu.INVITE_EDIT_CODE,
+    getter=invite_edit_code_getter,
 )
 
 invite_about = Window(
@@ -829,6 +855,7 @@ router = Dialog(
     connect_qr,
     devices,
     invite,
+    invite_edit_code,
     invite_about,
     invite_qr,
     balance,

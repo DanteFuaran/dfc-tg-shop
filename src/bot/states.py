@@ -11,6 +11,7 @@ class MainMenu(StatesGroup):
     INVITE = State()
     INVITE_ABOUT = State()
     INVITE_QR = State()
+    INVITE_EDIT_CODE = State()
     BALANCE = State()
     BALANCE_TOPUP = State()
     BALANCE_AMOUNTS = State()

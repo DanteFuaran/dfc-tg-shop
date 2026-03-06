@@ -890,3 +890,11 @@ ntf-no-subscription-for-devices = <i>⚠️ You need to get a subscription first
 
 ntf-no-subscription-for-connect = <i>⚠️ You need to get a subscription first.</i>
 
+
+# Referral code change
+ntf-ref-code-invalid =
+    ❌ <b>Invalid code.</b>
+    Use only: A–Z, a–z, 0–9, _ -
+    Length: 3–32 characters.
+ntf-ref-code-taken = ❌ This code is already taken. Please choose another one.
+ntf-ref-code-success = ✅ Referral code changed to <code>{ $referral_code }</code>

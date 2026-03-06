@@ -888,3 +888,11 @@ ntf-no-subscription-for-devices = <i>⚠️ Sie müssen zuerst ein Abonnement er
 
 ntf-no-subscription-for-connect = <i>⚠️ Sie müssen zuerst ein Abonnement erwerben.</i>
 
+
+# Referral code change
+ntf-ref-code-invalid =
+    ❌ <b>Ungültiger Code.</b>
+    Erlaubt sind nur: A–Z, a–z, 0–9, _ -
+    Länge: 3–32 Zeichen.
+ntf-ref-code-taken = ❌ Dieser Code ist bereits vergeben. Bitte wähle einen anderen.
+ntf-ref-code-success = ✅ Empfehlungscode geändert auf <code>{ $referral_code }</code>

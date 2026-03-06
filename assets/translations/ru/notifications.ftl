@@ -914,3 +914,11 @@ ntf-no-subscription-for-devices = <i>⚠️ Вам необходимо полу
 
 ntf-no-subscription-for-connect = <i>⚠️ Вам необходимо получить подписку.</i>
 
+
+# Referral code change
+ntf-ref-code-invalid =
+    ❌ <b>Недопустимый код.</b>
+    Используйте только: A–Z, a–z, 0–9, _ -
+    Длина: 3–32 символа.
+ntf-ref-code-taken = ❌ Этот код уже занят другим пользователем. Выберите другой.
+ntf-ref-code-success = ✅ Реферальный код изменён на <code>{ $referral_code }</code>

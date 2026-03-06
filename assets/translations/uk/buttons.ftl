@@ -383,6 +383,7 @@ btn-menu-invite-about = ❓ Детальніше про нагороди
 btn-menu-invite-copy = 🔗 Посилання для запрошення
 btn-menu-invite-send = 📩 Запросити
 btn-menu-invite-qr = 🧾 QR-код
+btn-menu-invite-edit-code = ✏️ Змінити реф. код
 btn-menu-invite-withdraw-points = 💰 Вивести баланс
 btn-menu-invite-withdraw-balance = 💸 Активувати бонуси
 btn-menu-promocode = 🎟 Промокод
