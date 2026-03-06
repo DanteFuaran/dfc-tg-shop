@@ -205,6 +205,14 @@ subscription = Window(
     ),
     Row(
         SwitchTo(
+            text=I18nFormat("btn-user-subscription-device-limit"),
+            id="device_limit_sub",
+            state=DashboardUser.DEVICE_LIMIT,
+        ),
+        when=F["has_subscription"] & F["can_edit"],
+    ),
+    Row(
+        SwitchTo(
             text=I18nFormat("btn-user-subscription-expire-time"),
             id="expire_time",
             state=DashboardUser.EXPIRE_TIME,
@@ -301,7 +309,7 @@ device_limit = Window(
     I18nFormat("msg-user-subscription-device-limit"),
     Group(
         Select(
-            text=I18nFormat("unit-device", value=F["item"]),
+            text=Format("{item}"),
             id="device_limit_select",
             item_id_getter=lambda item: item,
             items="devices_count",
