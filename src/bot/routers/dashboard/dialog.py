@@ -47,8 +47,6 @@ dashboard = Window(
             state=TelegramPlans.MAIN,
             mode=StartMode.RESET_STACK,
         ),
-    ),
-    Row(
         Start(
             text=I18nFormat("btn-dashboard-payment-settings"),
             id="payment_settings",

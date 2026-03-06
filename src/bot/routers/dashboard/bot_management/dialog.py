@@ -1,6 +1,5 @@
 from aiogram_dialog import Dialog, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, Row, Start
-from aiogram_dialog.widgets.text import Const
 from magic_filter import F
 
 from src.bot.keyboards import main_menu_button
@@ -9,8 +8,6 @@ from src.bot.states import Dashboard, DashboardAccess, DashboardBotManagement, D
 from src.bot.widgets import Banner, ColoredButton, I18nFormat, IgnoreUpdate
 from src.bot.routers.dashboard.settings.getters import language_settings_getter
 from src.bot.routers.dashboard.settings.handlers import (
-    on_toggle_access,
-    on_toggle_notifications,
     on_language_click,
     on_toggle_language,
     on_language_select,
@@ -29,39 +26,27 @@ bot_management_window = Window(
     Banner(),
     I18nFormat("msg-bot-management"),
     # 1. Режим доступа
-    Row(
-        Start(
-            text=I18nFormat("btn-settings-access"),
-            id="access",
-            state=DashboardAccess.MAIN,
-            mode=StartMode.RESET_STACK,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["access_enabled"],
-            ),
-            id="toggle_access",
-            on_click=on_toggle_access,
-        ),
+    Start(
+        text=I18nFormat("btn-settings-access"),
+        id="access",
+        state=DashboardAccess.MAIN,
+        mode=StartMode.RESET_STACK,
     ),
-    # 2. Уведомления
-    Row(
-        Start(
-            text=I18nFormat("btn-settings-notifications"),
-            id="notifications",
-            state=TelegramNotifications.MAIN,
-        ),
-        Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["notifications_enabled"],
-            ),
-            id="toggle_notifications",
-            on_click=on_toggle_notifications,
-        ),
+    # 2. Добавить зеркало
+    Start(
+        text=I18nFormat("btn-mirror-bots"),
+        id="mirror_bots",
+        state=DashboardMirrorBots.MAIN,
+        mode=StartMode.RESET_STACK,
     ),
-    # 3. Язык
+    # 3. Уведомления
+    Start(
+        text=I18nFormat("btn-settings-notifications"),
+        id="notifications",
+        state=TelegramNotifications.MAIN,
+        mode=StartMode.RESET_STACK,
+    ),
+    # 4. Язык | Логи
     Row(
         Button(
             text=I18nFormat("btn-settings-language"),
@@ -69,20 +54,12 @@ bot_management_window = Window(
             on_click=on_language_click,
         ),
         Button(
-            text=I18nFormat(
-                "btn-settings-toggle",
-                enabled=F["language_enabled"],
-            ),
-            id="toggle_language",
-            on_click=on_toggle_language,
+            text=I18nFormat("btn-remnashop-logs"),
+            id="logs",
+            on_click=on_logs_request,
         ),
     ),
-    Start(
-        text=I18nFormat("btn-mirror-bots"),
-        id="mirror_bots",
-        state=DashboardMirrorBots.MAIN,
-        mode=StartMode.RESET_STACK,
-    ),
+    # 5. Обновление | Перезагрузить
     Row(
         Button(
             text=I18nFormat("btn-bot-check-update"),
@@ -90,16 +67,12 @@ bot_management_window = Window(
             on_click=on_check_update,
         ),
         Button(
-            text=I18nFormat("btn-remnashop-logs"),
-            id="logs",
-            on_click=on_logs_request,
+            text=I18nFormat("btn-bot-restart"),
+            id="restart_bot",
+            on_click=on_restart_bot,
         ),
     ),
-    Button(
-        text=I18nFormat("btn-bot-restart"),
-        id="restart_bot",
-        on_click=on_restart_bot,
-    ),
+    # 6. Назад | Главное меню
     Row(
         ColoredButton(
             text=I18nFormat("btn-back"),

@@ -2,21 +2,21 @@
 btn-dashboard-broadcast = 📢 Рассылка
 btn-dashboard-statistics = 📊 Статистика
 btn-dashboard-users = 👥 Пользователи
-btn-dashboard-plans = 📦 Тарифные планы
+btn-dashboard-plans = 📦 Тарифы
 btn-dashboard-promocodes = 🎟 Промокоды
-btn-dashboard-remnawave = 🌊 Мониторинг панели
+btn-dashboard-remnawave = 🌊 Панель
 btn-dashboard-remnashop = 🛍 Телеграм
 btn-dashboard-access = 🔓 Режим доступа
 btn-dashboard-features = ⚙️ Функционал
 btn-dashboard-importer = 📥 X-UI Импорт
 btn-dashboard-bot-management = 🤖 Управление ботом
-btn-dashboard-payment-settings = 💳 Настройки платежей
+btn-dashboard-payment-settings = 💳 Платежи
 btn-dashboard-user-management = 👥 Пользователи
 
 # Bot Management
-btn-bot-check-update = 🔍 Проверить обновления
+btn-bot-check-update = 🔍 Обновление
 btn-bot-restart = 🔁 Перезапустить
-btn-mirror-bots = 🤖 Дополнительный бот
+btn-mirror-bots = 🤖 Добавить зеркало
 btn-mirror-bot-add = ➕ Добавить нового бота
 
 # Database Management
@@ -35,7 +35,7 @@ btn-db-sync-remnawave-to-bot = 📥 Из панели в бота
 btn-db-sync-bot-to-remnawave = 📤 Из бота в панель
 
 # Settings
-btn-dashboard-settings = ⚙️ Функционал
+btn-dashboard-settings = ⚙️ Доп. функции
 btn-settings-extra-devices = 📱 Доп. устройства
 btn-settings-balance = 💰 Баланс
 btn-settings-transfers = 💸 Переводы
@@ -449,7 +449,7 @@ btn-dashboard-broadcast = 📢 Рассылка
 btn-dashboard-promocodes = 🎟 Промокоды
 btn-dashboard-access = 🔓 Режим доступа
 btn-dashboard-features = ⚙️ Функционал
-btn-dashboard-remnawave = 🌊 Мониторинг панели
+btn-dashboard-remnawave = 🌊 Панель
 btn-dashboard-remnashop = 🛍 Телеграм
 btn-dashboard-importer = 📥 Импорт пользователей
 btn-dashboard-save-db = 💾 Сохранить БД

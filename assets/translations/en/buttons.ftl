@@ -2,21 +2,21 @@
 btn-dashboard-broadcast = 📢 Broadcast
 btn-dashboard-statistics = 📊 Statistics
 btn-dashboard-users = 👥 Users
-btn-dashboard-plans = 📦 Pricing Plans
+btn-dashboard-plans = 📦 Plans
 btn-dashboard-promocodes = 🎟 Promo Codes
-btn-dashboard-remnawave = 🌊 Panel Monitoring
+btn-dashboard-remnawave = 🌊 Panel
 btn-dashboard-remnashop = 🛍 Telegram
 btn-dashboard-access = 🔓 Access Mode
 btn-dashboard-features = ⚙️ Features
 btn-dashboard-importer = 📥 X-UI Import
 btn-dashboard-bot-management = 🤖 Bot Management
-btn-dashboard-payment-settings = 💳 Payment Settings
+btn-dashboard-payment-settings = 💳 Payments
 btn-dashboard-user-management = 👥 Users
 
 # Bot Management
-btn-bot-check-update = 🔍 Check for Updates
+btn-bot-check-update = 🔍 Update
 btn-bot-restart = 🔁 Restart
-btn-mirror-bots = 🤖 Additional Bot
+btn-mirror-bots = 🤖 Add Mirror
 btn-mirror-bot-add = ➕ Add New Bot
 
 # Database Management
@@ -35,7 +35,7 @@ btn-db-sync-remnawave-to-bot = 📥 From Panel to Bot
 btn-db-sync-bot-to-remnawave = 📤 From Bot to Panel
 
 # Settings
-btn-dashboard-settings = ⚙️ Features
+btn-dashboard-settings = ⚙️ Extra Features
 btn-settings-extra-devices = 📱 Extra Devices
 btn-settings-balance = 💰 Balance
 btn-settings-transfers = 💸 Transfers
@@ -449,7 +449,7 @@ btn-dashboard-broadcast = 📢 Broadcast
 btn-dashboard-promocodes = 🎟 Promo Codes
 btn-dashboard-access = 🔓 Access Mode
 btn-dashboard-features = ⚙️ Features
-btn-dashboard-remnawave = 🌊 Panel Monitoring
+btn-dashboard-remnawave = 🌊 Panel
 btn-dashboard-remnashop = 🛍 Telegram
 btn-dashboard-importer = 📥 User Import
 btn-dashboard-save-db = 💾 Save DB
