@@ -336,7 +336,16 @@ class UserMiddleware(EventTypedMiddleware):
                 )
 
         elif not isinstance(aiogram_user, FakeUser):
-            await user_service.compare_and_update(user, aiogram_user, settings=settings)
+            await user_service.compare_and_update(
+                user,
+                CreateUserInput(
+                    telegram_id=aiogram_user.id,
+                    full_name=aiogram_user.full_name,
+                    username=aiogram_user.username,
+                    language_code=aiogram_user.language_code,
+                ),
+                settings=settings,
+            )
 
         # Fire-and-forget: don't block handler on 3 Redis commands for activity
         tid = user.telegram_id

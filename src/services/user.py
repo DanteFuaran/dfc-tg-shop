@@ -170,17 +170,17 @@ class UserService(BaseService):
     async def compare_and_update(
         self,
         user: UserDto,
-        aiogram_user: AiogramUser,
+        user_input: CreateUserInput,
         settings: Optional[SettingsDto] = None,
     ) -> Optional[UserDto]:
-        new_username = aiogram_user.username
+        new_username = user_input.username
         if user.username != new_username:
             logger.debug(
                 f"User '{user.telegram_id}' username changed ({user.username} -> {new_username})"
             )
             user.username = new_username
 
-        new_name = format_user_name(aiogram_user.full_name)
+        new_name = format_user_name(user_input.full_name)
         if user.name != new_name:
             logger.debug(f"User '{user.telegram_id}' name changed ({user.name} -> {new_name})")
             user.name = new_name
@@ -189,7 +189,7 @@ class UserService(BaseService):
         if settings:
             if settings.features.language_enabled:
                 # Мультиязычность включена - используем язык Telegram
-                new_language = aiogram_user.language_code
+                new_language = user_input.language_code
                 locale_codes = [loc.value for loc in self.config.locales]
                 
                 if new_language and new_language in locale_codes:
