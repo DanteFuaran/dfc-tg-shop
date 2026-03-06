@@ -281,6 +281,7 @@ class UserService(BaseService):
             user.telegram_id,
             **user.prepare_changed_data(),
         )
+        await self.uow.commit()
         await self.clear_user_cache(user.telegram_id)
         logger.info(f"Set block={blocked} for user '{user.telegram_id}'")
 
@@ -290,6 +291,7 @@ class UserService(BaseService):
             user.telegram_id,
             **user.prepare_changed_data(),
         )
+        await self.uow.commit()
         await self.clear_user_cache(user.telegram_id)
         logger.info(f"Set bot_blocked={blocked} for user '{user.telegram_id}'")
 
@@ -299,6 +301,7 @@ class UserService(BaseService):
             user.telegram_id,
             **user.prepare_changed_data(),
         )
+        await self.uow.commit()
         await self.clear_user_cache(user.telegram_id)
         logger.info(f"Set role='{role.name}' for user '{user.telegram_id}'")
 
