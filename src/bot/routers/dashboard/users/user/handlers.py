@@ -63,7 +63,7 @@ async def on_back_to_source(
     dialog_manager: DialogManager,
 ) -> None:
     """Return to the source state from which user window was opened."""
-    from src.bot.states import DashboardUsers
+    from src.bot.states import Dashboard, DashboardUsers
     
     start_data = dialog_manager.start_data or {}
     source_state = start_data.get("source_state")
@@ -83,12 +83,13 @@ async def on_back_to_source(
     state_map = {
         "recent_registered": DashboardUsers.RECENT_REGISTERED,
         "recent_activity": DashboardUsers.RECENT_ACTIVITY,
+        "all_users": DashboardUsers.ALL_USERS,
         "search_results": DashboardUsers.SEARCH,
         "blacklist": DashboardUsers.BLACKLIST,
         "search": DashboardUsers.SEARCH,
     }
     
-    target_state = state_map.get(source_state, DashboardUsers.MAIN)
+    target_state = state_map.get(source_state, Dashboard.USER_MANAGEMENT)
     await dialog_manager.start(state=target_state, mode=StartMode.RESET_STACK)
 
 
