@@ -175,6 +175,30 @@ class NotificationService(BaseService):
 
         return bool(await self._send_message(user=dev, payload=payload, locale_override=locale))
 
+    async def notify_all_devs(self, payload: MessagePayload) -> list[bool]:
+        """Отправляет уведомление всем пользователям с ролью DEV."""
+        devs = await self.user_service.get_by_role(role=UserRole.DEV)
+
+        if not devs:
+            devs = [self._get_temp_dev()]
+
+        settings = await self.settings_service.get()
+
+        logger.debug(
+            f"Attempting to send notification '{payload.i18n_key}' to all '{len(devs)}' devs"
+        )
+
+        async def send_to_dev(dev: UserDto) -> bool:
+            if settings.features.language_enabled:
+                locale = dev.language
+            else:
+                locale = settings.bot_locale
+            return bool(await self._send_message(user=dev, payload=payload, locale_override=locale))
+
+        tasks = [send_to_dev(dev) for dev in devs]
+        results = await asyncio.gather(*tasks)
+        return cast(list[bool], results)
+
     async def error_notify(
         self,
         traceback_str: str,
@@ -190,7 +214,7 @@ class NotificationService(BaseService):
         payload.media = file_data
         payload.media_type = MediaType.DOCUMENT
         payload.i18n_kwargs.update(self.config.build.data)
-        await self.notify_super_dev(payload=payload)
+        await self.notify_all_devs(payload=payload)
 
     #
 

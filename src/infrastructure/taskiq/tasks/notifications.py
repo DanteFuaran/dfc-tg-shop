@@ -36,7 +36,7 @@ async def send_error_notification_task(
     payload.media = file_data
     payload.media_type = MediaType.DOCUMENT
     try:
-        await notification_service.notify_super_dev(payload=payload)
+        await notification_service.notify_all_devs(payload=payload)
     except TelegramRetryAfter as e:
         # Log rate limit, don't retry - prevent spam
         import logging
