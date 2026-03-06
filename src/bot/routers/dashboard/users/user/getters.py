@@ -98,7 +98,6 @@ async def user_getter(
         # Реферер
         "has_referrer": 1 if referrer else 0,
         "referrer_name": referrer.name if referrer else "",
-        "referrer_username": referrer.username if referrer and referrer.username else 0,
         "referrer_tg_id": str(referrer.telegram_id) if referrer else "0",
     }
 

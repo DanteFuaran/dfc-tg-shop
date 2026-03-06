@@ -117,10 +117,7 @@ frg-user-details =
         [1] {"\u000A"}• <b>Реферальный код</b>: <code>{ $referral_code }</code>
         *[0] {""}
     }{ $has_referrer ->
-        [1] {"\u000A"}• <b>Реферер</b>: <a href="tg://user?id={ $referrer_tg_id }">{ $referrer_name }</a>{ $referrer_username ->
-            [0] {""}
-            *[HAS] {" "}(@{ $referrer_username })
-        }
+        [1] {"\u000A"}• <b>Реферер</b>: <code>{ $referrer_tg_id }</code> ({ $referrer_name })
         *[0] {""}
     }{ $is_balance_enabled ->
         [1] {"\u000A"}• <b>Баланс</b>: { $balance } ₽
