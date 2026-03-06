@@ -32,8 +32,7 @@ class SystemNotificationDto(TrackableDto):  # == SystemNotificationType
     user_hwid: bool = True
     billing: bool = True
     balance_transfer: bool = True
-    # TODO: Add torrent_block
-    # TODO: Add traffic_overuse
+    admin_balance_change: bool = True
 
     def is_enabled(self, ntf_type: SystemNotificationType) -> bool:
         return getattr(self, ntf_type.value.lower(), False)

@@ -1376,6 +1376,7 @@ btn-notifications-system-choice = { $enabled ->
     [USER_HWID] User Devices
     [BILLING] Financial Operations
     [BALANCE_TRANSFER] Financial Transfers
+    [ADMIN_BALANCE_CHANGE] Balance top-up
     *[OTHER] { $type }
     }
 

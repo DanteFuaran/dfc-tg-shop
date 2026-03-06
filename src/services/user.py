@@ -4,7 +4,7 @@ from aiogram.types import Message
 from fluentogram import TranslatorHub
 from loguru import logger
 from redis.asyncio import Redis
-from sqlalchemy import delete, or_
+from sqlalchemy import delete, or_, select
 
 from src.core.config import AppConfig
 from src.core.constants import (
@@ -228,12 +228,22 @@ class UserService(BaseService):
         tid = user.telegram_id
         session = self.uow.session
 
-        # Delete dependent records that have FK to users without ON DELETE CASCADE
+        # 1. Удаляем PromocodeActivation по user_telegram_id
+        await session.execute(
+            delete(PromocodeActivation).where(PromocodeActivation.user_telegram_id == tid)
+        )
+        # 2. Удаляем Transaction по user_telegram_id
+        await session.execute(
+            delete(Transaction).where(Transaction.user_telegram_id == tid)
+        )
+        # 3. Удаляем ReferralReward по user_telegram_id (прямые начисления)
         await session.execute(
             delete(ReferralReward).where(ReferralReward.user_telegram_id == tid)
         )
-        await session.execute(
-            delete(Referral).where(
+        # 4. Удаляем ReferralReward по referral_id (награды других юзеров,
+        #    привязанные к referrals удаляемого пользователя)
+        referral_ids_subq = (
+            select(Referral.id).where(
                 or_(
                     Referral.referrer_telegram_id == tid,
                     Referral.referred_telegram_id == tid,
@@ -241,10 +251,16 @@ class UserService(BaseService):
             )
         )
         await session.execute(
-            delete(Transaction).where(Transaction.user_telegram_id == tid)
+            delete(ReferralReward).where(ReferralReward.referral_id.in_(referral_ids_subq))
         )
+        # 5. Удаляем Referral по referrer_telegram_id / referred_telegram_id
         await session.execute(
-            delete(PromocodeActivation).where(PromocodeActivation.user_telegram_id == tid)
+            delete(Referral).where(
+                or_(
+                    Referral.referrer_telegram_id == tid,
+                    Referral.referred_telegram_id == tid,
+                )
+            )
         )
 
         result = await self.uow.repository.users.delete(tid)

@@ -1376,6 +1376,7 @@ btn-notifications-system-choice = { $enabled ->
     [USER_HWID] Пристрої користувача
     [BILLING] Фінансові операції
     [BALANCE_TRANSFER] Фінансові перекази
+    [ADMIN_BALANCE_CHANGE] Нарахування балансу
     *[OTHER] { $type }
     }
 
