@@ -125,9 +125,11 @@ class NotificationService(BaseService):
         ntf_type: SystemNotificationType,
     ) -> list[bool]:
         devs = await self.user_service.get_by_role(role=UserRole.DEV)
+        admins = await self.user_service.get_by_role(role=UserRole.ADMIN)
+        privileged_users = devs + admins
 
-        if not devs:
-            devs = [self._get_temp_dev()]
+        if not privileged_users:
+            privileged_users = [self._get_temp_dev()]
 
         if not await self.settings_service.is_notification_enabled(ntf_type):
             logger.debug("Skipping system notification: notification type is disabled in settings")
@@ -136,20 +138,20 @@ class NotificationService(BaseService):
         settings = await self.settings_service.get()
 
         logger.debug(
-            f"Attempting to send system notification '{payload.i18n_key}' to '{len(devs)}' devs"
+            f"Attempting to send system notification '{payload.i18n_key}' to '{len(privileged_users)}' privileged users"
         )
 
-        async def send_to_dev(dev: UserDto) -> bool:
+        async def send_to_privileged(privileged_user: UserDto) -> bool:
             # Определяем язык в зависимости от мультиязычности
             if settings.features.language_enabled:
-                # Мультиязычность включена - используем язык dev пользователя
-                locale = dev.language
+                # Мультиязычность включена - используем язык пользователя
+                locale = privileged_user.language
             else:
                 # Мультиязычность выключена - используем bot_locale
                 locale = settings.bot_locale
-            return bool(await self._send_message(user=dev, payload=payload, locale_override=locale))
+            return bool(await self._send_message(user=privileged_user, payload=payload, locale_override=locale))
 
-        tasks = [send_to_dev(dev) for dev in devs]
+        tasks = [send_to_privileged(u) for u in privileged_users]
         results = await asyncio.gather(*tasks)
 
         return cast(list[bool], results)

@@ -29,7 +29,10 @@ async def on_user_search(
     dialog_manager.show_mode = ShowMode.EDIT
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
 
+    logger.debug(f"{log(user)} Search attempt: role={user.role}, is_privileged={user.is_privileged}")
+
     if not user.is_privileged:
+        logger.debug(f"{log(user)} Search rejected: role '{user.role}' is not privileged")
         return
 
     found_users = await user_service.search_users(message)
