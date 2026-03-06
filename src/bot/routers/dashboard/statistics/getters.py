@@ -27,13 +27,11 @@ from src.services.transaction import TransactionService
 from src.services.user import UserService
 
 
-@inject
-async def monitoring_getter(
-    dialog_manager: DialogManager,
-    remnawave: FromDishka[RemnawaveSDK],
-    i18n: FromDishka[TranslatorRunner],
-    **kwargs: Any,
+async def _get_monitoring_data(
+    remnawave: RemnawaveSDK,
+    i18n: TranslatorRunner,
 ) -> dict[str, Any]:
+    """Helper: collect monitoring data from Remnawave API."""
     stats, hosts_result, nodes_result = await asyncio.gather(
         remnawave.system.get_stats(),
         remnawave.hosts.get_all_hosts(),
@@ -48,22 +46,28 @@ async def monitoring_getter(
     users_expired = stats.users.status_counts.get("EXPIRED", 0)
     total_online = stats.online_stats.online_now
 
-    # Статистика серверов (по хостам)
+    # Статистика серверов
     total_servers = len(hosts_result)
-    available_servers = sum(1 for h in hosts_result if not h.is_disabled)
 
-    # Онлайн по нодам (сопоставление хост.address → нода.users_online)
+    # Онлайн и статус подключения из нод
     node_online_map: dict[str, int] = {}
+    node_status_map: dict[str, bool] = {}
     for node in nodes_result:
         if node.address:
-            node_online_map[node.address.lower().strip()] = node.users_online
+            key = node.address.lower().strip()
+            node_online_map[key] = node.users_online
+            node_status_map[key] = node.is_connected
 
     server_lines = []
+    connected_count = 0
     for host in hosts_result:
-        status_icon = "🟢" if not host.is_disabled else "🔴"
         host_addr = (host.address or "").lower().strip()
+        is_connected = node_status_map.get(host_addr, False)
+        if is_connected:
+            connected_count += 1
+        status_icon = "🟢" if is_connected else "🔴"
         online = node_online_map.get(host_addr, 0)
-        server_lines.append(f"{status_icon} {host.remark} 👥 {online}")
+        server_lines.append(f"{status_icon} {host.remark} - 👥 {online}")
 
     servers_list = (
         "\n".join(server_lines)
@@ -79,7 +83,7 @@ async def monitoring_getter(
         "users_expired": str(users_expired),
         "total_online": str(total_online),
         "total_servers": str(total_servers),
-        "available_servers": str(available_servers),
+        "available_servers": str(connected_count),
         "servers_list": servers_list,
     }
 
@@ -88,6 +92,7 @@ async def monitoring_getter(
 async def statistics_getter(
     dialog_manager: DialogManager,
     i18n: FromDishka[TranslatorRunner],
+    remnawave: FromDishka[RemnawaveSDK],
     users_service: FromDishka[UserService],
     transaction_service: FromDishka[TransactionService],
     subscription_service: FromDishka[SubscriptionService],
@@ -105,41 +110,36 @@ async def statistics_getter(
 
     match current_page:
         case 0:
+            statistics = await _get_monitoring_data(remnawave, i18n)
+            template = "msg-monitoring"
+        case 1:
             users = await users_service.get_all()
             transactions = await transaction_service.get_all()
             subscriptions = await subscription_service.get_all()
             statistics = get_users_statistics(users, transactions, subscriptions)
             template = "msg-statistics-users"
-        case 1:
+        case 2:
             transactions = await transaction_service.get_all()
             active_gateways = await payment_gateway_service.filter_active()
             statistics = get_transactions_statistics(transactions, i18n, active_gateways)
             template = "msg-statistics-transactions"
-        case 2:
+        case 3:
             subscriptions = await subscription_service.get_all()
             statistics = get_subscriptions_statistics(subscriptions)
             template = "msg-statistics-subscriptions"
-        case 3:
+        case 4:
             plans = await plan_service.get_all()
             subscriptions = await subscription_service.get_all()
             transactions = await transaction_service.get_all()
             statistics = get_plans_statistics(plans, subscriptions, transactions, i18n)
             template = "msg-statistics-plans"
-        case 4:
-            promocodes = await promocode_service.get_all()
-            statistics = get_promocodes_statistics(promocodes)
-            template = "msg-statistics-promocodes"
-        case 5:
-            # referrals = await referral_service.get_all()
-            # statistics = get_referrals_statistics(referrals)
-            template = "msg-statistics-referrals"
         case _:
             raise ValueError(f"Invalid statistics page index: '{current_page}'")
 
     formatted_message = i18n.get(template, **statistics)
 
     return {
-        "pages": 4,
+        "pages": 5,
         "current_page": current_page + 1,
         "statistics": formatted_message,
     }

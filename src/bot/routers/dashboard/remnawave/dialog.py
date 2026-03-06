@@ -10,7 +10,7 @@ from src.bot.widgets import Banner, ColoredStart, I18nFormat, IgnoreUpdate
 
 stub = Window(
     Banner(),
-    I18nFormat("msg-statistics-hub"),
+    I18nFormat("msg-broadcast-main"),
     Row(
         ColoredStart(
             text=I18nFormat("btn-back"),

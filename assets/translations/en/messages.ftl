@@ -857,7 +857,6 @@ msg-dashboard-extra-devices-settings =
 
 msg-users-main = <b>👥 Users</b>
 msg-broadcast-main = <b>📢 Broadcast</b>
-msg-statistics-hub = <b>📊 Statistics</b>
 
 msg-statistics-main = { $statistics }
     

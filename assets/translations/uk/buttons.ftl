@@ -882,28 +882,23 @@ btn-bonus-amount-2500 = { $selected ->
 
 
 # Statistics
-btn-statistics-monitoring = 📡 Моніторинг
-btn-statistics-user-stats = 📊 По користувачах
-
 btn-statistics-page =
     { $target_page1 ->
-    [1] 👥
-    [2] 🧾
-    [3] 💳
-    [4] 📦
-    [5] 🎁
-    [6] 👪
+    [1] 📡
+    [2] 👥
+    [3] 🧾
+    [4] 💳
+    [5] 📦
     *[OTHER] сторінка
     }
 
 btn-statistics-current-page =
     { $current_page1 ->
-    [1] [👥]
-    [2] [🧾]
-    [3] [💳]
-    [4] [📦]
-    [5] [🎁]
-    [6] [👪]
+    [1] [📡]
+    [2] [👥]
+    [3] [🧾]
+    [4] [💳]
+    [5] [📦]
     *[OTHER] [сторінка]
     }
 
