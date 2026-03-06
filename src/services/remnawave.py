@@ -609,21 +609,45 @@ class RemnawaveService(BaseService):
         else:
             raise ValueError("Either 'plan' or 'subscription' must be provided")
 
-        updated_user = await self.remnawave.users.update_user(
-            UpdateUserRequestDto(
-                uuid=uuid,
-                active_internal_squads=valid_internal_squads,
-                external_squad_uuid=valid_external_squad,
-                description=user.remna_description,
-                tag=tag,
-                expire_at=expire_at,
-                hwid_device_limit=format_device_count(device_limit),
-                status=status,
-                telegram_id=user.telegram_id,
-                traffic_limit_bytes=format_gb_to_bytes(traffic_limit),
-                traffic_limit_strategy=strategy,
+        try:
+            updated_user = await self.remnawave.users.update_user(
+                UpdateUserRequestDto(
+                    uuid=uuid,
+                    active_internal_squads=valid_internal_squads,
+                    external_squad_uuid=valid_external_squad,
+                    description=user.remna_description,
+                    tag=tag,
+                    expire_at=expire_at,
+                    hwid_device_limit=format_device_count(device_limit),
+                    status=status,
+                    telegram_id=user.telegram_id,
+                    traffic_limit_bytes=format_gb_to_bytes(traffic_limit),
+                    traffic_limit_strategy=strategy,
+                )
             )
-        )
+        except NotFoundError:
+            logger.warning(
+                f"RemnaUser '{user.telegram_id}' not found in Remnawave (uuid={uuid}) during update. "
+                f"User was likely deleted from Remnawave manually. Recreating..."
+            )
+            if subscription:
+                updated_user = await self.create_user(user, subscription=subscription, force=True)
+            else:
+                # plan-only path: build a temporary SubscriptionDto from computed params
+                from src.infrastructure.database.models.dto.subscription import SubscriptionDto as _SubDto
+                _temp_sub = _SubDto(
+                    user_remna_id=uuid,
+                    status=SubscriptionStatus.ACTIVE,
+                    traffic_limit=traffic_limit,
+                    device_limit=device_limit,
+                    traffic_limit_strategy=strategy,
+                    tag=tag,
+                    expire_at=expire_at,
+                    internal_squads=list(valid_internal_squads),
+                    external_squad=[valid_external_squad] if valid_external_squad else [],
+                )
+                updated_user = await self.create_user(user, subscription=_temp_sub, force=True)
+            logger.info(f"RemnaUser '{user.telegram_id}' recreated successfully after 404")
 
         if reset_traffic:
             await self.remnawave.users.reset_user_traffic(uuid)
