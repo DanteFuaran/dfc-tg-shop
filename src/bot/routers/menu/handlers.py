@@ -866,14 +866,13 @@ async def on_ref_code_input(
     widget: Any,
     dialog_manager: DialogManager,
     user_service: FromDishka[UserService],
-    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Обработка ввода кастомного реферального кода."""
     import re
 
     user: UserDto = dialog_manager.middleware_data[USER_KEY]
 
-    # Удаляем сообщение пользователя
+    # Удаляем сообщение пользователя — всё остаётся в одном окне диалога
     try:
         await message.delete()
     except Exception:
@@ -881,28 +880,22 @@ async def on_ref_code_input(
 
     new_code = (message.text or "").strip()
 
-    async def _send_temp_error(text: str) -> None:
-        try:
-            err = await message.bot.send_message(
-                chat_id=message.chat.id,
-                text=text,
-                parse_mode="HTML",
-            )
-            asyncio.create_task(
-                _auto_delete_message(message.bot, message.chat.id, err.message_id, 5)
-            )
-        except Exception:
-            pass
+    async def _show_inline_error(flag: str) -> None:
+        dialog_manager.dialog_data["ref_code_error"] = flag
+        await dialog_manager.show(ShowMode.EDIT)
+
+    # Сбрасываем предыдущую ошибку перед новой проверкой
+    dialog_manager.dialog_data.pop("ref_code_error", None)
 
     # Валидация: 3-32 символа, только A-Za-z0-9 _ -
     if not re.match(r'^[A-Za-z0-9_\-]{3,32}$', new_code):
-        await _send_temp_error(i18n.get("ntf-ref-code-invalid"))
+        await _show_inline_error("invalid")
         return
 
     # Проверка уникальности
     existing = await user_service.get_by_referral_code(new_code)
     if existing and existing.telegram_id != user.telegram_id:
-        await _send_temp_error(i18n.get("ntf-ref-code-taken"))
+        await _show_inline_error("taken")
         return
 
     # Сохраняем
@@ -910,19 +903,6 @@ async def on_ref_code_input(
     await user_service.update(user)
     dialog_manager.middleware_data[USER_KEY] = user
     logger.info(f"{log(user)} Changed referral code to '{new_code}'")
-
-    # Уведомление об успехе
-    try:
-        ok = await message.bot.send_message(
-            chat_id=message.chat.id,
-            text=i18n.get("ntf-ref-code-success", referral_code=new_code),
-            parse_mode="HTML",
-        )
-        asyncio.create_task(
-            _auto_delete_message(message.bot, message.chat.id, ok.message_id, 5)
-        )
-    except Exception:
-        pass
 
     await dialog_manager.switch_to(MainMenu.INVITE)
 

@@ -775,11 +775,19 @@ msg-invite-reward = { $value }{ $reward_strategy_type ->
 msg-menu-invite-edit-code =
     ✏️ <b>Смена реферального кода</b>
 
-    Ваш текущий код: <code>{ $referral_code }</code>
+    • Ваш текущий код: <code>{ $referral_code }</code>
 
-    Введите новый реферальный код:
-    Допустимые символы: <code>A–Z a–z 0–9 _ -</code>
-    Длина: от 3 до 32 символов.
+    <i>Введите новый реферальный код.</i>
+    { $ref_code_error ->
+        [invalid]
+
+    ⚠️ <b>Недопустимые символы.</b>
+    Разрешены: A–Z, a–z, 0–9, _ - (длина 3–32)
+        [taken]
+
+    ⚠️ Этот код уже занят. Выберите другой.
+        *[other] {""}
+    }
 
 # Dashboard
 msg-dashboard-main =

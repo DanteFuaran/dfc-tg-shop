@@ -723,7 +723,10 @@ async def invite_edit_code_getter(
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Геттер для окна смены реферального кода."""
-    return {"referral_code": user.referral_code}
+    return {
+        "referral_code": user.referral_code,
+        "ref_code_error": dialog_manager.dialog_data.get("ref_code_error", ""),
+    }
 
 
 @inject

@@ -776,11 +776,19 @@ msg-invite-reward = { $value }{ $reward_strategy_type ->
 msg-menu-invite-edit-code =
     ✏️ <b>Change Referral Code</b>
 
-    Current code: <code>{ $referral_code }</code>
+    • Current code: <code>{ $referral_code }</code>
 
-    Enter your new referral code:
-    Allowed characters: <code>A–Z a–z 0–9 _ -</code>
-    Length: 3 to 32 characters.
+    <i>Enter your new referral code.</i>
+    { $ref_code_error ->
+        [invalid]
+
+    ⚠️ <b>Invalid characters.</b>
+    Allowed: A–Z, a–z, 0–9, _ - (length 3–32)
+        [taken]
+
+    ⚠️ This code is already taken. Choose another one.
+        *[other] {""}
+    }
 
 # Dashboard
 msg-dashboard-main =

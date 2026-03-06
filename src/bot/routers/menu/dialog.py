@@ -330,7 +330,7 @@ invite = Window(
 
 invite_edit_code = Window(
     Banner(),
-    I18nFormat("msg-menu-invite-edit-code", referral_code=F["referral_code"]),
+    I18nFormat("msg-menu-invite-edit-code", referral_code=F["referral_code"], ref_code_error=F["ref_code_error"]),
     MessageInput(func=on_ref_code_input),
     Row(
         ColoredSwitchTo(
