@@ -403,6 +403,8 @@ btn-balance-gateway =
     [CRYPTOMUS] 🔐 Cryptomus
     [HELEKET] 💎 Heleket
     [TELEGRAM_STARS] ⭐ Телеграм
+    [LAVA] 💳 Lava
+    [PLATEGA] 💳 Platega
     *[OTHER] 💳 { $gateway_type }
     }
 
@@ -1563,6 +1565,8 @@ btn-subscription-payment-method =
     [HELEKET] 💎 Heleket
     [CRYPTOPAY] 🪙 Cryptopay
     [ROBOKASSA] 💳 Robokassa
+    [LAVA] 💳 Lava
+    [PLATEGA] 💳 Platega
     *[OTHER] { $gateway_type }
     } | { $has_discount ->
         [1] { $price } ({ $original_price })

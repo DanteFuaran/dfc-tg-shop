@@ -80,3 +80,4 @@ def setup_error_handlers(router: Router) -> None:
     router.errors.register(on_lost_context, ExceptionTypeFilter(UnknownState))
     router.errors.register(on_lost_context, ExceptionTypeFilter(OutdatedIntent))
     router.errors.register(on_lost_context, ExceptionTypeFilter(InvalidStackIdError))
+    router.errors.register(on_lost_context, ExceptionTypeFilter(ValueError))

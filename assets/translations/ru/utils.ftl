@@ -355,7 +355,7 @@ gateway-type = { $gateway_type ->
     [YOOMONEY] 💳 ЮMoney
     [CRYPTOMUS] 🔐 Cryptomus
     [HELEKET] 💎 Heleket
-    [LAVA] 🌊 Lava
+    [LAVA] 💳 Lava
     [PLATEGA] 💳 Platega
     [URLPAY] UrlPay
     [BALANCE] 💰 С баланса

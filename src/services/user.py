@@ -4,6 +4,7 @@ from aiogram.types import Message
 from fluentogram import TranslatorHub
 from loguru import logger
 from redis.asyncio import Redis
+from sqlalchemy import delete, or_
 
 from src.core.config import AppConfig
 from src.core.constants import (
@@ -23,6 +24,9 @@ from src.infrastructure.database import UnitOfWork
 from src.infrastructure.database.models.dto import UserDto, SettingsDto
 from src.infrastructure.database.models.dto.user import BaseUserDto
 from src.infrastructure.database.models.sql import User
+from src.infrastructure.database.models.sql.promocode import PromocodeActivation
+from src.infrastructure.database.models.sql.referral import Referral, ReferralReward
+from src.infrastructure.database.models.sql.transaction import Transaction
 from src.infrastructure.redis import RedisRepository, redis_cache
 
 from .base import BaseService
@@ -221,13 +225,35 @@ class UserService(BaseService):
         return await self.update(user)
 
     async def delete(self, user: UserDto) -> bool:
-        result = await self.uow.repository.users.delete(user.telegram_id)
+        tid = user.telegram_id
+        session = self.uow.session
+
+        # Delete dependent records that have FK to users without ON DELETE CASCADE
+        await session.execute(
+            delete(ReferralReward).where(ReferralReward.user_telegram_id == tid)
+        )
+        await session.execute(
+            delete(Referral).where(
+                or_(
+                    Referral.referrer_telegram_id == tid,
+                    Referral.referred_telegram_id == tid,
+                )
+            )
+        )
+        await session.execute(
+            delete(Transaction).where(Transaction.user_telegram_id == tid)
+        )
+        await session.execute(
+            delete(PromocodeActivation).where(PromocodeActivation.user_telegram_id == tid)
+        )
+
+        result = await self.uow.repository.users.delete(tid)
 
         if result:
-            await self.clear_user_cache(user.telegram_id)
-            await self._remove_from_recent_activity(user.telegram_id)
+            await self.clear_user_cache(tid)
+            await self._remove_from_recent_activity(tid)
 
-        logger.info(f"Deleted user '{user.telegram_id}': '{result}'")
+        logger.info(f"Deleted user '{tid}': '{result}'")
         return result
 
     async def get_by_partial_name(self, query: str) -> list[UserDto]:
