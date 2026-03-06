@@ -6,6 +6,7 @@ from dishka.integrations.aiogram_dialog import inject
 
 from src.__version__ import __version__
 from src.core.config import AppConfig
+from src.core.constants import USER_KEY
 from src.core.enums import UserRole
 from src.infrastructure.database.models.dto import UserDto
 from src.services.settings import SettingsService
@@ -37,13 +38,14 @@ async def admins_getter(
     admins: list[UserDto] = await user_service.get_by_role(role=UserRole.ADMIN)
     all_users = devs + admins
 
+    current_user: UserDto = dialog_manager.middleware_data[USER_KEY]
     users_dicts = [
         {
-            "user_id": user.telegram_id,
-            "user_name": user.name,
-            "deletable": user.telegram_id != config.bot.dev_id,
+            "user_id": u.telegram_id,
+            "user_name": u.name,
+            "deletable": u.telegram_id != current_user.telegram_id,
         }
-        for user in all_users
+        for u in all_users
     ]
 
     return {"admins": users_dicts}

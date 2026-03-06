@@ -1476,8 +1476,8 @@ async def on_confirm_plan(  # noqa: C901
         for subscription in all_subscriptions:
             if subscription.plan and subscription.plan.id == plan_dto.id:
                 telegram_id = subscription.user.telegram_id if subscription.user else None
-                # Exclude test bot from automatic updates
-                if telegram_id and telegram_id != config.bot.dev_id:
+                # Exclude current admin from automatic updates
+                if telegram_id and telegram_id != user.telegram_id:
                     users_to_notify.add(telegram_id)
         
         # Send update notification to all affected users

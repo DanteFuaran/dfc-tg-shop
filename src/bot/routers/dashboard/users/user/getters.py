@@ -88,7 +88,7 @@ async def user_getter(
         "purchase_discount": target_user.purchase_discount,
         "is_blocked": target_user.is_blocked,
         "is_not_self": target_user.telegram_id != user.telegram_id,
-        "can_edit": user.role > target_user.role or config.bot.dev_id == user.telegram_id,
+        "can_edit": user.role >= target_user.role,
         "status": None,
         "is_trial": False,
         "has_subscription": subscription is not None,
