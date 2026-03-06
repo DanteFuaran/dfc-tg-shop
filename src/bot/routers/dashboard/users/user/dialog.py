@@ -309,7 +309,7 @@ device_limit = Window(
     I18nFormat("msg-user-subscription-device-limit"),
     Group(
         Select(
-            text=Format("{item}"),
+            text=I18nFormat("unit-device-short", value=F["item"]),
             id="device_limit_select",
             item_id_getter=lambda item: item,
             items="devices_count",

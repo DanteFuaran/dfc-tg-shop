@@ -19,6 +19,7 @@ from src.core.utils.formatters import format_user_log as log
 from src.infrastructure.database.models.dto import UserDto
 from src.services.notification import NotificationService
 from src.services.settings import SettingsService
+from src.core.utils.message_payload import MessagePayload
 
 
 def _ensure_reward_backup(current: dict) -> None:
@@ -102,12 +103,9 @@ async def on_reward_type_select(
     current["reward_type"] = reward_type
     current["editing_field"] = "reward_type"  # Отслеживаем какое поле редактируется
     
-    # Если выбран тип EXTRA_DAYS, автоматически устанавливаем AMOUNT стратегию
-    if reward_type == ReferralRewardType.EXTRA_DAYS.value:
-        current["reward_strategy"] = ReferralRewardStrategy.AMOUNT.value
-        # Сбрасываем награды при смене стратегии
-        current["reward_level_1"] = 0
-        current["reward_level_2"] = 0
+    # Сбрасываем награды при смене типа
+    current["reward_level_1"] = 0
+    current["reward_level_2"] = 0
     
     dialog_manager.dialog_data["current_referral"] = current
     
@@ -400,6 +398,10 @@ async def on_submenu_cancel(
                 current["reward_level_2"] = backup_level_2
             
             logger.debug(f"{log(user)} Restored reward values: level_1={current.get('reward_level_1')}, level_2={current.get('reward_level_2')}")
+        elif editing_field == "cashback":
+            if "submenu_backup_cashback" in current:
+                current["cashback_percent"] = current.pop("submenu_backup_cashback")
+            logger.debug(f"{log(user)} Restored cashback: {current.get('cashback_percent')}")
         
         logger.debug(f"{log(user)} Current after restore: {current}")
         dialog_manager.dialog_data["current_referral"] = current
@@ -435,6 +437,8 @@ async def on_submenu_accept(
             # Для меню REWARD удаляем только backup наград
             current.pop("submenu_backup_reward_level_1", None)
             current.pop("submenu_backup_reward_level_2", None)
+        elif editing_field == "cashback":
+            current.pop("submenu_backup_cashback", None)
         
         # Очищаем editing_field чтобы следующее подменю создало свой backup
         current.pop("editing_field", None)
@@ -510,6 +514,10 @@ async def on_referral_accept(
             settings.referral.reward.config[ReferralLevel.FIRST] = current["reward_level_1"]
         if "reward_level_2" in current:
             settings.referral.reward.config[ReferralLevel.SECOND] = current["reward_level_2"]
+        
+        # Сохраняем процент кешбека
+        if "cashback_percent" in current:
+            settings.referral.cashback_percent = int(current["cashback_percent"])
         
         await settings_service.update(settings)
         logger.info(f"{log(user)} Applied referral changes")
@@ -640,3 +648,116 @@ async def on_invite_preview(
         reply_markup=keyboard,
         parse_mode="HTML",
     )
+
+
+# === Cashback Handlers ===
+
+
+@inject
+async def on_cashback_free_select(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Выбор 'Выключить кешбек' - устанавливает процент в 0."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    current = dialog_manager.dialog_data.get("current_referral", {})
+    
+    if "submenu_backup_cashback" not in current:
+        current["submenu_backup_cashback"] = current.get("cashback_percent", 0)
+    
+    current["cashback_percent"] = 0
+    current["editing_field"] = "cashback"
+    dialog_manager.dialog_data["current_referral"] = current
+    
+    logger.debug(f"{log(user)} Set cashback to 0 (disabled)")
+
+
+@inject
+async def on_cashback_preset_select(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+    notification_service: FromDishka[NotificationService],
+    i18n: FromDishka[TranslatorRunner],
+) -> None:
+    """Выбор пресета кешбека."""
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    
+    current = dialog_manager.dialog_data.get("current_referral", {})
+    
+    if "submenu_backup_cashback" not in current:
+        current["submenu_backup_cashback"] = current.get("cashback_percent", 0)
+    
+    dialog_manager.dialog_data["current_referral"] = current
+    
+    # Кнопка "Ручной ввод" - переходим в режим ручного ввода
+    if widget.widget_id == "cashback_manual_input":
+        current["editing_field"] = "cashback"
+        dialog_manager.dialog_data["current_referral"] = current
+        await dialog_manager.switch_to(TelegramReferral.CASHBACK_MANUAL_INPUT)
+        return
+    
+    # Извлекаем значение из widget_id (cashback_10, cashback_20, etc.)
+    value = int(widget.widget_id.split("_")[1])
+    
+    current["cashback_percent"] = value
+    current["editing_field"] = "cashback"
+    dialog_manager.dialog_data["current_referral"] = current
+    
+    logger.debug(f"{log(user)} Selected cashback preset: {value}%")
+
+
+@inject
+async def on_cashback_input(
+    message: Message,
+    widget: MessageInput,
+    dialog_manager: DialogManager,
+    notification_service: FromDishka[NotificationService],
+    settings_service: FromDishka[SettingsService],
+) -> None:
+    """Обработка ввода кешбека вручную."""
+    dialog_manager.show_mode = ShowMode.EDIT
+    user: UserDto = dialog_manager.middleware_data[USER_KEY]
+    text = message.text
+
+    if not text or not text.isdigit():
+        await notification_service.notify_user(
+            user=user,
+            payload=MessagePayload(i18n_key="ntf-referral-invalid-reward"),
+        )
+        return
+
+    value = int(text)
+    
+    if not (0 <= value <= 100):
+        await message.answer("⚠️ Введите число от 0 до 100!")
+        return
+    
+    current = dialog_manager.dialog_data.get("current_referral", {})
+    
+    if "submenu_backup_cashback" not in current:
+        current["submenu_backup_cashback"] = current.get("cashback_percent", 0)
+    
+    current["cashback_percent"] = value
+    current["editing_field"] = "cashback"
+    dialog_manager.dialog_data["current_referral"] = current
+    
+    logger.debug(f"{log(user)} Set cashback value: {value}%")
+    try:
+        await message.delete()
+    except Exception:
+        pass
+    
+    await dialog_manager.switch_to(TelegramReferral.CASHBACK)
+
+
+@inject
+async def on_cashback_manual_cancel(
+    callback: CallbackQuery,
+    widget: Button,
+    dialog_manager: DialogManager,
+) -> None:
+    """Отмена ручного ввода кешбека - возврат в меню кешбека."""
+    await dialog_manager.switch_to(TelegramReferral.CASHBACK)

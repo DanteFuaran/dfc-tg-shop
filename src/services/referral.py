@@ -462,6 +462,31 @@ class ReferralService(BaseService):
                 f"'{referrer.telegram_id}' (level '{level.name}')"
             )
 
+            # Кешбек для реферала (пользователя, совершившего платеж) — только для 1-го уровня
+            if level == ReferralLevel.FIRST and settings.cashback_percent > 0:
+                from decimal import Decimal as D
+                cashback_amount = max(1, int(D(reward_amount) * D(settings.cashback_percent) / D(100)))
+                
+                cashback_reward = await self.create_reward(
+                    referral_id=referral.id,  # type: ignore[arg-type]
+                    user_telegram_id=user.telegram_id,
+                    type=reward_type,
+                    amount=cashback_amount,
+                )
+                cashback_reward.currency = transaction.currency
+
+                await give_referrer_reward_task.kiq(
+                    user_telegram_id=user.telegram_id,
+                    reward=cashback_reward,
+                    referred_name=referrer.name,
+                )
+
+                logger.info(
+                    f"Issued cashback '{reward_type}' '{cashback_amount}' "
+                    f"({settings.cashback_percent}% of {reward_amount}) "
+                    f"for referral user '{user.telegram_id}'"
+                )
+
     async def get_ref_link(self, referral_code: str) -> str:
         return f"{await self._get_bot_redirect_url()}?start={REFERRAL_PREFIX}{referral_code}"
 

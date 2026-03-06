@@ -260,6 +260,11 @@ unit-device = { $value ->
     *[other] устройств
 }
 
+unit-device-short = { $value ->
+    [0] Отключено
+    *[other] { $value }
+}
+
 unit-byte = { $value } Б
 unit-kilobyte = { $value } КБ
 unit-megabyte = { $value } МБ

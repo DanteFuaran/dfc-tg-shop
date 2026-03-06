@@ -244,13 +244,18 @@ role =
 # Units
 unit-device = { $value -> 
     [-1] { unlimited }
-    [0] Disabled
+    [0] Вимкнено
     *[other] { $value } 
 } { $value ->
     [-1] { space }
     [0] { space }
-    [one] device
-    *[other] devices
+    [one] пристрій
+    *[other] пристроїв
+}
+
+unit-device-short = { $value ->
+    [0] Вимкнено
+    *[other] { $value }
 }
 
 unit-byte = { $value } B

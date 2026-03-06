@@ -253,6 +253,11 @@ unit-device = { $value ->
     *[other] devices
 }
 
+unit-device-short = { $value ->
+    [0] Disabled
+    *[other] { $value }
+}
+
 unit-byte = { $value } B
 unit-kilobyte = { $value } KB
 unit-megabyte = { $value } MB

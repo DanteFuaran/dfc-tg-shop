@@ -82,6 +82,7 @@ class ReferralSettingsDto(TrackableDto):
     level: ReferralLevel = ReferralLevel.FIRST
     accrual_strategy: ReferralAccrualStrategy = ReferralAccrualStrategy.ON_EACH_PAYMENT
     reward: ReferralRewardSettingsDto = ReferralRewardSettingsDto()
+    cashback_percent: int = 0  # Процент кешбека для реферала (0 = выключен)
     invite_message: str = "{space}✨ TEST Online - Ваш приватный интернет!\n\n↘️ Подключиться:\n{url}"
 
 

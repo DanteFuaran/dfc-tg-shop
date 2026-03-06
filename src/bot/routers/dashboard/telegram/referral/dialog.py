@@ -5,6 +5,7 @@ from magic_filter import F
 
 from src.bot.routers.dashboard.telegram.referral.getters import (
     accrual_strategy_getter,
+    cashback_getter,
     level_getter,
     referral_getter,
     reward_getter,
@@ -14,6 +15,10 @@ from src.bot.routers.dashboard.telegram.referral.getters import (
 )
 from src.bot.routers.dashboard.telegram.referral.handlers import (
     on_accrual_strategy_select,
+    on_cashback_free_select,
+    on_cashback_input,
+    on_cashback_manual_cancel,
+    on_cashback_preset_select,
     on_enable_toggle,
     on_level_select,
     on_level_switch,
@@ -70,6 +75,13 @@ referral = Window(
             text=I18nFormat("btn-referral-reward"),
             id="reward",
             state=TelegramReferral.REWARD,
+        ),
+    ),
+    Row(
+        SwitchTo(
+            text=I18nFormat("btn-referral-cashback"),
+            id="cashback",
+            state=TelegramReferral.CASHBACK,
         ),
     ),
     Row(
@@ -569,6 +581,114 @@ invite_message_edit = Window(
     getter=invite_message_getter,
 )
 
+# Окно настройки кешбека
+cashback = Window(
+    Banner(),
+    I18nFormat("msg-referral-cashback"),
+    # Кнопка "Выключить"
+    Button(
+        text=I18nFormat("btn-cashback-free", selected=F["cashback_0_selected"]),
+        id="cashback_free",
+        on_click=on_cashback_free_select,
+    ),
+    # Процентные кнопки (5-50%)
+    Row(
+        Button(
+            text=I18nFormat("btn-cashback-5", selected=F["cashback_5_selected"]),
+            id="cashback_5",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-10", selected=F["cashback_10_selected"]),
+            id="cashback_10",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-15", selected=F["cashback_15_selected"]),
+            id="cashback_15",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-20", selected=F["cashback_20_selected"]),
+            id="cashback_20",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-25", selected=F["cashback_25_selected"]),
+            id="cashback_25",
+            on_click=on_cashback_preset_select,
+        ),
+    ),
+    Row(
+        Button(
+            text=I18nFormat("btn-cashback-30", selected=F["cashback_30_selected"]),
+            id="cashback_30",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-35", selected=F["cashback_35_selected"]),
+            id="cashback_35",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-40", selected=F["cashback_40_selected"]),
+            id="cashback_40",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-45", selected=F["cashback_45_selected"]),
+            id="cashback_45",
+            on_click=on_cashback_preset_select,
+        ),
+        Button(
+            text=I18nFormat("btn-cashback-50", selected=F["cashback_50_selected"]),
+            id="cashback_50",
+            on_click=on_cashback_preset_select,
+        ),
+    ),
+    # Кнопка ручного ввода
+    Button(
+        text=I18nFormat("btn-manual-input"),
+        id="cashback_manual_input",
+        on_click=on_cashback_preset_select,
+    ),
+    MessageInput(func=on_cashback_input),
+    Row(
+        ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_submenu_cancel,
+            style="danger",
+        ),
+        ColoredButton(
+            text=I18nFormat("btn-accept"),
+            id="accept",
+            on_click=on_submenu_accept,
+            style="success",
+        ),
+    ),
+    IgnoreUpdate(),
+    state=TelegramReferral.CASHBACK,
+    getter=cashback_getter,
+)
+
+# Окно для ручного ввода кешбека
+cashback_manual_input = Window(
+    Banner(),
+    I18nFormat("msg-referral-cashback-manual"),
+    MessageInput(func=on_cashback_input),
+    Row(
+        ColoredButton(
+            text=I18nFormat("btn-cancel"),
+            id="cancel",
+            on_click=on_cashback_manual_cancel,
+            style="danger",
+        ),
+    ),
+    IgnoreUpdate(),
+    state=TelegramReferral.CASHBACK_MANUAL_INPUT,
+)
+
 router = Dialog(
     referral,
     level,
@@ -577,6 +697,8 @@ router = Dialog(
     reward_strategy,
     reward,
     reward_manual_input,
+    cashback,
+    cashback_manual_input,
     invite_message,
     invite_message_edit,
 )

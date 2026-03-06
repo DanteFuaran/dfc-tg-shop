@@ -32,6 +32,7 @@ def _ensure_initialized(dialog_manager: DialogManager, settings) -> dict:
             "reward_strategy": settings.reward.strategy.value,
             "reward_level_1": first_level_reward,
             "reward_level_2": second_level_reward,
+            "cashback_percent": settings.cashback_percent,
             "editing_level": 1,  # По умолчанию редактируем первый уровень
         }
         
@@ -74,6 +75,8 @@ async def referral_getter(
         if value == 0:
             return "Без награды"
         elif reward_strategy == ReferralRewardStrategy.PERCENT:
+            if reward_type == ReferralRewardType.EXTRA_DAYS:
+                return f"{value}% от дней подписки"
             return f"{value}%"
         else:
             # Для фиксированной награды
@@ -96,6 +99,7 @@ async def referral_getter(
         "accrual_strategy_type": accrual_strategy,
         "reward_strategy_type": reward_strategy,
         "reward_display": reward_display,
+        "cashback_percent": int(current.get("cashback_percent", 0)),
     }
 
 
@@ -175,14 +179,8 @@ async def reward_strategy_getter(
     current_strategy = current.get("reward_strategy", settings.reward.strategy.value)
     reward_type = current.get("reward_type", settings.reward.type.value)
     
-    # Для EXTRA_DAYS показываем только AMOUNT (Фиксированная)
-    # Для MONEY показываем оба варианта
-    show_percent_strategy = reward_type != ReferralRewardType.EXTRA_DAYS.value
-    
-    # Если выбран EXTRA_DAYS и текущая стратегия PERCENT, автоматически переключаемся на AMOUNT
-    if not show_percent_strategy and current_strategy == ReferralRewardStrategy.PERCENT.value:
-        current_strategy = ReferralRewardStrategy.AMOUNT.value
-        current["reward_strategy"] = current_strategy
+    # Показываем оба варианта для всех типов награды
+    show_percent_strategy = True
     
     return {
         "current_strategy": current_strategy,
@@ -230,6 +228,8 @@ async def reward_getter(
         if value == 0:
             return "Без награды"
         elif is_percent:
+            if reward_type == ReferralRewardType.EXTRA_DAYS:
+                return f"{value}% от дней подписки"
             return f"{value}% от суммы платежа"
         else:
             if reward_type == ReferralRewardType.MONEY:
@@ -253,6 +253,7 @@ async def reward_getter(
         "is_percent": is_percent,
         "is_fixed": is_fixed,
         "is_extra_days": 1 if (is_fixed and reward_type == ReferralRewardType.EXTRA_DAYS) else 0,
+        "is_days_percent": 1 if (is_percent and reward_type == ReferralRewardType.EXTRA_DAYS) else 0,
         "is_money_fixed": 1 if (is_fixed and reward_type == ReferralRewardType.MONEY) else 0,
         "reward_suffix": reward_suffix,
         "current_reward": current_reward,
@@ -299,4 +300,29 @@ async def invite_message_getter(
     return {
         "current_message": display_message,
     }
+
+
+@inject
+async def cashback_getter(
+    dialog_manager: DialogManager,
+    settings_service: FromDishka[SettingsService],
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Геттер для окна настройки кешбека."""
+    settings = await settings_service.get_referral_settings()
+    current = _ensure_initialized(dialog_manager, settings)
+    
+    cashback = int(current.get("cashback_percent", 0))
+    
+    result = {
+        "cashback_percent": cashback,
+        "cashback_display": f"{cashback}%" if cashback > 0 else "Выключен",
+        "cashback_0_selected": 1 if cashback == 0 else 0,
+    }
+    
+    # Процентные кнопки (5-50%)
+    for val in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+        result[f"cashback_{val}_selected"] = 1 if cashback == val else 0
+    
+    return result
 

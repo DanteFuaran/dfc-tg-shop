@@ -242,6 +242,8 @@ class TelegramReferral(StatesGroup):
     REWARD_TYPE = State()
     ACCRUAL_STRATEGY = State()
     REWARD_STRATEGY = State()
+    CASHBACK = State()
+    CASHBACK_MANUAL_INPUT = State()
     INVITE_MESSAGE = State()
     INVITE_MESSAGE_EDIT = State()
 

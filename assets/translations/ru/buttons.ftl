@@ -1093,6 +1093,7 @@ btn-referral-reward-type = 🎀 Тип награды
 btn-referral-accrual-strategy = 📍 Условие начисления
 btn-referral-reward-strategy = ⚖️ Форма начисления
 btn-referral-reward = 🎁 Награда
+btn-referral-cashback = 💸 Кешбек
 btn-referral-invite-message = ✉️ Настройка приглашения
 btn-reset-default = 🔄 Сбросить по умолчанию
 btn-invite-edit = ✏️ Редактировать содержимое
@@ -1309,6 +1310,52 @@ btn-reward-days-14 = { $selected ->
 btn-reward-days-15 = { $selected ->
     [1] [ 15 ]
     *[0] 15
+    }
+
+# Кнопки кешбека
+btn-cashback-free = { $selected ->
+    [1] [ Выключить ]
+    *[0] Выключить
+    }
+btn-cashback-5 = { $selected ->
+    [1] [ 5% ]
+    *[0] 5%
+    }
+btn-cashback-10 = { $selected ->
+    [1] [ 10% ]
+    *[0] 10%
+    }
+btn-cashback-15 = { $selected ->
+    [1] [ 15% ]
+    *[0] 15%
+    }
+btn-cashback-20 = { $selected ->
+    [1] [ 20% ]
+    *[0] 20%
+    }
+btn-cashback-25 = { $selected ->
+    [1] [ 25% ]
+    *[0] 25%
+    }
+btn-cashback-30 = { $selected ->
+    [1] [ 30% ]
+    *[0] 30%
+    }
+btn-cashback-35 = { $selected ->
+    [1] [ 35% ]
+    *[0] 35%
+    }
+btn-cashback-40 = { $selected ->
+    [1] [ 40% ]
+    *[0] 40%
+    }
+btn-cashback-45 = { $selected ->
+    [1] [ 45% ]
+    *[0] 45%
+    }
+btn-cashback-50 = { $selected ->
+    [1] [ 50% ]
+    *[0] 50%
     }
 
 # Старые кнопки (оставлены для совместимости)
