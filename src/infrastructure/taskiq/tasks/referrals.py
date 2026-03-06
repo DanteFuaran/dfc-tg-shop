@@ -26,6 +26,7 @@ async def give_referrer_reward_task(
     remnawave_service: FromDishka[RemnawaveService],
     notification_service: FromDishka[NotificationService],
     referral_service: FromDishka[ReferralService],
+    is_cashback: bool = False,
 ) -> None:
     logger.info(
         f"Start applying reward of '{reward.amount}' '{reward.type}' to user '{user_telegram_id}'"
@@ -85,7 +86,7 @@ async def give_referrer_reward_task(
     await notification_service.notify_user(
         user=user,
         payload=MessagePayload.not_deleted(
-            i18n_key="ntf-event-user-referral-reward",
+            i18n_key="ntf-cashback-reward" if is_cashback else "ntf-event-user-referral-reward",
             i18n_kwargs={
                 "name": referred_name,
                 "value": reward.amount,

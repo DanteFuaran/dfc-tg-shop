@@ -479,6 +479,7 @@ class ReferralService(BaseService):
                     user_telegram_id=user.telegram_id,
                     reward=cashback_reward,
                     referred_name=referrer.name,
+                    is_cashback=True,
                 )
 
                 logger.info(

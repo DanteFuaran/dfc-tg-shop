@@ -580,6 +580,20 @@ ntf-event-user-referral-reward-error =
     </blockquote>
 
 
+ntf-cashback-reward =
+    <b>🎉 Congratulations! You receive cashback!</b>
+
+    <blockquote>
+    Since you participate in the referral program, you receive an additional bonus to your payment: <b>{ $value }{ $reward_type ->
+        [MONEY] { space }{ $currency }
+        [EXTRA_DAYS] { space }extra { $value ->
+            [one] day
+            *[other] days
+            }
+        *[OTHER] { $currency }
+    }</b>!
+    </blockquote>
+
 # Notifications
 ntf-command-paysupport = 💸 <b>To request a refund, contact our support team.</b>
 ntf-command-help = 🆘 <b>Click the button below to contact support. We will help solve your problem.</b>

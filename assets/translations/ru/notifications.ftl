@@ -606,6 +606,21 @@ ntf-event-user-referral-reward-error =
     </blockquote>
 
 
+ntf-cashback-reward =
+    <b>🎉 Поздравляем! Вы получаете кешбек!</b>
+
+    <blockquote>
+    Так как вы участвуете в реферальной программе, вы получаете дополнительный бонус к вашему платежу: <b>{ $value }{ $reward_type ->
+        [MONEY] { space }{ $currency }
+        [EXTRA_DAYS] { space }{ $value ->
+            [one] доп. день
+            [few] доп. дня
+            *[other] доп. дней
+            }
+        *[OTHER] { $currency }
+    }</b>!
+    </blockquote>
+
 # Notifications
 ntf-command-paysupport = 💸 <b>Чтобы запросить возврат, обратитесь в нашу службу поддержки.</b>
 ntf-command-help = 🆘 <b>Нажмите кнопку ниже, чтобы связаться с поддержкой. Мы поможем решить вашу проблему.</b>
