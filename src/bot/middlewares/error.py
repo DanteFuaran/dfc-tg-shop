@@ -1,7 +1,7 @@
 import traceback
 from typing import Any, Awaitable, Callable, Optional, cast
 
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramNetworkError
 from aiogram.types import ErrorEvent, TelegramObject
 from aiogram.types import User as AiogramUser
 from aiogram.utils.formatting import Text
@@ -45,6 +45,14 @@ class ErrorMiddleware(EventTypedMiddleware):
         if isinstance(error, (UnknownIntent, UnknownState, OutdatedIntent, InvalidStackIdError)):
             return await handler(event, data)
         
+        # Игнорируем сетевые ошибки Telegram (таймауты, потеря соединения)
+        if isinstance(error, TelegramNetworkError):
+            logger.warning(
+                f"Network error in bot: {error}\n"
+                f"User: {aiogram_user.id if aiogram_user else 'Unknown'}"
+            )
+            return
+
         # Игнорируем ошибки Telegram, которые нормальны при взаимодействии с пользователями
         if isinstance(error, TelegramBadRequest):
             error_str = str(error).lower()
