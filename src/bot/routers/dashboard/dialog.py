@@ -12,6 +12,7 @@ from src.bot.states import (
     DashboardBroadcast,
     DashboardFeatures,
     DashboardImporter,
+    DashboardJournal,
     DashboardPromocodes,
     DashboardSettings,
     DashboardTelegram,
@@ -66,6 +67,11 @@ dashboard = Window(
             text=I18nFormat("btn-dashboard-statistics"),
             id="statistics",
             state=DashboardStatistics.MAIN,
+        ),
+        Start(
+            text=I18nFormat("btn-dashboard-journal"),
+            id="journal",
+            state=DashboardJournal.MAIN,
         ),
     ),
     Row(

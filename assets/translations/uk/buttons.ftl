@@ -905,6 +905,29 @@ btn-statistics-current-page =
     }
 
 
+# Journal
+btn-dashboard-journal = 📋 Журнал
+btn-journal-download = 📥 Завантажити журнал
+
+btn-journal-page =
+    { $target_page1 ->
+    [1] 📝
+    [2] 💳
+    [3] 📦
+    [4] 🚫
+    *[OTHER] сторінка
+    }
+
+btn-journal-current-page =
+    { $current_page1 ->
+    [1] [📝]
+    [2] [💳]
+    [3] [📦]
+    [4] [🚫]
+    *[OTHER] [сторінка]
+    }
+
+
 # Users
 btn-users-search = 🔍 Пошук користувача
 btn-users-recent-registered = 🆕 Нещодавно зареєстровані

@@ -99,6 +99,9 @@ class CryptomusGateway(BasePaymentGateway):
                 transaction_status = TransactionStatus.COMPLETED
             case "cancel":
                 transaction_status = TransactionStatus.CANCELED
+            case "confirm_check" | "process" | "check":
+                logger.info(f"Intermediate payment status '{status}' for {payment_id}, ignoring")
+                return payment_id, TransactionStatus.PENDING
             case _:
                 raise ValueError(f"Unsupported status: {status}")
 

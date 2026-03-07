@@ -859,6 +859,8 @@ msg-users-main = <b>👥 Пользователи</b>
 msg-broadcast-main = <b>📢 Рассылка</b>
 
 msg-statistics-main = { $statistics }
+
+msg-journal-main = { $journal }
     
 msg-statistics-users =
     <b>👥 Статистика по пользователям</b>
@@ -893,12 +895,8 @@ msg-statistics-transactions =
     }
     </blockquote>
 
-    <b>💰 Реальные деньги:</b>
-    
     { $payment_gateways }
 
-    <b>🎁 Бонусы пользователей:</b>
-    
     { $bonus_gateways }
 
 msg-statistics-subscriptions =

@@ -92,6 +92,10 @@ class DashboardStatistics(StatesGroup):
     MAIN = State()
 
 
+class DashboardJournal(StatesGroup):
+    MAIN = State()
+
+
 class DashboardBroadcast(StatesGroup):
     MAIN = State()
     LIST = State()

@@ -905,6 +905,29 @@ btn-statistics-current-page =
     }
 
 
+# Journal
+btn-dashboard-journal = 📋 Журнал
+btn-journal-download = 📥 Скачать журнал
+
+btn-journal-page =
+    { $target_page1 ->
+    [1] 📝
+    [2] 💳
+    [3] 📦
+    [4] 🚫
+    *[OTHER] page
+    }
+
+btn-journal-current-page =
+    { $current_page1 ->
+    [1] [📝]
+    [2] [💳]
+    [3] [📦]
+    [4] [🚫]
+    *[OTHER] [page]
+    }
+
+
 # Users
 btn-users-search = 🔍 Поиск пользователя
 btn-users-recent-registered = 🆕 Последние зарегистрированные

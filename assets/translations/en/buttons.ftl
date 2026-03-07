@@ -905,6 +905,29 @@ btn-statistics-current-page =
     }
 
 
+# Journal
+btn-dashboard-journal = 📋 Journal
+btn-journal-download = 📥 Download journal
+
+btn-journal-page =
+    { $target_page1 ->
+    [1] 📝
+    [2] 💳
+    [3] 📦
+    [4] 🚫
+    *[OTHER] page
+    }
+
+btn-journal-current-page =
+    { $current_page1 ->
+    [1] [📝]
+    [2] [💳]
+    [3] [📦]
+    [4] [🚫]
+    *[OTHER] [page]
+    }
+
+
 # Users
 btn-users-search = 🔍 Search User
 btn-users-recent-registered = 🆕 Recently Registered

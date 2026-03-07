@@ -21,6 +21,8 @@ async def handle_payment_transaction_task(
             await payment_gateway_service.handle_payment_succeeded(payment_id)
         case TransactionStatus.CANCELED:
             await payment_gateway_service.handle_payment_canceled(payment_id)
+        case TransactionStatus.PENDING:
+            logger.debug(f"Transaction '{payment_id}' still pending, skipping")
 
 
 @broker.task(schedule=[{"cron": "*/30 * * * *"}])

@@ -866,6 +866,7 @@ async def on_ref_code_input(
     widget: Any,
     dialog_manager: DialogManager,
     user_service: FromDishka[UserService],
+    i18n: FromDishka[TranslatorRunner],
 ) -> None:
     """Обработка ввода кастомного реферального кода."""
     import re
@@ -884,6 +885,13 @@ async def on_ref_code_input(
         dialog_manager.dialog_data["ref_code_error"] = flag
         await dialog_manager.show(ShowMode.EDIT)
 
+    async def _delete_after(msg: Message, delay: int) -> None:
+        await asyncio.sleep(delay)
+        try:
+            await msg.delete()
+        except Exception:
+            pass
+
     # Сбрасываем предыдущую ошибку перед новой проверкой
     dialog_manager.dialog_data.pop("ref_code_error", None)
 
@@ -895,7 +903,9 @@ async def on_ref_code_input(
     # Проверка уникальности
     existing = await user_service.get_by_referral_code(new_code)
     if existing and existing.telegram_id != user.telegram_id:
-        await _show_inline_error("taken")
+        notification = await message.answer(i18n.ntf.ref.code.taken())
+        asyncio.create_task(_delete_after(notification, 5))
+        dialog_manager.show_mode = ShowMode.NO_UPDATE
         return
 
     # Сохраняем
